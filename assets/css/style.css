@@ -212,7 +212,8 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
   color: #65A8DC;
 }
 .sb-sidenav-light .sb-sidenav-menu .nav-link.active .sb-sidenav-collapse-arrow {
-  color: #65A8DC;
+  color: #65A8DC;-ms-transform: rotate(180deg); /* IE 9 */
+  transform: rotate(180deg); transition: all 0.2s linear;
 }
 .sb-sidenav-light .sb-sidenav-footer {
   background-color: #e9ecef;
@@ -264,9 +265,10 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
   font-size: 30px;
   margin-left: 50px;
 }
-.side-panel{padding:10px; border-bottom:1px solid #ccc; }
+.side-panel{padding:5px 10px; border-bottom:1px solid #ccc;}
 .side-panel h6{margin-bottom:0; font-size:1rem; font-family: 'Roboto', sans-serif; font-weight: 600; line-height: normal; float: left;
     margin-right: 5px;}
+.side-panel h4{font-weight: 300; font-size: 1.1rem; line-height: normal; color: #B52625;}
 .side-panel p{font-size: 0.85em; font-weight: 300; margin: 0;}
 .ss-content {padding: 0 30px 0 0; right: -15px;}
 .ss-wrapper{width:100%;}
@@ -275,7 +277,12 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
 .main-high-level-fugure .panel h3{font-size:1.2rem; font-weight:400; margin-bottom: 0;} 
 .main-high-level-fugure .panel p{font-size:0.8rem; font-weight:300; margin-bottom: 0;}
 .brdr-btm{border-bottom: 1px solid #ddd; padding: 0 1rem; display: block; margin-left: 1rem; margin-right: 1rem;}
-.cerf-link{color:#fcce37 !important;}
-.cerf-link:hover{color:#c8d6e2 !important;}
+.cerf-link{color:#fcce37 !important; border: 1px solid #fcce37; padding: 0.1rem 0.5rem; transition: all 0.2s linear;}
+.cerf-link:hover{color:#333 !important; background-color: #fcce37;}
+.cbpf-link{color: #91C1E6 !important; border: 1px solid #91C1E6; padding: 0.1rem 0.5rem; margin-right: 10px; transition: all 0.2s linear;}
+.cbpf-link:hover{color:#333 !important; background-color: #91C1E6;}
 .un-icon{font-family: 'humanitarian-icons-v02'; font-style: normal; font-weight: normal; speak: never; display: inline-block;       text-decoration: inherit; width: 1em; margin-right: .2em; text-align: center; font-variant: normal; text-transform: none; line-height: 1em; margin-left: .2em; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;}
+
+
+
 
