@@ -29,10 +29,12 @@ const yearsArrayAllocations = [],
 
 
 //|set variables
-	let spinnerContainer;
+let spinnerContainer;
 
 //|selections
-	const containerDiv = d3.select("#containerDiv");//THIS WILL CHANGE
+const selections = {
+	containerDiv: d3.select("#containerDiv") //THIS WILL CHANGE
+};
 
 
 createSpinner();
@@ -121,7 +123,7 @@ function validateDefault(values) {
 	chartState.selectedChart = chartTypes.indexOf(values.chart) > -1 ? values.chart : defaultChart;
 };
 
-function createSpinner(){
+function createSpinner() {
 	spinnerContainer = containerDiv.append("div")
 		.attr("class", "spinnerContainer");
 
