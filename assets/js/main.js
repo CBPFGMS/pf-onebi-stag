@@ -25,7 +25,13 @@ const chartState = {
 
 //|constants populated with the data
 const yearsArrayAllocations = [],
-	yearsArrayContributions = [];
+	yearsArrayContributions = [],
+	topValues = {
+		contributions: null,
+		allocations: null,
+		donors: null,
+		projects: null
+	};
 
 
 //|set variables
