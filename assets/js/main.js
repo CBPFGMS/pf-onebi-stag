@@ -26,13 +26,14 @@ const chartState = {
 //|constants populated with the data
 const yearsArrayAllocations = [],
 	yearsArrayContributions = [],
+	donorsInSelectedYear = [],
+	fundsInSelectedYear = [],
 	topValues = {
 		contributions: null,
 		allocations: null,
 		donors: null,
 		projects: null
 	};
-
 
 //|set variables
 let spinnerContainer;
@@ -41,7 +42,6 @@ let spinnerContainer;
 const selections = {
 	containerDiv: d3.select("#containerDiv") //THIS WILL CHANGE
 };
-
 
 createSpinner();
 
@@ -63,8 +63,8 @@ function controlCharts([defaultValues,
 	masterFundTypes,
 	masterPartnerTypes,
 	masterClusterTypes,
-	allocationsData,
-	contributionsData
+	rawAllocationsData,
+	rawContributionsData
 ]) {
 
 	console.log(defaultValues)
@@ -72,25 +72,33 @@ function controlCharts([defaultValues,
 	console.log(masterAllocationTypes)
 	console.log(masterFundTypes)
 	console.log(masterPartnerTypes)
-	console.log(allocationsData)
-	console.log(contributionsData);
+	console.log(rawAllocationsData)
+	console.log(rawContributionsData);
 
-	preProcessData(allocationsData, contributionsData);
+	preProcessData(rawAllocationsData, rawContributionsData);
+
+	validateDefault(defaultValues);
+
+	resetValues(topValues);
+
+	const allocationsData = processDataAllocations(rawAllocationsData);
+
+	const contributionsData = processDataContributions(rawContributionsData);
 
 	spinnerContainer.remove();
 
-	//validateDefault
+	console.log(topValues);
 
-	//end of draw
+	//end of controlCharts
 };
 
-function preProcessData(allocationsData, contributionsData) {
+function preProcessData(rawAllocationsData, rawContributionsData) {
 
-	allocationsData.forEach(row => {
+	rawAllocationsData.forEach(row => {
 		if (yearsArrayAllocations.indexOf(+row.AllocationYear) === -1) yearsArrayAllocations.push(+row.AllocationYear);
 	});
 
-	contributionsData.forEach(row => {
+	rawContributionsData.forEach(row => {
 		if (yearsArrayContributions.indexOf(+row.FiscalYear) === -1) yearsArrayContributions.push(+row.FiscalYear);
 	});
 
@@ -99,10 +107,31 @@ function preProcessData(allocationsData, contributionsData) {
 
 };
 
+function processDataAllocations(rawAllocationsData) {
+
+	const data = [];
+
+	rawAllocationsData.forEach(row => {
+		if (row.AllocationYear === chartState.selectedYear) {
+			topValues.allocations += row.ClusterBudget;
+			topValues.projects += row.TotalNumbProj;
+		};
+	});
+
+	return data;
+
+};
+
+function processDataContributions(rawContributionsData) {
+
+
+};
+
+
 function fetchFile(fileName, url, warningString, method) {
 	if (localStorage.getItem(fileName) &&
 		JSON.parse(localStorage.getItem(fileName)).timestamp > (currentDate.getTime() - localStorageTime)) {
-		const fetchedData = method === "csv" ? d3.csvParse(JSON.parse(localStorage.getItem(fileName)).data) :
+		const fetchedData = method === "csv" ? d3.csvParse(JSON.parse(localStorage.getItem(fileName)).data, d3.autoType) :
 			JSON.parse(localStorage.getItem(fileName)).data;
 		console.info("PFBI chart info: " + warningString + " from local storage");
 		return Promise.resolve(fetchedData);
@@ -125,12 +154,19 @@ function fetchFile(fileName, url, warningString, method) {
 };
 
 function validateDefault(values) {
-	chartState.selectedYear = +values.year === +values.year ? +values.year : currentDate.getFullYear();
-	chartState.selectedChart = chartTypes.indexOf(values.chart) > -1 ? values.chart : defaultChart;
+	chartState.selectedChart = chartTypesAllocations.indexOf(values.chart) > -1 || chartTypesContributions.indexOf(values.chart) > -1 ?
+		values.chart : defaultChart;
+	const yearArray = chartTypesAllocations.indexOf(chartState.selectedChart) > -1 ? yearsArrayAllocations : yearsArrayContributions;
+	chartState.selectedYear = +values.year === +values.year && yearArray.indexOf(+values.year) > -1 ?
+		+values.year : currentDate.getFullYear();
+};
+
+function resetValues(obj) {
+	for (const key in obj) obj[key] = 0;
 };
 
 function createSpinner() {
-	spinnerContainer = containerDiv.append("div")
+	spinnerContainer = selections.containerDiv.append("div")
 		.attr("class", "spinnerContainer");
 
 	spinnerContainer.append("div")
