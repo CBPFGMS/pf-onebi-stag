@@ -12,7 +12,8 @@ const chartState = {
 	defaultChart = "allocationsCountry",
 	localStorageTime = 3600000,
 	currentDate = new Date(),
-	defaultValuesUrl = "./assets/data/defaultvalues.json",
+	defaultValuesUrl = "https://cbpfgms.github.io/pf-onebi-data/map/defaultvalues.json",
+	unworldmapUrl = "https://cbpfgms.github.io/pf-onebi-data/map/unworldmap.json",
 	masterCountriesUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstCountry.json",
 	masterAllocationTypesUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstAllocation.json",
 	masterFundTypesUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstFund.json",
@@ -26,13 +27,14 @@ const chartState = {
 //|constants populated with the data
 const yearsArrayAllocations = [],
 	yearsArrayContributions = [],
+	donorsInSelectedYear = [],
+	fundsInSelectedYear = [],
 	topValues = {
-		contributions: null,
-		allocations: null,
-		donors: null,
-		projects: null
+		contributions: 0,
+		allocations: 0,
+		donors: 0,
+		projects: new Set()
 	};
-
 
 //|set variables
 let spinnerContainer;
@@ -42,11 +44,11 @@ const selections = {
 	containerDiv: d3.select("#containerDiv") //THIS WILL CHANGE
 };
 
-
 createSpinner();
 
 //|load master tables, default values and csv data
 Promise.all([fetchFile("defaultValues", defaultValuesUrl, "default values", "json"),
+		fetchFile("unworldmap", unworldmapUrl, "world map", "json"),
 		fetchFile("masterCountries", masterCountriesUrl, "master table for countries", "json"),
 		fetchFile("masterAllocationTypes", masterAllocationTypesUrl, "master table for allocation types", "json"),
 		fetchFile("masterFundTypes", masterFundTypesUrl, "master table for fund types", "json"),
@@ -58,39 +60,49 @@ Promise.all([fetchFile("defaultValues", defaultValuesUrl, "default values", "jso
 	.then(rawData => controlCharts(rawData));
 
 function controlCharts([defaultValues,
+	worldMap,
 	masterCountries,
 	masterAllocationTypes,
 	masterFundTypes,
 	masterPartnerTypes,
 	masterClusterTypes,
-	allocationsData,
-	contributionsData
+	rawAllocationsData,
+	rawContributionsData
 ]) {
 
-	console.log(defaultValues)
-	console.log(masterCountries)
-	console.log(masterAllocationTypes)
-	console.log(masterFundTypes)
-	console.log(masterPartnerTypes)
-	console.log(allocationsData)
-	console.log(contributionsData);
+	// console.log(defaultValues)
+	// console.log(worldMap)
+	// console.log(masterCountries)
+	// console.log(masterAllocationTypes)
+	// console.log(masterFundTypes)
+	// console.log(masterPartnerTypes)
+	// console.log(rawAllocationsData)
+	// console.log(rawContributionsData)
 
-	preProcessData(allocationsData, contributionsData);
+	preProcessData(rawAllocationsData, rawContributionsData);
+
+	validateDefault(defaultValues);
+
+	resetTopValues(topValues);
+
+	const allocationsData = processDataAllocations(rawAllocationsData);
+
+	const contributionsData = processDataContributions(rawContributionsData);
 
 	spinnerContainer.remove();
 
-	//validateDefault
+	console.log(topValues.projects.size);
 
-	//end of draw
+	//end of controlCharts
 };
 
-function preProcessData(allocationsData, contributionsData) {
+function preProcessData(rawAllocationsData, rawContributionsData) {
 
-	allocationsData.forEach(row => {
+	rawAllocationsData.forEach(row => {
 		if (yearsArrayAllocations.indexOf(+row.AllocationYear) === -1) yearsArrayAllocations.push(+row.AllocationYear);
 	});
 
-	contributionsData.forEach(row => {
+	rawContributionsData.forEach(row => {
 		if (yearsArrayContributions.indexOf(+row.FiscalYear) === -1) yearsArrayContributions.push(+row.FiscalYear);
 	});
 
@@ -99,10 +111,31 @@ function preProcessData(allocationsData, contributionsData) {
 
 };
 
+function processDataAllocations(rawAllocationsData) {
+
+	const data = [];
+
+	rawAllocationsData.forEach(row => {
+		if (row.AllocationYear === chartState.selectedYear) {
+			topValues.allocations += row.ClusterBudget;
+			row.ProjList.toString().split("##").forEach(e => topValues.projects.add(e));
+		};
+	});
+
+	return data;
+
+};
+
+function processDataContributions(rawContributionsData) {
+
+
+};
+
+
 function fetchFile(fileName, url, warningString, method) {
 	if (localStorage.getItem(fileName) &&
 		JSON.parse(localStorage.getItem(fileName)).timestamp > (currentDate.getTime() - localStorageTime)) {
-		const fetchedData = method === "csv" ? d3.csvParse(JSON.parse(localStorage.getItem(fileName)).data) :
+		const fetchedData = method === "csv" ? d3.csvParse(JSON.parse(localStorage.getItem(fileName)).data, d3.autoType) :
 			JSON.parse(localStorage.getItem(fileName)).data;
 		console.info("PFBI chart info: " + warningString + " from local storage");
 		return Promise.resolve(fetchedData);
@@ -125,12 +158,19 @@ function fetchFile(fileName, url, warningString, method) {
 };
 
 function validateDefault(values) {
-	chartState.selectedYear = +values.year === +values.year ? +values.year : currentDate.getFullYear();
-	chartState.selectedChart = chartTypes.indexOf(values.chart) > -1 ? values.chart : defaultChart;
+	chartState.selectedChart = chartTypesAllocations.indexOf(values.chart) > -1 || chartTypesContributions.indexOf(values.chart) > -1 ?
+		values.chart : defaultChart;
+	const yearArray = chartTypesAllocations.indexOf(chartState.selectedChart) > -1 ? yearsArrayAllocations : yearsArrayContributions;
+	chartState.selectedYear = +values.year === +values.year && yearArray.indexOf(+values.year) > -1 ?
+		+values.year : currentDate.getFullYear();
+};
+
+function resetTopValues(obj) {
+	for (const key in obj) typeof obj[key] === "number" ? obj[key] = 0 : obj[key].clear();
 };
 
 function createSpinner() {
-	spinnerContainer = containerDiv.append("div")
+	spinnerContainer = selections.containerDiv.append("div")
 		.attr("class", "spinnerContainer");
 
 	spinnerContainer.append("div")
