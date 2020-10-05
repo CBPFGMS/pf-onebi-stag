@@ -282,6 +282,12 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
 .cbpf-link{color: #91C1E6 !important; border: 1px solid #91C1E6; padding: 0.1rem 0.5rem; margin-right: 10px; transition: all 0.2s linear;}
 .cbpf-link:hover{color:#333 !important; background-color: #91C1E6;}
 .un-icon{font-family: 'humanitarian-icons-v02'; font-style: normal; font-weight: normal; speak: never; display: inline-block;       text-decoration: inherit; width: 1em; margin-right: .2em; text-align: center; font-variant: normal; text-transform: none; line-height: 1em; margin-left: .2em; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;}
+/*footer{position: fixed; bottom: 0; right: 0; width: 100%;}*/
+
+.map-section{display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100%; }
 
 
 /*D3 chart styles*/
