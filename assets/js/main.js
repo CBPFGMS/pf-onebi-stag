@@ -43,7 +43,7 @@ let spinnerContainer;
 
 //|selections
 const selections = {
-	containerDiv: d3.select("#containerDiv"), //THIS WILL CHANGE
+	containerDiv: d3.select("#main-map-panel"),
 	allocationsTopFigure: d3.select("#high-level-fugure-allocations"),
 	contributionsTopFigure: d3.select("#high-level-fugure-contributions"),
 	donorsTopFigure: d3.select("#high-level-fugure-donors"),
@@ -89,7 +89,7 @@ function controlCharts([defaultValues,
 	// console.log(masterFundTypes)
 	// console.log(masterPartnerTypes)
 	// console.log(rawAllocationsData)
-	//console.log(rawContributionsData)
+	// console.log(rawContributionsData)
 
 	preProcessData(rawAllocationsData, rawContributionsData);
 
@@ -101,7 +101,7 @@ function controlCharts([defaultValues,
 
 	const contributionsData = processDataContributions(rawContributionsData);
 
-	spinnerContainer.remove();
+	//spinnerContainer.remove();
 
 	updateTopFigures(topValues, selections);
 
@@ -115,27 +115,27 @@ function controlCharts([defaultValues,
 		updateTopFigures(topValues, selections);
 	});
 
-	selections.navlinkAllocationsByCountry.on("click", event => {
+	selections.navlinkAllocationsByCountry.on("click", () => {
 		if (chartState.selectedChart === "allocationsCountry") return;
 		chartState.selectedChart = "allocationsCountry";
 	});
 
-	selections.navlinkAllocationsBySector.on("click", event => {
+	selections.navlinkAllocationsBySector.on("click", () => {
 		if (chartState.selectedChart === "allocationsSector") return;
 		chartState.selectedChart = "allocationsSector";
 	});
 
-	selections.navlinkAllocationsByType.on("click", event => {
+	selections.navlinkAllocationsByType.on("click", () => {
 		if (chartState.selectedChart === "allocationsType") return;
 		chartState.selectedChart = "allocationsType";
 	});
 
-	selections.navlinkContributionsByCerfCbpf.on("click", event => {
+	selections.navlinkContributionsByCerfCbpf.on("click", () => {
 		if (chartState.selectedChart === "contributionsCerfCbpf") return;
 		chartState.selectedChart = "contributionsCerfCbpf";
 	});
 
-	selections.navlinkContributionsByDonor.on("click", event => {
+	selections.navlinkContributionsByDonor.on("click", () => {
 		if (chartState.selectedChart === "contributionsDonor") return;
 		chartState.selectedChart = "contributionsDonor";
 	});
