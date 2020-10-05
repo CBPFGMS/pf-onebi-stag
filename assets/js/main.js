@@ -12,6 +12,8 @@ const chartState = {
 	defaultChart = "allocationsCountry",
 	localStorageTime = 3600000,
 	currentDate = new Date(),
+	localVariable = d3.local(),
+	duration = 1000,
 	defaultValuesUrl = "https://cbpfgms.github.io/pf-onebi-data/map/defaultvalues.json",
 	unworldmapUrl = "https://cbpfgms.github.io/pf-onebi-data/map/unworldmap.json",
 	masterCountriesUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstCountry.json",
@@ -22,7 +24,7 @@ const chartState = {
 	contributionsDataUrl = "https://cbpfgms.github.io/pf-onebi-data/contributionSummary.csv",
 	allocationsDataUrl = "https://cbpfgms.github.io/pf-onebi-data/allocationSummary.csv",
 	chartTypesAllocations = ["allocationsCountry", "allocationsSector", "allocationsType"],
-	chartTypesContributions = ["contributionsCountry", "contributionsCerfCbpf"];
+	chartTypesContributions = ["contributionsDonor", "contributionsCerfCbpf"];
 
 //|constants populated with the data
 const yearsArrayAllocations = [],
@@ -32,7 +34,7 @@ const yearsArrayAllocations = [],
 	topValues = {
 		contributions: 0,
 		allocations: 0,
-		donors: 0,
+		donors: new Set(),
 		projects: new Set()
 	};
 
@@ -41,7 +43,17 @@ let spinnerContainer;
 
 //|selections
 const selections = {
-	containerDiv: d3.select("#containerDiv") //THIS WILL CHANGE
+	containerDiv: d3.select("#containerDiv"), //THIS WILL CHANGE
+	allocationsTopFigure: d3.select("#high-level-fugure-allocations"),
+	contributionsTopFigure: d3.select("#high-level-fugure-contributions"),
+	donorsTopFigure: d3.select("#high-level-fugure-donors"),
+	projectsTopFigure: d3.select("#high-level-fugure-projects"),
+	yearDropdown: d3.select("#ddlDropdown"),
+	navlinkAllocationsByCountry: d3.select("#navAllocationsByCountry"),
+	navlinkAllocationsBySector: d3.select("#navAllocationsBySector"),
+	navlinkAllocationsByType: d3.select("#navAllocationsByType"),
+	navlinkContributionsByCerfCbpf: d3.select("#navContributionsByCerfCbpf"),
+	navlinkContributionsByDonor: d3.select("#navContributionsByDonor")
 };
 
 createSpinner();
@@ -77,7 +89,7 @@ function controlCharts([defaultValues,
 	// console.log(masterFundTypes)
 	// console.log(masterPartnerTypes)
 	// console.log(rawAllocationsData)
-	// console.log(rawContributionsData)
+	//console.log(rawContributionsData)
 
 	preProcessData(rawAllocationsData, rawContributionsData);
 
@@ -91,22 +103,62 @@ function controlCharts([defaultValues,
 
 	spinnerContainer.remove();
 
-	console.log(topValues.projects.size);
+	updateTopFigures(topValues, selections);
+
+	populateYearDropdown(yearsArrayAllocations, selections.yearDropdown);
+
+	selections.yearDropdown.on("change", event => {
+		chartState.selectedYear = +event.target.value;
+		resetTopValues(topValues);
+		const allocationsData = processDataAllocations(rawAllocationsData);
+		const contributionsData = processDataContributions(rawContributionsData);
+		updateTopFigures(topValues, selections);
+	});
+
+	selections.navlinkAllocationsByCountry.on("click", event => {
+		if (chartState.selectedChart === "allocationsCountry") return;
+		chartState.selectedChart = "allocationsCountry";
+	});
+
+	selections.navlinkAllocationsBySector.on("click", event => {
+		if (chartState.selectedChart === "allocationsSector") return;
+		chartState.selectedChart = "allocationsSector";
+	});
+
+	selections.navlinkAllocationsByType.on("click", event => {
+		if (chartState.selectedChart === "allocationsType") return;
+		chartState.selectedChart = "allocationsType";
+	});
+
+	selections.navlinkContributionsByCerfCbpf.on("click", event => {
+		if (chartState.selectedChart === "contributionsCerfCbpf") return;
+		chartState.selectedChart = "contributionsCerfCbpf";
+	});
+
+	selections.navlinkContributionsByDonor.on("click", event => {
+		if (chartState.selectedChart === "contributionsDonor") return;
+		chartState.selectedChart = "contributionsDonor";
+	});
 
 	//end of controlCharts
 };
 
 function preProcessData(rawAllocationsData, rawContributionsData) {
 
+	const yearsSetAllocations = new Set();
+	const yearsSetContributions = new Set();
+
 	rawAllocationsData.forEach(row => {
-		if (yearsArrayAllocations.indexOf(+row.AllocationYear) === -1) yearsArrayAllocations.push(+row.AllocationYear);
+		yearsSetAllocations.add(+row.AllocationYear);
 	});
 
 	rawContributionsData.forEach(row => {
-		if (yearsArrayContributions.indexOf(+row.FiscalYear) === -1) yearsArrayContributions.push(+row.FiscalYear);
+		yearsSetContributions.add(+row.FiscalYear);
 	});
 
+	yearsArrayAllocations.push(...yearsSetAllocations);
 	yearsArrayAllocations.sort((a, b) => a - b);
+	yearsArrayContributions.push(...yearsSetContributions);
 	yearsArrayContributions.sort((a, b) => a - b);
 
 };
@@ -128,6 +180,16 @@ function processDataAllocations(rawAllocationsData) {
 
 function processDataContributions(rawContributionsData) {
 
+	const data = [];
+
+	rawContributionsData.forEach(row => {
+		if (row.FiscalYear === chartState.selectedYear) {
+			topValues.contributions += +row.PaidAmt;
+			topValues.donors.add(row.DonorId);
+		};
+	});
+
+	return data;
 
 };
 
@@ -157,6 +219,50 @@ function fetchFile(fileName, url, warningString, method) {
 	};
 };
 
+function updateTopFigures(topValues, selections) {
+
+	const updateTransition = d3.transition()
+		.duration(duration);
+
+	selections.contributionsTopFigure.transition(updateTransition)
+		.textTween((_, i, n) => {
+			const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, topValues.contributions);
+			return t => formatSIFloat(interpolator(t)).replace("G", "B");
+		});
+
+	selections.allocationsTopFigure.transition(updateTransition)
+		.textTween((_, i, n) => {
+			const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, topValues.allocations);
+			return t => formatSIFloat(interpolator(t)).replace("G", "B");
+		});
+
+	selections.donorsTopFigure.transition(updateTransition)
+		.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, topValues.donors.size));
+
+	selections.projectsTopFigure.transition(updateTransition)
+		.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, topValues.projects.size));
+
+};
+
+function populateYearDropdown(yearData, dropdownContainer) {
+
+	let yearDropdownOptions = dropdownContainer.selectAll(".yearDropdownOptions")
+		.data(yearData.slice().reverse());
+
+	const yearDropdownOptionsExit = yearDropdownOptions.exit().remove();
+
+	const yearDropdownOptionsEnter = yearDropdownOptions.enter()
+		.append("option")
+		.attr("class", "yearDropdownOptions")
+		.html(d => d)
+		.attr("value", d => d);
+
+	yearDropdownOptions = yearDropdownOptionsEnter.merge(yearDropdownOptions);
+
+	yearDropdownOptions.property("selected", d => chartState.selectedYear === d);
+
+};
+
 function validateDefault(values) {
 	chartState.selectedChart = chartTypesAllocations.indexOf(values.chart) > -1 || chartTypesContributions.indexOf(values.chart) > -1 ?
 		values.chart : defaultChart;
@@ -167,6 +273,47 @@ function validateDefault(values) {
 
 function resetTopValues(obj) {
 	for (const key in obj) typeof obj[key] === "number" ? obj[key] = 0 : obj[key].clear();
+};
+
+function formatSIFloat(value) {
+	const length = (~~Math.log10(value) + 1) % 3;
+	const digits = length === 1 ? 2 : length === 2 ? 1 : 0;
+	return d3.formatPrefix("." + digits, value)(value);
+};
+
+function reverseFormat(s) {
+	if (+s === 0) return 0;
+	let returnValue;
+	const transformation = {
+		Y: Math.pow(10, 24),
+		Z: Math.pow(10, 21),
+		E: Math.pow(10, 18),
+		P: Math.pow(10, 15),
+		T: Math.pow(10, 12),
+		G: Math.pow(10, 9),
+		B: Math.pow(10, 9),
+		M: Math.pow(10, 6),
+		k: Math.pow(10, 3),
+		h: Math.pow(10, 2),
+		da: Math.pow(10, 1),
+		d: Math.pow(10, -1),
+		c: Math.pow(10, -2),
+		m: Math.pow(10, -3),
+		μ: Math.pow(10, -6),
+		n: Math.pow(10, -9),
+		p: Math.pow(10, -12),
+		f: Math.pow(10, -15),
+		a: Math.pow(10, -18),
+		z: Math.pow(10, -21),
+		y: Math.pow(10, -24)
+	};
+	Object.keys(transformation).some(k => {
+		if (s.indexOf(k) > 0) {
+			returnValue = parseFloat(s.split(k)[0]) * transformation[k];
+			return true;
+		}
+	});
+	return returnValue;
 };
 
 function createSpinner() {
