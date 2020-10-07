@@ -1,6 +1,3 @@
-//|import modules
-
-
 //|device features
 const isTouchScreenOnly = (window.matchMedia("(pointer: coarse)").matches && !window.matchMedia("(any-pointer: fine)").matches);
 
@@ -9,6 +6,7 @@ const chartState = {
 		selectedYear: null,
 		selectedChart: null
 	},
+	generalClassPrefix = "pfbihp",
 	defaultChart = "allocationsCountry",
 	localStorageTime = 3600000,
 	currentDate = new Date(),
@@ -16,7 +14,8 @@ const chartState = {
 	duration = 1000,
 	defaultValuesUrl = "https://cbpfgms.github.io/pf-onebi-data/map/defaultvalues.json",
 	unworldmapUrl = "https://cbpfgms.github.io/pf-onebi-data/map/unworldmap.json",
-	masterCountriesUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstCountry.json",
+	masterFundsUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstCountry.json",
+	masterDonorsUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstDonor.json",
 	masterAllocationTypesUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstAllocation.json",
 	masterFundTypesUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstFund.json",
 	masterPartnerTypesUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstOrganization.json",
@@ -31,6 +30,15 @@ const yearsArrayAllocations = [],
 	yearsArrayContributions = [],
 	donorsInSelectedYear = [],
 	fundsInSelectedYear = [],
+	fundNamesList = {},
+	fundRegionsList = {},
+	donorNamesList = {},
+	donorTypesList = {},
+	partnersList = {},
+	clustersList = {},
+	allocationTypesList = {},
+	fundNamesListKeys = [],
+	donorNamesListKeys = [],
 	topValues = {
 		contributions: 0,
 		allocations: 0,
@@ -39,11 +47,13 @@ const yearsArrayAllocations = [],
 	};
 
 //|set variables
-let spinnerContainer;
+let spinnerContainer,
+	drawAllocationsByCountry,
+	drawContributionsByDonor;
 
 //|selections
 const selections = {
-	containerDiv: d3.select("#main-map-panel"),
+	chartContainerDiv: d3.select("#main-map-panel").append("div").attr("class", generalClassPrefix + "chartContainerDiv"),
 	allocationsTopFigure: d3.select("#high-level-fugure-allocations"),
 	contributionsTopFigure: d3.select("#high-level-fugure-contributions"),
 	donorsTopFigure: d3.select("#high-level-fugure-donors"),
@@ -53,15 +63,26 @@ const selections = {
 	navlinkAllocationsBySector: d3.select("#navAllocationsBySector"),
 	navlinkAllocationsByType: d3.select("#navAllocationsByType"),
 	navlinkContributionsByCerfCbpf: d3.select("#navContributionsByCerfCbpf"),
-	navlinkContributionsByDonor: d3.select("#navContributionsByDonor")
+	navlinkContributionsByDonor: d3.select("#navContributionsByDonor"),
 };
 
-createSpinner();
+createSpinner(selections.chartContainerDiv);
+
+//|import modules
+import {
+	createAllocationsByCountry
+} from "./allocationsbycountry.js";
+
+import {
+	createContributionsByDonor
+} from "./contributionsbydonor.js";
+
 
 //|load master tables, default values and csv data
 Promise.all([fetchFile("defaultValues", defaultValuesUrl, "default values", "json"),
 		fetchFile("unworldmap", unworldmapUrl, "world map", "json"),
-		fetchFile("masterCountries", masterCountriesUrl, "master table for countries", "json"),
+		fetchFile("masterFunds", masterFundsUrl, "master table for funds", "json"),
+		fetchFile("masterDonors", masterDonorsUrl, "master table for donors", "json"),
 		fetchFile("masterAllocationTypes", masterAllocationTypesUrl, "master table for allocation types", "json"),
 		fetchFile("masterFundTypes", masterFundTypesUrl, "master table for fund types", "json"),
 		fetchFile("masterPartnerTypes", masterPartnerTypesUrl, "master table for partner types", "json"),
@@ -73,7 +94,8 @@ Promise.all([fetchFile("defaultValues", defaultValuesUrl, "default values", "jso
 
 function controlCharts([defaultValues,
 	worldMap,
-	masterCountries,
+	masterFunds,
+	masterDonors,
 	masterAllocationTypes,
 	masterFundTypes,
 	masterPartnerTypes,
@@ -84,12 +106,19 @@ function controlCharts([defaultValues,
 
 	// console.log(defaultValues)
 	// console.log(worldMap)
-	// console.log(masterCountries)
+	// console.log(masterFunds)
+	// console.log(masterDonors)
 	// console.log(masterAllocationTypes)
 	// console.log(masterFundTypes)
 	// console.log(masterPartnerTypes)
 	// console.log(rawAllocationsData)
 	// console.log(rawContributionsData)
+
+	createFundNamesList(masterFunds);
+	createDonorNamesList(masterDonors);
+	createPartnersList(masterPartnerTypes);
+	createClustersList(masterClusterTypes);
+	createAllocationTypesList(masterAllocationTypes);
 
 	preProcessData(rawAllocationsData, rawContributionsData);
 
@@ -101,7 +130,7 @@ function controlCharts([defaultValues,
 
 	const contributionsData = processDataContributions(rawContributionsData);
 
-	//spinnerContainer.remove();
+	spinnerContainer.remove();
 
 	updateTopFigures(topValues, selections);
 
@@ -113,11 +142,16 @@ function controlCharts([defaultValues,
 		const allocationsData = processDataAllocations(rawAllocationsData);
 		const contributionsData = processDataContributions(rawContributionsData);
 		updateTopFigures(topValues, selections);
+		if (chartState.selectedChart === "allocationsCountry") drawAllocationsByCountry(allocationsData);
+		if (chartState.selectedChart === "contributionsDonor") drawContributionsByDonor(contributionsData);
 	});
 
 	selections.navlinkAllocationsByCountry.on("click", () => {
 		if (chartState.selectedChart === "allocationsCountry") return;
 		chartState.selectedChart = "allocationsCountry";
+		selections.chartContainerDiv.selectChildren().remove();
+		drawAllocationsByCountry = createAllocationsByCountry(selections);
+		drawAllocationsByCountry(allocationsData);
 	});
 
 	selections.navlinkAllocationsBySector.on("click", () => {
@@ -138,6 +172,9 @@ function controlCharts([defaultValues,
 	selections.navlinkContributionsByDonor.on("click", () => {
 		if (chartState.selectedChart === "contributionsDonor") return;
 		chartState.selectedChart = "contributionsDonor";
+		selections.chartContainerDiv.selectChildren().remove();
+		drawContributionsByDonor = createContributionsByDonor(selections);
+		drawContributionsByDonor(contributionsData);
 	});
 
 	//end of controlCharts
@@ -246,14 +283,14 @@ function updateTopFigures(topValues, selections) {
 
 function populateYearDropdown(yearData, dropdownContainer) {
 
-	let yearDropdownOptions = dropdownContainer.selectAll(".yearDropdownOptions")
+	let yearDropdownOptions = dropdownContainer.selectAll(`.${generalClassPrefix}yearDropdownOptions`)
 		.data(yearData.slice().reverse());
 
 	const yearDropdownOptionsExit = yearDropdownOptions.exit().remove();
 
 	const yearDropdownOptionsEnter = yearDropdownOptions.enter()
 		.append("option")
-		.attr("class", "yearDropdownOptions")
+		.attr("class", generalClassPrefix + "yearDropdownOptions")
 		.html(d => d)
 		.attr("value", d => d);
 
@@ -269,6 +306,40 @@ function validateDefault(values) {
 	const yearArray = chartTypesAllocations.indexOf(chartState.selectedChart) > -1 ? yearsArrayAllocations : yearsArrayContributions;
 	chartState.selectedYear = +values.year === +values.year && yearArray.indexOf(+values.year) > -1 ?
 		+values.year : currentDate.getFullYear();
+};
+
+function createFundNamesList(fundsData) {
+	fundsData;
+	fundsData.forEach(row => {
+		fundNamesList[row.id + ""] = row.PooledFundName;
+		fundNamesListKeys.push(row.id + "");
+	});
+};
+
+function createDonorNamesList(donorsData) {
+	donorsData.forEach(row => {
+		donorNamesList[row.id + ""] = row.donorName;
+		donorNamesListKeys.push(row.id + "");
+		donorTypesList[row.id + ""] = row.donorType;
+	});
+};
+
+function createPartnersList(partnersData) {
+	partnersData.forEach(row => {
+		partnersList[row.id + ""] = row.OrganizationTypeName;
+	});
+};
+
+function createClustersList(clustersData) {
+	clustersData.forEach(row => {
+		clustersList[row.id + ""] = row.ClustNm;
+	});
+};
+
+function createAllocationTypesList(allocationTypesData) {
+	allocationTypesData.forEach(row => {
+		allocationTypesList[row.id + ""] = row.AllocationName;
+	});
 };
 
 function resetTopValues(obj) {
@@ -316,14 +387,16 @@ function reverseFormat(s) {
 	return returnValue;
 };
 
-function createSpinner() {
-	spinnerContainer = selections.containerDiv.append("div")
-		.attr("class", "spinnerContainer");
+function createSpinner(container) {
+	spinnerContainer = container.append("div")
+		.attr("class", generalClassPrefix + "spinnerContainer");
 
 	spinnerContainer.append("div")
+		.attr("class", generalClassPrefix + "spinnerText")
 		.html("Loading data");
 
 	spinnerContainer.append("div")
+		.attr("class", generalClassPrefix + "spinnerSymbol")
 		.append("i")
 		.attr("class", "fas fa-spinner fa-spin");
 };
