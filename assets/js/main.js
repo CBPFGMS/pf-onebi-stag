@@ -14,7 +14,8 @@ const chartState = {
 	duration = 1000,
 	defaultValuesUrl = "https://cbpfgms.github.io/pf-onebi-data/map/defaultvalues.json",
 	unworldmapUrl = "https://cbpfgms.github.io/pf-onebi-data/map/unworldmap.json",
-	masterCountriesUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstCountry.json",
+	masterFundsUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstCountry.json",
+	masterDonorsUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstDonor.json",
 	masterAllocationTypesUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstAllocation.json",
 	masterFundTypesUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstFund.json",
 	masterPartnerTypesUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstOrganization.json",
@@ -29,6 +30,15 @@ const yearsArrayAllocations = [],
 	yearsArrayContributions = [],
 	donorsInSelectedYear = [],
 	fundsInSelectedYear = [],
+	fundNamesList = {},
+	fundRegionsList = {},
+	donorNamesList = {},
+	donorTypesList = {},
+	partnersList = {},
+	clustersList = {},
+	allocationTypesList = {},
+	fundNamesListKeys = [],
+	donorNamesListKeys = [],
 	topValues = {
 		contributions: 0,
 		allocations: 0,
@@ -71,7 +81,8 @@ import {
 //|load master tables, default values and csv data
 Promise.all([fetchFile("defaultValues", defaultValuesUrl, "default values", "json"),
 		fetchFile("unworldmap", unworldmapUrl, "world map", "json"),
-		fetchFile("masterCountries", masterCountriesUrl, "master table for countries", "json"),
+		fetchFile("masterFunds", masterFundsUrl, "master table for funds", "json"),
+		fetchFile("masterDonors", masterDonorsUrl, "master table for donors", "json"),
 		fetchFile("masterAllocationTypes", masterAllocationTypesUrl, "master table for allocation types", "json"),
 		fetchFile("masterFundTypes", masterFundTypesUrl, "master table for fund types", "json"),
 		fetchFile("masterPartnerTypes", masterPartnerTypesUrl, "master table for partner types", "json"),
@@ -83,7 +94,8 @@ Promise.all([fetchFile("defaultValues", defaultValuesUrl, "default values", "jso
 
 function controlCharts([defaultValues,
 	worldMap,
-	masterCountries,
+	masterFunds,
+	masterDonors,
 	masterAllocationTypes,
 	masterFundTypes,
 	masterPartnerTypes,
@@ -94,12 +106,19 @@ function controlCharts([defaultValues,
 
 	// console.log(defaultValues)
 	// console.log(worldMap)
-	// console.log(masterCountries)
+	// console.log(masterFunds)
+	// console.log(masterDonors)
 	// console.log(masterAllocationTypes)
 	// console.log(masterFundTypes)
 	// console.log(masterPartnerTypes)
 	// console.log(rawAllocationsData)
 	// console.log(rawContributionsData)
+
+	createFundNamesList(masterFunds);
+	createDonorNamesList(masterDonors);
+	createPartnersList(masterPartnerTypes);
+	createClustersList(masterClusterTypes);
+	createAllocationTypesList(masterAllocationTypes);
 
 	preProcessData(rawAllocationsData, rawContributionsData);
 
@@ -287,6 +306,40 @@ function validateDefault(values) {
 	const yearArray = chartTypesAllocations.indexOf(chartState.selectedChart) > -1 ? yearsArrayAllocations : yearsArrayContributions;
 	chartState.selectedYear = +values.year === +values.year && yearArray.indexOf(+values.year) > -1 ?
 		+values.year : currentDate.getFullYear();
+};
+
+function createFundNamesList(fundsData) {
+	fundsData;
+	fundsData.forEach(row => {
+		fundNamesList[row.id + ""] = row.PooledFundName;
+		fundNamesListKeys.push(row.id + "");
+	});
+};
+
+function createDonorNamesList(donorsData) {
+	donorsData.forEach(row => {
+		donorNamesList[row.id + ""] = row.donorName;
+		donorNamesListKeys.push(row.id + "");
+		donorTypesList[row.id + ""] = row.donorType;
+	});
+};
+
+function createPartnersList(partnersData) {
+	partnersData.forEach(row => {
+		partnersList[row.id + ""] = row.OrganizationTypeName;
+	});
+};
+
+function createClustersList(clustersData) {
+	clustersData.forEach(row => {
+		clustersList[row.id + ""] = row.ClustNm;
+	});
+};
+
+function createAllocationTypesList(allocationTypesData) {
+	allocationTypesData.forEach(row => {
+		allocationTypesList[row.id + ""] = row.AllocationName;
+	});
 };
 
 function resetTopValues(obj) {
