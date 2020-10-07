@@ -1,6 +1,3 @@
-//|import modules
-
-
 //|device features
 const isTouchScreenOnly = (window.matchMedia("(pointer: coarse)").matches && !window.matchMedia("(any-pointer: fine)").matches);
 
@@ -39,11 +36,13 @@ const yearsArrayAllocations = [],
 	};
 
 //|set variables
-let spinnerContainer;
+let spinnerContainer,
+	drawAlloc,
+	drawCont;
 
 //|selections
 const selections = {
-	containerDiv: d3.select("#main-map-panel"),
+	chartContainerDiv: d3.select("#main-map-panel").append("div").attr("class", "chartContainerDiv"),
 	allocationsTopFigure: d3.select("#high-level-fugure-allocations"),
 	contributionsTopFigure: d3.select("#high-level-fugure-contributions"),
 	donorsTopFigure: d3.select("#high-level-fugure-donors"),
@@ -53,10 +52,20 @@ const selections = {
 	navlinkAllocationsBySector: d3.select("#navAllocationsBySector"),
 	navlinkAllocationsByType: d3.select("#navAllocationsByType"),
 	navlinkContributionsByCerfCbpf: d3.select("#navContributionsByCerfCbpf"),
-	navlinkContributionsByDonor: d3.select("#navContributionsByDonor")
+	navlinkContributionsByDonor: d3.select("#navContributionsByDonor"),
 };
 
-createSpinner();
+createSpinner(selections.chartContainerDiv);
+
+//|import modules
+import {
+	testAlloc
+} from "./allocationsbycountry.js";
+
+import {
+	testCont
+} from "./contributionsbydonor.js";
+
 
 //|load master tables, default values and csv data
 Promise.all([fetchFile("defaultValues", defaultValuesUrl, "default values", "json"),
@@ -101,7 +110,7 @@ function controlCharts([defaultValues,
 
 	const contributionsData = processDataContributions(rawContributionsData);
 
-	//spinnerContainer.remove();
+	spinnerContainer.remove();
 
 	updateTopFigures(topValues, selections);
 
@@ -113,11 +122,16 @@ function controlCharts([defaultValues,
 		const allocationsData = processDataAllocations(rawAllocationsData);
 		const contributionsData = processDataContributions(rawContributionsData);
 		updateTopFigures(topValues, selections);
+		if (chartState.selectedChart === "allocationsCountry") drawAlloc(allocationsData);
+		if (chartState.selectedChart === "contributionsDonor") drawCont(contributionsData);
 	});
 
 	selections.navlinkAllocationsByCountry.on("click", () => {
 		if (chartState.selectedChart === "allocationsCountry") return;
 		chartState.selectedChart = "allocationsCountry";
+		selections.chartContainerDiv.selectChildren().remove();
+		drawAlloc = testAlloc(selections);
+		drawAlloc(allocationsData);
 	});
 
 	selections.navlinkAllocationsBySector.on("click", () => {
@@ -138,6 +152,9 @@ function controlCharts([defaultValues,
 	selections.navlinkContributionsByDonor.on("click", () => {
 		if (chartState.selectedChart === "contributionsDonor") return;
 		chartState.selectedChart = "contributionsDonor";
+		selections.chartContainerDiv.selectChildren().remove();
+		drawCont = testCont(selections);
+		drawCont(contributionsData);
 	});
 
 	//end of controlCharts
@@ -316,14 +333,16 @@ function reverseFormat(s) {
 	return returnValue;
 };
 
-function createSpinner() {
-	spinnerContainer = selections.containerDiv.append("div")
+function createSpinner(container) {
+	spinnerContainer = container.append("div")
 		.attr("class", "spinnerContainer");
 
 	spinnerContainer.append("div")
+		.attr("class", "spinnerText")
 		.html("Loading data");
 
 	spinnerContainer.append("div")
+		.attr("class", "spinnerSymbol")
 		.append("i")
 		.attr("class", "fas fa-spinner fa-spin");
 };
