@@ -6,6 +6,7 @@ const chartState = {
 		selectedYear: null,
 		selectedChart: null
 	},
+	generalClassPrefix = "pfbihp",
 	defaultChart = "allocationsCountry",
 	localStorageTime = 3600000,
 	currentDate = new Date(),
@@ -37,12 +38,12 @@ const yearsArrayAllocations = [],
 
 //|set variables
 let spinnerContainer,
-	drawAlloc,
-	drawCont;
+	drawAllocationsByCountry,
+	drawContributionsByDonor;
 
 //|selections
 const selections = {
-	chartContainerDiv: d3.select("#main-map-panel").append("div").attr("class", "chartContainerDiv"),
+	chartContainerDiv: d3.select("#main-map-panel").append("div").attr("class", generalClassPrefix + "chartContainerDiv"),
 	allocationsTopFigure: d3.select("#high-level-fugure-allocations"),
 	contributionsTopFigure: d3.select("#high-level-fugure-contributions"),
 	donorsTopFigure: d3.select("#high-level-fugure-donors"),
@@ -59,11 +60,11 @@ createSpinner(selections.chartContainerDiv);
 
 //|import modules
 import {
-	testAlloc
+	createAllocationsByCountry
 } from "./allocationsbycountry.js";
 
 import {
-	testCont
+	createContributionsByDonor
 } from "./contributionsbydonor.js";
 
 
@@ -122,16 +123,16 @@ function controlCharts([defaultValues,
 		const allocationsData = processDataAllocations(rawAllocationsData);
 		const contributionsData = processDataContributions(rawContributionsData);
 		updateTopFigures(topValues, selections);
-		if (chartState.selectedChart === "allocationsCountry") drawAlloc(allocationsData);
-		if (chartState.selectedChart === "contributionsDonor") drawCont(contributionsData);
+		if (chartState.selectedChart === "allocationsCountry") drawAllocationsByCountry(allocationsData);
+		if (chartState.selectedChart === "contributionsDonor") drawContributionsByDonor(contributionsData);
 	});
 
 	selections.navlinkAllocationsByCountry.on("click", () => {
 		if (chartState.selectedChart === "allocationsCountry") return;
 		chartState.selectedChart = "allocationsCountry";
 		selections.chartContainerDiv.selectChildren().remove();
-		drawAlloc = testAlloc(selections);
-		drawAlloc(allocationsData);
+		drawAllocationsByCountry = createAllocationsByCountry(selections);
+		drawAllocationsByCountry(allocationsData);
 	});
 
 	selections.navlinkAllocationsBySector.on("click", () => {
@@ -153,8 +154,8 @@ function controlCharts([defaultValues,
 		if (chartState.selectedChart === "contributionsDonor") return;
 		chartState.selectedChart = "contributionsDonor";
 		selections.chartContainerDiv.selectChildren().remove();
-		drawCont = testCont(selections);
-		drawCont(contributionsData);
+		drawContributionsByDonor = createContributionsByDonor(selections);
+		drawContributionsByDonor(contributionsData);
 	});
 
 	//end of controlCharts
@@ -263,14 +264,14 @@ function updateTopFigures(topValues, selections) {
 
 function populateYearDropdown(yearData, dropdownContainer) {
 
-	let yearDropdownOptions = dropdownContainer.selectAll(".yearDropdownOptions")
+	let yearDropdownOptions = dropdownContainer.selectAll(`.${generalClassPrefix}yearDropdownOptions`)
 		.data(yearData.slice().reverse());
 
 	const yearDropdownOptionsExit = yearDropdownOptions.exit().remove();
 
 	const yearDropdownOptionsEnter = yearDropdownOptions.enter()
 		.append("option")
-		.attr("class", "yearDropdownOptions")
+		.attr("class", generalClassPrefix + "yearDropdownOptions")
 		.html(d => d)
 		.attr("value", d => d);
 
@@ -335,14 +336,14 @@ function reverseFormat(s) {
 
 function createSpinner(container) {
 	spinnerContainer = container.append("div")
-		.attr("class", "spinnerContainer");
+		.attr("class", generalClassPrefix + "spinnerContainer");
 
 	spinnerContainer.append("div")
-		.attr("class", "spinnerText")
+		.attr("class", generalClassPrefix + "spinnerText")
 		.html("Loading data");
 
 	spinnerContainer.append("div")
-		.attr("class", "spinnerSymbol")
+		.attr("class", generalClassPrefix + "spinnerSymbol")
 		.append("i")
 		.attr("class", "fas fa-spinner fa-spin");
 };

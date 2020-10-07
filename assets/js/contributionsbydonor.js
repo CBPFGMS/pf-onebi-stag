@@ -1,41 +1,20 @@
-//|Contributions By Donors
-function testCont(selections) {
+//|Contributions By Donors module
 
-	const d = selections.chartContainerDiv.append("div")
-		.style("width", "100%")
-		.style("height", "100%")
-		.style("display", "flex")
-		.style("flex-direction", "column");
+//|constants
+const classPrefix = "pfbicd";
 
-	const d1 = d.append("div")
-		.style("width", "100%")
-		.style("height", "10%")
-		.style("background-color", "teal");
+function createContributionsByDonor(selections) {
 
-	const d2 = d.append("div")
-		.style("width", "100%")
-		.style("height", "90%")
-		.style("background-color", "lime");
+	const containerDiv = selections.chartContainerDiv.append("div")
+		.attr("class", classPrefix + "containerDiv");
 
-	return function(data) {
+	return function draw(data) {
 
-		const sum = d3.sum(data, d => d.PaidAmt);
-
-		console.log(data)
-
-		let par = d2.selectAll("p")
-			.data([sum]);
-
-		par = par.enter()
-			.append("p")
-			.style("font-size", "30px")
-			.merge(par)
-			.html(d => d);
 
 	};
 
 };
 
 export {
-	testCont
+	createContributionsByDonor
 };
