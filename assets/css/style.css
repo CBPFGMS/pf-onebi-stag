@@ -285,14 +285,31 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
 footer{position: sticky; bottom: 0;}
 
 .map-section{display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; transition: width .35s ease-in-out;}
+
+.wdth-150p{width:150%;} 
+
 /*D3 chart styles*/
+
+.chartContainerDiv {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+}
 
 .spinnerContainer {
   display: flex;
   width: 100%;
   height:100%;
-  justify-content: center;
   align-items: center;
   flex-direction: column;
+  font-size: 18px;
+  color: #888;
 }
-.wdth-150p{width:150%;} 
+
+.spinnerText {
+  margin-bottom: 4px;
+  margin-top: 30vh;
+}
+
+
