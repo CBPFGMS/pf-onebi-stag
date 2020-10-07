@@ -130,7 +130,7 @@ function controlCharts([defaultValues,
 
 	const contributionsData = processDataContributions(rawContributionsData);
 
-	spinnerContainer.remove();
+	//spinnerContainer.remove();
 
 	updateTopFigures(topValues, selections);
 
