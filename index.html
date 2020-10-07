@@ -225,9 +225,11 @@
 		<div id="layoutSidenav_content">
             <main class="h-100 overflow-auto">
 				<!--Main Map Area-->
-                <div class="map-section" id="main-map-panel">					
-					<div class="spinnerContainer">Test</div>					
-                </div>
+				<div class="map-section" id="map-container">
+                	<div id="main-map-panel">					
+						<div class="spinnerContainer">Test</div>					
+                	</div>
+				</div>
             </main>		
 			<!--Footer Area-->
             <footer class="py-1 bg-light mt-auto">
@@ -259,7 +261,7 @@
             else {
                 $("#ddlDropdown").removeAttr('disabled');
             }
-			document.getElementById('main-map-panel').classList.add("wdth-150p");
+			document.getElementById('map-container').classList.add("wdth-150p");
         }
 
 
@@ -272,7 +274,7 @@
             if (removeActive == undefined || removeActive == true) {
                 $("#layoutSidenav_nav .sb-sidenav a.nav-link").removeClass('active');
             }
-			document.getElementById('main-map-panel').classList.remove("wdth-150p");
+			document.getElementById('map-container').classList.remove("wdth-150p");
         }
     </script>
 	<script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
