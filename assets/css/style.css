@@ -287,8 +287,23 @@ footer{position: sticky; bottom: 0;}
 .map-section{display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; transition: width .35s ease-in-out;}
 
 .wdth-150p{width:150%;} 
+#main-map-panel{display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;}
+.spinnerContainer {
+  display: flex;
+  width: 100%;
+  height:100%;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
 
 /*D3 chart styles*/
+
+
 
 .pfbihpchartContainerDiv {
   display: flex;
