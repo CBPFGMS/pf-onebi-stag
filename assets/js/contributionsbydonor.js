@@ -1,5 +1,9 @@
 //|Contributions By Donors module
 
+import {
+	chartState
+} from "./chartstate.js";
+
 //|constants
 const classPrefix = "pfbicd";
 

@@ -2,11 +2,7 @@
 const isTouchScreenOnly = (window.matchMedia("(pointer: coarse)").matches && !window.matchMedia("(any-pointer: fine)").matches);
 
 //|set constants
-const chartState = {
-		selectedYear: null,
-		selectedChart: null
-	},
-	generalClassPrefix = "pfbihp",
+const generalClassPrefix = "pfbihp",
 	defaultChart = "allocationsCountry",
 	localStorageTime = 3600000,
 	currentDate = new Date(),
@@ -80,6 +76,8 @@ import {
 	createContributionsByDonor
 } from "./contributionsbydonor.js";
 
+import {chartState} from "./chartstate.js";
+
 
 //|load master tables, default values and csv data
 Promise.all([fetchFile("defaultValues", defaultValuesUrl, "default values", "json"),
@@ -134,7 +132,9 @@ function controlCharts([defaultValues,
 
 	const contributionsData = processDataContributions(rawContributionsData);
 
-	//spinnerContainer.remove();
+	spinnerContainer.remove();
+
+	console.log(chartState);
 
 	updateTopValues(topValues, selections);
 

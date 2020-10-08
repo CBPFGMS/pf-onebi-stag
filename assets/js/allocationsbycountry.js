@@ -1,5 +1,9 @@
 //|Allocations by Country module
 
+import {
+	chartState
+} from "./chartstate.js";
+
 //|constants
 const classPrefix = "pfbiac";
 
