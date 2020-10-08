@@ -76,7 +76,9 @@ import {
 	createContributionsByDonor
 } from "./contributionsbydonor.js";
 
-import {chartState} from "./chartstate.js";
+import {
+	chartState
+} from "./chartstate.js";
 
 
 //|load master tables, default values and csv data
@@ -134,13 +136,12 @@ function controlCharts([defaultValues,
 
 	spinnerContainer.remove();
 
-	console.log(chartState);
-
 	updateTopValues(topValues, selections);
 
 	populateYearDropdown(yearsArrayAllocations, selections.yearDropdown);
 
 	//|NOTE: here, check for the chartstate/default values:
+	openNav(selections.navlinkAllocationsByCountry.node(), 'byCountry', false)
 	drawAllocationsByCountry = createAllocationsByCountry(selections);
 	drawAllocationsByCountry(allocationsData);
 
