@@ -32,8 +32,10 @@ const yearsArrayAllocations = [],
 	fundsInSelectedYear = [],
 	fundNamesList = {},
 	fundRegionsList = {},
+	fundIsoCodesList = {},
 	donorNamesList = {},
 	donorTypesList = {},
+	donorIsoCodesList = {},
 	partnersList = {},
 	clustersList = {},
 	allocationTypesList = {},
@@ -309,10 +311,11 @@ function validateDefault(values) {
 };
 
 function createFundNamesList(fundsData) {
-	fundsData;
 	fundsData.forEach(row => {
 		fundNamesList[row.id + ""] = row.PooledFundName;
 		fundNamesListKeys.push(row.id + "");
+		fundRegionsList[row.id + ""] = row.RegionName;
+		fundIsoCodesList[row.id + ""] = row.ISO2Code;
 	});
 };
 
@@ -321,6 +324,7 @@ function createDonorNamesList(donorsData) {
 		donorNamesList[row.id + ""] = row.donorName;
 		donorNamesListKeys.push(row.id + "");
 		donorTypesList[row.id + ""] = row.donorType;
+		donorIsoCodesList[row.id + ""] = row.donorISO2Code;
 	});
 };
 
