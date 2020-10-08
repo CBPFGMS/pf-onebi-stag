@@ -245,23 +245,27 @@
         </div>
 	</div>
 	 <script>
-        function openNav(lnk, divID, disableDropdown) {
-            closeNav(false);
-            document.getElementById(divID).style.width = "225px";
-            if (lnk != null && $(lnk).length > 0) {
-                $("#layoutSidenav_nav .sb-sidenav a.nav-link").removeClass('active');
-                $(lnk).addClass('active');
-            }
-			
-            if (disableDropdown) {
-                $("#ddlDropdown").attr('disabled','disabled');
+        function openNav(lnk, divID, disableDropdown) {            
+            if (lnk==null || (lnk != null && $(lnk).length > 0 && !$(lnk).hasClass('active'))) {
+                closeNav(false);
+                document.getElementById(divID).style.width = "225px";
+                if (lnk != null && $(lnk).length > 0) {
+                    $("#layoutSidenav_nav .sb-sidenav a.nav-link").removeClass('active');
+                    $(lnk).addClass('active');
+                }
+
+                if (disableDropdown) {
+                    $("#ddlDropdown").attr('disabled', 'disabled');
+                }
+                else {
+                    $("#ddlDropdown").removeAttr('disabled');
+                }
+                
             }
             else {
-                $("#ddlDropdown").removeAttr('disabled');
+                closeNav(true);
             }
-			document.getElementById('main-map-panel').classList.add("scroll-panel");
         }
-
 
         function closeNav(removeActive) {
             document.getElementById('byCountry').style.width = "0px";
@@ -272,7 +276,7 @@
             if (removeActive == undefined || removeActive == true) {
                 $("#layoutSidenav_nav .sb-sidenav a.nav-link").removeClass('active');
             }
-			document.getElementById('main-map-panel').classList.remove("scroll-panel");
+			
         }
     </script>
 	<script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
