@@ -287,20 +287,6 @@ footer{position: sticky; bottom: 0;}
 .map-section{display: flex; justify-content: center; align-items: center; width: 100%; height: 100%;}
 .scroll-panel{width:100%; height: 100%; /*min-width: calc(100% + 225px);*/ margin-left:225px; transition: width .35s ease-in-out;} 
 
-<<<<<<< HEAD
-.spinnerContainer {
-  display: flex;
-  width: 100%;
-  height:100%;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-}
-=======
-.scroll-panel{width:100%; height: 0.5%; min-width: calc(100% + 225px);} 
-#main-map-panel{display: flex; justify-content: center; align-items: center; width: 100%; height: 100%;}
->>>>>>> 342346f65a9ec66b7246e75d3dae91e1ef267479
-
 /*D3 chart styles*/
 
 .pfbihpchartContainerDiv {
