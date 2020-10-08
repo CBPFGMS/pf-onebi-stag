@@ -10,6 +10,7 @@ function createAllocationsByCountry(selections) {
 
 	return function draw(data) {
 
+		console.log(data);
 
 	};
 

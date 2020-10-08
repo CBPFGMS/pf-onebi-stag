@@ -32,8 +32,11 @@ const yearsArrayAllocations = [],
 	fundsInSelectedYear = [],
 	fundNamesList = {},
 	fundRegionsList = {},
+	fundIsoCodesList = {},
 	donorNamesList = {},
 	donorTypesList = {},
+	donorIsoCodesList = {},
+	fundTypesList = {},
 	partnersList = {},
 	clustersList = {},
 	allocationTypesList = {},
@@ -116,6 +119,7 @@ function controlCharts([defaultValues,
 
 	createFundNamesList(masterFunds);
 	createDonorNamesList(masterDonors);
+	createFundTypesList(masterFundTypes);
 	createPartnersList(masterPartnerTypes);
 	createClustersList(masterClusterTypes);
 	createAllocationTypesList(masterAllocationTypes);
@@ -132,16 +136,20 @@ function controlCharts([defaultValues,
 
 	//spinnerContainer.remove();
 
-	updateTopFigures(topValues, selections);
+	updateTopValues(topValues, selections);
 
 	populateYearDropdown(yearsArrayAllocations, selections.yearDropdown);
+
+	//|NOTE: here, check for the chartstate/default values:
+	drawAllocationsByCountry = createAllocationsByCountry(selections);
+	drawAllocationsByCountry(allocationsData);
 
 	selections.yearDropdown.on("change", event => {
 		chartState.selectedYear = +event.target.value;
 		resetTopValues(topValues);
 		const allocationsData = processDataAllocations(rawAllocationsData);
 		const contributionsData = processDataContributions(rawContributionsData);
-		updateTopFigures(topValues, selections);
+		updateTopValues(topValues, selections);
 		if (chartState.selectedChart === "allocationsCountry") drawAllocationsByCountry(allocationsData);
 		if (chartState.selectedChart === "contributionsDonor") drawContributionsByDonor(contributionsData);
 	});
@@ -208,11 +216,43 @@ function processDataAllocations(rawAllocationsData) {
 		if (row.AllocationYear === chartState.selectedYear) {
 			topValues.allocations += row.ClusterBudget;
 			row.ProjList.toString().split("##").forEach(e => topValues.projects.add(e));
+
+			const foundFund = data.find(d => d.country === row.PooledFundId);
+
+			if (foundFund) {
+				foundFund.allocationsList.push(row);
+				pushCbpfOrCerf(foundFund, row);
+			} else {
+				const fundObject = {
+					country: row.PooledFundId,
+					countryName: fundNamesList[row.PooledFundId],
+					labelText: fundNamesList[row.PooledFundId].split(" "),
+					isoCode: fundIsoCodesList[row.PooledFundId],
+					cbpf: 0,
+					cerf: 0,
+					total: 0,
+					region: fundRegionsList[row.PooledFundId],
+					allocationsList: [row]
+				};
+				pushCbpfOrCerf(fundObject, row);
+				data.push(fundObject);
+			};
+
 		};
+
 	});
 
 	return data;
 
+};
+
+function pushCbpfOrCerf(obj, row) {
+	if (fundTypesList[row.FundId] === "cbpf") {
+		obj.cbpf += +row.ClusterBudget;
+	} else if (fundTypesList[row.FundId] === "cerf") {
+		obj.cerf += +row.ClusterBudget;
+	};
+	obj.total += +row.ClusterBudget;
 };
 
 function processDataContributions(rawContributionsData) {
@@ -256,7 +296,7 @@ function fetchFile(fileName, url, warningString, method) {
 	};
 };
 
-function updateTopFigures(topValues, selections) {
+function updateTopValues(topValues, selections) {
 
 	const updateTransition = d3.transition()
 		.duration(duration);
@@ -309,10 +349,11 @@ function validateDefault(values) {
 };
 
 function createFundNamesList(fundsData) {
-	fundsData;
 	fundsData.forEach(row => {
 		fundNamesList[row.id + ""] = row.PooledFundName;
 		fundNamesListKeys.push(row.id + "");
+		fundRegionsList[row.id + ""] = row.RegionName;
+		fundIsoCodesList[row.id + ""] = row.ISO2Code;
 	});
 };
 
@@ -321,6 +362,13 @@ function createDonorNamesList(donorsData) {
 		donorNamesList[row.id + ""] = row.donorName;
 		donorNamesListKeys.push(row.id + "");
 		donorTypesList[row.id + ""] = row.donorType;
+		donorIsoCodesList[row.id + ""] = row.donorISO2Code;
+	});
+};
+
+function createFundTypesList(fundTypesData) {
+	fundTypesData.forEach(row => {
+		fundTypesList[row.id + ""] = row.FundName.toLowerCase();
 	});
 };
 
