@@ -137,6 +137,21 @@ function controlCharts([defaultValues,
 	createClustersList(masterClusterTypes);
 	createAllocationTypesList(masterAllocationTypes);
 
+	const lists = {
+		fundNamesList: fundNamesList,
+		fundRegionsList: fundRegionsList,
+		fundIsoCodesList: fundIsoCodesList,
+		donorNamesList: donorNamesList,
+		donorTypesList: donorTypesList,
+		donorIsoCodesList: donorIsoCodesList,
+		fundTypesList: fundTypesList,
+		partnersList: partnersList,
+		clustersList: clustersList,
+		allocationTypesList: allocationTypesList,
+		fundNamesListKeys: fundNamesListKeys,
+		donorNamesListKeys: donorNamesListKeys
+	};
+
 	preProcessData(rawAllocationsData, rawContributionsData);
 
 	validateDefault(defaultValues);
@@ -156,7 +171,7 @@ function controlCharts([defaultValues,
 	//|Open the link and draws charts according to chartState
 	if (chartTypesAllocations.indexOf(chartState.selectedChart) > -1) {
 		openNav(selections.navlinkAllocationsByCountry.node(), "byCountry", false)
-		drawAllocations = createAllocations(selections, colorsObject);
+		drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		drawAllocations(allocationsData, chartState.selectedChart);
 	};
 
@@ -188,7 +203,7 @@ function controlCharts([defaultValues,
 		if (chartState.selectedChart === "allocationsCountry") return;
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
 			selections.chartContainerDiv.selectChildren().remove();
-			drawAllocations = createAllocations(selections, colorsObject);
+			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
 		chartState.selectedChart = "allocationsCountry";
 		drawAllocations(allocationsData, chartState.selectedChart);
@@ -198,7 +213,7 @@ function controlCharts([defaultValues,
 		if (chartState.selectedChart === "allocationsSector") return;
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
 			selections.chartContainerDiv.selectChildren().remove();
-			drawAllocations = createAllocations(selections, colorsObject);
+			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
 		chartState.selectedChart = "allocationsSector";
 		drawAllocations(allocationsData, chartState.selectedChart);
@@ -208,7 +223,7 @@ function controlCharts([defaultValues,
 		if (chartState.selectedChart === "allocationsType") return;
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
 			selections.chartContainerDiv.selectChildren().remove();
-			drawAllocations = createAllocations(selections, colorsObject);
+			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
 		chartState.selectedChart = "allocationsType";
 		drawAllocations(allocationsData, chartState.selectedChart);
