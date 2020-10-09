@@ -19,7 +19,7 @@ const generalClassPrefix = "pfbihp",
 	contributionsDataUrl = "https://cbpfgms.github.io/pf-onebi-data/contributionSummary.csv",
 	allocationsDataUrl = "https://cbpfgms.github.io/pf-onebi-data/allocationSummary.csv",
 	chartTypesAllocations = ["allocationsCountry", "allocationsSector", "allocationsType"],
-	chartTypesContributions = ["contributionsDonor", "contributionsCerfCbpf"];
+	chartTypesContributions = ["contributionsCerfCbpf", "contributionsDonor"];
 
 //|constants populated with the data
 const yearsArrayAllocations = [],
@@ -48,6 +48,9 @@ const yearsArrayAllocations = [],
 //|set variables
 let spinnerContainer,
 	drawAllocationsByCountry,
+	drawAllocationsBySector,
+	drawAllocationsByType,
+	drawContributionsByCerfCbpf,
 	drawContributionsByDonor;
 
 //|selections
@@ -71,6 +74,18 @@ createSpinner(selections.chartContainerDiv);
 import {
 	createAllocationsByCountry
 } from "./allocationsbycountry.js";
+
+import {
+	createAllocationsBySector
+} from "./allocationsbysector.js";
+
+import {
+	createAllocationsByType
+} from "./allocationsbytype.js";
+
+import {
+	createContributionsByCerfCbpf
+} from "./contributionsbycerfcbpf.js";
 
 import {
 	createContributionsByDonor
@@ -140,11 +155,38 @@ function controlCharts([defaultValues,
 
 	populateYearDropdown(yearsArrayAllocations, selections.yearDropdown);
 
-	//|NOTE: here, check for the chartstate/default values:
-	openNav(selections.navlinkAllocationsByCountry.node(), 'byCountry', false)
-	drawAllocationsByCountry = createAllocationsByCountry(selections);
-	drawAllocationsByCountry(allocationsData);
+	//|Open the link and draws charts according to chartState
+	if (chartState.selectedChart === "allocationsCountry") {
+		openNav(selections.navlinkAllocationsByCountry.node(), "byCountry", false)
+		drawAllocationsByCountry = createAllocationsByCountry(selections);
+		drawAllocationsByCountry(allocationsData);
+	};
 
+	if (chartState.selectedChart === "allocationsSector") {
+		openNav(selections.navlinkAllocationsBySector.node(), "bySector", false)
+		drawAllocationsBySector = createAllocationsBySector(selections);
+		drawAllocationsBySector(allocationsData);
+	};
+
+	if (chartState.selectedChart === "allocationsType") {
+		openNav(selections.navlinkAllocationsByType.node(), "byAllocationType", false)
+		drawAllocationsByType = createAllocationsByType(selections);
+		drawAllocationsByType(allocationsData);
+	};
+
+	if (chartState.selectedChart === "contributionsCerfCbpf") {
+		openNav(selections.navlinkContributionsByCerfCbpf.node(), "byCerfCbpf", false)
+		drawContributionsByCerfCbpf = createContributionsByCerfCbpf(selections);
+		drawContributionsByCerfCbpf(contributionsData);
+	};
+
+	if (chartState.selectedChart === "contributionsDonor") {
+		openNav(selections.navlinkContributionsByDonor.node(), "byDonor", false)
+		drawContributionsByDonor = createContributionsByDonor(selections);
+		drawContributionsByDonor(contributionsData);
+	};
+
+	//|event listeners
 	selections.yearDropdown.on("change", event => {
 		chartState.selectedYear = +event.target.value;
 		resetTopValues(topValues);
