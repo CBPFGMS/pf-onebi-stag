@@ -8,6 +8,9 @@ const generalClassPrefix = "pfbihp",
 	currentDate = new Date(),
 	localVariable = d3.local(),
 	duration = 1000,
+	unBlue = "#65A8DC",
+	cerfColor = "#FBD45C",
+	cbpfColor = "#F37261",
 	defaultValuesUrl = "https://cbpfgms.github.io/pf-onebi-data/map/defaultvalues.json",
 	unworldmapUrl = "https://cbpfgms.github.io/pf-onebi-data/map/unworldmap.json",
 	masterFundsUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstCountry.json",
@@ -19,7 +22,12 @@ const generalClassPrefix = "pfbihp",
 	contributionsDataUrl = "https://cbpfgms.github.io/pf-onebi-data/contributionSummary.csv",
 	allocationsDataUrl = "https://cbpfgms.github.io/pf-onebi-data/allocationSummary.csv",
 	chartTypesAllocations = ["allocationsCountry", "allocationsSector", "allocationsType"],
-	chartTypesContributions = ["contributionsCerfCbpf", "contributionsDonor"];
+	chartTypesContributions = ["contributionsCerfCbpf", "contributionsDonor"],
+	colorsObject = {
+		total: unBlue,
+		cerf: cerfColor,
+		cbpf: cbpfColor
+	};
 
 //|constants populated with the data
 const yearsArrayAllocations = [],
@@ -47,9 +55,7 @@ const yearsArrayAllocations = [],
 
 //|set variables
 let spinnerContainer,
-	drawAllocationsByCountry,
-	drawAllocationsBySector,
-	drawAllocationsByType,
+	drawAllocations,
 	drawContributionsByCerfCbpf,
 	drawContributionsByDonor;
 
@@ -72,16 +78,8 @@ createSpinner(selections.chartContainerDiv);
 
 //|import modules
 import {
-	createAllocationsByCountry
-} from "./allocationsbycountry.js";
-
-import {
-	createAllocationsBySector
-} from "./allocationsbysector.js";
-
-import {
-	createAllocationsByType
-} from "./allocationsbytype.js";
+	createAllocations
+} from "./allocations.js";
 
 import {
 	createContributionsByCerfCbpf
@@ -156,33 +154,21 @@ function controlCharts([defaultValues,
 	populateYearDropdown(yearsArrayAllocations, selections.yearDropdown);
 
 	//|Open the link and draws charts according to chartState
-	if (chartState.selectedChart === "allocationsCountry") {
+	if (chartTypesAllocations.indexOf(chartState.selectedChart) > -1) {
 		openNav(selections.navlinkAllocationsByCountry.node(), "byCountry", false)
-		drawAllocationsByCountry = createAllocationsByCountry(selections);
-		drawAllocationsByCountry(allocationsData);
-	};
-
-	if (chartState.selectedChart === "allocationsSector") {
-		openNav(selections.navlinkAllocationsBySector.node(), "bySector", false)
-		drawAllocationsBySector = createAllocationsBySector(selections);
-		drawAllocationsBySector(allocationsData);
-	};
-
-	if (chartState.selectedChart === "allocationsType") {
-		openNav(selections.navlinkAllocationsByType.node(), "byAllocationType", false)
-		drawAllocationsByType = createAllocationsByType(selections);
-		drawAllocationsByType(allocationsData);
+		drawAllocations = createAllocations(selections, colorsObject);
+		drawAllocations(allocationsData, chartState.selectedChart);
 	};
 
 	if (chartState.selectedChart === "contributionsCerfCbpf") {
 		openNav(selections.navlinkContributionsByCerfCbpf.node(), "byCerfCbpf", false)
-		drawContributionsByCerfCbpf = createContributionsByCerfCbpf(selections);
+		drawContributionsByCerfCbpf = createContributionsByCerfCbpf(selections, colorsObject);
 		drawContributionsByCerfCbpf(contributionsData);
 	};
 
 	if (chartState.selectedChart === "contributionsDonor") {
 		openNav(selections.navlinkContributionsByDonor.node(), "byDonor", false)
-		drawContributionsByDonor = createContributionsByDonor(selections);
+		drawContributionsByDonor = createContributionsByDonor(selections, colorsObject);
 		drawContributionsByDonor(contributionsData);
 	};
 
@@ -193,38 +179,54 @@ function controlCharts([defaultValues,
 		const allocationsData = processDataAllocations(rawAllocationsData);
 		const contributionsData = processDataContributions(rawContributionsData);
 		updateTopValues(topValues, selections);
-		if (chartState.selectedChart === "allocationsCountry") drawAllocationsByCountry(allocationsData);
+		if (chartTypesAllocations.indexOf(chartState.selectedChart) > -1) drawAllocations(allocationsData, chartState.selectedChart);
+		if (chartState.selectedChart === "contributionsCerfCbpf") drawContributionsByCerfCbpf(contributionsData);
 		if (chartState.selectedChart === "contributionsDonor") drawContributionsByDonor(contributionsData);
 	});
 
 	selections.navlinkAllocationsByCountry.on("click", () => {
 		if (chartState.selectedChart === "allocationsCountry") return;
+		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
+			selections.chartContainerDiv.selectChildren().remove();
+			drawAllocations = createAllocations(selections, colorsObject);
+		};
 		chartState.selectedChart = "allocationsCountry";
-		selections.chartContainerDiv.selectChildren().remove();
-		drawAllocationsByCountry = createAllocationsByCountry(selections);
-		drawAllocationsByCountry(allocationsData);
+		drawAllocations(allocationsData, chartState.selectedChart);
 	});
 
 	selections.navlinkAllocationsBySector.on("click", () => {
 		if (chartState.selectedChart === "allocationsSector") return;
+		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
+			selections.chartContainerDiv.selectChildren().remove();
+			drawAllocations = createAllocations(selections, colorsObject);
+		};
 		chartState.selectedChart = "allocationsSector";
+		drawAllocations(allocationsData, chartState.selectedChart);
 	});
 
 	selections.navlinkAllocationsByType.on("click", () => {
 		if (chartState.selectedChart === "allocationsType") return;
+		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
+			selections.chartContainerDiv.selectChildren().remove();
+			drawAllocations = createAllocations(selections, colorsObject);
+		};
 		chartState.selectedChart = "allocationsType";
+		drawAllocations(allocationsData, chartState.selectedChart);
 	});
 
 	selections.navlinkContributionsByCerfCbpf.on("click", () => {
 		if (chartState.selectedChart === "contributionsCerfCbpf") return;
 		chartState.selectedChart = "contributionsCerfCbpf";
+		selections.chartContainerDiv.selectChildren().remove();
+		drawContributionsByCerfCbpf = createContributionsByCerfCbpf(selections, colorsObject);
+		drawContributionsByCerfCbpf(contributionsData);
 	});
 
 	selections.navlinkContributionsByDonor.on("click", () => {
 		if (chartState.selectedChart === "contributionsDonor") return;
 		chartState.selectedChart = "contributionsDonor";
 		selections.chartContainerDiv.selectChildren().remove();
-		drawContributionsByDonor = createContributionsByDonor(selections);
+		drawContributionsByDonor = createContributionsByDonor(selections, colorsObject);
 		drawContributionsByDonor(contributionsData);
 	});
 

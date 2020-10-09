@@ -7,7 +7,7 @@ import {
 //|constants
 const classPrefix = "pfbicd";
 
-function createContributionsByDonor(selections) {
+function createContributionsByDonor(selections, colors) {
 
 	const containerDiv = selections.chartContainerDiv.append("div")
 		.attr("class", classPrefix + "containerDiv");

@@ -7,7 +7,7 @@ import {
 //|constants
 const classPrefix = "pfbicc";
 
-function createContributionsByCerfCbpf(selections) {
+function createContributionsByCerfCbpf(selections, colors) {
 
 	const containerDiv = selections.chartContainerDiv.append("div")
 		.attr("class", classPrefix + "containerDiv");
