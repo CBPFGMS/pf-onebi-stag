@@ -19,8 +19,9 @@ const classPrefix = "pfbial",
 	maxPieSize = 32,
 	minPieSize = 1,
 	formatPercent = d3.format("%"),
-	svgMapPadding = [0, 4, 0, 4],
+	svgMapPadding = [0, 10, 0, 10],
 	svgBarChartPadding = [4, 4, 4, 4],
+	buttonsList = ["total", "cerf", "cbpf"],
 	centroids = {};
 
 //|variables
@@ -55,15 +56,17 @@ function createAllocations(selections, colors, mapData, lists) {
 		.attr("class", classPrefix + "barChartDiv")
 		.style("height", formatPercent(barChartPercentage));
 
+	const buttonsDiv = mapDiv.append("div")
+		.attr("class", classPrefix + "buttonsDiv");
+
 	const mapDivSize = mapDiv.node().getBoundingClientRect();
 	const svgMapHeight = mapDivSize.height;
-	const mapDivWidth = mapDivSize.width;
-	const svgMapWidth = mapDivWidth / svgMapHeight < mapAspectRatio ? mapDivWidth :
-		svgMapHeight * mapAspectRatio;
+	const svgMapWidth = mapDivSize.width;
+	const svgMapPanelWidth = svgMapWidth / svgMapHeight < mapAspectRatio ? svgMapWidth - svgMapPadding[1] - svgMapPadding[3] :
+		(svgMapHeight * mapAspectRatio) - svgMapPadding[1] - svgMapPadding[3];
 
 	const mapInnerDiv = mapDiv.append("div")
-		.attr("class", classPrefix + "mapInnerDiv")
-		.style("width", svgMapWidth + "px");
+		.attr("class", classPrefix + "mapInnerDiv");
 
 	const svgMap = mapInnerDiv.append("svg")
 		.attr("viewBox", "0 0 " + svgMapWidth + " " + svgMapHeight)
@@ -72,8 +75,8 @@ function createAllocations(selections, colors, mapData, lists) {
 	const mapPanel = {
 		main: svgMap.append("g")
 			.attr("class", classPrefix + "mapPanel")
-			.attr("transform", "translate(" + svgMapPadding[3] + "," + svgMapPadding[0] + ")"),
-		width: svgMapWidth - svgMapPadding[1] - svgMapPadding[3],
+			.attr("transform", "translate(" + (svgMapPadding[3] + (svgMapWidth - svgMapPadding[1] - svgMapPadding[3] - svgMapPanelWidth) / 2) + "," + svgMapPadding[0] + ")"),
+		width: svgMapPanelWidth,
 		height: svgMapHeight - svgMapPadding[0] - svgMapPadding[2],
 		padding: [0, 0, 0, 0]
 	};
@@ -186,6 +189,8 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	createZoomButtons();
 
+	createMapButtons();
+
 	function draw(data, chartType) {
 
 		verifyCentroids(data);
@@ -234,7 +239,7 @@ function createAllocations(selections, colors, mapData, lists) {
 	};
 
 	function createZoomButtons() {
-		
+
 		const zoomInGroup = mapZoomButtonPanel.main.append("g")
 			.attr("class", classPrefix + "zoomInGroupMap")
 			.attr("cursor", "pointer");
@@ -296,6 +301,15 @@ function createAllocations(selections, colors, mapData, lists) {
 		//end of createZoomButtons
 	};
 
+	function createMapButtons() {
+		const buttons = buttonsDiv.selectAll(null)
+			.data(buttonsList)
+			.enter()
+			.append("button")
+			.attr("id", d => classPrefix + d)
+			.html(d => capitalize(d));
+	};
+
 	function verifyCentroids(data) {
 		data.forEach(function(row) {
 			if (!centroids[row.isoCode]) {
@@ -318,6 +332,10 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	return draw;
 
+};
+
+function capitalize(str) {
+	return str[0].toUpperCase() + str.substring(1)
 };
 
 export {

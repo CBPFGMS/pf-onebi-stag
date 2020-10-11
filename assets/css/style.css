@@ -335,11 +335,12 @@ footer{position: sticky; bottom: 0;}
   width: 100%;
   justify-content: center;
   align-items: center;
-  background-color: lime
+  position: relative;
 }
 
 .pfbialmapInnerDiv {
   width: 100%;
+  height: 100%;
 }
 
 .pfbialbarChartDiv {
@@ -368,4 +369,17 @@ footer{position: sticky; bottom: 0;}
   font-size: 20px;
   fill: #222;
   pointer-events: none; 
+}
+
+.pfbialbuttonsDiv {
+  position: absolute;
+  top: 1.2vh;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 1rem;
+}
+
+.pfbialbuttonsDiv button {
+  margin: 0px 4px 0px 4px;
 }
