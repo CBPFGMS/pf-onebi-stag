@@ -27,6 +27,17 @@ const classPrefix = "pfbial",
 let svgMapWidth,
 	svgMapHeight;
 
+//|hardcoded locations
+const hardcodedAllocations = [{
+	isoCode: "0E",
+	long: 0,
+	lat: 0
+}, {
+	isoCode: "0G",
+	long: 0,
+	lat: 0
+}];
+
 function createAllocations(selections, colors, mapData, lists) {
 
 	const containerDiv = selections.chartContainerDiv.append("div")
@@ -173,6 +184,8 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	createMap(mapData);
 
+	createZoomButtons();
+
 	function draw(data, chartType) {
 
 		verifyCentroids(data);
@@ -208,28 +221,97 @@ function createAllocations(selections, colors, mapData, lists) {
 		});
 
 		//Countries with problems:
-		//"KM","WS","AG","DM","MH","CV"
-		//Comoros, (west) Samoa, Antigua and Barbuda, Dominica, Marshall Islands, Cabo Verde
-		//And the fake codes: XX, XV, XA and XG
-		// hardcodedAllocations.forEach(function(d) {
-		// 	const projected = mapProjection([d.long, d.lat]);
-		// 	centroids[d.isoCode] = {
-		// 		x: projected[0],
-		// 		y: projected[1]
-		// 	};
-		// });
+		//And the fake codes: 0E (Eastern Africa) and 0G (Global)
+		hardcodedAllocations.forEach(function(d) {
+			const projected = mapProjection([d.long, d.lat]);
+			centroids[d.isoCode] = {
+				x: projected[0],
+				y: projected[1]
+			};
+		});
 
+		//end of createMap
+	};
+
+	function createZoomButtons() {
+		
+		const zoomInGroup = mapZoomButtonPanel.main.append("g")
+			.attr("class", classPrefix + "zoomInGroupMap")
+			.attr("cursor", "pointer");
+
+		const zoomInPath = zoomInGroup.append("path")
+			.attr("class", classPrefix + "zoomPath")
+			.attr("d", function() {
+				const drawPath = d3.path();
+				drawPath.moveTo(0, mapZoomButtonPanel.height / 2);
+				drawPath.lineTo(0, mapZoomButtonPanel.padding[0]);
+				drawPath.quadraticCurveTo(0, 0, mapZoomButtonPanel.padding[0], 0);
+				drawPath.lineTo(mapZoomButtonPanel.width - mapZoomButtonPanel.padding[1], 0);
+				drawPath.quadraticCurveTo(mapZoomButtonPanel.width, 0, mapZoomButtonPanel.width, mapZoomButtonPanel.padding[1]);
+				drawPath.lineTo(mapZoomButtonPanel.width, mapZoomButtonPanel.height / 2);
+				drawPath.closePath();
+				return drawPath.toString();
+			});
+
+		const zoomInText = zoomInGroup.append("text")
+			.attr("class", classPrefix + "zoomText")
+			.attr("text-anchor", "middle")
+			.attr("x", mapZoomButtonPanel.width / 2)
+			.attr("y", (mapZoomButtonPanel.height / 4) + 7)
+			.text("+");
+
+		const zoomOutGroup = mapZoomButtonPanel.main.append("g")
+			.attr("class", classPrefix + "zoomOutGroupMap")
+			.attr("cursor", "pointer");
+
+		const zoomOutPath = zoomOutGroup.append("path")
+			.attr("class", classPrefix + "zoomPath")
+			.attr("d", function() {
+				const drawPath = d3.path();
+				drawPath.moveTo(0, mapZoomButtonPanel.height / 2);
+				drawPath.lineTo(0, mapZoomButtonPanel.height - mapZoomButtonPanel.padding[3]);
+				drawPath.quadraticCurveTo(0, mapZoomButtonPanel.height, mapZoomButtonPanel.padding[3], mapZoomButtonPanel.height);
+				drawPath.lineTo(mapZoomButtonPanel.width - mapZoomButtonPanel.padding[2], mapZoomButtonPanel.height);
+				drawPath.quadraticCurveTo(mapZoomButtonPanel.width, mapZoomButtonPanel.height, mapZoomButtonPanel.width, mapZoomButtonPanel.height - mapZoomButtonPanel.padding[2]);
+				drawPath.lineTo(mapZoomButtonPanel.width, mapZoomButtonPanel.height / 2);
+				drawPath.closePath();
+				return drawPath.toString();
+			});
+
+		const zoomOutText = zoomOutGroup.append("text")
+			.attr("class", classPrefix + "zoomText")
+			.attr("text-anchor", "middle")
+			.attr("x", mapZoomButtonPanel.width / 2)
+			.attr("y", (3 * mapZoomButtonPanel.height / 4) + 7)
+			.text("−");
+
+		const zoomLine = mapZoomButtonPanel.main.append("line")
+			.attr("x1", 0)
+			.attr("x2", mapZoomButtonPanel.width)
+			.attr("y1", mapZoomButtonPanel.height / 2)
+			.attr("y2", mapZoomButtonPanel.height / 2)
+			.style("stroke", "#ccc")
+			.style("stroke-width", "1px");
+
+		//end of createZoomButtons
 	};
 
 	function verifyCentroids(data) {
 		data.forEach(function(row) {
 			if (!centroids[row.isoCode]) {
-				centroids[row.isoCode] = {
-					x: mapProjection([0, 0])[0],
-					y: mapProjection([0, 0])[1]
+				if (!isNaN(lists.fundLatLongList[row.isoCode][0]) || !isNaN(lists.fundLatLongList[row.isoCode][1])) {
+					centroids[row.isoCode] = {
+						x: lists.fundLatLongList[row.isoCode][0],
+						y: lists.fundLatLongList[row.isoCode][1]
+					};
+				} else {
+					centroids[row.isoCode] = {
+						x: mapProjection([0, 0])[0],
+						y: mapProjection([0, 0])[1]
+					};
+					console.log(row);
+					console.warn("Attention: " + row.isoCode + "(" + row.countryName + ") has no centroid");
 				};
-				console.log(row);
-				console.warn("Attention: " + row.isoCode + "(" + row.countryName + ") has no centroid");
 			};
 		});
 	};

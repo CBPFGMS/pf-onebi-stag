@@ -37,6 +37,7 @@ const yearsArrayAllocations = [],
 	fundNamesList = {},
 	fundRegionsList = {},
 	fundIsoCodesList = {},
+	fundLatLongList = {},
 	donorNamesList = {},
 	donorTypesList = {},
 	donorIsoCodesList = {},
@@ -141,6 +142,7 @@ function controlCharts([defaultValues,
 		fundNamesList: fundNamesList,
 		fundRegionsList: fundRegionsList,
 		fundIsoCodesList: fundIsoCodesList,
+		fundLatLongList: fundLatLongList,
 		donorNamesList: donorNamesList,
 		donorTypesList: donorTypesList,
 		donorIsoCodesList: donorIsoCodesList,
@@ -414,6 +416,7 @@ function createFundNamesList(fundsData) {
 		fundNamesListKeys.push(row.id + "");
 		fundRegionsList[row.id + ""] = row.RegionName;
 		fundIsoCodesList[row.id + ""] = row.ISO2Code;
+		fundLatLongList[row.ISO2Code] = [row.latitude, row.longitude];
 	});
 };
 

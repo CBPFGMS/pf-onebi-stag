@@ -322,7 +322,7 @@ footer{position: sticky; bottom: 0;}
   width: 100%;
   justify-content: center;
   align-items: center;
-  background-color: wheat
+  background-color: lime
 }
 
 .pfbialmapInnerDiv {
@@ -342,4 +342,17 @@ footer{position: sticky; bottom: 0;}
   flex-direction: column;
 }
 
+.pfbialzoomPath {
+  fill: white;
+}
 
+.pfbialzoomPath:hover {
+  fill: #f4f4f4;
+}
+
+.pfbialzoomText {
+  font-family: "Arial", sans-serif;
+  font-size: 20px;
+  fill: #222;
+  pointer-events: none; 
+}
