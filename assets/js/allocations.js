@@ -18,25 +18,36 @@ const classPrefix = "pfbial",
 	mapZoomButtonSize = 26,
 	maxPieSize = 32,
 	minPieSize = 1,
+	duration = 1000,
+	strokeOpacityValue = 0.8,
+	fillOpacityValue = 0.5,
+	groupNamePadding = 2,
+	localVariable = d3.local(),
 	formatPercent = d3.format("%"),
 	svgMapPadding = [0, 10, 0, 10],
 	svgBarChartPadding = [4, 4, 4, 4],
-	buttonsList = ["total", "cerf", "cbpf"],
+	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	centroids = {};
 
 //|variables
 let svgMapWidth,
-	svgMapHeight;
+	svgMapHeight,
+	allocationsProperty,
+	clickableButtons = true;
 
 //|hardcoded locations
 const hardcodedAllocations = [{
 	isoCode: "0E",
-	long: 0,
-	lat: 0
+	long: 36.84,
+	lat: -1.28
 }, {
 	isoCode: "0G",
-	long: 0,
-	lat: 0
+	long: -73.96,
+	lat: 40.75
+}, {
+	isoCode: "XV",
+	long: -66.85,
+	lat: 1.23
 }];
 
 function createAllocations(selections, colors, mapData, lists) {
@@ -99,6 +110,7 @@ function createAllocations(selections, colors, mapData, lists) {
 		padding: [4, 4, 4, 4]
 	};
 
+	//CHANGE THIS
 	const mapPanelClip = mapPanel.main.append("clipPath")
 		.attr("id", classPrefix + "mapPanelClip")
 		.append("rect")
@@ -191,9 +203,15 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	createMapButtons();
 
-	function draw(data, chartType) {
+	function draw(originalData, chartType) {
 
-		verifyCentroids(data);
+		verifyCentroids(originalData);
+
+		//create second column with originalData
+
+		const data = filterData(originalData, chartType);
+
+		drawMap(data, chartType);
 
 	};
 
@@ -226,7 +244,7 @@ function createAllocations(selections, colors, mapData, lists) {
 		});
 
 		//Countries with problems:
-		//And the fake codes: 0E (Eastern Africa) and 0G (Global)
+		//And the fake codes: 0E (Eastern Africa), 0G (Global) and 0V (Venezuela Regional Refugee and Migration Crisis)
 		hardcodedAllocations.forEach(function(d) {
 			const projected = mapProjection([d.long, d.lat]);
 			centroids[d.isoCode] = {
@@ -306,8 +324,309 @@ function createAllocations(selections, colors, mapData, lists) {
 			.data(buttonsList)
 			.enter()
 			.append("button")
-			.attr("id", d => classPrefix + d)
-			.html(d => capitalize(d));
+			.attr("id", d => classPrefix + "button" + d);
+
+		const bullet = buttons.append("i")
+			.attr("class", (_, i) => i === 1 ? "fas fa-adjust fa-xs" : "fas fa-circle fa-xs")
+			.style("color", (d, i) => i !== 1 ? colors[d] : null);
+
+		const title = buttons.append("span")
+			.html((d, i) => " " + (i === 1 ? "Cerf/Cbpf" : capitalize(d)));
+	};
+
+	function drawMap(data, chartType) {
+
+		clickableButtons = false;
+
+		zoom.on("zoom", zoomed);
+
+		const currentTransform = d3.zoomTransform(mapPanel.main.node());
+
+		data.sort((a, b) => b.total - a.total || (b.cbpf + b.cerf) - (a.cbpf + a.cerf));
+
+		const maxValue = d3.max(data, d => chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf);
+
+		radiusScale.domain([0, maxValue || 0]);
+
+		let pieGroup = piesContainer.selectAll("." + classPrefix + "pieGroup")
+			.data(data, d => d.country);
+
+		const pieGroupExit = pieGroup.exit();
+
+		pieGroupExit.selectAll("text, tspan")
+			.transition()
+			.duration(duration * 0.9)
+			.style("opacity", 0);
+
+		pieGroupExit.each((_, i, n) => {
+			const thisGroup = d3.select(n[i]);
+			thisGroup.selectAll("." + classPrefix + "slice")
+				.transition()
+				.duration(duration)
+				.attrTween("d", (d, j, m) => {
+					const finalObject = d.data.type === "cerf" ? {
+						startAngle: 0,
+						endAngle: 0,
+						outerRadius: 0
+					} : {
+						startAngle: Math.PI * 2,
+						endAngle: Math.PI * 2,
+						outerRadius: 0
+					};
+					const interpolator = d3.interpolateObject(localVariable.get(m[j]), finalObject);
+					return t => arcGenerator(interpolator(t));
+				})
+				.on("end", () => thisGroup.remove())
+		});
+
+		const pieGroupEnter = pieGroup.enter()
+			.append("g")
+			.attr("class", classPrefix + "pieGroup")
+			.style("opacity", 1)
+			.attr("transform", d => "translate(" + (centroids[d.isoCode].x * currentTransform.k + currentTransform.x) +
+				"," + (centroids[d.isoCode].y * currentTransform.k + currentTransform.y) + ")");
+
+		const groupName = pieGroupEnter.append("text")
+			.attr("class", classPrefix + "groupName")
+			.attr("x", d => radiusScale(chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf) + groupNamePadding)
+			.attr("y", d => d.labelText.length > 1 ? groupNamePadding * 2 - 5 : groupNamePadding * 2)
+			.style("opacity", 0)
+			.text(d => d.labelText.length > 2 ? d.labelText[0] + " " + d.labelText[1] : d.labelText[0])
+			.each((d, i, n) => {
+				if (d.labelText.length > 1) {
+					d3.select(n[i]).append("tspan")
+						.attr("x", radiusScale(chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf) + groupNamePadding)
+						.attr("dy", 12)
+						.text(d.labelText.length > 2 ? d.labelText.filter((_, i) => i > 1).join(" ") : d.labelText[1]);
+				};
+			});
+
+		pieGroup = pieGroupEnter.merge(pieGroup);
+
+		pieGroup.order();
+
+		const allTexts = pieGroup.selectAll("text");
+
+		if (!chartState.showNames) {
+			allTexts.each((_, i, n) => d3.select(n[i]).style("display", null)).call(displayLabels);
+		};
+
+		pieGroup.select("text." + classPrefix + "groupName tspan")
+			.transition()
+			.duration(duration)
+			.style("opacity", 1)
+			.attr("x", d => radiusScale(chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf) + groupNamePadding);
+
+		pieGroup.select("text." + classPrefix + "groupName")
+			.transition()
+			.duration(duration)
+			.style("opacity", 1)
+			.attr("x", d => radiusScale(chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf) + groupNamePadding)
+			.end()
+			.then(() => {
+				clickableButtons = true;
+				if (chartState.showNames) return;
+				allTexts.each((_, i, n) => d3.select(n[i]).style("display", null)).call(displayLabels);
+			});
+
+		let slices = pieGroup.selectAll("." + classPrefix + "slice")
+			.data(d => pieGenerator([{
+				value: d.cerf,
+				total: chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf,
+				type: "cerf"
+			}, {
+				value: d.cbpf,
+				total: chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf,
+				type: "cbpf"
+			}, {
+				value: d.total,
+				total: chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf,
+				type: "total"
+			}].filter(function(e) {
+				return e.value !== 0;
+			})), d => d.data.type);
+
+		const slicesRemove = slices.exit()
+			.transition()
+			.duration(duration)
+			.attrTween("d", (d, i, n) => {
+				const parentDatum = d3.select(n[i].parentNode).datum();
+				const thisTotal = radiusScale(chartState.selectedFund === "total" ? parentDatum.total : parentDatum.cbpf + parentDatum.cerf);
+				const finalObject = d.data.type === "cerf" ? {
+					startAngle: 0,
+					endAngle: 0,
+					outerRadius: thisTotal
+				} : {
+					startAngle: Math.PI * 2,
+					endAngle: Math.PI * 2,
+					outerRadius: thisTotal
+				};
+				const interpolator = d3.interpolateObject(localVariable.get(n[i]), finalObject);
+				return t => arcGenerator(interpolator(t));
+			})
+			.on("end", (_, i, n) => d3.select(n[i]).remove())
+
+		const slicesEnter = slices.enter()
+			.append("path")
+			.attr("class", classPrefix + "slice")
+			.style("fill", d => colors[d.data.type])
+			.style("stroke", "#666")
+			.style("stroke-width", "1px")
+			.style("stroke-opacity", strokeOpacityValue)
+			.style("fill-opacity", fillOpacityValue)
+			.each((d, i, n) => {
+				let siblingRadius = 0;
+				const siblings = d3.select(n[i].parentNode).selectAll("path")
+					.each((_, j, m) => {
+						const thisLocal = localVariable.get(m[j])
+						if (thisLocal) siblingRadius = thisLocal.outerRadius;
+					});
+				if (d.data.type === "cerf") {
+					localVariable.set(n[i], {
+						startAngle: 0,
+						endAngle: 0,
+						outerRadius: siblingRadius
+					});
+				} else {
+					localVariable.set(n[i], {
+						startAngle: Math.PI * 2,
+						endAngle: Math.PI * 2,
+						outerRadius: siblingRadius
+					});
+				};
+			})
+
+		slices = slicesEnter.merge(slices);
+
+		slices.transition()
+			.duration(duration)
+			.attrTween("d", pieTween);
+
+		function pieTween(d) {
+			const i = d3.interpolateObject(localVariable.get(this), {
+				startAngle: d.startAngle,
+				endAngle: d.endAngle,
+				outerRadius: radiusScale(d.data.total)
+			});
+			localVariable.set(this, i(1));
+			return t => arcGenerator(i(t));
+		};
+
+		//pieGroup.on("mouseover", pieGroupMouseover);
+
+		//zoomRectangle.on("mouseover", pieGroupMouseout);
+
+		function zoomed(event) {
+
+			mapContainer.attr("transform", event.transform);
+
+			mapContainer.select("path:nth-child(2)")
+				.style("stroke-width", 1 / event.transform.k + "px");
+
+			pieGroup.attr("transform", d => "translate(" + (centroids[d.isoCode].x * event.transform.k + event.transform.x) +
+				"," + (centroids[d.isoCode].y * event.transform.k + event.transform.y) + ")");
+
+			if (!chartState.showNames) {
+				allTexts.each((_, i, n) => d3.select(n[i]).style("display", null)).call(displayLabels);
+			};
+
+			//end of zoomed
+		};
+
+		mapZoomButtonPanel.main.select("." + classPrefix + "zoomInGroupMap")
+			.on("click", function() {
+				zoom.scaleBy(mapPanel.main.transition().duration(duration), 2);
+			});
+
+		mapZoomButtonPanel.main.select("." + classPrefix + "zoomOutGroupMap")
+			.on("click", function() {
+				zoom.scaleBy(mapPanel.main.transition().duration(duration), 0.5);
+			});
+
+		// function pieGroupMouseover(datum) {
+
+		// 	currentHoveredElem = this;
+
+		// 	pieGroup.style("opacity", function() {
+		// 		return this === currentHoveredElem ? 1 : fadeOpacity;
+		// 	});
+
+		// 	tooltip.style("display", "block")
+		// 		.html(null);
+
+		// 	tooltip.on("mouseleave", null);
+
+		// 	createCountryTooltip(datum, false);
+
+		// 	const thisBox = this.getBoundingClientRect();
+
+		// 	const containerBox = containerDiv.node().getBoundingClientRect();
+
+		// 	const tooltipBox = tooltip.node().getBoundingClientRect();
+
+		// 	const thisOffsetTop = (thisBox.bottom + thisBox.top) / 2 - containerBox.top - (tooltipBox.height / 2);
+
+		// 	const thisOffsetLeft = containerBox.right - thisBox.right > tooltipBox.width + (2 * tooltipMargin) ?
+		// 		(thisBox.left + 2 * (radiusScale(datum.cbpf + datum.cerf) * (containerBox.width / width))) - containerBox.left + tooltipMargin :
+		// 		thisBox.left - containerBox.left - tooltipBox.width - tooltipMargin;
+
+		// 	tooltip.style("top", thisOffsetTop + "px")
+		// 		.style("left", thisOffsetLeft + "px");
+
+		// };
+
+		// function pieGroupMouseout() {
+
+		// 	if (isSnapshotTooltipVisible) return;
+
+		// 	currentHoveredElem = null;
+
+		// 	pieGroup.style("opacity", 1);
+
+		// 	tooltip.html(null)
+		// 		.style("display", "none");
+
+		// };
+
+		//end of createPies
+
+
+		//end of drawMap
+	};
+
+	function filterData(originalData, chartType) {
+
+		const data = [];
+
+		originalData.forEach(row => {
+			if (chartType === "allocationsCountry") {
+				if (chartState.selectedFund === "total") {
+					row.cbpf = 0;
+					row.cerf = 0;
+				};
+				if (chartState.selectedFund === "cerf/cbpf") {
+					row.total = 0;
+				};
+				if (chartState.selectedFund === "cerf") {
+					row.cbpf = 0;
+					row.total = 0;
+				};
+				if (chartState.selectedFund === "cbpf") {
+					row.cerf = 0;
+					row.total = 0;
+				};
+				if (chartState.selectedRegion.length === 0) {
+					data.push(row);
+				} else {
+					if (chartState.selectedRegion.indexOf(row.region) > -1) data.push(row);
+				};
+			};
+
+		});
+
+		return data;
+
+		//end of filterData
 	};
 
 	function verifyCentroids(data) {
@@ -332,6 +651,30 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	return draw;
 
+};
+
+function displayLabels(labelSelection) {
+	labelSelection.each(function(d) {
+		const outerElement = this;
+		const outerBox = this.getBoundingClientRect();
+		labelSelection.each(function(e) {
+			if (outerElement !== this) {
+				const innerBox = this.getBoundingClientRect();
+				if (!(outerBox.right < innerBox.left ||
+						outerBox.left > innerBox.right ||
+						outerBox.bottom < innerBox.top ||
+						outerBox.top > innerBox.bottom)) {
+					if (chartState.selectedFund === "total" ? e.total < d.total : (e.cbpf + e.cerf) < (d.cbpf + d.cerf)) {
+						d3.select(this).style("display", "none");
+						d3.select(this.previousSibling).style("display", "none");
+					} else {
+						d3.select(outerElement).style("display", "none");
+						d3.select(outerElement.previousSibling).style("display", "none");
+					};
+				};
+			};
+		});
+	});
 };
 
 function capitalize(str) {
