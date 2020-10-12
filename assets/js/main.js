@@ -23,6 +23,8 @@ const generalClassPrefix = "pfbihp",
 	allocationsDataUrl = "https://cbpfgms.github.io/pf-onebi-data/allocationSummary.csv",
 	chartTypesAllocations = ["allocationsCountry", "allocationsSector", "allocationsType"],
 	chartTypesContributions = ["contributionsCerfCbpf", "contributionsDonor"],
+	fundValues = ["total", "cerf/cbpf", "cerf", "cbpf"],
+	separator = "##",
 	colorsObject = {
 		total: unBlue,
 		cerf: cerfColor,
@@ -296,6 +298,16 @@ function processDataAllocations(rawAllocationsData) {
 					region: fundRegionsList[row.PooledFundId],
 					allocationsList: [row]
 				};
+				Object.keys(clustersList).forEach(e => {
+					fundObject[`cluster${separator}${e}${separator}cerf`] = 0;
+					fundObject[`cluster${separator}${e}${separator}cbpf`] = 0;
+					fundObject[`cluster${separator}${e}${separator}total`] = 0;
+				});
+				Object.keys(allocationTypesList).forEach(e => {
+					fundObject[`type${separator}${e}${separator}cerf`] = 0;
+					fundObject[`type${separator}${e}${separator}cbpf`] = 0;
+					fundObject[`type${separator}${e}${separator}total`] = 0;
+				});
 				pushCbpfOrCerf(fundObject, row);
 				data.push(fundObject);
 			};
@@ -311,10 +323,16 @@ function processDataAllocations(rawAllocationsData) {
 function pushCbpfOrCerf(obj, row) {
 	if (fundTypesList[row.FundId] === "cbpf") {
 		obj.cbpf += +row.ClusterBudget;
+		obj[`cluster${separator}${row.ClusterId}${separator}cbpf`] += +row.ClusterBudget;
+		obj[`type${separator}${row.AllocationSurceId}${separator}cbpf`] += +row.ClusterBudget;;
 	} else if (fundTypesList[row.FundId] === "cerf") {
 		obj.cerf += +row.ClusterBudget;
+		obj[`cluster${separator}${row.ClusterId}${separator}cerf`] += +row.ClusterBudget;
+		obj[`type${separator}${row.AllocationSurceId}${separator}cerf`] += +row.ClusterBudget;;
 	};
 	obj.total += +row.ClusterBudget;
+	obj[`cluster${separator}${row.ClusterId}${separator}total`] += +row.ClusterBudget;
+	obj[`type${separator}${row.AllocationSurceId}${separator}total`] += +row.ClusterBudget;;
 };
 
 function processDataContributions(rawContributionsData) {
@@ -408,6 +426,8 @@ function validateDefault(values) {
 	const yearArray = chartTypesAllocations.indexOf(chartState.selectedChart) > -1 ? yearsArrayAllocations : yearsArrayContributions;
 	chartState.selectedYear = +values.year === +values.year && yearArray.indexOf(+values.year) > -1 ?
 		+values.year : currentDate.getFullYear();
+	chartState.selectedFundValue = chartTypesAllocations.indexOf(chartState.selectedChart) > -1 && fundValues.indexOf(values.fund) > -1 ?
+		values.fund : fundValues[0];
 };
 
 function createFundNamesList(fundsData) {
