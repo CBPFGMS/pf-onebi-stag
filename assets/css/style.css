@@ -289,15 +289,18 @@ footer{position: sticky; bottom: 0;}
 
 @media (max-width: 575.98px) { 
 	#sidebarToggle{display:block !important;}
-	.cbpf-link, .cerf-link{display:none;}	
+	.cbpf-link, .cerf-link{display:none;}
+	.link-sidenav{left: 0;}
 }
-
+@media (min-width: 576px) { 
+	.link-sidenav{left: 225px;}
+}
 @media (max-width: 767.98px) { 
 	#sidebarToggle{display:block !important;}
 }
 @media (max-width: 991.98px) {
 	#sidebarToggle{display:block !important;}
-	.link-sidenav{z-index: 1050; left: 0;}
+	.link-sidenav{z-index: 1050; }
 }
 
 /*D3 chart styles*/
