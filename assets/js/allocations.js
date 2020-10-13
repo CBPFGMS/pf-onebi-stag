@@ -132,6 +132,15 @@ function createAllocations(selections, colors, mapData, lists) {
 		padding: [0, 0, 0, 0]
 	};
 
+	const barChartPanel = {
+		main: svgBarChart.append("g")
+			.attr("class", classPrefix + "barChartPanel")
+			.attr("transform", "translate(" + svgBarChartPadding[3] + "," + svgBarChartPadding[0] + ")"),
+		width: svgBarChartWidth - svgBarChartPadding[3] - svgBarChartPadding[1],
+		height: svgBarChartHeight - svgBarChartPadding[2] - svgBarChartPadding[0],
+		padding: [0, 0, 0, 0]
+	};
+
 	const svgMapClip = svgMap.append("clipPath")
 		.attr("id", classPrefix + "svgMapClip")
 		.append("rect")
@@ -237,15 +246,15 @@ function createAllocations(selections, colors, mapData, lists) {
 		const mapButtons = buttonsDiv.selectAll("button");
 
 		mapButtons.on("click", (event, d) => {
-				chartState.selectedFund = d;
+			chartState.selectedFund = d;
 
-				mapButtons.classed("active", d => chartState.selectedFund === d);
+			mapButtons.classed("active", d => chartState.selectedFund === d);
 
-				const data = filterData(originalData);
+			const data = filterData(originalData);
 
-				drawMap(data);
-				drawLegend(data);
-			});
+			drawMap(data);
+			drawLegend(data);
+		});
 
 	};
 
