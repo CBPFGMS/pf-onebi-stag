@@ -73,8 +73,11 @@ function createAllocations(selections, colors, mapData, lists) {
 		.attr("class", classPrefix + "buttonsDiv");
 
 	const mapDivSize = mapDiv.node().getBoundingClientRect();
+	const barChartDivSize = barChartDiv.node().getBoundingClientRect();
 	const svgMapHeight = mapDivSize.height;
 	const svgMapWidth = mapDivSize.width;
+	const svgBarChartWidth = barChartDivSize.width;
+	const svgBarChartHeight = barChartDivSize.height;
 	const svgMapPanelWidth = svgMapWidth / svgMapHeight < mapAspectRatio ? svgMapWidth - svgMapPadding[1] - svgMapPadding[3] :
 		(svgMapHeight * mapAspectRatio) - svgMapPadding[1] - svgMapPadding[3];
 
@@ -83,6 +86,10 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	const svgMap = mapInnerDiv.append("svg")
 		.attr("viewBox", "0 0 " + svgMapWidth + " " + svgMapHeight)
+		.style("background-color", "white");
+
+	const svgBarChart = barChartDiv.append("svg")
+		.attr("viewBox", "0 0 " + svgBarChartWidth + " " + svgBarChartHeight)
 		.style("background-color", "white");
 
 	const zoomLayer = svgMap.append("g")
@@ -227,9 +234,12 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		drawBarChart(data);
 
-		buttonsDiv.selectAll("button")
-			.on("click", (event, d) => {
+		const mapButtons = buttonsDiv.selectAll("button");
+
+		mapButtons.on("click", (event, d) => {
 				chartState.selectedFund = d;
+
+				mapButtons.classed("active", d => chartState.selectedFund === d);
 
 				const data = filterData(originalData);
 
@@ -390,6 +400,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			.data(buttonsList)
 			.enter()
 			.append("button")
+			.classed("active", d => chartState.selectedFund === d)
 			.attr("id", d => classPrefix + "button" + d);
 
 		const bullet = buttons.append("span")

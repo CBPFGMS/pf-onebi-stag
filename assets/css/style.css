@@ -349,7 +349,6 @@ footer{position: sticky; bottom: 0;}
 .pfbialbarChartDiv {
   width: 100%;
   align-items: center;
-  background-color: tomato;
 }
 
 .pfbicdcontainerDiv {
@@ -432,8 +431,9 @@ footer{position: sticky; bottom: 0;}
   padding: 0 10px 0 0;
   border-radius: 3px;
   background-color: #eee;
-  line-height: 10px;
-  outline: none;
+  line-height: normal;
+  transition: all 0.2s linear;
+  outline: 0;
 }
 
 .pfbialbuttonsDiv button .icon-circle{
@@ -445,7 +445,7 @@ footer{position: sticky; bottom: 0;}
 }
 
 .pfbialbuttonsDiv button:hover{background-color: #3289C9; color:#fff; border-color:#3289C9;}
-.pfbialbuttonsDiv button:active{background-color: #3289C9; color:#fff; border-color:#3289C9;}
+.pfbialbuttonsDiv button.active{background-color: #3289C9; color:#fff; border-color:#3289C9;}
 
 .fa-adjust {
   color: transparent;
