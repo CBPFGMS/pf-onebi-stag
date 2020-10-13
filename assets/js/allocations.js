@@ -392,7 +392,9 @@ function createAllocations(selections, colors, mapData, lists) {
 			.append("button")
 			.attr("id", d => classPrefix + "button" + d);
 
-		const bullet = buttons.append("i")
+		const bullet = buttons.append("span")
+			.attr("class", "icon-circle")
+			.append("i")
 			.attr("class", (_, i) => i === 1 ? "fas fa-adjust fa-xs" : "fas fa-circle fa-xs")
 			.style("color", (d, i) => i !== 1 ? colors[d] : null);
 
