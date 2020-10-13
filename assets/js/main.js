@@ -176,7 +176,7 @@ function controlCharts([defaultValues,
 	if (chartTypesAllocations.indexOf(chartState.selectedChart) > -1) {
 		openNav(selections.navlinkAllocationsByCountry.node(), "byCountry", false)
 		drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
-		drawAllocations(allocationsData, chartState.selectedChart);
+		drawAllocations(allocationsData);
 	};
 
 	if (chartState.selectedChart === "contributionsCerfCbpf") {
@@ -198,7 +198,7 @@ function controlCharts([defaultValues,
 		const allocationsData = processDataAllocations(rawAllocationsData);
 		const contributionsData = processDataContributions(rawContributionsData);
 		updateTopValues(topValues, selections);
-		if (chartTypesAllocations.indexOf(chartState.selectedChart) > -1) drawAllocations(allocationsData, chartState.selectedChart);
+		if (chartTypesAllocations.indexOf(chartState.selectedChart) > -1) drawAllocations(allocationsData);
 		if (chartState.selectedChart === "contributionsCerfCbpf") drawContributionsByCerfCbpf(contributionsData);
 		if (chartState.selectedChart === "contributionsDonor") drawContributionsByDonor(contributionsData);
 	});
@@ -210,7 +210,7 @@ function controlCharts([defaultValues,
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
 		chartState.selectedChart = "allocationsCountry";
-		drawAllocations(allocationsData, chartState.selectedChart);
+		drawAllocations(allocationsData);
 	});
 
 	selections.navlinkAllocationsBySector.on("click", () => {
@@ -220,7 +220,7 @@ function controlCharts([defaultValues,
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
 		chartState.selectedChart = "allocationsSector";
-		drawAllocations(allocationsData, chartState.selectedChart);
+		drawAllocations(allocationsData);
 	});
 
 	selections.navlinkAllocationsByType.on("click", () => {
@@ -230,7 +230,7 @@ function controlCharts([defaultValues,
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
 		chartState.selectedChart = "allocationsType";
-		drawAllocations(allocationsData, chartState.selectedChart);
+		drawAllocations(allocationsData);
 	});
 
 	selections.navlinkContributionsByCerfCbpf.on("click", () => {
@@ -426,8 +426,9 @@ function validateDefault(values) {
 	const yearArray = chartTypesAllocations.indexOf(chartState.selectedChart) > -1 ? yearsArrayAllocations : yearsArrayContributions;
 	chartState.selectedYear = +values.year === +values.year && yearArray.indexOf(+values.year) > -1 ?
 		+values.year : currentDate.getFullYear();
-	chartState.selectedFundValue = chartTypesAllocations.indexOf(chartState.selectedChart) > -1 && fundValues.indexOf(values.fund) > -1 ?
+	chartState.selectedFund = chartTypesAllocations.indexOf(chartState.selectedChart) > -1 && fundValues.indexOf(values.fund) > -1 ?
 		values.fund : fundValues[0];
+	chartState.showNames = (values.shownames === true);
 };
 
 function createFundNamesList(fundsData) {

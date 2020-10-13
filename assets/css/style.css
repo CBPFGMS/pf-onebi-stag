@@ -390,11 +390,40 @@ footer{position: sticky; bottom: 0;}
   paint-order: stroke;
 }
 
+.pfbialmapContainer {
+  pointer-events: none;
+}
+
+.pfbiallegendTitle {
+  font-family: "Roboto", sans-serif;
+  font-size: 12px;
+  fill: #666;
+}
+
+.pfbiallegendCirclesText {
+  font-family: "Arial", sans-serif;
+  font-size: 10px;
+  fill: darkslategray;  
+}
+
+.pfbiallegendColors text {
+  font-family: "Arial", sans-serif;
+  font-size: 11px;
+  fill: darkslategray;  
+}
+
+.pfbialshowNamesText {
+  font-family: "Arial", sans-serif;
+  font-size: 11px;
+  fill: darkslategray;
+}
+
 .pfbialbuttonsDiv button {
   margin: 0px 4px 0px 4px;
   display: inline-flex;
   align-items: center; 
   white-space: pre;
+  z-index: 1000;
 }
 
 .fa-adjust {

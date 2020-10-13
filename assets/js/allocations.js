@@ -11,13 +11,15 @@ const classPrefix = "pfbial",
 	mapAspectRatio = 2.225,
 	legendPanelHeight = 132,
 	legendPanelWidth = 110,
-	legendPanelHorPadding = 2,
+	legendPanelHorPadding = 20,
 	legendPanelVertPadding = 12,
-	mapZoomButtonHorPadding = 6,
+	mapZoomButtonHorPadding = 24,
 	mapZoomButtonVertPadding = 10,
 	mapZoomButtonSize = 26,
 	maxPieSize = 32,
 	minPieSize = 1,
+	legendLineSize = 38,
+	showNamesMargin = 12,
 	duration = 1000,
 	strokeOpacityValue = 0.8,
 	fillOpacityValue = 0.5,
@@ -45,7 +47,7 @@ const hardcodedAllocations = [{
 	long: -73.96,
 	lat: 40.75
 }, {
-	isoCode: "XV",
+	isoCode: "0V",
 	long: -66.85,
 	lat: 1.23
 }];
@@ -83,6 +85,12 @@ function createAllocations(selections, colors, mapData, lists) {
 		.attr("viewBox", "0 0 " + svgMapWidth + " " + svgMapHeight)
 		.style("background-color", "white");
 
+	const zoomLayer = svgMap.append("g")
+		.attr("class", classPrefix + "zoomLayer")
+		.style("opacity", 0)
+		.attr("cursor", "move")
+		.attr("pointer-events", "all");
+
 	const mapPanel = {
 		main: svgMap.append("g")
 			.attr("class", classPrefix + "mapPanel")
@@ -110,27 +118,27 @@ function createAllocations(selections, colors, mapData, lists) {
 		padding: [4, 4, 4, 4]
 	};
 
-	//CHANGE THIS
-	const mapPanelClip = mapPanel.main.append("clipPath")
-		.attr("id", classPrefix + "mapPanelClip")
-		.append("rect")
-		.attr("width", mapPanel.width)
-		.attr("height", mapPanel.height);
+	const checkboxesPanel = {
+		main: svgMap.append("g")
+			.attr("class", classPrefix + "checkboxesPanel")
+			.attr("transform", "translate(" + (svgMapPadding[3] + mapZoomButtonHorPadding + 1) + "," + (svgMapPadding[0] + mapZoomButtonVertPadding + mapZoomButtonPanel.height + showNamesMargin) + ")"),
+		padding: [0, 0, 0, 0]
+	};
 
-	mapPanel.main.attr("clip-path", `url(#${classPrefix}mapPanelClip)`);
+	const svgMapClip = svgMap.append("clipPath")
+		.attr("id", classPrefix + "svgMapClip")
+		.append("rect")
+		.attr("width", svgMapWidth)
+		.attr("height", svgMapHeight);
+
+	svgMap.attr("clip-path", `url(#${classPrefix}svgMapClip)`);
 
 	const mapContainer = mapPanel.main.append("g")
 		.attr("class", classPrefix + "mapContainer");
 
-	const zoomLayer = mapPanel.main.append("g")
-		.attr("class", classPrefix + "zoomLayer")
-		.style("opacity", 0)
-		.attr("cursor", "move")
-		.attr("pointer-events", "all");
-
 	const zoomRectangle = zoomLayer.append("rect")
-		.attr("width", mapPanel.width)
-		.attr("height", mapPanel.height);
+		.attr("width", svgMapWidth)
+		.attr("height", svgMapHeight);
 
 	const piesContainer = mapPanel.main.append("g")
 		.attr("class", classPrefix + "piesContainer");
@@ -167,7 +175,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			[mapPanel.width, mapPanel.height]
 		]);
 
-	mapPanel.main.call(zoom);
+	svgMap.call(zoom);
 
 	const defs = svgMap.append("defs");
 
@@ -201,17 +209,33 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	createZoomButtons();
 
+	createCheckbox();
+
 	createMapButtons();
 
-	function draw(originalData, chartType) {
+	function draw(originalData) {
 
 		verifyCentroids(originalData);
 
 		//create second column with originalData
 
-		const data = filterData(originalData, chartType);
+		const data = filterData(originalData);
 
-		drawMap(data, chartType);
+		drawMap(data);
+
+		drawLegend(data);
+
+		drawBarChart(data);
+
+		buttonsDiv.selectAll("button")
+			.on("click", (event, d) => {
+				chartState.selectedFund = d;
+
+				const data = filterData(originalData);
+
+				drawMap(data);
+				drawLegend(data);
+			});
 
 	};
 
@@ -236,7 +260,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			.style("stroke", "#E5E5E5")
 			.style("stroke-width", "1px");
 
-		countryFeatures.features.forEach(function(d) {
+		countryFeatures.features.forEach(d => {
 			centroids[d.properties.ISO_2] = {
 				x: mapPath.centroid(d.geometry)[0],
 				y: mapPath.centroid(d.geometry)[1]
@@ -245,7 +269,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		//Countries with problems:
 		//And the fake codes: 0E (Eastern Africa), 0G (Global) and 0V (Venezuela Regional Refugee and Migration Crisis)
-		hardcodedAllocations.forEach(function(d) {
+		hardcodedAllocations.forEach(d => {
 			const projected = mapProjection([d.long, d.lat]);
 			centroids[d.isoCode] = {
 				x: projected[0],
@@ -319,6 +343,48 @@ function createAllocations(selections, colors, mapData, lists) {
 		//end of createZoomButtons
 	};
 
+	function createCheckbox() {
+
+		const showNamesGroup = checkboxesPanel.main.append("g")
+			.attr("class", classPrefix + "showNamesGroup")
+			.attr("cursor", "pointer");
+
+		const outerRectangle = showNamesGroup.append("rect")
+			.attr("width", 14)
+			.attr("height", 14)
+			.attr("rx", 2)
+			.attr("ry", 2)
+			.attr("fill", "white")
+			.attr("stroke", "darkslategray");
+
+		const innerCheck = showNamesGroup.append("polyline")
+			.style("stroke-width", "2px")
+			.attr("points", "3,7 6,10 11,3")
+			.style("fill", "none")
+			.style("stroke", chartState.showNames ? "darkslategray" : "white");
+
+		const showNamesText = showNamesGroup.append("text")
+			.attr("class", classPrefix + "showNamesText")
+			.attr("x", 18)
+			.attr("y", 11)
+			.text("Show All");
+
+		showNamesGroup.on("click", function() {
+
+			chartState.showNames = !chartState.showNames;
+
+			innerCheck.style("stroke", chartState.showNames ? "darkslategray" : "white");
+
+			piesContainer.selectAll("text")
+				.style("display", null);
+
+			if (!chartState.showNames) displayLabels(piesContainer.selectAll("." + classPrefix + "groupName"));
+
+		});
+
+		//end of createCheckbox
+	};
+
 	function createMapButtons() {
 		const buttons = buttonsDiv.selectAll(null)
 			.data(buttonsList)
@@ -334,13 +400,15 @@ function createAllocations(selections, colors, mapData, lists) {
 			.html((d, i) => " " + (i === 1 ? "Cerf/Cbpf" : capitalize(d)));
 	};
 
-	function drawMap(data, chartType) {
+	function drawMap(unfilteredData) {
 
 		clickableButtons = false;
 
+		const data = unfilteredData.filter(d => chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]);
+
 		zoom.on("zoom", zoomed);
 
-		const currentTransform = d3.zoomTransform(mapPanel.main.node());
+		const currentTransform = d3.zoomTransform(svgMap.node());
 
 		data.sort((a, b) => b.total - a.total || (b.cbpf + b.cerf) - (a.cbpf + a.cerf));
 
@@ -401,15 +469,15 @@ function createAllocations(selections, colors, mapData, lists) {
 				};
 			});
 
+		if (!chartState.showNames) {
+			groupName.each((_, i, n) => d3.select(n[i]).style("display", null)).call(displayLabels);
+		};
+
 		pieGroup = pieGroupEnter.merge(pieGroup);
 
 		pieGroup.order();
 
 		const allTexts = pieGroup.selectAll("text");
-
-		if (!chartState.showNames) {
-			allTexts.each((_, i, n) => d3.select(n[i]).style("display", null)).call(displayLabels);
-		};
 
 		pieGroup.select("text." + classPrefix + "groupName tspan")
 			.transition()
@@ -588,37 +656,144 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		// };
 
-		//end of createPies
-
 
 		//end of drawMap
 	};
 
-	function filterData(originalData, chartType) {
+	function drawLegend(data) {
+
+		const maxDataValue = radiusScale.domain()[1];
+
+		const sizeCirclesData = [0, maxDataValue / 4, maxDataValue / 2, maxDataValue];
+
+		const legendTitle = legendPanel.main.selectAll("." + classPrefix + "legendTitle")
+			.data([true])
+			.enter()
+			.append("text")
+			.attr("class", classPrefix + "legendTitle")
+			.attr("x", legendPanel.padding[3])
+			.attr("y", legendPanel.padding[0] - 10)
+			.text("LEGEND");
+
+		let legendSizeGroups = legendPanel.main.selectAll("." + classPrefix + "legendSizeGroups")
+			.data([true]);
+
+		legendSizeGroups = legendSizeGroups.enter()
+			.append("g")
+			.attr("class", classPrefix + "legendSizeGroups")
+			.merge(legendSizeGroups);
+
+		let legendSizeGroup = legendSizeGroups.selectAll("." + classPrefix + "legendSizeGroup")
+			.data(sizeCirclesData);
+
+		const legendSizeGroupEnter = legendSizeGroup.enter()
+			.append("g")
+			.attr("class", classPrefix + "legendSizeGroup");
+
+		const legendSizeLines = legendSizeGroupEnter.append("line")
+			.attr("x1", legendPanel.padding[3] + radiusScale.range()[1])
+			.attr("x2", legendPanel.padding[3] + radiusScale.range()[1] + legendLineSize)
+			.attr("y1", d => d ? legendPanel.padding[0] + (radiusScale.range()[1] * 2) - radiusScale(d) * 2 :
+				legendPanel.padding[0] + (radiusScale.range()[1] * 2))
+			.attr("y2", d => d ? legendPanel.padding[0] + (radiusScale.range()[1] * 2) - radiusScale(d) * 2 :
+				legendPanel.padding[0] + (radiusScale.range()[1] * 2))
+			.style("stroke", "#666")
+			.style("stroke-dasharray", "2,2")
+			.style("stroke-width", "1px");
+
+		const legendSizeCircles = legendSizeGroupEnter.append("circle")
+			.attr("cx", legendPanel.padding[3] + radiusScale.range()[1])
+			.attr("cy", d => legendPanel.padding[0] + (radiusScale.range()[1] * 2) - radiusScale(d))
+			.attr("r", d => !d ? 0 : radiusScale(d))
+			.style("fill", "none")
+			.style("stroke", "darkslategray");
+
+		const legendSizeCirclesText = legendSizeGroupEnter.append("text")
+			.attr("class", classPrefix + "legendCirclesText")
+			.attr("x", legendPanel.padding[3] + radiusScale.range()[1] + legendLineSize + 4)
+			.attr("y", (d, i) => i === 1 ? legendPanel.padding[0] + 5 + (radiusScale.range()[1] * 2) - radiusScale(d) * 2 :
+				i ? legendPanel.padding[0] + 3 + (radiusScale.range()[1] * 2) - radiusScale(d) * 2 :
+				legendPanel.padding[0] + 3 + (radiusScale.range()[1] * 2) - 2)
+			.text(d => d ? d3.formatPrefix(".0", d)(d) : "0");
+
+		legendSizeGroup = legendSizeGroup.merge(legendSizeGroupEnter);
+
+		legendSizeGroup.select("." + classPrefix + "legendCirclesText")
+			.transition()
+			.duration(duration)
+			.textTween((d, i, n) => {
+				const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, d);
+				return t => d3.formatPrefix(".0", interpolator(t))(interpolator(t)).replace("G", "B");
+			});
+
+		const legendData = chartState.selectedFund.split("/");
+
+		let legendColors = legendPanel.main.selectAll("." + classPrefix + "legendColors")
+			.data(legendData);
+
+		const legendColorsExit = legendColors.exit().remove();
+
+		const legendColorsEnter = legendColors.enter()
+			.append("g")
+			.attr("class", classPrefix + "legendColors");
+
+		const legendRects = legendColorsEnter.append("rect")
+			.attr("width", 10)
+			.attr("height", 10)
+			.attr("rx", 1)
+			.attr("ry", 1)
+			.style("stroke-width", "0.5px")
+			.style("stroke", "#666");
+
+		const legendText = legendColorsEnter.append("text")
+			.attr("x", 14)
+			.attr("y", 9);
+
+		legendColors = legendColorsEnter.merge(legendColors);
+
+		legendColors.attr("transform", (_, i) => "translate(" + legendPanel.padding[3] + "," + (legendPanel.height - legendPanel.padding[2] - 18 + (+i * 18)) + ")");
+
+		legendColors.select("rect")
+			.style("fill", d => colors[d]);
+
+		legendColors.select("text")
+			.text(d => capitalize(d) + " allocations");
+
+		//end of drawLegend
+	};
+
+	function drawBarChart(data) {
+
+
+		//end of drawBarChart
+	};
+
+	function filterData(originalData) {
 
 		const data = [];
 
 		originalData.forEach(row => {
-			if (chartType === "allocationsCountry") {
+			const copiedRow = Object.assign({}, row);
+			if (chartState.selectedChart === "allocationsCountry") {
 				if (chartState.selectedFund === "total") {
-					row.cbpf = 0;
-					row.cerf = 0;
+					copiedRow.cbpf = 0;
+					copiedRow.cerf = 0;
 				};
 				if (chartState.selectedFund === "cerf/cbpf") {
-					row.total = 0;
+					copiedRow.total = 0;
 				};
 				if (chartState.selectedFund === "cerf") {
-					row.cbpf = 0;
-					row.total = 0;
+					copiedRow.cbpf = 0;
+					copiedRow.total = 0;
 				};
 				if (chartState.selectedFund === "cbpf") {
-					row.cerf = 0;
-					row.total = 0;
+					copiedRow.cerf = 0;
+					copiedRow.total = 0;
 				};
 				if (chartState.selectedRegion.length === 0) {
-					data.push(row);
+					data.push(copiedRow);
 				} else {
-					if (chartState.selectedRegion.indexOf(row.region) > -1) data.push(row);
+					if (chartState.selectedRegion.indexOf(copiedRow.region) > -1) data.push(copiedRow);
 				};
 			};
 
@@ -631,11 +806,11 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	function verifyCentroids(data) {
 		data.forEach(function(row) {
-			if (!centroids[row.isoCode]) {
+			if (!centroids[row.isoCode] || isNaN(centroids[row.isoCode].x) || isNaN(centroids[row.isoCode].y)) {
 				if (!isNaN(lists.fundLatLongList[row.isoCode][0]) || !isNaN(lists.fundLatLongList[row.isoCode][1])) {
 					centroids[row.isoCode] = {
-						x: lists.fundLatLongList[row.isoCode][0],
-						y: lists.fundLatLongList[row.isoCode][1]
+						x: mapProjection([lists.fundLatLongList[row.isoCode][1], lists.fundLatLongList[row.isoCode][0]])[0],
+						y: mapProjection([lists.fundLatLongList[row.isoCode][1], lists.fundLatLongList[row.isoCode][0]])[1]
 					};
 				} else {
 					centroids[row.isoCode] = {
@@ -675,6 +850,41 @@ function displayLabels(labelSelection) {
 			};
 		});
 	});
+};
+
+function reverseFormat(s) {
+	if (+s === 0) return 0;
+	let returnValue;
+	const transformation = {
+		Y: Math.pow(10, 24),
+		Z: Math.pow(10, 21),
+		E: Math.pow(10, 18),
+		P: Math.pow(10, 15),
+		T: Math.pow(10, 12),
+		G: Math.pow(10, 9),
+		B: Math.pow(10, 9),
+		M: Math.pow(10, 6),
+		k: Math.pow(10, 3),
+		h: Math.pow(10, 2),
+		da: Math.pow(10, 1),
+		d: Math.pow(10, -1),
+		c: Math.pow(10, -2),
+		m: Math.pow(10, -3),
+		μ: Math.pow(10, -6),
+		n: Math.pow(10, -9),
+		p: Math.pow(10, -12),
+		f: Math.pow(10, -15),
+		a: Math.pow(10, -18),
+		z: Math.pow(10, -21),
+		y: Math.pow(10, -24)
+	};
+	Object.keys(transformation).some(k => {
+		if (s.indexOf(k) > 0) {
+			returnValue = parseFloat(s.split(k)[0]) * transformation[k];
+			return true;
+		}
+	});
+	return returnValue;
 };
 
 function capitalize(str) {
