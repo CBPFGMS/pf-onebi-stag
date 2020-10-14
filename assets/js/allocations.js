@@ -646,9 +646,9 @@ function createAllocations(selections, colors, mapData, lists) {
 			return t => arcGenerator(i(t));
 		};
 
-		//pieGroup.on("mouseover", pieGroupMouseover);
+		pieGroup.on("mouseover", pieGroupMouseover);
 
-		//zoomRectangle.on("mouseover", pieGroupMouseout);
+		zoomRectangle.on("mouseover", pieGroupMouseout);
 
 		function zoomed(event) {
 
@@ -677,50 +677,70 @@ function createAllocations(selections, colors, mapData, lists) {
 				zoom.scaleBy(mapPanel.main.transition().duration(duration), 0.5);
 			});
 
-		// function pieGroupMouseover(datum) {
+		function pieGroupMouseover(event, datum) {
 
-		// 	currentHoveredElem = this;
+			pieGroup.style("opacity", d => d.country === datum.country ? 1 : fadeOpacity);
 
-		// 	pieGroup.style("opacity", function() {
-		// 		return this === currentHoveredElem ? 1 : fadeOpacity;
-		// 	});
+			barChartPanel.main.selectAll("." + classPrefix + "bars")
+				.style("opacity", d => d.data.country === datum.country ? 1 : fadeOpacity);
 
-		// 	tooltip.style("display", "block")
-		// 		.html(null);
+			xAxisGroup.selectAll(".tick")
+				.style("opacity", d => d === datum.country ? 1 : fadeOpacity);
 
-		// 	tooltip.on("mouseleave", null);
+			return;
 
-		// 	createCountryTooltip(datum, false);
+			// currentHoveredElem = this;
 
-		// 	const thisBox = this.getBoundingClientRect();
+			// pieGroup.style("opacity", function() {
+			// 	return this === currentHoveredElem ? 1 : fadeOpacity;
+			// });
 
-		// 	const containerBox = containerDiv.node().getBoundingClientRect();
+			// tooltip.style("display", "block")
+			// 	.html(null);
 
-		// 	const tooltipBox = tooltip.node().getBoundingClientRect();
+			// tooltip.on("mouseleave", null);
 
-		// 	const thisOffsetTop = (thisBox.bottom + thisBox.top) / 2 - containerBox.top - (tooltipBox.height / 2);
+			// createCountryTooltip(datum, false);
 
-		// 	const thisOffsetLeft = containerBox.right - thisBox.right > tooltipBox.width + (2 * tooltipMargin) ?
-		// 		(thisBox.left + 2 * (radiusScale(datum.cbpf + datum.cerf) * (containerBox.width / width))) - containerBox.left + tooltipMargin :
-		// 		thisBox.left - containerBox.left - tooltipBox.width - tooltipMargin;
+			// const thisBox = this.getBoundingClientRect();
 
-		// 	tooltip.style("top", thisOffsetTop + "px")
-		// 		.style("left", thisOffsetLeft + "px");
+			// const containerBox = containerDiv.node().getBoundingClientRect();
 
-		// };
+			// const tooltipBox = tooltip.node().getBoundingClientRect();
 
-		// function pieGroupMouseout() {
+			// const thisOffsetTop = (thisBox.bottom + thisBox.top) / 2 - containerBox.top - (tooltipBox.height / 2);
 
-		// 	if (isSnapshotTooltipVisible) return;
+			// const thisOffsetLeft = containerBox.right - thisBox.right > tooltipBox.width + (2 * tooltipMargin) ?
+			// 	(thisBox.left + 2 * (radiusScale(datum.cbpf + datum.cerf) * (containerBox.width / width))) - containerBox.left + tooltipMargin :
+			// 	thisBox.left - containerBox.left - tooltipBox.width - tooltipMargin;
 
-		// 	currentHoveredElem = null;
+			// tooltip.style("top", thisOffsetTop + "px")
+			// 	.style("left", thisOffsetLeft + "px");
 
-		// 	pieGroup.style("opacity", 1);
+		};
 
-		// 	tooltip.html(null)
-		// 		.style("display", "none");
+		function pieGroupMouseout(event) {
 
-		// };
+			pieGroup.style("opacity", 1);
+
+			barChartPanel.main.selectAll("." + classPrefix + "bars")
+				.style("opacity", 1);
+
+			xAxisGroup.selectAll(".tick")
+				.style("opacity", 1);
+
+			return;
+
+			// if (isSnapshotTooltipVisible) return;
+
+			// currentHoveredElem = null;
+
+			// pieGroup.style("opacity", 1);
+
+			// tooltip.html(null)
+			// 	.style("display", "none");
+
+		};
 
 
 		//end of drawMap
@@ -914,14 +934,14 @@ function createAllocations(selections, colors, mapData, lists) {
 			.style("opacity", 0)
 			.attr("y", barChartPanel.padding[0])
 			.attr("height", barChartPanel.height - barChartPanel.padding[0] - barChartPanel.padding[2])
-			.attr("width", xScale.bandwidth())
-			.attr("x", d => xScale(d.country));
+			.attr("width", xScale.step())
+			.attr("x", d => xScale(d.country) - xScale.bandwidth() / 2);
 
 		barsTooltipRectangles = barsTooltipRectanglesEnter.merge(barsTooltipRectangles);
 
 		barsTooltipRectangles.transition()
 			.duration(duration)
-			.attr("x", d => xScale(d.country));
+			.attr("x", d => xScale(d.country) - xScale.bandwidth() / 2);
 
 		xAxisGroup.transition()
 			.duration(duration)
@@ -937,7 +957,10 @@ function createAllocations(selections, colors, mapData, lists) {
 			.filter(d => d === 0)
 			.remove();
 
-		barsTooltipRectangles.on("mouseover", (_, d) => {
+		barsTooltipRectangles.on("mouseover", mouseoverBarsTooltipRectangles)
+			.on("mouseout", mouseoutBarsTooltipRectangles);
+
+		function mouseoverBarsTooltipRectangles(_, d) {
 			bars.style("opacity", e => e.data.country === d.country ? 1 : fadeOpacity);
 			xAxisGroup.selectAll(".tick")
 				.style("opacity", e => e === d.country ? 1 : fadeOpacity);
@@ -950,16 +973,19 @@ function createAllocations(selections, colors, mapData, lists) {
 				.style("display", (_, i, n) => {
 					localVariable.set(n[i], d3.select(n[i]).style("display"));
 					return null;
-				})
-		}).on("mouseout", (_, d) => {
+				});
+		};
+
+		function mouseoutBarsTooltipRectangles(_, d) {
 			bars.style("opacity", 1);
-			xAxisGroup.selectAll(".tick").style("opacity", 1);
+			xAxisGroup.selectAll(".tick")
+				.style("opacity", 1);
 			piesContainer.selectAll("." + classPrefix + "pieGroup")
 				.style("opacity", 1)
 				.filter(e => e.country === d.country)
 				.select("text")
 				.style("display", (_, i, n) => localVariable.get(n[i]));
-		});
+		};
 
 		//end of drawBarChart
 	};
