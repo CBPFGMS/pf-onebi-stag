@@ -11,9 +11,9 @@ const classPrefix = "pfbial",
 	mapAspectRatio = 2.225,
 	legendPanelHeight = 132,
 	legendPanelWidth = 110,
-	legendPanelHorPadding = 36,
+	legendPanelHorPadding = 44,
 	legendPanelVertPadding = 12,
-	mapZoomButtonHorPadding = 40,
+	mapZoomButtonHorPadding = 48,
 	mapZoomButtonVertPadding = 10,
 	mapZoomButtonSize = 26,
 	maxPieSize = 32,
@@ -142,7 +142,8 @@ function createAllocations(selections, colors, mapData, lists) {
 		width: svgBarChartWidth - svgBarChartPadding[3] - svgBarChartPadding[1],
 		height: svgBarChartHeight - svgBarChartPadding[2] - svgBarChartPadding[0],
 		padding: [28, 0, 18, 46],
-		titlePadding: 10
+		titlePadding: 10,
+		titleHorPadding: 8
 	};
 
 	//test
@@ -848,7 +849,7 @@ function createAllocations(selections, colors, mapData, lists) {
 		barTitle = barTitle.enter()
 			.append("text")
 			.attr("class", classPrefix + "barTitle")
-			.attr("x", barChartPanel.padding[3])
+			.attr("x", barChartPanel.padding[3] + barChartPanel.titleHorPadding)
 			.attr("y", barChartPanel.padding[0] - barChartPanel.titlePadding)
 			.merge(barTitle)
 			.text((chartState.selectedFund === "total" ? capitalize(chartState.selectedFund) : chartState.selectedFund.toUpperCase()) + " allocations ")
