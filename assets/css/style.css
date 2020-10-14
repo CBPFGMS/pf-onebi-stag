@@ -456,10 +456,17 @@ footer{position: sticky; bottom: 0;}
   pointer-events: none;
 }
   
-
 .pfbialyAxisGroup line{
   stroke: #ddd;
   stroke-dasharray: 2, 2;
+}
+
+.pfbialpiesNoData {
+  font-family: "Roboto", sans-serif;
+  font-size: 22px;
+  fill: #666;
+  pointer-events: none;
+  text-anchor: middle;
 }
 
 .pfbialbuttonsDiv button {

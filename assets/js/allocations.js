@@ -482,6 +482,27 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		radiusScale.domain([0, maxValue || 0]);
 
+		let piesNoData = piesContainer.selectAll("." + classPrefix + "piesNoData")
+			.data(data.length ? [] : [true]);
+
+		const piesNoDataExit = piesNoData.exit()
+			.transition()
+			.duration(duration)
+			.style("opacity", 0)
+			.remove();
+
+		piesNoData = piesNoData.enter()
+			.append("text")
+			.attr("class", classPrefix + "piesNoData")
+			.attr("x", mapPanel.width / 2)
+			.attr("y", mapPanel.height / 2)
+			.style("opacity", 0)
+			.text("No fund in the selection".toUpperCase())
+			.merge(piesNoData)
+			.transition()
+			.duration(duration)
+			.style("opacity", 1);
+
 		let pieGroup = piesContainer.selectAll("." + classPrefix + "pieGroup")
 			.data(data, d => d.country);
 
