@@ -879,6 +879,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			.duration(duration)
 			.attr("height", 0)
 			.attr("y", yScale(0))
+			.style("opacity", 0)
 			.remove();
 
 		const barsEnter = bars.enter()
@@ -894,7 +895,7 @@ function createAllocations(selections, colors, mapData, lists) {
 		bars.transition()
 			.duration(duration)
 			.attr("x", d => xScale(d.data.country))
-			.attr("y", d => yScale(d[1]))
+			.attr("y", d => d[0] === d[1] ? yScale(0) : yScale(d[1]))
 			.attr("height", d => yScale(d[0]) - yScale(d[1]));
 
 		xAxisGroup.transition()
