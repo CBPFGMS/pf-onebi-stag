@@ -180,7 +180,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	const xScale = d3.scaleBand()
 		.paddingInner(0.5)
-		.paddingOuter(0);
+		.paddingOuter(0.5);
 
 	const yScale = d3.scaleLinear()
 		.range([barChartPanel.height - barChartPanel.padding[2], barChartPanel.padding[0]]);
