@@ -25,6 +25,7 @@ const classPrefix = "pfbial",
 	fillOpacityValue = 0.5,
 	groupNamePadding = 2,
 	barWidth = 20,
+	fadeOpacity = 0.15,
 	localVariable = d3.local(),
 	formatPercent = d3.format("%"),
 	formatSIaxes = d3.format("~s"),
@@ -90,6 +91,8 @@ function createAllocations(selections, colors, mapData, lists) {
 	const svgMap = mapInnerDiv.append("svg")
 		.attr("viewBox", "0 0 " + svgMapWidth + " " + svgMapHeight)
 		.style("background-color", "white");
+
+	//FIX THE ASPECT RATIO! The width should be CONSTANT
 
 	const svgBarChart = barChartDiv.append("svg")
 		.attr("viewBox", "0 0 " + svgBarChartWidth + " " + svgBarChartHeight)
@@ -867,6 +870,7 @@ function createAllocations(selections, colors, mapData, lists) {
 		const barGroupsEnter = barsGroups.enter()
 			.append("g")
 			.attr("class", classPrefix + "barsGroups")
+			.attr("pointer-events", "none")
 			.style("fill", d => colors[d.key]);
 
 		barsGroups = barGroupsEnter.merge(barsGroups);
@@ -878,7 +882,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			.transition()
 			.duration(duration)
 			.attr("height", 0)
-			.attr("y", yScale(0))
+			.attr("y", barChartPanel.height - barChartPanel.padding[2])
 			.style("opacity", 0)
 			.remove();
 
@@ -898,6 +902,27 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("y", d => d[0] === d[1] ? yScale(0) : yScale(d[1]))
 			.attr("height", d => yScale(d[0]) - yScale(d[1]));
 
+		let barsTooltipRectangles = barChartPanel.main.selectAll("." + classPrefix + "barsTooltipRectangles")
+			.data(data, d => d.country);
+
+		const barsTooltipRectanglesExit = barsTooltipRectangles.exit().remove();
+
+		const barsTooltipRectanglesEnter = barsTooltipRectangles.enter()
+			.append("rect")
+			.attr("class", classPrefix + "barsTooltipRectangles")
+			.attr("pointer-events", "all")
+			.style("opacity", 0)
+			.attr("y", barChartPanel.padding[0])
+			.attr("height", barChartPanel.height - barChartPanel.padding[0] - barChartPanel.padding[2])
+			.attr("width", xScale.bandwidth())
+			.attr("x", d => xScale(d.country));
+
+		barsTooltipRectangles = barsTooltipRectanglesEnter.merge(barsTooltipRectangles);
+
+		barsTooltipRectangles.transition()
+			.duration(duration)
+			.attr("x", d => xScale(d.country));
+
 		xAxisGroup.transition()
 			.duration(duration)
 			.call(xAxis);
@@ -911,6 +936,30 @@ function createAllocations(selections, colors, mapData, lists) {
 		yAxisGroup.selectAll(".tick")
 			.filter(d => d === 0)
 			.remove();
+
+		barsTooltipRectangles.on("mouseover", (_, d) => {
+			bars.style("opacity", e => e.data.country === d.country ? 1 : fadeOpacity);
+			xAxisGroup.selectAll(".tick")
+				.style("opacity", e => e === d.country ? 1 : fadeOpacity);
+			piesContainer.selectAll("." + classPrefix + "pieGroup")
+				.style("opacity", fadeOpacity);
+			const thisPieGroup = piesContainer.selectAll("." + classPrefix + "pieGroup")
+				.filter(e => e.country === d.country);
+			thisPieGroup.style("opacity", 1);
+			thisPieGroup.select("text")
+				.style("display", (_, i, n) => {
+					localVariable.set(n[i], d3.select(n[i]).style("display"));
+					return null;
+				})
+		}).on("mouseout", (_, d) => {
+			bars.style("opacity", 1);
+			xAxisGroup.selectAll(".tick").style("opacity", 1);
+			piesContainer.selectAll("." + classPrefix + "pieGroup")
+				.style("opacity", 1)
+				.filter(e => e.country === d.country)
+				.select("text")
+				.style("display", (_, i, n) => localVariable.get(n[i]));
+		});
 
 		//end of drawBarChart
 	};
