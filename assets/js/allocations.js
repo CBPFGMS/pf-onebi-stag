@@ -11,9 +11,9 @@ const classPrefix = "pfbial",
 	mapAspectRatio = 2.225,
 	legendPanelHeight = 132,
 	legendPanelWidth = 110,
-	legendPanelHorPadding = 20,
+	legendPanelHorPadding = 36,
 	legendPanelVertPadding = 12,
-	mapZoomButtonHorPadding = 24,
+	mapZoomButtonHorPadding = 40,
 	mapZoomButtonVertPadding = 10,
 	mapZoomButtonSize = 26,
 	maxPieSize = 32,
@@ -24,11 +24,14 @@ const classPrefix = "pfbial",
 	strokeOpacityValue = 0.8,
 	fillOpacityValue = 0.5,
 	groupNamePadding = 2,
+	barWidth = 20,
 	localVariable = d3.local(),
 	formatPercent = d3.format("%"),
+	formatSIaxes = d3.format("~s"),
 	svgMapPadding = [0, 10, 0, 10],
 	svgBarChartPadding = [4, 4, 4, 4],
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
+	stackKeys = ["total", "cerf", "cbpf"],
 	centroids = {};
 
 //|variables
@@ -138,8 +141,16 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("transform", "translate(" + svgBarChartPadding[3] + "," + svgBarChartPadding[0] + ")"),
 		width: svgBarChartWidth - svgBarChartPadding[3] - svgBarChartPadding[1],
 		height: svgBarChartHeight - svgBarChartPadding[2] - svgBarChartPadding[0],
-		padding: [0, 0, 0, 0]
+		padding: [28, 0, 18, 46],
+		titlePadding: 10
 	};
+
+	//test
+	// barChartPanel.main.append("rect")
+	// 	.attr("width", barChartPanel.width)
+	// 	.attr("height", barChartPanel.height)
+	// 	.style("fill", "wheat");
+	//test
 
 	const svgMapClip = svgMap.append("clipPath")
 		.attr("id", classPrefix + "svgMapClip")
@@ -167,6 +178,13 @@ function createAllocations(selections, colors, mapData, lists) {
 	const radiusScale = d3.scaleSqrt()
 		.range([minPieSize, maxPieSize]);
 
+	const xScale = d3.scaleBand()
+		.paddingInner(0.5)
+		.paddingOuter(0);
+
+	const yScale = d3.scaleLinear()
+		.range([barChartPanel.height - barChartPanel.padding[2], barChartPanel.padding[0]]);
+
 	const arcGenerator = d3.arc()
 		.innerRadius(0);
 
@@ -179,6 +197,27 @@ function createAllocations(selections, colors, mapData, lists) {
 			return d.value;
 		})
 		.sort(null);
+
+	const stack = d3.stack()
+		.keys(stackKeys)
+		.order(d3.stackOrderDescending);
+
+	const xAxis = d3.axisBottom(xScale)
+		.tickSize(4)
+		.tickFormat(d => lists.fundIsoCodes3List[d]);
+
+	const yAxis = d3.axisLeft(yScale)
+		.tickSizeOuter(0)
+		.ticks(3)
+		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
+
+	const xAxisGroup = barChartPanel.main.append("g")
+		.attr("class", classPrefix + "xAxisGroup")
+		.attr("transform", "translate(0," + (barChartPanel.height - barChartPanel.padding[2]) + ")");
+
+	const yAxisGroup = barChartPanel.main.append("g")
+		.attr("class", classPrefix + "yAxisGroup")
+		.attr("transform", "translate(" + barChartPanel.padding[3] + ",0)");
 
 	const zoom = d3.zoom()
 		.scaleExtent([1, 20])
@@ -254,6 +293,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 			drawMap(data);
 			drawLegend(data);
+			drawBarChart(data);
 		});
 
 	};
@@ -419,7 +459,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			.style("color", (d, i) => i !== 1 ? colors[d] : null);
 
 		const title = buttons.append("span")
-			.html((d, i) => " " + (i === 1 ? "Cerf/Cbpf" : capitalize(d)));
+			.html(d => " " + (d === "total" ? capitalize(d) : d.toUpperCase()));
 	};
 
 	function drawMap(unfilteredData) {
@@ -784,8 +824,91 @@ function createAllocations(selections, colors, mapData, lists) {
 		//end of drawLegend
 	};
 
-	function drawBarChart(data) {
+	function drawBarChart(unfilteredData) {
 
+		const data = unfilteredData.filter(d => chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]);
+
+		data.sort((a, b) => chartState.selectedFund === "cerf/cbpf" ? ((b.cerf + b.cbpf) - (a.cerf + a.cbpf)) :
+			b[chartState.selectedFund] - a[chartState.selectedFund]);
+
+		xScale.range([barChartPanel.padding[3], barChartPanel.padding[3] + data.length * barWidth])
+			.domain(data.map(d => d.country));
+
+		yScale.domain([0, d3.max(data, d => chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund])]);
+
+		let barTitleSpanText;
+
+		if (chartState.selectedChart === "allocationsByCountry") {
+			barTitleSpanText = chartState.selectedRegion.length === 0 ? "all regions" : textWithCommas(chartState.selectedRegion);
+		};
+
+		let barTitle = barChartPanel.main.selectAll("." + classPrefix + "barTitle")
+			.data([true]);
+
+		barTitle = barTitle.enter()
+			.append("text")
+			.attr("class", classPrefix + "barTitle")
+			.attr("x", barChartPanel.padding[3])
+			.attr("y", barChartPanel.padding[0] - barChartPanel.titlePadding)
+			.merge(barTitle)
+			.text((chartState.selectedFund === "total" ? capitalize(chartState.selectedFund) : chartState.selectedFund.toUpperCase()) + " allocations ")
+			.append("tspan")
+			.attr("class", classPrefix + "barTitleSpan")
+			.text("(" + barTitleSpanText + ")");
+
+		const stackedData = stack(data);
+
+		let barsGroups = barChartPanel.main.selectAll("." + classPrefix + "barsGroups")
+			.data(stackedData, d => d.key);
+
+		const barGroupsExit = barsGroups.exit().remove();
+
+		const barGroupsEnter = barsGroups.enter()
+			.append("g")
+			.attr("class", classPrefix + "barsGroups")
+			.style("fill", d => colors[d.key]);
+
+		barsGroups = barGroupsEnter.merge(barsGroups);
+
+		let bars = barsGroups.selectAll("." + classPrefix + "bars")
+			.data(d => d, d => d.data.country);
+
+		const barsExit = bars.exit()
+			.transition()
+			.duration(duration)
+			.attr("height", 0)
+			.attr("y", yScale(0))
+			.remove();
+
+		const barsEnter = bars.enter()
+			.append("rect")
+			.attr("class", classPrefix + "bars")
+			.attr("width", xScale.bandwidth())
+			.attr("height", 0)
+			.attr("y", yScale(0))
+			.attr("x", d => xScale(d.data.country))
+
+		bars = barsEnter.merge(bars);
+
+		bars.transition()
+			.duration(duration)
+			.attr("x", d => xScale(d.data.country))
+			.attr("y", d => yScale(d[1]))
+			.attr("height", d => yScale(d[0]) - yScale(d[1]));
+
+		xAxisGroup.transition()
+			.duration(duration)
+			.call(xAxis);
+
+		yAxis.tickSizeInner(-(xScale.range()[1] - barChartPanel.padding[3]));
+
+		yAxisGroup.transition()
+			.duration(duration)
+			.call(yAxis);
+
+		yAxisGroup.selectAll(".tick")
+			.filter(d => d === 0)
+			.remove();
 
 		//end of drawBarChart
 	};
@@ -796,7 +919,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		originalData.forEach(row => {
 			const copiedRow = Object.assign({}, row);
-			if (chartState.selectedChart === "allocationsCountry") {
+			if (chartState.selectedChart === "allocationsByCountry") {
 				if (chartState.selectedFund === "total") {
 					copiedRow.cbpf = 0;
 					copiedRow.cerf = 0;
@@ -911,6 +1034,10 @@ function reverseFormat(s) {
 
 function capitalize(str) {
 	return str[0].toUpperCase() + str.substring(1)
+};
+
+function textWithCommas(arr) {
+	return arr.reduce((acc, curr, index) => acc + (index >= arr.length - 2 ? index > arr.length - 2 ? curr : curr + " and " : curr + ", "), "");
 };
 
 export {

@@ -420,6 +420,48 @@ footer{position: sticky; bottom: 0;}
   fill: darkslategray;
 }
 
+.pfbialbarTitle {
+  font-family: "Roboto", sans-serif;
+  font-size: 16px;
+  fill: #444;
+}
+
+.pfbialbarTitleSpan {
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  fill: #444;
+}
+
+.pfbialxAxisGroup line{
+  stroke: darkslategray;
+}
+
+.pfbialxAxisGroup path {
+  stroke: none;
+}
+
+.pfbialxAxisGroup text {
+  font-family: "Roboto", sans-serif;
+  font-size: 9px;
+}
+
+.pfbialyAxisGroup path {
+  stroke: none;
+}
+
+.pfbialyAxisGroup text {
+  font-family: "Roboto", sans-serif;
+  font-size: 10px;
+  fill: #aaa;
+  pointer-events: none;
+}
+  
+
+.pfbialyAxisGroup line{
+  stroke: #ddd;
+  stroke-dasharray: 2, 2;
+}
+
 .pfbialbuttonsDiv button {
   margin: 0px 0px 0px 8px;
   display: inline-flex;

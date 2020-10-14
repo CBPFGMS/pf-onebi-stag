@@ -3,7 +3,7 @@ const isTouchScreenOnly = (window.matchMedia("(pointer: coarse)").matches && !wi
 
 //|set constants
 const generalClassPrefix = "pfbihp",
-	defaultChart = "allocationsCountry",
+	defaultChart = "allocationsByCountry",
 	localStorageTime = 3600000,
 	currentDate = new Date(),
 	localVariable = d3.local(),
@@ -21,8 +21,8 @@ const generalClassPrefix = "pfbihp",
 	masterClusterTypesUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstCluster.json",
 	contributionsDataUrl = "https://cbpfgms.github.io/pf-onebi-data/contributionSummary.csv",
 	allocationsDataUrl = "https://cbpfgms.github.io/pf-onebi-data/allocationSummary.csv",
-	chartTypesAllocations = ["allocationsCountry", "allocationsSector", "allocationsType"],
-	chartTypesContributions = ["contributionsCerfCbpf", "contributionsDonor"],
+	chartTypesAllocations = ["allocationsByCountry", "allocationsBySector", "allocationsByType"],
+	chartTypesContributions = ["contributionsByCerfCbpf", "contributionsByDonor"],
 	fundValues = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	separator = "##",
 	colorsObject = {
@@ -39,6 +39,7 @@ const yearsArrayAllocations = [],
 	fundNamesList = {},
 	fundRegionsList = {},
 	fundIsoCodesList = {},
+	fundIsoCodes3List = {},
 	fundLatLongList = {},
 	donorNamesList = {},
 	donorTypesList = {},
@@ -140,10 +141,14 @@ function controlCharts([defaultValues,
 	createClustersList(masterClusterTypes);
 	createAllocationTypesList(masterAllocationTypes);
 
+	//Hardcoded Syria Cross Border ISO 3 code
+	fundIsoCodes3List["108"] = "SCB";
+
 	const lists = {
 		fundNamesList: fundNamesList,
 		fundRegionsList: fundRegionsList,
 		fundIsoCodesList: fundIsoCodesList,
+		fundIsoCodes3List: fundIsoCodes3List,
 		fundLatLongList: fundLatLongList,
 		donorNamesList: donorNamesList,
 		donorTypesList: donorTypesList,
@@ -179,13 +184,13 @@ function controlCharts([defaultValues,
 		drawAllocations(allocationsData);
 	};
 
-	if (chartState.selectedChart === "contributionsCerfCbpf") {
+	if (chartState.selectedChart === "contributionsByCerfCbpf") {
 		openNav(selections.navlinkContributionsByCerfCbpf.node(), "byCerfCbpf", false)
 		drawContributionsByCerfCbpf = createContributionsByCerfCbpf(selections, colorsObject);
 		drawContributionsByCerfCbpf(contributionsData);
 	};
 
-	if (chartState.selectedChart === "contributionsDonor") {
+	if (chartState.selectedChart === "contributionsByDonor") {
 		openNav(selections.navlinkContributionsByDonor.node(), "byDonor", false)
 		drawContributionsByDonor = createContributionsByDonor(selections, colorsObject);
 		drawContributionsByDonor(contributionsData);
@@ -199,51 +204,51 @@ function controlCharts([defaultValues,
 		const contributionsData = processDataContributions(rawContributionsData);
 		updateTopValues(topValues, selections);
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) > -1) drawAllocations(allocationsData);
-		if (chartState.selectedChart === "contributionsCerfCbpf") drawContributionsByCerfCbpf(contributionsData);
-		if (chartState.selectedChart === "contributionsDonor") drawContributionsByDonor(contributionsData);
+		if (chartState.selectedChart === "contributionsByCerfCbpf") drawContributionsByCerfCbpf(contributionsData);
+		if (chartState.selectedChart === "contributionsByDonor") drawContributionsByDonor(contributionsData);
 	});
 
 	selections.navlinkAllocationsByCountry.on("click", () => {
-		if (chartState.selectedChart === "allocationsCountry") return;
+		if (chartState.selectedChart === "allocationsByCountry") return;
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
 			selections.chartContainerDiv.selectChildren().remove();
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
-		chartState.selectedChart = "allocationsCountry";
+		chartState.selectedChart = "allocationsByCountry";
 		drawAllocations(allocationsData);
 	});
 
 	selections.navlinkAllocationsBySector.on("click", () => {
-		if (chartState.selectedChart === "allocationsSector") return;
+		if (chartState.selectedChart === "allocationsBySector") return;
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
 			selections.chartContainerDiv.selectChildren().remove();
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
-		chartState.selectedChart = "allocationsSector";
+		chartState.selectedChart = "allocationsBySector";
 		drawAllocations(allocationsData);
 	});
 
 	selections.navlinkAllocationsByType.on("click", () => {
-		if (chartState.selectedChart === "allocationsType") return;
+		if (chartState.selectedChart === "allocationsByType") return;
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
 			selections.chartContainerDiv.selectChildren().remove();
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
-		chartState.selectedChart = "allocationsType";
+		chartState.selectedChart = "allocationsByType";
 		drawAllocations(allocationsData);
 	});
 
 	selections.navlinkContributionsByCerfCbpf.on("click", () => {
-		if (chartState.selectedChart === "contributionsCerfCbpf") return;
-		chartState.selectedChart = "contributionsCerfCbpf";
+		if (chartState.selectedChart === "contributionsByCerfCbpf") return;
+		chartState.selectedChart = "contributionsByCerfCbpf";
 		selections.chartContainerDiv.selectChildren().remove();
 		drawContributionsByCerfCbpf = createContributionsByCerfCbpf(selections, colorsObject);
 		drawContributionsByCerfCbpf(contributionsData);
 	});
 
 	selections.navlinkContributionsByDonor.on("click", () => {
-		if (chartState.selectedChart === "contributionsDonor") return;
-		chartState.selectedChart = "contributionsDonor";
+		if (chartState.selectedChart === "contributionsByDonor") return;
+		chartState.selectedChart = "contributionsByDonor";
 		selections.chartContainerDiv.selectChildren().remove();
 		drawContributionsByDonor = createContributionsByDonor(selections, colorsObject);
 		drawContributionsByDonor(contributionsData);
@@ -437,6 +442,7 @@ function createFundNamesList(fundsData) {
 		fundNamesListKeys.push(row.id + "");
 		fundRegionsList[row.id + ""] = row.RegionName;
 		fundIsoCodesList[row.id + ""] = row.ISO2Code;
+		fundIsoCodes3List[row.id + ""] = row.CountryCode;
 		fundLatLongList[row.ISO2Code] = [row.latitude, row.longitude];
 	});
 };
