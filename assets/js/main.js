@@ -76,6 +76,11 @@ const selections = {
 	navlinkAllocationsByType: d3.select("#navAllocationsByType"),
 	navlinkContributionsByCerfCbpf: d3.select("#navContributionsByCerfCbpf"),
 	navlinkContributionsByDonor: d3.select("#navContributionsByDonor"),
+	byCountryAllocationsValue: d3.select("#byCountryAllocationsValue"),
+	byCountryAllocationsText: d3.select("#byCountryAllocationsText"),
+	byCountryCountriesValue: d3.select("#byCountryCountriesValue"),
+	byCountryProjectsValue: d3.select("#byCountryProjectsValue"),
+	byCountryPartnersValue: d3.select("#byCountryPartnersValue")
 };
 
 createSpinner(selections.chartContainerDiv);

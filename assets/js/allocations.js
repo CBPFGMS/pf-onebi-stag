@@ -1053,11 +1053,10 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	function createColumnTopValues(originalData) {
 
-		console.log(originalData);
-
 		const numberOfProjects = new Set(),
-			numberOfPartners = new Set(),
-			numberOfCountries = originalData.length;
+			numberOfPartners = new Set();
+
+		const numberOfCountries = originalData.filter(d => chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]).length;
 
 		const totalAllocations = d3.sum(originalData, d => chartState.selectedFund === "cerf/cbpf" ? d.total : d[chartState.selectedFund]);
 
@@ -1072,7 +1071,26 @@ function createAllocations(selections, colors, mapData, lists) {
 			});
 		});
 
-		console.log(numberOfProjects);
+		const updateTransition = d3.transition()
+			.duration(duration);
+
+		selections.byCountryAllocationsValue.transition(updateTransition)
+			.textTween((_, i, n) => {
+				const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, totalAllocations);
+				return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
+			});
+
+		selections.byCountryAllocationsText.text((chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? "Total" :
+			chartState.selectedFund.toUpperCase()) + " allocations");
+
+		selections.byCountryCountriesValue.transition(updateTransition)
+			.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfCountries));
+
+		selections.byCountryProjectsValue.transition(updateTransition)
+			.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfProjects.size));
+
+		selections.byCountryPartnersValue.transition(updateTransition)
+			.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfPartners.size));
 
 		//end of createColumnTopValues
 	};
@@ -1159,6 +1177,12 @@ function displayLabels(labelSelection) {
 			};
 		});
 	});
+};
+
+function formatSIFloat(value) {
+	const length = (~~Math.log10(value) + 1) % 3;
+	const digits = length === 1 ? 2 : length === 2 ? 1 : 0;
+	return d3.formatPrefix("." + digits, value)(value);
 };
 
 function reverseFormat(s) {
