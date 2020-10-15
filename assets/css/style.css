@@ -333,6 +333,23 @@ footer{position: sticky; bottom: 0;}
   flex-direction: column;
 }
 
+#pfbialtooltipDivMap, #pfbialtooltipDivBarChart {    
+  position: absolute;
+  text-align: left;
+  color: darkslategray;
+  font-family: "Roboto", sans-serif;
+  white-space: normal;
+  padding: 8px;
+  line-height: 120%;
+  font-size: 14px;
+  background: #f8f8f8; 
+  border: 1px solid #999; 
+  border-radius: 4px;
+  pointer-events: none;
+  cursor: none;
+  z-index: 1500;
+}
+
 .pfbialmapDiv {
   display: flex;
   width: 100%;
@@ -349,6 +366,7 @@ footer{position: sticky; bottom: 0;}
 .pfbialbarChartDiv {
   width: 100%;
   align-items: center;
+  position: relative;
 }
 
 .pfbicdcontainerDiv {

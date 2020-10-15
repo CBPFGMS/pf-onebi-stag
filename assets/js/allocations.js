@@ -18,6 +18,7 @@ const classPrefix = "pfbial",
 	mapZoomButtonSize = 26,
 	maxPieSize = 32,
 	minPieSize = 1,
+	tooltipMargin = 4,
 	legendLineSize = 38,
 	showNamesMargin = 12,
 	duration = 1000,
@@ -25,7 +26,7 @@ const classPrefix = "pfbial",
 	fillOpacityValue = 0.5,
 	groupNamePadding = 2,
 	barWidth = 20,
-	fadeOpacity = 0.15,
+	fadeOpacity = 0.1,
 	localVariable = d3.local(),
 	formatPercent = d3.format("%"),
 	formatSIaxes = d3.format("~s"),
@@ -61,17 +62,21 @@ function createAllocations(selections, colors, mapData, lists) {
 	const containerDiv = selections.chartContainerDiv.append("div")
 		.attr("class", classPrefix + "containerDiv");
 
-	const tooltipDiv = containerDiv.append("div")
-		.attr("id", classPrefix + "tooltipDiv")
-		.style("display", "none");
-
 	const mapDiv = containerDiv.append("div")
 		.attr("class", classPrefix + "mapDiv")
 		.style("height", formatPercent(mapPercentage));
 
+	const tooltipDivMap = mapDiv.append("div")
+		.attr("id", classPrefix + "tooltipDivMap")
+		.style("display", "none");
+
 	const barChartDiv = containerDiv.append("div")
 		.attr("class", classPrefix + "barChartDiv")
 		.style("height", formatPercent(barChartPercentage));
+
+	const tooltipDivBarChart = barChartDiv.append("div")
+		.attr("id", classPrefix + "tooltipDivBarChart")
+		.style("display", "none");
 
 	const buttonsDiv = mapDiv.append("div")
 		.attr("class", classPrefix + "buttonsDiv");
@@ -667,9 +672,8 @@ function createAllocations(selections, colors, mapData, lists) {
 			return t => arcGenerator(i(t));
 		};
 
-		pieGroup.on("mouseover", pieGroupMouseover);
-
-		zoomRectangle.on("mouseover", pieGroupMouseout);
+		pieGroup.on("mouseover", pieGroupMouseover)
+			.on("mouseout", pieGroupMouseout);
 
 		function zoomed(event) {
 
@@ -708,35 +712,33 @@ function createAllocations(selections, colors, mapData, lists) {
 			xAxisGroup.selectAll(".tick")
 				.style("opacity", d => d === datum.country ? 1 : fadeOpacity);
 
-			return;
-
 			// currentHoveredElem = this;
 
-			// pieGroup.style("opacity", function() {
-			// 	return this === currentHoveredElem ? 1 : fadeOpacity;
-			// });
+			tooltipDivMap.style("display", "block")
+				.html(null);
 
-			// tooltip.style("display", "block")
-			// 	.html(null);
+			const innerTooltipDiv = tooltipDivMap.append("div")
+				.style("max-width", "300px")
+				.attr("id", classPrefix + "innerTooltipDiv");
 
-			// tooltip.on("mouseleave", null);
+			innerTooltipDiv.html("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.");
 
 			// createCountryTooltip(datum, false);
 
-			// const thisBox = this.getBoundingClientRect();
+			const thisBox = event.currentTarget.getBoundingClientRect();
 
-			// const containerBox = containerDiv.node().getBoundingClientRect();
+			const containerBox = mapDiv.node().getBoundingClientRect();
 
-			// const tooltipBox = tooltip.node().getBoundingClientRect();
+			const tooltipBox = tooltipDivMap.node().getBoundingClientRect();
 
-			// const thisOffsetTop = (thisBox.bottom + thisBox.top) / 2 - containerBox.top - (tooltipBox.height / 2);
+			const thisOffsetTop = (thisBox.bottom + thisBox.top) / 2 - containerBox.top - (tooltipBox.height / 2);
 
-			// const thisOffsetLeft = containerBox.right - thisBox.right > tooltipBox.width + (2 * tooltipMargin) ?
-			// 	(thisBox.left + 2 * (radiusScale(datum.cbpf + datum.cerf) * (containerBox.width / width))) - containerBox.left + tooltipMargin :
-			// 	thisBox.left - containerBox.left - tooltipBox.width - tooltipMargin;
+			const thisOffsetLeft = containerBox.right - thisBox.right > tooltipBox.width + (2 * tooltipMargin) ?
+				(thisBox.left + 2 * (radiusScale(chartState.selectedFund === "total" ? datum.total : datum.cbpf + datum.cerf) * (containerBox.width / svgMapWidth))) - containerBox.left + tooltipMargin :
+				thisBox.left - containerBox.left - tooltipBox.width - tooltipMargin;
 
-			// tooltip.style("top", thisOffsetTop + "px")
-			// 	.style("left", thisOffsetLeft + "px");
+			tooltipDivMap.style("top", thisOffsetTop + "px")
+				.style("left", thisOffsetLeft + "px");
 
 		};
 
@@ -750,16 +752,14 @@ function createAllocations(selections, colors, mapData, lists) {
 			xAxisGroup.selectAll(".tick")
 				.style("opacity", 1);
 
-			return;
-
 			// if (isSnapshotTooltipVisible) return;
 
 			// currentHoveredElem = null;
 
 			// pieGroup.style("opacity", 1);
 
-			// tooltip.html(null)
-			// 	.style("display", "none");
+			tooltipDivMap.html(null)
+				.style("display", "none");
 
 		};
 
@@ -982,30 +982,66 @@ function createAllocations(selections, colors, mapData, lists) {
 			.on("mouseout", mouseoutBarsTooltipRectangles);
 
 		function mouseoverBarsTooltipRectangles(_, d) {
+
 			bars.style("opacity", e => e.data.country === d.country ? 1 : fadeOpacity);
+
 			xAxisGroup.selectAll(".tick")
 				.style("opacity", e => e === d.country ? 1 : fadeOpacity);
+
 			piesContainer.selectAll("." + classPrefix + "pieGroup")
 				.style("opacity", fadeOpacity);
+
 			const thisPieGroup = piesContainer.selectAll("." + classPrefix + "pieGroup")
 				.filter(e => e.country === d.country);
+
 			thisPieGroup.style("opacity", 1);
 			thisPieGroup.select("text")
 				.style("display", (_, i, n) => {
 					localVariable.set(n[i], d3.select(n[i]).style("display"));
 					return null;
 				});
+
+			tooltipDivBarChart.style("display", "block")
+				.html(null);
+
+			const innerTooltipDiv = tooltipDivBarChart.append("div")
+				.style("max-width", "300px")
+				.attr("id", classPrefix + "innerTooltipDiv");
+
+			innerTooltipDiv.html("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.");
+
+			const thisBox = event.currentTarget.getBoundingClientRect();
+
+			const containerBox = barChartDiv.node().getBoundingClientRect();
+
+			const tooltipBox = tooltipDivBarChart.node().getBoundingClientRect();
+
+			const thisOffsetTop = (containerBox.height / 2) - (tooltipBox.height / 2);
+
+			const thisOffsetLeft = containerBox.right - thisBox.right > tooltipBox.width + tooltipMargin ?
+				thisBox.left - containerBox.left + thisBox.width + tooltipMargin :
+				thisBox.left - containerBox.left - tooltipBox.width - tooltipMargin;
+
+			tooltipDivBarChart.style("top", thisOffsetTop + "px")
+				.style("left", thisOffsetLeft + "px");
+
 		};
 
 		function mouseoutBarsTooltipRectangles(_, d) {
+
 			bars.style("opacity", 1);
+
 			xAxisGroup.selectAll(".tick")
 				.style("opacity", 1);
+
 			piesContainer.selectAll("." + classPrefix + "pieGroup")
 				.style("opacity", 1)
 				.filter(e => e.country === d.country)
 				.select("text")
 				.style("display", (_, i, n) => localVariable.get(n[i]));
+
+			tooltipDivBarChart.html(null)
+				.style("display", "none");
 		};
 
 		//end of drawBarChart
