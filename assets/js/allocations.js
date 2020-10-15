@@ -12,11 +12,12 @@ const classPrefix = "pfbial",
 	legendPanelHeight = 132,
 	legendPanelWidth = 110,
 	legendPanelHorPadding = 44,
-	legendPanelVertPadding = 12,
+	legendPanelVertPadding = 32,
+	legendTextPadding = 18,
 	mapZoomButtonHorPadding = 48,
 	mapZoomButtonVertPadding = 10,
 	mapZoomButtonSize = 26,
-	maxPieSize = 32,
+	maxPieSize = 26,
 	minPieSize = 1,
 	tooltipMargin = 4,
 	legendLineSize = 38,
@@ -124,7 +125,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("transform", "translate(" + (svgMapPadding[3] + legendPanelHorPadding) + "," + (svgMapPadding[0] + mapPanel.height - legendPanelHeight - legendPanelVertPadding) + ")"),
 		width: legendPanelWidth,
 		height: legendPanelHeight,
-		padding: [30, 0, 12, 4]
+		padding: [30, 0, 20, 4]
 	};
 
 	const mapZoomButtonPanel = {
@@ -864,7 +865,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		legendColors = legendColorsEnter.merge(legendColors);
 
-		legendColors.attr("transform", (_, i) => "translate(" + legendPanel.padding[3] + "," + (legendPanel.height - legendPanel.padding[2] - 18 + (+i * 18)) + ")");
+		legendColors.attr("transform", (_, i) => "translate(" + legendPanel.padding[3] + "," + (legendPanel.height - legendPanel.padding[2] - legendTextPadding + (+i * legendTextPadding)) + ")");
 
 		legendColors.select("rect")
 			.style("fill", d => colors[d]);
