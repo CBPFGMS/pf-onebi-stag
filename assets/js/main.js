@@ -80,7 +80,8 @@ const selections = {
 	byCountryAllocationsText: d3.select("#byCountryAllocationsText"),
 	byCountryCountriesValue: d3.select("#byCountryCountriesValue"),
 	byCountryProjectsValue: d3.select("#byCountryProjectsValue"),
-	byCountryPartnersValue: d3.select("#byCountryPartnersValue")
+	byCountryPartnersValue: d3.select("#byCountryPartnersValue"),
+	byCountryChartContainer: d3.select("#bycountry-bar-chart")
 };
 
 createSpinner(selections.chartContainerDiv);
@@ -393,14 +394,14 @@ function updateTopValues(topValues, selections) {
 
 	selections.contributionsTopFigure.transition(updateTransition)
 		.textTween((_, i, n) => {
-			const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, topValues.contributions);
-			return t => formatSIFloat(interpolator(t)).replace("G", "B");
+			const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, topValues.contributions);
+			return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
 		});
 
 	selections.allocationsTopFigure.transition(updateTransition)
 		.textTween((_, i, n) => {
-			const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, topValues.allocations);
-			return t => formatSIFloat(interpolator(t)).replace("G", "B");
+			const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, topValues.allocations);
+			return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
 		});
 
 	selections.donorsTopFigure.transition(updateTransition)

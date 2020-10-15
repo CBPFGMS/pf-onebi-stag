@@ -285,6 +285,8 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		createColumnTopValues(originalData);
 
+		createColumnChart(originalData);
+
 		const data = filterData(originalData);
 
 		drawMap(data);
@@ -1093,6 +1095,19 @@ function createAllocations(selections, colors, mapData, lists) {
 			.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfPartners.size));
 
 		//end of createColumnTopValues
+	};
+
+	function createColumnChart(originalData) {
+
+		const chartContainer = selections.byCountryChartContainer;
+
+		chartContainer.html(null);
+
+		const chartContainerSize = chartContainer.node().getBoundingClientRect();
+
+		console.log(chartContainerSize);
+
+		//end of createColumnChart
 	};
 
 	function filterData(originalData) {
