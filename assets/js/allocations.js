@@ -283,6 +283,8 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		//create second column with originalData
 
+		createColumnTopValues(originalData);
+
 		const data = filterData(originalData);
 
 		drawMap(data);
@@ -299,6 +301,8 @@ function createAllocations(selections, colors, mapData, lists) {
 			mapButtons.classed("active", d => chartState.selectedFund === d);
 
 			const data = filterData(originalData);
+
+			createColumnTopValues(originalData);
 
 			drawMap(data);
 			drawLegend(data);
@@ -1045,6 +1049,32 @@ function createAllocations(selections, colors, mapData, lists) {
 		};
 
 		//end of drawBarChart
+	};
+
+	function createColumnTopValues(originalData) {
+
+		console.log(originalData);
+
+		const numberOfProjects = new Set(),
+			numberOfPartners = new Set(),
+			numberOfCountries = originalData.length;
+
+		const totalAllocations = d3.sum(originalData, d => chartState.selectedFund === "cerf/cbpf" ? d.total : d[chartState.selectedFund]);
+
+		originalData.forEach(row => {
+			row.allocationsList.forEach(allocation => {
+				if (chartState.selectedFund === "total" ||
+					chartState.selectedFund === "cerf/cbpf" ||
+					lists.fundTypesList[allocation.FundId] === chartState.selectedFund) {
+					allocation.ProjList.toString().split("##").forEach(e => numberOfProjects.add(e));
+					numberOfPartners.add(allocation.OrganizatinonId);
+				};
+			});
+		});
+
+		console.log(numberOfProjects);
+
+		//end of createColumnTopValues
 	};
 
 	function filterData(originalData) {
