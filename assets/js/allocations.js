@@ -690,8 +690,6 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		function zoomed(event) {
 
-			console.log(event.transform);
-
 			mapContainer.attr("transform", event.transform);
 
 			mapContainer.select("path:nth-child(2)")
@@ -801,18 +799,8 @@ function createAllocations(selections, colors, mapData, lists) {
 			const scale = Math.min(mapPanel.width / (boundingBox.e - boundingBox.w), mapPanel.height / (boundingBox.s - boundingBox.n));
 			const translate = [mapPanel.width / 2 - scale * midPointX, mapPanel.height / 2 - scale * midPointY];
 
-			// zoom.translateBy(svgMap.transition().duration(duration), translate[0], translate[1]);
-			// zoom.scaleBy(svgMap.transition().duration(duration), scale);
-
-			// mapPanel.main.transition()
-			// 	.duration(duration)
-			// 	.call(zoom.transform,
-			// 		d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
-
-
 			zoom.transform(svgMap.transition().duration(duration),
-				d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale))
-
+				d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
 
 		};
 
