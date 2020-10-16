@@ -1151,7 +1151,9 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		const chartContainerSize = chartContainer.node().getBoundingClientRect();
 
-		console.log(chartContainerSize);
+		const chartSvg = chartContainer.append("svg")
+			.attr("viewBox", "0 0 " + chartContainerSize.width + " " + chartContainerSize.height)
+			.style("background-color", "white");
 
 		//end of createColumnChart
 	};
