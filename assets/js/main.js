@@ -540,7 +540,5 @@ function createSpinner(container) {
 		.html("Loading data");
 
 	spinnerContainer.append("div")
-		.attr("class", generalClassPrefix + "spinnerSymbol")
-		.append("i")
-		.attr("class", "fas fa-spinner fa-spin");
+		.attr("class", "loader");
 };
