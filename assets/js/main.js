@@ -61,7 +61,9 @@ const yearsArrayAllocations = [],
 let spinnerContainer,
 	drawAllocations,
 	drawContributionsByCerfCbpf,
-	drawContributionsByDonor;
+	drawContributionsByDonor,
+	allocationsData,
+	contributionsData;
 
 //|selections
 const selections = {
@@ -173,9 +175,9 @@ function controlCharts([defaultValues,
 
 	resetTopValues(topValues);
 
-	const allocationsData = processDataAllocations(rawAllocationsData);
+	allocationsData = processDataAllocations(rawAllocationsData);
 
-	const contributionsData = processDataContributions(rawContributionsData);
+	contributionsData = processDataContributions(rawContributionsData);
 
 	spinnerContainer.remove();
 
@@ -206,8 +208,8 @@ function controlCharts([defaultValues,
 	selections.yearDropdown.on("change", event => {
 		chartState.selectedYear = +event.target.value;
 		resetTopValues(topValues);
-		const allocationsData = processDataAllocations(rawAllocationsData);
-		const contributionsData = processDataContributions(rawContributionsData);
+		allocationsData = processDataAllocations(rawAllocationsData);
+		contributionsData = processDataContributions(rawContributionsData);
 		updateTopValues(topValues, selections);
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) > -1) drawAllocations(allocationsData);
 		if (chartState.selectedChart === "contributionsByCerfCbpf") drawContributionsByCerfCbpf(contributionsData);

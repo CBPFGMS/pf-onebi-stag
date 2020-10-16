@@ -484,15 +484,21 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		const data = unfilteredData.filter(d => chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]);
 
-		zoom.on("zoom", zoomed);
-
-		const currentTransform = d3.zoomTransform(svgMap.node());
-
 		data.sort((a, b) => b.total - a.total || (b.cbpf + b.cerf) - (a.cbpf + a.cerf));
 
 		const maxValue = d3.max(data, d => chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf);
 
 		radiusScale.domain([0, maxValue || 0]);
+
+		const currentTransform = d3.zoomTransform(svgMap.node());
+
+		zoom.on("zoom", zoomed);
+
+		if (data.length) {
+			zoomToBoundingBox(data);
+		} else {
+			zoom.transform(svgMap.transition().duration(duration), d3.zoomIdentity)
+		};
 
 		let piesNoData = piesContainer.selectAll("." + classPrefix + "piesNoData")
 			.data(data.length ? [] : [true]);
@@ -509,7 +515,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("x", mapPanel.width / 2)
 			.attr("y", mapPanel.height / 2)
 			.style("opacity", 0)
-			.text("No fund in the selection".toUpperCase())
+			.text("No country in the selection".toUpperCase())
 			.merge(piesNoData)
 			.transition()
 			.duration(duration)
@@ -684,12 +690,17 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		function zoomed(event) {
 
+			console.log(event.transform);
+
 			mapContainer.attr("transform", event.transform);
 
 			mapContainer.select("path:nth-child(2)")
 				.style("stroke-width", 1 / event.transform.k + "px");
 
 			pieGroup.attr("transform", d => "translate(" + (centroids[d.isoCode].x * event.transform.k + event.transform.x) +
+				"," + (centroids[d.isoCode].y * event.transform.k + event.transform.y) + ")");
+
+			pieGroupExit.attr("transform", d => "translate(" + (centroids[d.isoCode].x * event.transform.k + event.transform.x) +
 				"," + (centroids[d.isoCode].y * event.transform.k + event.transform.y) + ")");
 
 			if (!chartState.showNames) {
@@ -701,12 +712,12 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		mapZoomButtonPanel.main.select("." + classPrefix + "zoomInGroupMap")
 			.on("click", function() {
-				zoom.scaleBy(mapPanel.main.transition().duration(duration), 2);
+				zoom.scaleBy(svgMap.transition().duration(duration), 2);
 			});
 
 		mapZoomButtonPanel.main.select("." + classPrefix + "zoomOutGroupMap")
 			.on("click", function() {
-				zoom.scaleBy(mapPanel.main.transition().duration(duration), 0.5);
+				zoom.scaleBy(svgMap.transition().duration(duration), 0.5);
 			});
 
 		function pieGroupMouseover(event, datum) {
@@ -770,6 +781,41 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		};
 
+		function zoomToBoundingBox(data) {
+
+			const boundingBox = data.reduce((acc, curr) => {
+				acc.n = Math.min(acc.n, centroids[curr.isoCode].y - radiusScale(chartState.selectedFund === "total" ? curr.total : curr.cbpf + curr.cerf));
+				acc.s = Math.max(acc.s, centroids[curr.isoCode].y + radiusScale(chartState.selectedFund === "total" ? curr.total : curr.cbpf + curr.cerf));
+				acc.e = Math.max(acc.e, centroids[curr.isoCode].x + radiusScale(chartState.selectedFund === "total" ? curr.total : curr.cbpf + curr.cerf));
+				acc.w = Math.min(acc.w, centroids[curr.isoCode].x - radiusScale(chartState.selectedFund === "total" ? curr.total : curr.cbpf + curr.cerf));
+				return acc;
+			}, {
+				n: Infinity,
+				s: -Infinity,
+				e: -Infinity,
+				w: Infinity
+			});
+
+			const midPointX = (boundingBox.w + boundingBox.e) / 2;
+			const midPointY = (boundingBox.n + boundingBox.s) / 2;
+			const scale = Math.min(mapPanel.width / (boundingBox.e - boundingBox.w), mapPanel.height / (boundingBox.s - boundingBox.n));
+			const translate = [mapPanel.width / 2 - scale * midPointX, mapPanel.height / 2 - scale * midPointY];
+
+			// zoom.translateBy(svgMap.transition().duration(duration), translate[0], translate[1]);
+			// zoom.scaleBy(svgMap.transition().duration(duration), scale);
+
+			// mapPanel.main.transition()
+			// 	.duration(duration)
+			// 	.call(zoom.transform,
+			// 		d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+
+
+			zoom.transform(svgMap.transition().duration(duration),
+				d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale))
+
+
+		};
+
 
 		//end of drawMap
 	};
@@ -778,7 +824,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		const maxDataValue = radiusScale.domain()[1];
 
-		const sizeCirclesData = [0, maxDataValue / 4, maxDataValue / 2, maxDataValue];
+		const sizeCirclesData = maxDataValue ? [0, maxDataValue / 4, maxDataValue / 2, maxDataValue] : [];
 
 		const legendTitle = legendPanel.main.selectAll("." + classPrefix + "legendTitle")
 			.data([true])
@@ -800,8 +846,15 @@ function createAllocations(selections, colors, mapData, lists) {
 		let legendSizeGroup = legendSizeGroups.selectAll("." + classPrefix + "legendSizeGroup")
 			.data(sizeCirclesData);
 
+		const legendSizeGroupExit = legendSizeGroup.exit()
+			.transition()
+			.duration(duration)
+			.style("opacity", 0)
+			.remove();
+
 		const legendSizeGroupEnter = legendSizeGroup.enter()
 			.append("g")
+			.style("opacity", 0)
 			.attr("class", classPrefix + "legendSizeGroup");
 
 		const legendSizeLines = legendSizeGroupEnter.append("line")
@@ -832,8 +885,12 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		legendSizeGroup = legendSizeGroup.merge(legendSizeGroupEnter);
 
+		legendSizeGroup.transition("groupTransition")
+			.duration(duration)
+			.style("opacity", 1);
+
 		legendSizeGroup.select("." + classPrefix + "legendCirclesText")
-			.transition()
+			.transition("textTransition")
 			.duration(duration)
 			.textTween((d, i, n) => {
 				const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, d);
