@@ -1135,7 +1135,7 @@ function createAllocations(selections, colors, mapData, lists) {
 					chartState.selectedFund === "cerf/cbpf" ||
 					lists.fundTypesList[allocation.FundId] === chartState.selectedFund) {
 					allocation.ProjList.toString().split("##").forEach(e => numberOfProjects.add(e));
-					numberOfPartners.add(allocation.OrganizatinonId);
+					allocation.OrgList.toString().split("##").forEach(e => numberOfPartners.add(e));;
 				};
 			});
 		});
