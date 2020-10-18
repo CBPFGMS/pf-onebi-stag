@@ -31,9 +31,12 @@ const classPrefix = "pfbial",
 	localVariable = d3.local(),
 	formatPercent = d3.format("%"),
 	formatSIaxes = d3.format("~s"),
+	svgColumnChartWidth = 195,
 	svgMapPadding = [0, 10, 0, 10],
 	svgBarChartPadding = [4, 4, 4, 4],
-	svgColumnChartPadding = [4, 4, 4, 4],
+	svgColumnChartPaddingByCountry = [16, 4, 4, 56],
+	svgColumnChartPaddingBySector = [4, 4, 4, 4],
+	svgColumnChartPaddingByType = [4, 4, 4, 4],
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	stackKeys = ["total", "cerf", "cbpf"],
 	centroids = {};
@@ -83,18 +86,19 @@ function createAllocations(selections, colors, mapData, lists) {
 	const buttonsDiv = mapDiv.append("div")
 		.attr("class", classPrefix + "buttonsDiv");
 
-	const columnChartContainer = selections.byCountryChartContainer;
+	const columnChartContainer = chartState.selectedChart === "allocationsByCountry" ? selections.byCountryChartContainer :
+		chartState.selectedChart === "allocationsBySector" ? selections.bySectorChartContainer : null;
 
 	columnChartContainer.html(null);
 
 	const columnChartContainerSize = columnChartContainer.node().getBoundingClientRect();
 
-	const svgColumnChartWidth = columnChartContainerSize.width;
 	const svgColumnChartHeight = columnChartContainerSize.height;
 
+	//FIX: WHY ISN'T VIEWBOX WORKING?
 	const svgColumnChart = columnChartContainer.append("svg")
-		.attr("viewBox", "0 0 " + svgColumnChartWidth + " " + svgColumnChartHeight)
-		.style("background-color", "white");
+		.attr("width", svgColumnChartWidth)
+		.attr("height", svgColumnChartHeight);
 
 	const mapDivSize = mapDiv.node().getBoundingClientRect();
 	const barChartDivSize = barChartDiv.node().getBoundingClientRect();
@@ -209,10 +213,29 @@ function createAllocations(selections, colors, mapData, lists) {
 	const yScale = d3.scaleLinear()
 		.range([barChartPanel.height - barChartPanel.padding[2], barChartPanel.padding[0]]);
 
-	const xScaleColumn = d3.scaleLinear();
+	const xScaleColumnByCountry = d3.scaleLinear()
+		.range([svgColumnChartPaddingByCountry[3], svgColumnChartWidth - svgColumnChartPaddingByCountry[1]]);
 
-	const yScaleColumn = d3.scaleBand()
-		.range([svgColumnChartPadding[0], svgColumnChartHeight - svgColumnChartPadding[2]]);
+	const yScaleColumnByCountry = d3.scaleBand()
+		.range([svgColumnChartPaddingByCountry[0], svgColumnChartHeight - svgColumnChartPaddingByCountry[2]])
+		.paddingInner(0.5)
+		.paddingOuter(0.5);
+
+	const xScaleColumnBySector = d3.scaleLinear()
+		.range([svgColumnChartPaddingBySector[3], svgColumnChartWidth - svgColumnChartPaddingBySector[1]]);
+
+	const yScaleColumnBySector = d3.scaleBand()
+		.range([svgColumnChartPaddingBySector[0], svgColumnChartHeight - svgColumnChartPaddingBySector[2]])
+		.paddingInner(0.5)
+		.paddingOuter(0.5);
+
+	const xScaleColumnByType = d3.scaleLinear()
+		.range([svgColumnChartPaddingByType[3], svgColumnChartWidth - svgColumnChartPaddingByType[1]]);
+
+	const yScaleColumnByType = d3.scaleBand()
+		.range([svgColumnChartPaddingByType[0], svgColumnChartHeight - svgColumnChartPaddingByType[2]])
+		.paddingInner(0.5)
+		.paddingOuter(0.5);
 
 	const arcGenerator = d3.arc()
 		.innerRadius(0);
@@ -240,6 +263,31 @@ function createAllocations(selections, colors, mapData, lists) {
 		.ticks(3)
 		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
 
+	const xAxisColumnByCountry = d3.axisTop(xScaleColumnByCountry)
+		.tickSizeOuter(0)
+		.tickSizeInner(-(svgColumnChartHeight - svgColumnChartPaddingByCountry[2] - svgColumnChartPaddingByCountry[0]))
+		.ticks(3)
+		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
+
+	const yAxisColumnByCountry = d3.axisLeft(yScaleColumnByCountry)
+		.tickSize(4);
+
+	const xAxisColumnBySector = d3.axisTop(xScaleColumnBySector)
+		.tickSizeOuter(0)
+		.ticks(3)
+		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
+
+	const yAxisColumnBySector = d3.axisLeft(yScaleColumnBySector)
+		.tickSize(4);
+
+	const xAxisColumnByType = d3.axisTop(xScaleColumnByType)
+		.tickSizeOuter(0)
+		.ticks(3)
+		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
+
+	const yAxisColumnByType = d3.axisLeft(yScaleColumnByType)
+		.tickSize(4);
+
 	const xAxisGroup = barChartPanel.main.append("g")
 		.attr("class", classPrefix + "xAxisGroup")
 		.attr("transform", "translate(0," + (barChartPanel.height - barChartPanel.padding[2]) + ")");
@@ -247,6 +295,18 @@ function createAllocations(selections, colors, mapData, lists) {
 	const yAxisGroup = barChartPanel.main.append("g")
 		.attr("class", classPrefix + "yAxisGroup")
 		.attr("transform", "translate(" + barChartPanel.padding[3] + ",0)");
+
+	const xAxisGroupColumn = svgColumnChart.append("g")
+		.attr("class", classPrefix + "xAxisGroupColumn")
+		.attr("transform", "translate(0," + (chartState.selectedChart === "allocationsByCountry" ? svgColumnChartPaddingByCountry[0] :
+			chartState.selectedChart === "allocationsBySector" ? svgColumnChartPaddingBySector[0] : svgColumnChartPaddingByType[0]
+		) + ")");
+
+	const yAxisGroupColumn = svgColumnChart.append("g")
+		.attr("class", classPrefix + "yAxisGroupColumn")
+		.attr("transform", "translate(" + (chartState.selectedChart === "allocationsByCountry" ? svgColumnChartPaddingByCountry[3] :
+			chartState.selectedChart === "allocationsBySector" ? svgColumnChartPaddingBySector[3] : svgColumnChartPaddingByType[3]
+		) + ",0)");
 
 	const zoom = d3.zoom()
 		.scaleExtent([1, 20])
@@ -301,8 +361,6 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		verifyCentroids(originalData);
 
-		//create second column with originalData
-
 		createColumnTopValues(originalData);
 
 		createColumnChart(originalData);
@@ -310,9 +368,7 @@ function createAllocations(selections, colors, mapData, lists) {
 		const data = filterData(originalData);
 
 		drawMap(data);
-
 		drawLegend(data);
-
 		drawBarChart(data);
 
 		const mapButtons = buttonsDiv.selectAll("button");
@@ -1122,6 +1178,8 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	function createColumnTopValues(originalData) {
 
+		//Filter this based on the second column chart or not????
+
 		const numberOfProjects = new Set(),
 			numberOfPartners = new Set();
 
@@ -1143,23 +1201,27 @@ function createAllocations(selections, colors, mapData, lists) {
 		const updateTransition = d3.transition()
 			.duration(duration);
 
-		selections.byCountryAllocationsValue.transition(updateTransition)
-			.textTween((_, i, n) => {
-				const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, totalAllocations);
-				return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
-			});
+		if (chartState.selectedChart === "allocationsByCountry") {
 
-		selections.byCountryAllocationsText.text((chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? "Total" :
-			chartState.selectedFund.toUpperCase()) + " allocations");
+			selections.byCountryAllocationsValue.transition(updateTransition)
+				.textTween((_, i, n) => {
+					const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, totalAllocations);
+					return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
+				});
 
-		selections.byCountryCountriesValue.transition(updateTransition)
-			.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfCountries));
+			selections.byCountryAllocationsText.text((chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? "Total" :
+				chartState.selectedFund.toUpperCase()) + " allocations");
 
-		selections.byCountryProjectsValue.transition(updateTransition)
-			.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfProjects.size));
+			selections.byCountryCountriesValue.transition(updateTransition)
+				.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfCountries));
 
-		selections.byCountryPartnersValue.transition(updateTransition)
-			.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfPartners.size));
+			selections.byCountryProjectsValue.transition(updateTransition)
+				.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfProjects.size));
+
+			selections.byCountryPartnersValue.transition(updateTransition)
+				.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfPartners.size));
+
+		};
 
 		//end of createColumnTopValues
 	};
@@ -1192,9 +1254,125 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		function createAllocationsByCountryColumnChart(columnData) {
 
-			yScaleColumn.domain(columnData.map(e => e.region));
+			const filteredData = columnData.filter(d => chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]);
 
-			
+			yScaleColumnByCountry.domain(filteredData.map(e => e.region));
+
+			xScaleColumnByCountry.domain([0, d3.max(filteredData, e => chartState.selectedFund === "total" ? e.total : e.cbpf + e.cerf)]);
+
+			const stackedData = stack(filteredData);
+
+			let barsGroupsColumn = svgColumnChart.selectAll("." + classPrefix + "barsGroupsColumn")
+				.data(stackedData, d => d.key);
+
+			const barsGroupsColumnExit = barsGroupsColumn.exit().remove();
+
+			const barsGroupsColumnEnter = barsGroupsColumn.enter()
+				.append("g")
+				.attr("class", classPrefix + "barsGroupsColumn")
+				.attr("pointer-events", "none")
+				.style("fill", d => colors[d.key]);
+
+			barsGroupsColumn = barsGroupsColumnEnter.merge(barsGroupsColumn);
+
+			let barsColumn = barsGroupsColumn.selectAll("." + classPrefix + "barsColumn")
+				.data(d => d, d => d.data.region);
+
+			const barsColumnExit = barsColumn.exit()
+				.transition()
+				.duration(duration)
+				.attr("width", 0)
+				.attr("x", svgColumnChartPaddingByCountry[3])
+				.style("opacity", 0)
+				.remove();
+
+			const barsColumnEnter = barsColumn.enter()
+				.append("rect")
+				.attr("class", classPrefix + "barsColumn")
+				.attr("height", yScaleColumnByCountry.bandwidth())
+				.attr("width", 0)
+				.attr("x", xScaleColumnByCountry(0))
+				.attr("y", d => yScaleColumnByCountry(d.data.region))
+
+			barsColumn = barsColumnEnter.merge(barsColumn);
+
+			barsColumn.transition()
+				.duration(duration)
+				.attr("height", yScaleColumnByCountry.bandwidth())
+				.attr("y", d => yScaleColumnByCountry(d.data.region))
+				.attr("x", d => d[0] === d[1] ? xScaleColumnByCountry(0) : xScaleColumnByCountry(d[0]))
+				.attr("width", d => xScaleColumnByCountry(d[1]) - xScaleColumnByCountry(d[0]));
+
+			let barsColumnTooltipRectangles = svgColumnChart.selectAll("." + classPrefix + "barsColumnTooltipRectangles")
+				.data(filteredData, d => d.region);
+
+			const barsColumnTooltipRectanglesExit = barsColumnTooltipRectangles.exit().remove();
+
+			const barsColumnTooltipRectanglesEnter = barsColumnTooltipRectangles.enter()
+				.append("rect")
+				.attr("class", classPrefix + "barsColumnTooltipRectangles")
+				.attr("pointer-events", "all")
+				.style("cursor", "pointer")
+				.style("opacity", 0)
+				.attr("x", svgColumnChartPaddingByCountry[3])
+				.attr("width", svgColumnChartWidth - svgColumnChartPaddingByCountry[1] - svgColumnChartPaddingByCountry[3])
+				.attr("height", yScaleColumnByCountry.step())
+				.attr("y", d => yScaleColumnByCountry(d.region) - yScaleColumnByCountry.bandwidth() / 2);
+
+			barsColumnTooltipRectangles = barsColumnTooltipRectanglesEnter.merge(barsColumnTooltipRectangles);
+
+			barsColumnTooltipRectangles.transition()
+				.duration(duration)
+				.attr("y", d => yScaleColumnByCountry(d.region) - yScaleColumnByCountry.bandwidth() / 2);
+
+			barsColumnTooltipRectangles.on("mouseover", mouseoverBarsColumnTooltipRectangles)
+				.on("mouseout", mouseoutBarsColumnTooltipRectangles);
+
+			function mouseoverBarsColumnTooltipRectangles(event, d) {
+				console.log(d);
+				chartState.selectedRegion = [d.region];
+				const data = filterData(originalData);
+
+				createColumnTopValues(originalData);
+
+				drawMap(data);
+				drawLegend(data);
+				drawBarChart(data);
+			};
+
+			function mouseoutBarsColumnTooltipRectangles(event, d) {
+
+			};
+
+			xAxisGroupColumn.transition()
+				.duration(duration)
+				.call(xAxisColumnByCountry);
+
+			xAxisGroupColumn.selectAll(".tick")
+				.filter(d => d === 0)
+				.remove();
+
+			yAxisGroupColumn.transition()
+				.duration(duration)
+				.call(customAxis);
+
+			function customAxis(group) {
+				const sel = group.selection ? group.selection() : group;
+				group.call(yAxisColumnByCountry);
+				sel.selectAll(".tick text")
+					.filter(d => d.indexOf(" ") > -1)
+					.text(d => d.split(" ")[0] === "South-Eastern" ? "South-East." : d.split(" ")[0])
+					.attr("x", -(yAxisColumnByCountry.tickPadding() + yAxisColumnByCountry.tickSize()))
+					.attr("dy", "-0.3em")
+					.append("tspan")
+					.attr("dy", "1.1em")
+					.attr("x", -(yAxisColumnByCountry.tickPadding() + yAxisColumnByCountry.tickSize()))
+					.text(d => d.split(" ")[1]);
+				if (sel !== group) group.selectAll(".tick text")
+					.filter(d => d.indexOf(" ") > -1)
+					.attrTween("x", null)
+					.tween("text", null);
+			};
 
 		};
 
@@ -1334,6 +1512,76 @@ function reverseFormat(s) {
 		}
 	});
 	return returnValue;
+};
+
+function wrapText(text, width) {
+	text.each(function() {
+		let text = d3.select(this),
+			words = text.text() === "Latin America and the Caribbean" ? ["America", "Latin"] :
+			text.text() === "South-Eastern Asia" ? ["Asia", "South-East."] :
+			text.text().split(/\s+/).reverse(),
+			word,
+			line = [],
+			lineNumber = 0,
+			lineHeight = 1.2,
+			y = text.attr("y"),
+			x = text.attr("x"),
+			dy = words.length > 1 ? -0.2 : 0.3,
+			tspan = text.text(null)
+			.append("tspan")
+			.attr("x", x)
+			.attr("y", y)
+			.attr("dy", dy + "em");
+		while (word = words.pop()) {
+			line.push(word);
+			tspan.text(line.join(" "));
+			if (tspan.node()
+				.getComputedTextLength() > width) {
+				line.pop();
+				tspan.text(line.join(" "));
+				line = [word];
+				tspan = text.append("tspan")
+					.attr("x", x)
+					.attr("y", y)
+					.attr("dy", ++lineNumber * lineHeight + dy + "em")
+					.text(word);
+			}
+		}
+	});
+};
+
+function wrapText2(text, width) {
+	text.each(function() {
+		let text = d3.select(this),
+			words = text.text().split(/\s+/).reverse(),
+			word,
+			line = [],
+			lineNumber = 0,
+			lineHeight = 1.1,
+			y = text.attr("y"),
+			x = text.attr("x"),
+			dy = 0,
+			tspan = text.text(null)
+			.append("tspan")
+			.attr("x", x)
+			.attr("y", y)
+			.attr("dy", dy + "em");
+		while (word = words.pop()) {
+			line.push(word);
+			tspan.text(line.join(" "));
+			if (tspan.node()
+				.getComputedTextLength() > width) {
+				line.pop();
+				tspan.text(line.join(" "));
+				line = [word];
+				tspan = text.append("tspan")
+					.attr("x", x)
+					.attr("y", y)
+					.attr("dy", ++lineNumber * lineHeight + dy + "em")
+					.text(word);
+			}
+		}
+	});
 };
 
 function capitalize(str) {

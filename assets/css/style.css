@@ -525,11 +525,11 @@ footer{position: sticky; bottom: 0;}
   fill: #666;
 }
 
-.pfbialxAxisGroup line{
+.pfbialxAxisGroup line, .pfbialyAxisGroupColumn line{
   stroke: darkslategray;
 }
 
-.pfbialxAxisGroup path {
+.pfbialxAxisGroup path, .pfbialxAxisGroupColumn path, .pfbialyAxisGroup path, .pfbialyAxisGroupColumn path {
   stroke: none;
 }
 
@@ -538,18 +538,29 @@ footer{position: sticky; bottom: 0;}
   font-size: 9px;
 }
 
-.pfbialyAxisGroup path {
-  stroke: none;
-}
-
 .pfbialyAxisGroup text {
   font-family: "Roboto", sans-serif;
   font-size: 10px;
   fill: #aaa;
   pointer-events: none;
 }
+
+.pfbialxAxisGroupColumn text {
+  font-family: "Roboto", sans-serif;
+  font-size: 10px;
+  fill: #888;
+  pointer-events: none;
+}
+
+.pfbialyAxisGroupColumn text {
+  font-family: "Roboto", sans-serif;
+  font-size: 10px;
+  fill: #555;
+  pointer-events: none;
+  letter-spacing: -0.25px;
+}
   
-.pfbialyAxisGroup line{
+.pfbialyAxisGroup line, .pfbialxAxisGroupColumn line {
   stroke: #ddd;
   stroke-dasharray: 2, 2;
 }

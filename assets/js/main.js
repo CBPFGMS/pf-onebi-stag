@@ -83,7 +83,8 @@ const selections = {
 	byCountryCountriesValue: d3.select("#byCountryCountriesValue"),
 	byCountryProjectsValue: d3.select("#byCountryProjectsValue"),
 	byCountryPartnersValue: d3.select("#byCountryPartnersValue"),
-	byCountryChartContainer: d3.select("#bycountry-bar-chart")
+	byCountryChartContainer: d3.select("#bycountry-bar-chart"),
+	bySectorChartContainer: d3.select("#bysector-bar-chart")
 };
 
 createSpinner(selections.chartContainerDiv);
@@ -220,6 +221,7 @@ function controlCharts([defaultValues,
 		if (chartState.selectedChart === "allocationsByCountry") return;
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
 			selections.chartContainerDiv.selectChildren().remove();
+			chartState.selectedChart = "allocationsByCountry";
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
 		chartState.selectedChart = "allocationsByCountry";
@@ -230,6 +232,7 @@ function controlCharts([defaultValues,
 		if (chartState.selectedChart === "allocationsBySector") return;
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
 			selections.chartContainerDiv.selectChildren().remove();
+			chartState.selectedChart = "allocationsBySector";
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
 		chartState.selectedChart = "allocationsBySector";
@@ -240,6 +243,7 @@ function controlCharts([defaultValues,
 		if (chartState.selectedChart === "allocationsByType") return;
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
 			selections.chartContainerDiv.selectChildren().remove();
+			chartState.selectedChart = "allocationsByType";
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
 		chartState.selectedChart = "allocationsByType";
