@@ -583,6 +583,27 @@ footer{position: sticky; bottom: 0;}
   text-anchor: middle;
 }
 
+.pfbialtooltipValues, .pfbialtooltipKeys {
+   flex: 1 0 auto;
+ }
+
+ .pfbialtooltipLeader {
+   flex: 0 1 auto;
+   overflow: hidden;
+   color: #ccc;
+ }
+
+ .pfbialtooltipLeader::before {
+   display: block;
+   overflow: hidden;
+   text-overflow: clip;
+   content: 
+     ". . . . . . . . . . . . . . . . . . . . "
+     ". . . . . . . . . . . . . . . . . . . . "
+     ". . . . . . . . . . . . . . . . . . . . "
+     ". . . . . . . . . . . . . . . . . . . . "
+ }
+
 .pfbialbuttonsDiv button {
   margin: 0px 0px 0px 8px;
   display: inline-flex;

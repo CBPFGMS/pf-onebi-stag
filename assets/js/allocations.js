@@ -33,6 +33,7 @@ const classPrefix = "pfbial",
 	localVariable = d3.local(),
 	formatPercent = d3.format("%"),
 	formatSIaxes = d3.format("~s"),
+	formatMoney0Decimals = d3.format(",.0f"),
 	svgColumnChartWidth = 195,
 	svgMapPadding = [0, 10, 0, 10],
 	svgBarChartPadding = [4, 4, 4, 4],
@@ -370,9 +371,9 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		const data = filterData(originalData);
 
-		drawMap(data);
+		drawMap(data, originalData);
 		drawLegend(data);
-		drawBarChart(data);
+		drawBarChart(data, originalData);
 
 		const mapButtons = buttonsDiv.selectAll("button");
 
@@ -387,9 +388,9 @@ function createAllocations(selections, colors, mapData, lists) {
 
 			createColumnChart(originalData);
 
-			drawMap(data);
+			drawMap(data, originalData);
 			drawLegend(data);
-			drawBarChart(data);
+			drawBarChart(data, originalData);
 		});
 
 	};
@@ -558,7 +559,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			.html(d => " " + (d === "total" ? capitalize(d) : d.toUpperCase()));
 	};
 
-	function drawMap(unfilteredData) {
+	function drawMap(unfilteredData, originalData) {
 
 		clickableButtons = false;
 
@@ -815,12 +816,47 @@ function createAllocations(selections, colors, mapData, lists) {
 				.html(null);
 
 			const innerTooltipDiv = tooltipDivMap.append("div")
-				.style("max-width", "300px")
+				.style("max-width", "210px")
 				.attr("id", classPrefix + "innerTooltipDiv");
 
-			innerTooltipDiv.html("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.");
+			innerTooltipDiv.append("div")
+				.style("margin-bottom", "8px")
+				.append("strong")
+				.html(datum.countryName);
 
-			// createCountryTooltip(datum, false);
+			const tooltipContainer = innerTooltipDiv.append("div")
+				.style("margin", "0px")
+				.style("display", "flex")
+				.style("flex-wrap", "wrap")
+				.style("white-space", "pre")
+				.style("line-height", 1.4)
+				.style("width", "100%");
+
+			const originalDatum = originalData.find(e => e.country === datum.country);
+
+			stackKeys.forEach(key => {
+				const rowDiv = tooltipContainer.append("div")
+					.style("display", "flex")
+					.style("align-items", "center")
+					.style("width", "100%");
+
+				rowDiv.append("span")
+					.attr("class", "fas fa-circle fa-xs")
+					.style("font-size", "8px")
+					.style("opacity", chartState.selectedFund === "cerf/cbpf" ? (key === "total" ? 0 : 1) : chartState.selectedFund === key ? 1 : 0)
+					.style("color", colors[key]);
+
+				rowDiv.append("span")
+					.attr("class", classPrefix + "tooltipKeys")
+					.html(" " + (key === "total" ? capitalize(key) : key.toUpperCase()));
+
+				rowDiv.append("span")
+					.attr("class", classPrefix + "tooltipLeader");
+
+				rowDiv.append("span")
+					.attr("class", classPrefix + "tooltipValues")
+					.html("$" + formatMoney0Decimals(originalDatum[key]));
+			});
 
 			const thisBox = event.currentTarget.getBoundingClientRect();
 
@@ -884,7 +920,6 @@ function createAllocations(selections, colors, mapData, lists) {
 				d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
 
 		};
-
 
 		//end of drawMap
 	};
@@ -1002,7 +1037,7 @@ function createAllocations(selections, colors, mapData, lists) {
 		//end of drawLegend
 	};
 
-	function drawBarChart(unfilteredData) {
+	function drawBarChart(unfilteredData, originalData) {
 
 		const data = unfilteredData.filter(d => chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]);
 
@@ -1139,10 +1174,47 @@ function createAllocations(selections, colors, mapData, lists) {
 				.html(null);
 
 			const innerTooltipDiv = tooltipDivBarChart.append("div")
-				.style("max-width", "300px")
+				.style("max-width", "210px")
 				.attr("id", classPrefix + "innerTooltipDiv");
 
-			innerTooltipDiv.html("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.");
+			innerTooltipDiv.append("div")
+				.style("margin-bottom", "8px")
+				.append("strong")
+				.html(d.countryName);
+
+			const tooltipContainer = innerTooltipDiv.append("div")
+				.style("margin", "0px")
+				.style("display", "flex")
+				.style("flex-wrap", "wrap")
+				.style("white-space", "pre")
+				.style("line-height", 1.4)
+				.style("width", "100%");
+
+			const originalDatum = originalData.find(e => e.country === d.country);
+
+			stackKeys.forEach(key => {
+				const rowDiv = tooltipContainer.append("div")
+					.style("display", "flex")
+					.style("align-items", "center")
+					.style("width", "100%");
+
+				rowDiv.append("span")
+					.attr("class", "fas fa-circle fa-xs")
+					.style("font-size", "8px")
+					.style("opacity", chartState.selectedFund === "cerf/cbpf" ? (key === "total" ? 0 : 1) : chartState.selectedFund === key ? 1 : 0)
+					.style("color", colors[key]);
+
+				rowDiv.append("span")
+					.attr("class", classPrefix + "tooltipKeys")
+					.html(" " + (key === "total" ? capitalize(key) : key.toUpperCase()));
+
+				rowDiv.append("span")
+					.attr("class", classPrefix + "tooltipLeader");
+
+				rowDiv.append("span")
+					.attr("class", classPrefix + "tooltipValues")
+					.html("$" + formatMoney0Decimals(originalDatum[key]));
+			});
 
 			const thisBox = event.currentTarget.getBoundingClientRect();
 
@@ -1361,11 +1433,11 @@ function createAllocations(selections, colors, mapData, lists) {
 
 				createColumnTopValues(originalData);
 
-				drawMap(data);
+				drawMap(data, originalData);
 				drawLegend(data);
-				drawBarChart(data);
+				drawBarChart(data, originalData);
 
-				selections.byCountryRegionsText.html(d.clicked ? " (click to unselect)" : " (click to select)");
+				selections.byCountryRegionsText.html(d.clicked ? " (click to deselect)" : " (click to select)");
 
 				highlightBars();
 
@@ -1386,9 +1458,9 @@ function createAllocations(selections, colors, mapData, lists) {
 
 					createColumnTopValues(originalData);
 
-					drawMap(data);
+					drawMap(data, originalData);
 					drawLegend(data);
-					drawBarChart(data);
+					drawBarChart(data, originalData);
 
 				}, timeoutDuration);
 
@@ -1417,13 +1489,13 @@ function createAllocations(selections, colors, mapData, lists) {
 
 				createColumnTopValues(originalData);
 
-				drawMap(data);
+				drawMap(data, originalData);
 				drawLegend(data);
-				drawBarChart(data);
+				drawBarChart(data, originalData);
 
 				highlightBars();
 
-				selections.byCountryRegionsText.html(d.clicked ? " (click to unselect)" : " (click to select)");
+				selections.byCountryRegionsText.html(d.clicked ? " (click to deselect)" : " (click to select)");
 
 			};
 
