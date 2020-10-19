@@ -194,25 +194,25 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
   color: #777;
 }
 .sb-sidenav-light .sb-sidenav-menu .nav-link .sb-nav-link-icon {
-  color: #adb5bd;
+  color: #adb5bd; transition: all 0.2s linear;
 }
 .sb-sidenav-light .sb-sidenav-menu .nav-link .sb-sidenav-collapse-arrow {
   color: #adb5bd;
 }
 .sb-sidenav-light .sb-sidenav-menu .nav-link:hover {
-  color: #65A8DC;
+  color: #3289C9;
 }
 .sb-sidenav-light .sb-sidenav-menu .nav-link:hover .sb-nav-link-icon{
-  color: #65A8DC;
+  color: #3289C9;
 }
 .sb-sidenav-light .sb-sidenav-menu .nav-link.active {
-  color: #65A8DC;
+  color: #3289C9; font-weight: 500;
 }
 .sb-sidenav-light .sb-sidenav-menu .nav-link.active .sb-nav-link-icon {
-  color: #65A8DC;
+  color: #3289C9;
 }
 .sb-sidenav-light .sb-sidenav-menu .nav-link.active .sb-sidenav-collapse-arrow {
-  color: #65A8DC;-ms-transform: rotate(180deg); /* IE 9 */
+  color: #3289C9;-ms-transform: rotate(180deg); /* IE 9 */
   transform: rotate(180deg); transition: all 0.2s linear;
 }
 .sb-sidenav-light .sb-sidenav-footer {
