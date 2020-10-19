@@ -79,9 +79,27 @@ function createAllocations(selections, colors, mapData, lists) {
 		.attr("id", classPrefix + "tooltipDivMap")
 		.style("display", "none");
 
-	const barChartDiv = containerDiv.append("div")
-		.attr("class", classPrefix + "barChartDiv")
+	const barChartDivOuter = containerDiv.append("div")
+		.attr("class", classPrefix + "barChartDivOuter")
 		.style("height", formatPercent(barChartPercentage));
+
+	const barChartDivTitle = barChartDivOuter.append("div")
+		.attr("class", classPrefix + "barChartDivTitle")
+		.style("border-bottom-color", colors[chartState.selectedFund]);
+
+	const barChartDivTitleText = barChartDivTitle.append("div")
+		.attr("class", classPrefix + "barChartDivTitleText")
+		.style("background-color", colors[chartState.selectedFund]);
+
+	const barChartDivTitleRound = barChartDivTitle.append("div")
+		.attr("class", classPrefix + "barChartDivTitleRound")
+		.style("background-color", colors[chartState.selectedFund]);
+
+	const barChartDivTitleLine = barChartDivTitle.append("div")
+		.attr("class", classPrefix + "barChartDivTitleLine");
+
+	const barChartDiv = barChartDivOuter.append("div")
+		.attr("class", classPrefix + "barChartDiv");
 
 	const tooltipDivBarChart = barChartDiv.append("div")
 		.attr("id", classPrefix + "tooltipDivBarChart")
@@ -172,7 +190,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("transform", "translate(" + svgBarChartPadding[3] + "," + svgBarChartPadding[0] + ")"),
 		width: svgBarChartWidth - svgBarChartPadding[3] - svgBarChartPadding[1],
 		height: svgBarChartHeight - svgBarChartPadding[2] - svgBarChartPadding[0],
-		padding: [28, 0, 18, 46],
+		padding: [4, 0, 18, 46],
 		titlePadding: 10,
 		titleHorPadding: 8
 	};
@@ -1055,19 +1073,29 @@ function createAllocations(selections, colors, mapData, lists) {
 			barTitleSpanText = chartState.selectedRegion.length === 0 ? "all regions" : textWithCommas(chartState.selectedRegion);
 		};
 
-		let barTitle = barChartPanel.main.selectAll("." + classPrefix + "barTitle")
+		let barTitle = barChartDivTitleText.selectAll("." + classPrefix + "barTitle")
 			.data([true]);
 
 		barTitle = barTitle.enter()
-			.append("text")
+			.append("span")
 			.attr("class", classPrefix + "barTitle")
-			.attr("x", barChartPanel.padding[3] + barChartPanel.titleHorPadding)
-			.attr("y", barChartPanel.padding[0] - barChartPanel.titlePadding)
 			.merge(barTitle)
-			.text((chartState.selectedFund === "total" ? capitalize(chartState.selectedFund) : chartState.selectedFund.toUpperCase()) + " allocations ")
-			.append("tspan")
+			.html((chartState.selectedFund === "total" ? capitalize(chartState.selectedFund) : chartState.selectedFund.toUpperCase()) + " allocations ")
+			.append("span")
 			.attr("class", classPrefix + "barTitleSpan")
-			.text("(" + barTitleSpanText + ")");
+			.html("(" + barTitleSpanText + ")");
+
+		barChartDivTitle.transition()
+			.duration(duration)
+			.style("border-bottom-color", chartState.selectedFund === "cerf/cbpf" ? colors.cbpf : colors[chartState.selectedFund]);
+
+		barChartDivTitleText.transition()
+			.duration(duration)
+			.style("background-color", chartState.selectedFund === "cerf/cbpf" ? colors.cerf : colors[chartState.selectedFund]);
+
+		barChartDivTitleRound.transition()
+			.duration(duration)
+			.style("background-color", chartState.selectedFund === "cerf/cbpf" ? colors.cerf : colors[chartState.selectedFund]);
 
 		const stackedData = stack(data);
 
@@ -1502,7 +1530,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			function highlightBars() {
 				barsColumn.style("fill", (e, i, n) => {
 					const thisKey = d3.select(n[i].parentNode).datum().key;
-					return chartState.selectedRegion.indexOf(e.data.region) > -1 ? d3.color(colors[thisKey]).darker(0.75) : colors[thisKey]
+					return chartState.selectedRegion.indexOf(e.data.region) > -1 ? d3.color(colors[thisKey]).darker(0.75) : colors[thisKey];
 				});
 
 				yAxisGroupColumn.selectAll(".tick text")
