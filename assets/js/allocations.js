@@ -19,10 +19,12 @@ const classPrefix = "pfbial",
 	mapZoomButtonSize = 26,
 	maxPieSize = 26,
 	minPieSize = 1,
+	maxColumnRectHeight = 16,
 	tooltipMargin = 4,
 	legendLineSize = 38,
 	showNamesMargin = 12,
 	duration = 1000,
+	timeoutDuration = 50,
 	strokeOpacityValue = 0.8,
 	fillOpacityValue = 0.5,
 	groupNamePadding = 2,
@@ -45,7 +47,8 @@ const classPrefix = "pfbial",
 let svgMapWidth,
 	svgMapHeight,
 	allocationsProperty,
-	clickableButtons = true;
+	clickableButtons = true,
+	mouseoverBarsColumnTimeout;
 
 //|hardcoded locations
 const hardcodedAllocations = [{
@@ -677,7 +680,8 @@ function createAllocations(selections, colors, mapData, lists) {
 				clickableButtons = true;
 				if (chartState.showNames) return;
 				allTexts.each((_, i, n) => d3.select(n[i]).style("display", null)).call(displayLabels);
-			});
+			})
+			.catch(error => console.warn("Moved too fast"));
 
 		let slices = pieGroup.selectAll("." + classPrefix + "slice")
 			.data(d => pieGenerator([{
@@ -1178,16 +1182,21 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	function createColumnTopValues(originalData) {
 
-		//Filter this based on the second column chart or not????
+		const filteredData = originalData.filter(row => {
+			const filterRegion = !chartState.selectedRegion.length ? true : chartState.selectedRegion.indexOf(row.region) > -1;
+			//CHANGE THIS:
+			const filterCluster = !chartState.selectedCluster.length ? true : chartState.selectedCluster.indexOf(row.cluster) > -1;
+			return filterRegion && filterCluster;
+		});
 
 		const numberOfProjects = new Set(),
 			numberOfPartners = new Set();
 
-		const numberOfCountries = originalData.filter(d => chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]).length;
+		const numberOfCountries = filteredData.filter(d => chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]).length;
 
-		const totalAllocations = d3.sum(originalData, d => chartState.selectedFund === "cerf/cbpf" ? d.total : d[chartState.selectedFund]);
+		const totalAllocations = d3.sum(filteredData, d => chartState.selectedFund === "cerf/cbpf" ? d.total : d[chartState.selectedFund]);
 
-		originalData.forEach(row => {
+		filteredData.forEach(row => {
 			row.allocationsList.forEach(allocation => {
 				if (chartState.selectedFund === "total" ||
 					chartState.selectedFund === "cerf/cbpf" ||
@@ -1215,11 +1224,17 @@ function createAllocations(selections, colors, mapData, lists) {
 			selections.byCountryCountriesValue.transition(updateTransition)
 				.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfCountries));
 
+			selections.byCountryCountriesText.html(numberOfCountries > 1 ? "Countries" : "Country");
+
 			selections.byCountryProjectsValue.transition(updateTransition)
 				.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfProjects.size));
 
+			selections.byCountryProjectsText.html(numberOfProjects > 1 ? "Projects" : "Project");
+
 			selections.byCountryPartnersValue.transition(updateTransition)
 				.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfPartners.size));
+
+			selections.byCountryPartnersText.html(numberOfPartners > 1 ? "Partners" : "Partner");
 
 		};
 
@@ -1247,6 +1262,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			}, []);
 			columnData.sort((a, b) => chartState.selectedFund === "cerf/cbpf" ? ((b.cerf + b.cbpf) - (a.cerf + a.cbpf)) :
 				b[chartState.selectedFund] - a[chartState.selectedFund]);
+			columnData.forEach(row => row.clicked = chartState.selectedRegion.indexOf(row.region) > -1);
 			createAllocationsByCountryColumnChart(columnData)
 		};
 		if (chartState.selectedChart === "allocationsBySector") createAllocationsBySectorColumnChart(columnData);
@@ -1326,21 +1342,80 @@ function createAllocations(selections, colors, mapData, lists) {
 				.attr("y", d => yScaleColumnByCountry(d.region) - yScaleColumnByCountry.bandwidth() / 2);
 
 			barsColumnTooltipRectangles.on("mouseover", mouseoverBarsColumnTooltipRectangles)
-				.on("mouseout", mouseoutBarsColumnTooltipRectangles);
+				.on("mouseout", mouseoutBarsColumnTooltipRectangles)
+				.on("click", clickBarsColumnTooltipRectangles);
 
 			function mouseoverBarsColumnTooltipRectangles(event, d) {
-				console.log(d);
-				chartState.selectedRegion = [d.region];
+
+				if (!d.clicked) {
+					chartState.selectedRegion.push(d.region);
+				};
+
 				const data = filterData(originalData);
+
+				clearTimeout(mouseoverBarsColumnTimeout);
 
 				createColumnTopValues(originalData);
 
 				drawMap(data);
 				drawLegend(data);
 				drawBarChart(data);
+
 			};
 
 			function mouseoutBarsColumnTooltipRectangles(event, d) {
+
+				if (!d.clicked) {
+					const index = chartState.selectedRegion.indexOf(d.region);
+					if (index > -1) {
+						chartState.selectedRegion.splice(index, 1);
+					};
+				};
+
+				const data = filterData(originalData);
+
+				mouseoverBarsColumnTimeout = setTimeout(() => {
+
+					createColumnTopValues(originalData);
+
+					drawMap(data);
+					drawLegend(data);
+					drawBarChart(data);
+
+				}, timeoutDuration);
+
+			};
+
+			function clickBarsColumnTooltipRectangles(event, d) {
+
+				d.clicked = !d.clicked;
+
+				if (!d.clicked) {
+					const index = chartState.selectedRegion.indexOf(d.region);
+					chartState.selectedRegion.splice(index, 1);
+				} else {
+					if (chartState.selectedRegion.indexOf(d.region) === -1) {
+						chartState.selectedRegion.push(d.region);
+					}
+				};
+
+				const data = filterData(originalData);
+
+				clearTimeout(mouseoverBarsColumnTimeout);
+
+				createColumnTopValues(originalData);
+
+				drawMap(data);
+				drawLegend(data);
+				drawBarChart(data);
+
+				barsColumn.style("fill", (e, i, n) => {
+					const thisKey = d3.select(n[i].parentNode).datum().key;
+					return e.data.clicked ? d3.color(colors[thisKey]).darker(0.75) : colors[thisKey]
+				});
+
+				yAxisGroupColumn.selectAll(".tick text")
+					.classed(classPrefix + "darkTick", e => filteredData.find(f => f.region === e).clicked);
 
 			};
 

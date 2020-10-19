@@ -81,8 +81,11 @@ const selections = {
 	byCountryAllocationsValue: d3.select("#byCountryAllocationsValue"),
 	byCountryAllocationsText: d3.select("#byCountryAllocationsText"),
 	byCountryCountriesValue: d3.select("#byCountryCountriesValue"),
+	byCountryCountriesText: d3.select("#byCountryCountriesText"),
 	byCountryProjectsValue: d3.select("#byCountryProjectsValue"),
+	byCountryProjectsText: d3.select("#byCountryProjectsText"),
 	byCountryPartnersValue: d3.select("#byCountryPartnersValue"),
+	byCountryPartnersText: d3.select("#byCountryPartnersText"),
 	byCountryChartContainer: d3.select("#bycountry-bar-chart"),
 	bySectorChartContainer: d3.select("#bysector-bar-chart")
 };
@@ -225,6 +228,9 @@ function controlCharts([defaultValues,
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
 		chartState.selectedChart = "allocationsByCountry";
+		chartState.selectedRegion = [];
+		chartState.selectedSector = [];
+		chartState.selectedType = [];
 		drawAllocations(allocationsData);
 	});
 
@@ -236,6 +242,9 @@ function controlCharts([defaultValues,
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
 		chartState.selectedChart = "allocationsBySector";
+		chartState.selectedRegion = [];
+		chartState.selectedSector = [];
+		chartState.selectedType = [];
 		drawAllocations(allocationsData);
 	});
 
@@ -247,6 +256,9 @@ function controlCharts([defaultValues,
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
 		chartState.selectedChart = "allocationsByType";
+		chartState.selectedRegion = [];
+		chartState.selectedSector = [];
+		chartState.selectedType = [];
 		drawAllocations(allocationsData);
 	});
 

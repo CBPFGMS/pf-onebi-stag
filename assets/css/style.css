@@ -559,6 +559,11 @@ footer{position: sticky; bottom: 0;}
   pointer-events: none;
   letter-spacing: -0.25px;
 }
+
+.pfbialdarkTick {
+  fill: #111;
+  font-weight: 700;
+}
   
 .pfbialyAxisGroup line, .pfbialxAxisGroupColumn line {
   stroke: #ddd;
