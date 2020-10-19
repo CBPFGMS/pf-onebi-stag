@@ -86,6 +86,7 @@ const selections = {
 	byCountryProjectsText: d3.select("#byCountryProjectsText"),
 	byCountryPartnersValue: d3.select("#byCountryPartnersValue"),
 	byCountryPartnersText: d3.select("#byCountryPartnersText"),
+	byCountryRegionsText: d3.select("#byCountryRegionsText"),
 	byCountryChartContainer: d3.select("#bycountry-bar-chart"),
 	bySectorChartContainer: d3.select("#bysector-bar-chart")
 };

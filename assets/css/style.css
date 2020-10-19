@@ -425,6 +425,11 @@ footer{position: sticky; bottom: 0;}
   z-index: 1500;
 }
 
+#byCountryRegionsText {
+  font-size: 0.7em;
+  white-space: pre;
+}
+
 .pfbialmapDiv {
   display: flex;
   width: 100%;

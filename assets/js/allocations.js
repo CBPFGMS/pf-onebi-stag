@@ -36,7 +36,7 @@ const classPrefix = "pfbial",
 	svgColumnChartWidth = 195,
 	svgMapPadding = [0, 10, 0, 10],
 	svgBarChartPadding = [4, 4, 4, 4],
-	svgColumnChartPaddingByCountry = [16, 4, 4, 56],
+	svgColumnChartPaddingByCountry = [16, 8, 4, 56],
 	svgColumnChartPaddingBySector = [4, 4, 4, 4],
 	svgColumnChartPaddingByType = [4, 4, 4, 4],
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
@@ -269,7 +269,7 @@ function createAllocations(selections, colors, mapData, lists) {
 	const xAxisColumnByCountry = d3.axisTop(xScaleColumnByCountry)
 		.tickSizeOuter(0)
 		.tickSizeInner(-(svgColumnChartHeight - svgColumnChartPaddingByCountry[2] - svgColumnChartPaddingByCountry[0]))
-		.ticks(3)
+		.ticks(2)
 		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
 
 	const yAxisColumnByCountry = d3.axisLeft(yScaleColumnByCountry)
@@ -277,7 +277,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	const xAxisColumnBySector = d3.axisTop(xScaleColumnBySector)
 		.tickSizeOuter(0)
-		.ticks(3)
+		.ticks(2)
 		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
 
 	const yAxisColumnBySector = d3.axisLeft(yScaleColumnBySector)
@@ -285,7 +285,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	const xAxisColumnByType = d3.axisTop(xScaleColumnByType)
 		.tickSizeOuter(0)
-		.ticks(3)
+		.ticks(2)
 		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
 
 	const yAxisColumnByType = d3.axisLeft(yScaleColumnByType)
@@ -1072,6 +1072,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		bars.transition()
 			.duration(duration)
+			.style("opacity", 1)
 			.attr("x", d => xScale(d.data.country))
 			.attr("y", d => d[0] === d[1] ? yScale(0) : yScale(d[1]))
 			.attr("height", d => yScale(d[0]) - yScale(d[1]));
@@ -1272,7 +1273,10 @@ function createAllocations(selections, colors, mapData, lists) {
 
 			const filteredData = columnData.filter(d => chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]);
 
-			yScaleColumnByCountry.domain(filteredData.map(e => e.region));
+			yScaleColumnByCountry.domain(filteredData.map(e => e.region))
+				.range([svgColumnChartPaddingByCountry[0],
+					Math.min(svgColumnChartHeight - svgColumnChartPaddingByCountry[2], maxColumnRectHeight * 2 * filteredData.length)
+				]);
 
 			xScaleColumnByCountry.domain([0, d3.max(filteredData, e => chartState.selectedFund === "total" ? e.total : e.cbpf + e.cerf)]);
 
@@ -1361,6 +1365,10 @@ function createAllocations(selections, colors, mapData, lists) {
 				drawLegend(data);
 				drawBarChart(data);
 
+				selections.byCountryRegionsText.html(d.clicked ? " (click to unselect)" : " (click to select)");
+
+				highlightBars();
+
 			};
 
 			function mouseoutBarsColumnTooltipRectangles(event, d) {
@@ -1383,6 +1391,10 @@ function createAllocations(selections, colors, mapData, lists) {
 					drawBarChart(data);
 
 				}, timeoutDuration);
+
+				selections.byCountryRegionsText.html(null);
+
+				highlightBars();
 
 			};
 
@@ -1409,14 +1421,20 @@ function createAllocations(selections, colors, mapData, lists) {
 				drawLegend(data);
 				drawBarChart(data);
 
+				highlightBars();
+
+				selections.byCountryRegionsText.html(d.clicked ? " (click to unselect)" : " (click to select)");
+
+			};
+
+			function highlightBars() {
 				barsColumn.style("fill", (e, i, n) => {
 					const thisKey = d3.select(n[i].parentNode).datum().key;
-					return e.data.clicked ? d3.color(colors[thisKey]).darker(0.75) : colors[thisKey]
+					return chartState.selectedRegion.indexOf(e.data.region) > -1 ? d3.color(colors[thisKey]).darker(0.75) : colors[thisKey]
 				});
 
 				yAxisGroupColumn.selectAll(".tick text")
-					.classed(classPrefix + "darkTick", e => filteredData.find(f => f.region === e).clicked);
-
+					.classed(classPrefix + "darkTick", e => chartState.selectedRegion.indexOf(e) > -1);
 			};
 
 			xAxisGroupColumn.transition()
