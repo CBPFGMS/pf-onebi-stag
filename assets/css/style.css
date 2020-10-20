@@ -427,7 +427,7 @@ footer{position: sticky; bottom: 0;}
   z-index: 1500;
 }
 
-#byCountryRegionsText {
+#byCountryRegionsText, #bySectorSectorsText {
   font-size: 0.7em;
   white-space: pre;
 }
@@ -565,11 +565,11 @@ footer{position: sticky; bottom: 0;}
   fill: #666;
 }
 
-.pfbialxAxisGroup line, .pfbialyAxisGroupColumn line{
+.pfbialxAxisGroup line, .pfbialyAxisGroupColumnByCountry line, .pfbialyAxisGroupColumnBySector line {
   stroke: darkslategray;
 }
 
-.pfbialxAxisGroup path, .pfbialxAxisGroupColumn path, .pfbialyAxisGroup path, .pfbialyAxisGroupColumn path {
+.pfbialxAxisGroup path, .pfbialxAxisGroupColumnByCountry path, .pfbialxAxisGroupColumnBySector path, .pfbialyAxisGroup path, .pfbialyAxisGroupColumnByCountry path, .pfbialyAxisGroupColumnBySector path {
   stroke: none;
 }
 
@@ -585,14 +585,14 @@ footer{position: sticky; bottom: 0;}
   pointer-events: none;
 }
 
-.pfbialxAxisGroupColumn text {
+.pfbialxAxisGroupColumnByCountry text, .pfbialxAxisGroupColumnBySector text {
   font-family: "Roboto", sans-serif;
   font-size: 10px;
   fill: #888;
   pointer-events: none;
 }
 
-.pfbialyAxisGroupColumn text {
+.pfbialyAxisGroupColumnByCountry text, .pfbialyAxisGroupColumnBySector text {
   font-family: "Roboto", sans-serif;
   font-size: 10px;
   fill: #888;
@@ -605,7 +605,7 @@ footer{position: sticky; bottom: 0;}
   font-weight: 500;
 }
   
-.pfbialxAxisGroupColumn line {
+.pfbialxAxisGroupColumnByCountry line, .pfbialxAxisGroupColumnBySector line {
   stroke: #ddd;
   stroke-dasharray: 2, 2;
 }

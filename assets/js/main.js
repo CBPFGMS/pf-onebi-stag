@@ -88,7 +88,16 @@ const selections = {
 	byCountryPartnersText: d3.select("#byCountryPartnersText"),
 	byCountryRegionsText: d3.select("#byCountryRegionsText"),
 	byCountryChartContainer: d3.select("#bycountry-bar-chart"),
-	bySectorChartContainer: d3.select("#bysector-bar-chart")
+	bySectorChartContainer: d3.select("#bysector-bar-chart"),
+	bySectorAllocationsValue: d3.select("#bySectorAllocationsValue"),
+	bySectorAllocationsText: d3.select("#bySectorAllocationsText"),
+	bySectorCountriesValue: d3.select("#bySectorCountriesValue"),
+	bySectorCountriesText: d3.select("#bySectorCountriesText"),
+	bySectorProjectsValue: d3.select("#bySectorProjectsValue"),
+	bySectorProjectsText: d3.select("#bySectorProjectsText"),
+	bySectorPartnersValue: d3.select("#bySectorPartnersValue"),
+	bySectorPartnersText: d3.select("#bySectorPartnersText"),
+	bySectorSectorsText: d3.select("#bySectorSectorsText")
 };
 
 createSpinner(selections.chartContainerDiv);
@@ -136,16 +145,6 @@ function controlCharts([defaultValues,
 	rawAllocationsData,
 	rawContributionsData
 ]) {
-
-	// console.log(defaultValues)
-	// console.log(worldMap)
-	// console.log(masterFunds)
-	// console.log(masterDonors)
-	// console.log(masterAllocationTypes)
-	// console.log(masterFundTypes)
-	// console.log(masterPartnerTypes)
-	// console.log(rawAllocationsData)
-	// console.log(rawContributionsData)
 
 	createFundNamesList(masterFunds);
 	createDonorNamesList(masterDonors);
@@ -230,7 +229,7 @@ function controlCharts([defaultValues,
 		};
 		chartState.selectedChart = "allocationsByCountry";
 		chartState.selectedRegion = [];
-		chartState.selectedSector = [];
+		chartState.selectedCluster = [];
 		chartState.selectedType = [];
 		drawAllocations(allocationsData);
 	});
@@ -244,7 +243,7 @@ function controlCharts([defaultValues,
 		};
 		chartState.selectedChart = "allocationsBySector";
 		chartState.selectedRegion = [];
-		chartState.selectedSector = [];
+		chartState.selectedCluster = [];
 		chartState.selectedType = [];
 		drawAllocations(allocationsData);
 	});
@@ -258,7 +257,7 @@ function controlCharts([defaultValues,
 		};
 		chartState.selectedChart = "allocationsByType";
 		chartState.selectedRegion = [];
-		chartState.selectedSector = [];
+		chartState.selectedCluster = [];
 		chartState.selectedType = [];
 		drawAllocations(allocationsData);
 	});
