@@ -883,6 +883,17 @@ function createAllocations(selections, colors, mapData, lists) {
 			const originalDatum = originalData.find(e => e.country === datum.country);
 
 			stackKeys.forEach(key => {
+
+				let keySum;
+
+				if (chartState.selectedChart === "allocationsByCountry" ||
+					(chartState.selectedChart === "allocationsBySector" && !chartState.selectedCluster.length)) keySum = originalDatum[key];
+
+				if (chartState.selectedChart === "allocationsBySector" && chartState.selectedCluster.length) keySum = chartState.selectedCluster.reduce((acc, curr) => {
+					acc += originalDatum[`cluster##${curr}##${key}`];
+					return acc;
+				}, 0);
+
 				const rowDiv = tooltipContainer.append("div")
 					.style("display", "flex")
 					.style("align-items", "center")
@@ -903,7 +914,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 				rowDiv.append("span")
 					.attr("class", classPrefix + "tooltipValues")
-					.html("$" + formatMoney0Decimals(originalDatum[key]));
+					.html("$" + formatMoney0Decimals(keySum));
 			});
 
 			const thisBox = event.currentTarget.getBoundingClientRect();
