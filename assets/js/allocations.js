@@ -28,7 +28,7 @@ const classPrefix = "pfbial",
 	strokeOpacityValue = 0.8,
 	fillOpacityValue = 0.5,
 	groupNamePadding = 2,
-	barWidth = 20,
+	barWidth = 36,
 	fadeOpacity = 0.1,
 	localVariable = d3.local(),
 	formatPercent = d3.format("%"),
@@ -36,7 +36,7 @@ const classPrefix = "pfbial",
 	formatMoney0Decimals = d3.format(",.0f"),
 	svgColumnChartWidth = 195,
 	svgMapPadding = [0, 10, 0, 10],
-	svgBarChartPadding = [4, 4, 4, 4],
+	svgBarChartPadding = [4, 12, 4, 12],
 	svgColumnChartPaddingByCountry = [16, 8, 4, 56],
 	svgColumnChartPaddingBySector = [4, 4, 4, 4],
 	svgColumnChartPaddingByType = [4, 4, 4, 4],
@@ -72,8 +72,7 @@ function createAllocations(selections, colors, mapData, lists) {
 		.attr("class", classPrefix + "containerDiv");
 
 	const mapDiv = containerDiv.append("div")
-		.attr("class", classPrefix + "mapDiv")
-		.style("height", formatPercent(mapPercentage));
+		.attr("class", classPrefix + "mapDiv");
 
 	const tooltipDivMap = mapDiv.append("div")
 		.attr("id", classPrefix + "tooltipDivMap")
@@ -84,19 +83,11 @@ function createAllocations(selections, colors, mapData, lists) {
 		.style("height", formatPercent(barChartPercentage));
 
 	const barChartDivTitle = barChartDivOuter.append("div")
-		.attr("class", classPrefix + "barChartDivTitle")
-		.style("border-bottom-color", colors[chartState.selectedFund]);
+		.attr("class", classPrefix + "barChartDivTitle");
 
 	const barChartDivTitleText = barChartDivTitle.append("div")
 		.attr("class", classPrefix + "barChartDivTitleText")
-		.style("background-color", colors[chartState.selectedFund]);
-
-	const barChartDivTitleRound = barChartDivTitle.append("div")
-		.attr("class", classPrefix + "barChartDivTitleRound")
-		.style("background-color", colors[chartState.selectedFund]);
-
-	const barChartDivTitleLine = barChartDivTitle.append("div")
-		.attr("class", classPrefix + "barChartDivTitleLine");
+		.style("border-bottom-color", chartState.selectedFund === "cerf/cbpf" ? colors.cbpf : colors[chartState.selectedFund]);
 
 	const barChartDiv = barChartDivOuter.append("div")
 		.attr("class", classPrefix + "barChartDiv");
@@ -135,14 +126,14 @@ function createAllocations(selections, colors, mapData, lists) {
 		.attr("class", classPrefix + "mapInnerDiv");
 
 	const svgMap = mapInnerDiv.append("svg")
-		.attr("viewBox", "0 0 " + svgMapWidth + " " + svgMapHeight)
-		.style("background-color", "white");
+		.attr("viewBox", "0 0 " + svgMapWidth + " " + svgMapHeight);
 
 	//FIX THE ASPECT RATIO! The width should be CONSTANT
 
 	const svgBarChart = barChartDiv.append("svg")
-		.attr("viewBox", "0 0 " + svgBarChartWidth + " " + svgBarChartHeight)
-		.style("background-color", "white");
+		.attr("width", svgBarChartWidth)
+		.attr("height", svgBarChartHeight);
+	//.attr("viewBox", "0 0 " + svgBarChartWidth + " " + svgBarChartHeight);
 
 	const zoomLayer = svgMap.append("g")
 		.attr("class", classPrefix + "zoomLayer")
@@ -155,7 +146,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("class", classPrefix + "mapPanel")
 			.attr("transform", "translate(" + (svgMapPadding[3] + (svgMapWidth - svgMapPadding[1] - svgMapPadding[3] - svgMapPanelWidth) / 2) + "," + svgMapPadding[0] + ")"),
 		width: svgMapPanelWidth,
-		height: svgMapHeight - svgMapPadding[0] - svgMapPadding[2],
+		height: (svgMapHeight * mapPercentage) - svgMapPadding[0] - svgMapPadding[2],
 		padding: [0, 0, 0, 0]
 	};
 
@@ -190,7 +181,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("transform", "translate(" + svgBarChartPadding[3] + "," + svgBarChartPadding[0] + ")"),
 		width: svgBarChartWidth - svgBarChartPadding[3] - svgBarChartPadding[1],
 		height: svgBarChartHeight - svgBarChartPadding[2] - svgBarChartPadding[0],
-		padding: [4, 0, 18, 46],
+		padding: [4, 0, 18, 32],
 		titlePadding: 10,
 		titleHorPadding: 8
 	};
@@ -201,14 +192,6 @@ function createAllocations(selections, colors, mapData, lists) {
 	// 	.attr("height", barChartPanel.height)
 	// 	.style("fill", "wheat");
 	//test
-
-	const svgMapClip = svgMap.append("clipPath")
-		.attr("id", classPrefix + "svgMapClip")
-		.append("rect")
-		.attr("width", svgMapWidth)
-		.attr("height", svgMapHeight);
-
-	svgMap.attr("clip-path", `url(#${classPrefix}svgMapClip)`);
 
 	const mapContainer = mapPanel.main.append("g")
 		.attr("class", classPrefix + "mapContainer");
@@ -425,8 +408,8 @@ function createAllocations(selections, colors, mapData, lists) {
 		], countryFeatures);
 
 		const land = mapContainer.append("path")
-			.attr("d", mapPath(topojson.merge(mapData, mapData.objects.wrl_polbnda_int_simple_uncs.geometries)))
-			.style("fill", "#F1F1F1");
+			.attr("d", mapPath(topojson.merge(mapData, mapData.objects.wrl_polbnda_int_simple_uncs.geometries.filter(d => d.properties.ISO_2 !== "AQ"))))
+			.style("fill", "#F3F3F3");
 
 		const borders = mapContainer.append("path")
 			.attr("d", mapPath(topojson.mesh(mapData, mapData.objects.wrl_polbnda_int_simple_uncs, (a, b) => a !== b)))
@@ -1062,7 +1045,16 @@ function createAllocations(selections, colors, mapData, lists) {
 		data.sort((a, b) => chartState.selectedFund === "cerf/cbpf" ? ((b.cerf + b.cbpf) - (a.cerf + a.cbpf)) :
 			b[chartState.selectedFund] - a[chartState.selectedFund]);
 
-		xScale.range([barChartPanel.padding[3], barChartPanel.padding[3] + data.length * barWidth])
+		const dynamicWidth = Math.min(svgBarChartWidth - svgBarChartPadding[3] - svgBarChartPadding[1],
+			(barChartPanel.padding[1] + barChartPanel.padding[3] + data.length * barWidth));
+
+		svgBarChart.transition()
+			.duration(duration)
+			.attr("width", dynamicWidth);
+
+		barChartPanel.width = dynamicWidth - svgBarChartPadding[3] - svgBarChartPadding[1];
+
+		xScale.range([barChartPanel.padding[3], barChartPanel.width - barChartPanel.padding[1]])
 			.domain(data.map(d => d.country));
 
 		yScale.domain([0, d3.max(data, d => chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund])]);
@@ -1085,17 +1077,10 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("class", classPrefix + "barTitleSpan")
 			.html("(" + barTitleSpanText + ")");
 
-		barChartDivTitle.transition()
-			.duration(duration)
-			.style("border-bottom-color", chartState.selectedFund === "cerf/cbpf" ? colors.cbpf : colors[chartState.selectedFund]);
-
 		barChartDivTitleText.transition()
 			.duration(duration)
-			.style("background-color", chartState.selectedFund === "cerf/cbpf" ? colors.cerf : colors[chartState.selectedFund]);
-
-		barChartDivTitleRound.transition()
-			.duration(duration)
-			.style("background-color", chartState.selectedFund === "cerf/cbpf" ? colors.cerf : colors[chartState.selectedFund]);
+			.style("margin-left", ((svgBarChartWidth - dynamicWidth) / 2) + "px")
+			.style("border-bottom-color", chartState.selectedFund === "cerf/cbpf" ? colors.cbpf : colors[chartState.selectedFund]);
 
 		const stackedData = stack(data);
 
@@ -1136,6 +1121,7 @@ function createAllocations(selections, colors, mapData, lists) {
 		bars.transition()
 			.duration(duration)
 			.style("opacity", 1)
+			.attr("width", xScale.bandwidth())
 			.attr("x", d => xScale(d.data.country))
 			.attr("y", d => d[0] === d[1] ? yScale(0) : yScale(d[1]))
 			.attr("height", d => yScale(d[0]) - yScale(d[1]));
@@ -1159,6 +1145,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		barsTooltipRectangles.transition()
 			.duration(duration)
+			.attr("width", xScale.step())
 			.attr("x", d => xScale(d.country) - xScale.bandwidth() / 2);
 
 		xAxisGroup.transition()
@@ -1391,7 +1378,7 @@ function createAllocations(selections, colors, mapData, lists) {
 				.append("g")
 				.attr("class", classPrefix + "barsGroupsColumn")
 				.attr("pointer-events", "none")
-				.style("fill", d => colors[d.key]);
+				.style("fill", d => d3.color(colors[d.key]).brighter(0.25));
 
 			barsGroupsColumn = barsGroupsColumnEnter.merge(barsGroupsColumn);
 
@@ -1530,7 +1517,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			function highlightBars() {
 				barsColumn.style("fill", (e, i, n) => {
 					const thisKey = d3.select(n[i].parentNode).datum().key;
-					return chartState.selectedRegion.indexOf(e.data.region) > -1 ? d3.color(colors[thisKey]).darker(0.75) : colors[thisKey];
+					return chartState.selectedRegion.indexOf(e.data.region) > -1 ? d3.color(colors[thisKey]).darker(0.5) : d3.color(colors[thisKey]).brighter(0.25);
 				});
 
 				yAxisGroupColumn.selectAll(".tick text")

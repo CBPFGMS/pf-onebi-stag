@@ -406,6 +406,8 @@ footer{position: sticky; bottom: 0;}
   height: 100%;
   display: flex;
   flex-direction: column;
+  background-color: #D2E5F5;
+  position: relative;
 }
 
 #pfbialtooltipDivMap, #pfbialtooltipDivBarChart {    
@@ -433,6 +435,7 @@ footer{position: sticky; bottom: 0;}
 .pfbialmapDiv {
   display: flex;
   width: 100%;
+  height: 100%;
   justify-content: center;
   align-items: center;
   position: relative;
@@ -447,6 +450,9 @@ footer{position: sticky; bottom: 0;}
   width: 100%;
   display: flex;
   flex-direction: column;
+  position: absolute;
+  bottom: 0;
+  background-color: rgb(210, 229, 245, 0.5);
 }
 
 .pfbialbarChartDivTitle {
@@ -454,8 +460,6 @@ footer{position: sticky; bottom: 0;}
   display: flex;
   height: 26px;
   flex-direction: row;
-  border-bottom-width: 2px;
-  border-bottom-style: solid;
 }
 
 .pfbialbarChartDivTitleText {
@@ -463,25 +467,18 @@ footer{position: sticky; bottom: 0;}
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-left: 48px;
-  padding-right: 48px;
-  color: white;
+  padding-left: 8px;
+  padding-right: 8px;
+  color: #444;
   padding-top: 2px;
-}
-
-.pfbialbarChartDivTitleRound {
-  border-radius: 0 26px 0 0;
-  height: 24px;
-  width: 24px;
-}
-
-.pfbialbarChartDivTitleLine {
-
+  border-bottom-width: 2px;
+  border-bottom-style: solid;
 }
 
 .pfbialbarChartDiv {
   width: 100%;
   height: 100%;
+  display: flex;
   align-items: center;
   position: relative;
   justify-content: center;
@@ -584,7 +581,7 @@ footer{position: sticky; bottom: 0;}
 .pfbialyAxisGroup text {
   font-family: "Roboto", sans-serif;
   font-size: 10px;
-  fill: #aaa;
+  fill: #777;
   pointer-events: none;
 }
 
@@ -598,18 +595,23 @@ footer{position: sticky; bottom: 0;}
 .pfbialyAxisGroupColumn text {
   font-family: "Roboto", sans-serif;
   font-size: 10px;
-  fill: #555;
+  fill: #888;
   pointer-events: none;
   letter-spacing: -0.25px;
 }
 
 .pfbialdarkTick {
-  fill: #111;
-  font-weight: 700;
+  fill: black !important;
+  font-weight: 500;
 }
   
-.pfbialyAxisGroup line, .pfbialxAxisGroupColumn line {
+.pfbialxAxisGroupColumn line {
   stroke: #ddd;
+  stroke-dasharray: 2, 2;
+}
+
+.pfbialyAxisGroup line {
+  stroke: #aaa;
   stroke-dasharray: 2, 2;
 }
 
