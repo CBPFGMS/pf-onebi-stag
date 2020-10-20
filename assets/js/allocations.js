@@ -1046,7 +1046,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			b[chartState.selectedFund] - a[chartState.selectedFund]);
 
 		const dynamicWidth = Math.min(svgBarChartWidth - svgBarChartPadding[3] - svgBarChartPadding[1],
-			(barChartPanel.padding[1] + barChartPanel.padding[3] + data.length * barWidth));
+			(barChartPanel.padding[1] + barChartPanel.padding[3] + barWidth + data.length * barWidth));
 
 		svgBarChart.transition()
 			.duration(duration)
