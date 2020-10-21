@@ -674,3 +674,10 @@ footer{position: sticky; bottom: 0;}
   background: linear-gradient(to right, #FBD45C 0%, #FBD45C 50%, #F37261 50%, #F37261 100%);
   border-radius: 50%;
 }
+
+.pfbialbarsLabels {
+  text-anchor: middle;
+  font-family: "Roboto", sans-serif;
+  font-size: 9px;
+  fill: #222;
+}

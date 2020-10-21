@@ -187,9 +187,8 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("transform", "translate(" + svgBarChartPadding[3] + "," + svgBarChartPadding[0] + ")"),
 		width: svgBarChartWidth - svgBarChartPadding[3] - svgBarChartPadding[1],
 		height: svgBarChartHeight - svgBarChartPadding[2] - svgBarChartPadding[0],
-		padding: [4, 0, 18, 32],
-		titlePadding: 10,
-		titleHorPadding: 8
+		padding: [14, 0, 18, 32],
+		labelsPadding: 3
 	};
 
 	//test
@@ -1190,6 +1189,35 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("y", d => d[0] === d[1] ? yScale(0) : yScale(d[1]))
 			.attr("height", d => yScale(d[0]) - yScale(d[1]));
 
+		let barsLabels = barChartPanel.main.selectAll("." + classPrefix + "barsLabels")
+			.data(data, d => d.country);
+
+		const barsLabelsExit = barsLabels.exit()
+			.transition()
+			.duration(duration)
+			.style("opacity", 0)
+			.attr("y", barChartPanel.height - barChartPanel.padding[2])
+			.remove();
+
+		const barsLabelsEnter = barsLabels.enter()
+			.append("text")
+			.attr("class", classPrefix + "barsLabels")
+			.attr("x", d => xScale(d.country) + xScale.bandwidth() / 2)
+			.attr("y", barChartPanel.height - barChartPanel.padding[2])
+			.style("opacity", 0);
+
+		barsLabels = barsLabelsEnter.merge(barsLabels);
+
+		barsLabels.transition()
+			.duration(duration)
+			.style("opacity", 1)
+			.attr("x", d => xScale(d.country) + xScale.bandwidth() / 2)
+			.attr("y", d => yScale(chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]) - barChartPanel.labelsPadding)
+			.textTween((d, i, n) => {
+				const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]);
+				return t => d3.formatPrefix(".0", interpolator(t))(interpolator(t)).replace("G", "B");
+			});
+
 		let barsTooltipRectangles = barChartPanel.main.selectAll("." + classPrefix + "barsTooltipRectangles")
 			.data(data, d => d.country);
 
@@ -1343,6 +1371,8 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		const numberOfProjects = new Set(),
 			numberOfPartners = new Set();
+
+		console.log(filteredData);
 
 		const numberOfCountries = filteredData.filter(d => chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]).length;
 
