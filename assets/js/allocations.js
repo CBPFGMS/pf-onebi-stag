@@ -105,6 +105,11 @@ function createAllocations(selections, colors, mapData, lists) {
 	const columnChartContainerByTypeCerf = selections.byTypeCerfChartContainer;
 	const columnChartContainerByTypeCbpf = selections.byTypeCbpfChartContainer;
 
+	columnChartContainerByCountry.html(null);
+	columnChartContainerBySector.html(null);
+	columnChartContainerByTypeCerf.html(null);
+	columnChartContainerByTypeCbpf.html(null);
+
 	const columnChartContainerByCountrySize = columnChartContainerByCountry.node().getBoundingClientRect();
 	const columnChartContainerBySectorSize = columnChartContainerBySector.node().getBoundingClientRect();
 
@@ -114,45 +119,21 @@ function createAllocations(selections, colors, mapData, lists) {
 	svgColumnChartByCountryHeight = svgColumnChartBySectorHeight = Math.max(svgColumnChartByCountryHeight, svgColumnChartBySectorHeight);
 
 	//FIX: WHY ISN'T VIEWBOX WORKING?
-	let svgColumnChartByCountry = columnChartContainerByCountry.selectAll("." + classPrefix + "svgColumnChartByCountry")
-		.data([true]);
-
-	svgColumnChartByCountry = svgColumnChartByCountry.enter()
-		.append("svg")
-		.attr("class", classPrefix + "svgColumnChartByCountry")
+	const svgColumnChartByCountry = columnChartContainerByCountry.append("svg")
 		.attr("width", svgColumnChartWidth)
-		.attr("height", svgColumnChartByCountryHeight)
-		.merge(svgColumnChartByCountry);
+		.attr("height", svgColumnChartByCountryHeight);
 
-	let svgColumnChartBySector = columnChartContainerBySector.selectAll("." + classPrefix + "svgColumnChartBySector")
-		.data([true]);
-
-	svgColumnChartBySector = svgColumnChartBySector.enter()
-		.append("svg")
-		.attr("class", classPrefix + "svgColumnChartBySector")
+	const svgColumnChartBySector = columnChartContainerBySector.append("svg")
 		.attr("width", svgColumnChartWidth)
-		.attr("height", svgColumnChartBySectorHeight)
-		.merge(svgColumnChartBySector);
+		.attr("height", svgColumnChartBySectorHeight);
 
-	let svgColumnChartByTypeCerf = columnChartContainerByTypeCerf.selectAll("." + classPrefix + "svgColumnChartByTypeCerf")
-		.data([true]);
-
-	svgColumnChartByTypeCerf = svgColumnChartByTypeCerf.enter()
-		.append("svg")
-		.attr("class", classPrefix + "svgColumnChartByTypeCerf")
+	const svgColumnChartByTypeCerf = columnChartContainerByTypeCerf.append("svg")
 		.attr("width", svgColumnChartWidth)
-		.attr("height", svgColumnChartTypeHeight)
-		.merge(svgColumnChartByTypeCerf);
+		.attr("height", svgColumnChartTypeHeight);
 
-	let svgColumnChartByTypeCbpf = columnChartContainerByTypeCbpf.selectAll("." + classPrefix + "svgColumnChartByTypeCbpf")
-		.data([true]);
-
-	svgColumnChartByTypeCbpf = svgColumnChartByTypeCbpf.enter()
-		.append("svg")
-		.attr("class", classPrefix + "svgColumnChartByTypeCbpf")
+	const svgColumnChartByTypeCbpf = columnChartContainerByTypeCbpf.append("svg")
 		.attr("width", svgColumnChartWidth)
-		.attr("height", svgColumnChartTypeHeight)
-		.merge(svgColumnChartByTypeCbpf);
+		.attr("height", svgColumnChartTypeHeight);
 
 	const mapDivSize = mapDiv.node().getBoundingClientRect();
 	const barChartDivSize = barChartDiv.node().getBoundingClientRect();
@@ -351,7 +332,6 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	const xAxisColumnByCountry = d3.axisTop(xScaleColumnByCountry)
 		.tickSizeOuter(0)
-		.tickSizeInner(-(svgColumnChartByCountryHeight - svgColumnChartPaddingByCountry[2] - svgColumnChartPaddingByCountry[0]))
 		.ticks(2)
 		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
 
@@ -360,7 +340,6 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	const xAxisColumnBySector = d3.axisTop(xScaleColumnBySector)
 		.tickSizeOuter(0)
-		.tickSizeInner(-(svgColumnChartBySectorHeight - svgColumnChartPaddingBySector[2] - svgColumnChartPaddingBySector[0]))
 		.ticks(2)
 		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
 
@@ -1762,6 +1741,8 @@ function createAllocations(selections, colors, mapData, lists) {
 					.classed(classPrefix + "darkTick", e => chartState.selectedRegion.indexOf(e) > -1);
 			};
 
+			xAxisColumnByCountry.tickSizeInner(-(yScaleColumnByCountry.range()[1] - yScaleColumnByCountry.range()[0]));
+
 			xAxisGroupColumnByCountry.transition()
 				.duration(duration)
 				.call(xAxisColumnByCountry);
@@ -1969,6 +1950,8 @@ function createAllocations(selections, colors, mapData, lists) {
 				yAxisGroupColumnBySector.selectAll(".tick text")
 					.classed(classPrefix + "darkTick", e => chartState.selectedCluster.indexOf(Object.keys(lists.clustersList).find(f => lists.clustersList[f] === e)) > -1);
 			};
+
+			xAxisColumnBySector.tickSizeInner(-(yScaleColumnBySector.range()[1] - yScaleColumnBySector.range()[0]))
 
 			xAxisGroupColumnBySector.transition()
 				.duration(duration)
