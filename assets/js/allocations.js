@@ -35,6 +35,7 @@ const classPrefix = "pfbial",
 	formatSIaxes = d3.format("~s"),
 	formatMoney0Decimals = d3.format(",.0f"),
 	svgColumnChartWidth = 195,
+	svgColumnChartTypeHeight = 120,
 	svgMapPadding = [0, 10, 0, 10],
 	svgBarChartPadding = [4, 12, 4, 12],
 	svgColumnChartPaddingByCountry = [16, 8, 4, 56],
@@ -101,6 +102,8 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	const columnChartContainerByCountry = selections.byCountryChartContainer;
 	const columnChartContainerBySector = selections.bySectorChartContainer;
+	const columnChartContainerByTypeCerf = selections.byTypeCerfChartContainer;
+	const columnChartContainerByTypeCbpf = selections.byTypeCbpfChartContainer;
 
 	const columnChartContainerByCountrySize = columnChartContainerByCountry.node().getBoundingClientRect();
 	const columnChartContainerBySectorSize = columnChartContainerBySector.node().getBoundingClientRect();
@@ -111,13 +114,45 @@ function createAllocations(selections, colors, mapData, lists) {
 	svgColumnChartByCountryHeight = svgColumnChartBySectorHeight = Math.max(svgColumnChartByCountryHeight, svgColumnChartBySectorHeight);
 
 	//FIX: WHY ISN'T VIEWBOX WORKING?
-	const svgColumnChartByCountry = columnChartContainerByCountry.append("svg")
-		.attr("width", svgColumnChartWidth)
-		.attr("height", svgColumnChartByCountryHeight);
+	let svgColumnChartByCountry = columnChartContainerByCountry.selectAll("." + classPrefix + "svgColumnChartByCountry")
+		.data([true]);
 
-	const svgColumnChartBySector = columnChartContainerBySector.append("svg")
+	svgColumnChartByCountry = svgColumnChartByCountry.enter()
+		.append("svg")
+		.attr("class", classPrefix + "svgColumnChartByCountry")
 		.attr("width", svgColumnChartWidth)
-		.attr("height", svgColumnChartBySectorHeight);
+		.attr("height", svgColumnChartByCountryHeight)
+		.merge(svgColumnChartByCountry);
+
+	let svgColumnChartBySector = columnChartContainerBySector.selectAll("." + classPrefix + "svgColumnChartBySector")
+		.data([true]);
+
+	svgColumnChartBySector = svgColumnChartBySector.enter()
+		.append("svg")
+		.attr("class", classPrefix + "svgColumnChartBySector")
+		.attr("width", svgColumnChartWidth)
+		.attr("height", svgColumnChartBySectorHeight)
+		.merge(svgColumnChartBySector);
+
+	let svgColumnChartByTypeCerf = columnChartContainerByTypeCerf.selectAll("." + classPrefix + "svgColumnChartByTypeCerf")
+		.data([true]);
+
+	svgColumnChartByTypeCerf = svgColumnChartByTypeCerf.enter()
+		.append("svg")
+		.attr("class", classPrefix + "svgColumnChartByTypeCerf")
+		.attr("width", svgColumnChartWidth)
+		.attr("height", svgColumnChartTypeHeight)
+		.merge(svgColumnChartByTypeCerf);
+
+	let svgColumnChartByTypeCbpf = columnChartContainerByTypeCbpf.selectAll("." + classPrefix + "svgColumnChartByTypeCbpf")
+		.data([true]);
+
+	svgColumnChartByTypeCbpf = svgColumnChartByTypeCbpf.enter()
+		.append("svg")
+		.attr("class", classPrefix + "svgColumnChartByTypeCbpf")
+		.attr("width", svgColumnChartWidth)
+		.attr("height", svgColumnChartTypeHeight)
+		.merge(svgColumnChartByTypeCbpf);
 
 	const mapDivSize = mapDiv.node().getBoundingClientRect();
 	const barChartDivSize = barChartDiv.node().getBoundingClientRect();
@@ -239,13 +274,18 @@ function createAllocations(selections, colors, mapData, lists) {
 		.paddingInner(0.5)
 		.paddingOuter(0.5);
 
-	// const xScaleColumnByType = d3.scaleLinear()
-	// 	.range([svgColumnChartPaddingByType[3], svgColumnChartWidth - svgColumnChartPaddingByType[1]]);
+	const xScaleColumnByType = d3.scaleLinear()
+		.range([svgColumnChartPaddingByType[3], svgColumnChartWidth - svgColumnChartPaddingByType[1]]);
 
-	// const yScaleColumnByType = d3.scaleBand()
-	// 	.range([svgColumnChartPaddingByType[0], svgColumnChartHeight - svgColumnChartPaddingByType[2]])
-	// 	.paddingInner(0.5)
-	// 	.paddingOuter(0.5);
+	const yScaleColumnByTypeCerf = d3.scaleBand()
+		.range([svgColumnChartPaddingByType[0], svgColumnChartTypeHeight - svgColumnChartPaddingByType[2]])
+		.paddingInner(0.5)
+		.paddingOuter(0.5);
+
+	const yScaleColumnByTypeCbpf = d3.scaleBand()
+		.range([svgColumnChartPaddingByType[0], svgColumnChartTypeHeight - svgColumnChartPaddingByType[2]])
+		.paddingInner(0.5)
+		.paddingOuter(0.5);
 
 	const clusterNamesScale = d3.scaleOrdinal()
 		.domain(["Food Security",
@@ -327,13 +367,16 @@ function createAllocations(selections, colors, mapData, lists) {
 	const yAxisColumnBySector = d3.axisLeft(yScaleColumnBySector)
 		.tickSize(4);
 
-	// const xAxisColumnByType = d3.axisTop(xScaleColumnByType)
-	// 	.tickSizeOuter(0)
-	// 	.ticks(2)
-	// 	.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
+	const xAxisColumnByType = d3.axisTop(xScaleColumnByType)
+		.tickSizeOuter(0)
+		.ticks(2)
+		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
 
-	// const yAxisColumnByType = d3.axisLeft(yScaleColumnByType)
-	// 	.tickSize(4);
+	const yAxisColumnByTypeCerf = d3.axisLeft(yScaleColumnByTypeCerf)
+		.tickSize(4);
+
+	const yAxisColumnByTypeCbpf = d3.axisLeft(yScaleColumnByTypeCbpf)
+		.tickSize(4);
 
 	const xAxisGroup = barChartPanel.main.append("g")
 		.attr("class", classPrefix + "xAxisGroup")
@@ -358,6 +401,22 @@ function createAllocations(selections, colors, mapData, lists) {
 	const yAxisGroupColumnBySector = svgColumnChartBySector.append("g")
 		.attr("class", classPrefix + "yAxisGroupColumnBySector")
 		.attr("transform", "translate(" + svgColumnChartPaddingBySector[3] + ",0)");
+
+	const xAxisGroupColumnByTypeCerf = svgColumnChartByTypeCerf.append("g")
+		.attr("class", classPrefix + "xAxisGroupColumnByType")
+		.attr("transform", "translate(0," + svgColumnChartPaddingByType[0] + ")");
+
+	const xAxisGroupColumnByTypeCbpf = svgColumnChartByTypeCbpf.append("g")
+		.attr("class", classPrefix + "xAxisGroupColumnByType")
+		.attr("transform", "translate(0," + svgColumnChartPaddingByType[0] + ")");
+
+	const yAxisGroupColumnByTypeCerf = svgColumnChartByTypeCerf.append("g")
+		.attr("class", classPrefix + "yAxisGroupColumnByType")
+		.attr("transform", "translate(" + svgColumnChartPaddingByType[3] + ",0)");
+
+	const yAxisGroupColumnByTypeCbpf = svgColumnChartByTypeCbpf.append("g")
+		.attr("class", classPrefix + "yAxisGroupColumnByType")
+		.attr("transform", "translate(" + svgColumnChartPaddingByType[3] + ",0)");
 
 	const zoom = d3.zoom()
 		.scaleExtent([1, 20])
@@ -854,6 +913,9 @@ function createAllocations(selections, colors, mapData, lists) {
 			barChartPanel.main.selectAll("." + classPrefix + "bars")
 				.style("opacity", d => d.data.country === datum.country ? 1 : fadeOpacity);
 
+			barChartPanel.main.selectAll("." + classPrefix + "barsLabels")
+				.style("opacity", d => d.country === datum.country ? 1 : fadeOpacity);
+
 			xAxisGroup.selectAll(".tick")
 				.style("opacity", d => d === datum.country ? 1 : fadeOpacity);
 
@@ -938,6 +1000,9 @@ function createAllocations(selections, colors, mapData, lists) {
 			pieGroup.style("opacity", 1);
 
 			barChartPanel.main.selectAll("." + classPrefix + "bars")
+				.style("opacity", 1);
+
+			barChartPanel.main.selectAll("." + classPrefix + "barsLabels")
 				.style("opacity", 1);
 
 			xAxisGroup.selectAll(".tick")
@@ -1261,6 +1326,8 @@ function createAllocations(selections, colors, mapData, lists) {
 
 			bars.style("opacity", e => e.data.country === d.country ? 1 : fadeOpacity);
 
+			barsLabels.style("opacity", e => e.country === d.country ? 1 : fadeOpacity);
+
 			xAxisGroup.selectAll(".tick")
 				.style("opacity", e => e === d.country ? 1 : fadeOpacity);
 
@@ -1343,6 +1410,8 @@ function createAllocations(selections, colors, mapData, lists) {
 		function mouseoutBarsTooltipRectangles(_, d) {
 
 			bars.style("opacity", 1);
+
+			barsLabels.style("opacity", 1);
 
 			xAxisGroup.selectAll(".tick")
 				.style("opacity", 1);
@@ -1517,7 +1586,7 @@ function createAllocations(selections, colors, mapData, lists) {
 		};
 		if (chartState.selectedChart === "allocationsByType") {
 			const columnData = [];
-			createAllocationsByTypeColumnChart(columnDataType)
+			createAllocationsByTypeColumnChart(columnData)
 		};
 
 		function createAllocationsByCountryColumnChart(columnData) {
@@ -1997,6 +2066,9 @@ function createAllocations(selections, colors, mapData, lists) {
 				};
 
 				data.push(copiedRow);
+			};
+			if (chartState.selectedChart === "allocationsByType") {
+
 			};
 		});
 

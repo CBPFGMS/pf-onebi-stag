@@ -86,27 +86,27 @@
 		<div id="byAllocationType" class="link-sidenav" data-ss-container>
         	<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
             <div class="side-panel mt-4">
-                <h6>$357M</h6>
-                <p>Total Allocations</p>
+                <h6 id="byTypeAllocationsValue">$0</h6>
+                <p id="byTypeAllocationsText">Total Allocations</p>
             </div>
             <div class="side-panel">
-                <h6>65</h6>
-                <p>Countries</p>
+                <h6 id="byTypeCountriesValue">0</h6>
+                <p id="byTypeCountriesText">Countries</p>
             </div>
-			<div class="side-panel">
-                <h6>379</h6>
-                <p>Projects</p>
+            <div class="side-panel">
+                <h6 id="byTypeProjectsValue">0</h6>
+                <p id="byTypeProjectsText">Projects</p>
             </div>
-			<div class="side-panel">
-                <h6>350</h6>
-                <p>Partners</p>
+            <div class="side-panel">
+                <h6 id="byTypePartnersValue">0</h6>
+                <p id="byTypePartnersText">Partners</p>
             </div>
 			<!--By Allocation Type Bar Chart-->
-			<div class="side-panel border-bottom-0">
-				<h4 class="pt-2 pb-1">CERF Window</h4>
-				<div id="bycerf-bar-chart"><img src="assets/img/bar-chart.png" class="img-fluid d-block mb-2" alt=""></div>				
-				<h4 class="pt-2 pb-1">CBPF Allocation Types</h4>
-				<div id="bycbpf-bar-chart"><img src="assets/img/bar-chart.png" class="img-fluid d-block" alt=""></div>				
+			<div class="side-panel border-bottom-0 p-0">
+				<h4 class="pt-2 pb-1">CERF Window<span id="byTypeCerfText"></h4>
+				<div id="bycerf-bar-chart"></div>				
+				<h4 class="pt-2 pb-1">CBPF Allocation Types<span id="byTypeCbpfText"></h4>
+				<div id="bycbpf-bar-chart"></div>				
 			</div>
         </div>
 		<!--By CERF CBPF Second Nav-->

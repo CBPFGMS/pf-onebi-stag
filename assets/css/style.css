@@ -586,7 +586,7 @@ footer{position: sticky; bottom: 0;}
 .pfbialyAxisGroup text {
   font-family: "Roboto", sans-serif;
   font-size: 10px;
-  fill: #777;
+  fill: #999;
   pointer-events: none;
 }
 
@@ -616,7 +616,7 @@ footer{position: sticky; bottom: 0;}
 }
 
 .pfbialyAxisGroup line {
-  stroke: #aaa;
+  stroke: #ddd;
   stroke-dasharray: 2, 2;
 }
 
@@ -686,5 +686,5 @@ footer{position: sticky; bottom: 0;}
   text-anchor: middle;
   font-family: "Roboto", sans-serif;
   font-size: 9px;
-  fill: #222;
+  fill: #888;
 }
