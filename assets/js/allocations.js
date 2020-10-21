@@ -1372,19 +1372,34 @@ function createAllocations(selections, colors, mapData, lists) {
 		const numberOfProjects = new Set(),
 			numberOfPartners = new Set();
 
-		console.log(filteredData);
-
 		const numberOfCountries = filteredData.filter(d => chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]).length;
 
-		const totalAllocations = d3.sum(filteredData, d => chartState.selectedFund === "cerf/cbpf" ? d.total : d[chartState.selectedFund]);
+		const rowFund = chartState.selectedFund === "cerf/cbpf" ? "total" : chartState.selectedFund;
+
+		const totalAllocations = d3.sum(filteredData, row => {
+			if (chartState.selectedChart === "allocationsByCountry") {
+				return chartState.selectedFund === "cerf/cbpf" ? row.total : row[chartState.selectedFund];
+			};
+			if (chartState.selectedChart === "allocationsBySector") {
+				let rowSum = 0;
+				chartState.selectedCluster.forEach(e => {
+					rowSum += row[`cluster##${e}##${rowFund}`];
+				});
+				return rowSum;
+			};
+		});
 
 		filteredData.forEach(row => {
 			row.allocationsList.forEach(allocation => {
 				if (chartState.selectedFund === "total" ||
 					chartState.selectedFund === "cerf/cbpf" ||
 					lists.fundTypesList[allocation.FundId] === chartState.selectedFund) {
-					allocation.ProjList.toString().split("##").forEach(e => numberOfProjects.add(e));
-					allocation.OrgList.toString().split("##").forEach(e => numberOfPartners.add(e));;
+					if (chartState.selectedChart !== "allocationsBySector" ||
+						!chartState.selectedCluster.length ||
+						chartState.selectedCluster.indexOf(allocation.ClusterId + "") > -1) {
+						allocation.ProjList.toString().split("##").forEach(e => numberOfProjects.add(e));
+						allocation.OrgList.toString().split("##").forEach(e => numberOfPartners.add(e));
+					};
 				};
 			});
 		});
@@ -1963,7 +1978,7 @@ function createAllocations(selections, colors, mapData, lists) {
 				copiedRow.cerf = 0;
 				copiedRow.cbpf = 0;
 
-				for (let key in lists.clustersList) {
+				for (const key in lists.clustersList) {
 					if (chartState.selectedCluster.length === 0 || chartState.selectedCluster.indexOf(key) > -1) {
 						if (chartState.selectedFund === "total") {
 							copiedRow.total += copiedRow[`cluster##${key}##total`];
