@@ -97,7 +97,19 @@ const selections = {
 	bySectorProjectsText: d3.select("#bySectorProjectsText"),
 	bySectorPartnersValue: d3.select("#bySectorPartnersValue"),
 	bySectorPartnersText: d3.select("#bySectorPartnersText"),
-	bySectorSectorsText: d3.select("#bySectorSectorsText")
+	bySectorSectorsText: d3.select("#bySectorSectorsText"),
+	byTypeCerfChartContainer: d3.select("#bycerf-bar-chart"),
+	byTypeCbpfChartContainer: d3.select("#bycbpf-bar-chart"),
+	byTypeAllocationsValue: d3.select("#byTypeAllocationsValue"),
+	byTypeAllocationsText: d3.select("#byTypeAllocationsText"),
+	byTypeCountriesValue: d3.select("#byTypeCountriesValue"),
+	byTypeCountriesText: d3.select("#byTypeCountriesText"),
+	byTypeProjectsValue: d3.select("#byTypeProjectsValue"),
+	byTypeProjectsText: d3.select("#byTypeProjectsText"),
+	byTypePartnersValue: d3.select("#byTypePartnersValue"),
+	byTypePartnersText: d3.select("#byTypePartnersText"),
+	byTypeCerfText: d3.select("#byTypeCerfText"),
+	byTypeCbpfText: d3.select("#byTypeCbpfText")
 };
 
 createSpinner(selections.chartContainerDiv);

@@ -35,6 +35,7 @@ const classPrefix = "pfbial",
 	formatSIaxes = d3.format("~s"),
 	formatMoney0Decimals = d3.format(",.0f"),
 	svgColumnChartWidth = 195,
+	svgColumnChartTypeHeight = 120,
 	svgMapPadding = [0, 10, 0, 10],
 	svgBarChartPadding = [4, 12, 4, 12],
 	svgColumnChartPaddingByCountry = [16, 8, 4, 56],
@@ -101,6 +102,8 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	const columnChartContainerByCountry = selections.byCountryChartContainer;
 	const columnChartContainerBySector = selections.bySectorChartContainer;
+	const columnChartContainerByTypeCerf = selections.byTypeCerfChartContainer;
+	const columnChartContainerByTypeCbpf = selections.byTypeCbpfChartContainer;
 
 	const columnChartContainerByCountrySize = columnChartContainerByCountry.node().getBoundingClientRect();
 	const columnChartContainerBySectorSize = columnChartContainerBySector.node().getBoundingClientRect();
@@ -111,13 +114,45 @@ function createAllocations(selections, colors, mapData, lists) {
 	svgColumnChartByCountryHeight = svgColumnChartBySectorHeight = Math.max(svgColumnChartByCountryHeight, svgColumnChartBySectorHeight);
 
 	//FIX: WHY ISN'T VIEWBOX WORKING?
-	const svgColumnChartByCountry = columnChartContainerByCountry.append("svg")
-		.attr("width", svgColumnChartWidth)
-		.attr("height", svgColumnChartByCountryHeight);
+	let svgColumnChartByCountry = columnChartContainerByCountry.selectAll("." + classPrefix + "svgColumnChartByCountry")
+		.data([true]);
 
-	const svgColumnChartBySector = columnChartContainerBySector.append("svg")
+	svgColumnChartByCountry = svgColumnChartByCountry.enter()
+		.append("svg")
+		.attr("class", classPrefix + "svgColumnChartByCountry")
 		.attr("width", svgColumnChartWidth)
-		.attr("height", svgColumnChartBySectorHeight);
+		.attr("height", svgColumnChartByCountryHeight)
+		.merge(svgColumnChartByCountry);
+
+	let svgColumnChartBySector = columnChartContainerBySector.selectAll("." + classPrefix + "svgColumnChartBySector")
+		.data([true]);
+
+	svgColumnChartBySector = svgColumnChartBySector.enter()
+		.append("svg")
+		.attr("class", classPrefix + "svgColumnChartBySector")
+		.attr("width", svgColumnChartWidth)
+		.attr("height", svgColumnChartBySectorHeight)
+		.merge(svgColumnChartBySector);
+
+	let svgColumnChartByTypeCerf = columnChartContainerByTypeCerf.selectAll("." + classPrefix + "svgColumnChartByTypeCerf")
+		.data([true]);
+
+	svgColumnChartByTypeCerf = svgColumnChartByTypeCerf.enter()
+		.append("svg")
+		.attr("class", classPrefix + "svgColumnChartByTypeCerf")
+		.attr("width", svgColumnChartWidth)
+		.attr("height", svgColumnChartTypeHeight)
+		.merge(svgColumnChartByTypeCerf);
+
+	let svgColumnChartByTypeCbpf = columnChartContainerByTypeCbpf.selectAll("." + classPrefix + "svgColumnChartByTypeCbpf")
+		.data([true]);
+
+	svgColumnChartByTypeCbpf = svgColumnChartByTypeCbpf.enter()
+		.append("svg")
+		.attr("class", classPrefix + "svgColumnChartByTypeCbpf")
+		.attr("width", svgColumnChartWidth)
+		.attr("height", svgColumnChartTypeHeight)
+		.merge(svgColumnChartByTypeCbpf);
 
 	const mapDivSize = mapDiv.node().getBoundingClientRect();
 	const barChartDivSize = barChartDiv.node().getBoundingClientRect();
@@ -187,9 +222,8 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("transform", "translate(" + svgBarChartPadding[3] + "," + svgBarChartPadding[0] + ")"),
 		width: svgBarChartWidth - svgBarChartPadding[3] - svgBarChartPadding[1],
 		height: svgBarChartHeight - svgBarChartPadding[2] - svgBarChartPadding[0],
-		padding: [4, 0, 18, 32],
-		titlePadding: 10,
-		titleHorPadding: 8
+		padding: [14, 0, 18, 32],
+		labelsPadding: 3
 	};
 
 	//test
@@ -240,13 +274,18 @@ function createAllocations(selections, colors, mapData, lists) {
 		.paddingInner(0.5)
 		.paddingOuter(0.5);
 
-	// const xScaleColumnByType = d3.scaleLinear()
-	// 	.range([svgColumnChartPaddingByType[3], svgColumnChartWidth - svgColumnChartPaddingByType[1]]);
+	const xScaleColumnByType = d3.scaleLinear()
+		.range([svgColumnChartPaddingByType[3], svgColumnChartWidth - svgColumnChartPaddingByType[1]]);
 
-	// const yScaleColumnByType = d3.scaleBand()
-	// 	.range([svgColumnChartPaddingByType[0], svgColumnChartHeight - svgColumnChartPaddingByType[2]])
-	// 	.paddingInner(0.5)
-	// 	.paddingOuter(0.5);
+	const yScaleColumnByTypeCerf = d3.scaleBand()
+		.range([svgColumnChartPaddingByType[0], svgColumnChartTypeHeight - svgColumnChartPaddingByType[2]])
+		.paddingInner(0.5)
+		.paddingOuter(0.5);
+
+	const yScaleColumnByTypeCbpf = d3.scaleBand()
+		.range([svgColumnChartPaddingByType[0], svgColumnChartTypeHeight - svgColumnChartPaddingByType[2]])
+		.paddingInner(0.5)
+		.paddingOuter(0.5);
 
 	const clusterNamesScale = d3.scaleOrdinal()
 		.domain(["Food Security",
@@ -328,13 +367,16 @@ function createAllocations(selections, colors, mapData, lists) {
 	const yAxisColumnBySector = d3.axisLeft(yScaleColumnBySector)
 		.tickSize(4);
 
-	// const xAxisColumnByType = d3.axisTop(xScaleColumnByType)
-	// 	.tickSizeOuter(0)
-	// 	.ticks(2)
-	// 	.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
+	const xAxisColumnByType = d3.axisTop(xScaleColumnByType)
+		.tickSizeOuter(0)
+		.ticks(2)
+		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
 
-	// const yAxisColumnByType = d3.axisLeft(yScaleColumnByType)
-	// 	.tickSize(4);
+	const yAxisColumnByTypeCerf = d3.axisLeft(yScaleColumnByTypeCerf)
+		.tickSize(4);
+
+	const yAxisColumnByTypeCbpf = d3.axisLeft(yScaleColumnByTypeCbpf)
+		.tickSize(4);
 
 	const xAxisGroup = barChartPanel.main.append("g")
 		.attr("class", classPrefix + "xAxisGroup")
@@ -359,6 +401,22 @@ function createAllocations(selections, colors, mapData, lists) {
 	const yAxisGroupColumnBySector = svgColumnChartBySector.append("g")
 		.attr("class", classPrefix + "yAxisGroupColumnBySector")
 		.attr("transform", "translate(" + svgColumnChartPaddingBySector[3] + ",0)");
+
+	const xAxisGroupColumnByTypeCerf = svgColumnChartByTypeCerf.append("g")
+		.attr("class", classPrefix + "xAxisGroupColumnByType")
+		.attr("transform", "translate(0," + svgColumnChartPaddingByType[0] + ")");
+
+	const xAxisGroupColumnByTypeCbpf = svgColumnChartByTypeCbpf.append("g")
+		.attr("class", classPrefix + "xAxisGroupColumnByType")
+		.attr("transform", "translate(0," + svgColumnChartPaddingByType[0] + ")");
+
+	const yAxisGroupColumnByTypeCerf = svgColumnChartByTypeCerf.append("g")
+		.attr("class", classPrefix + "yAxisGroupColumnByType")
+		.attr("transform", "translate(" + svgColumnChartPaddingByType[3] + ",0)");
+
+	const yAxisGroupColumnByTypeCbpf = svgColumnChartByTypeCbpf.append("g")
+		.attr("class", classPrefix + "yAxisGroupColumnByType")
+		.attr("transform", "translate(" + svgColumnChartPaddingByType[3] + ",0)");
 
 	const zoom = d3.zoom()
 		.scaleExtent([1, 20])
@@ -456,7 +514,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		const land = mapContainer.append("path")
 			.attr("d", mapPath(topojson.merge(mapData, mapData.objects.wrl_polbnda_int_simple_uncs.geometries.filter(d => d.properties.ISO_2 !== "AQ"))))
-			.style("fill", "#F3F3F3");
+			.style("fill", "#F1F1F1");
 
 		const borders = mapContainer.append("path")
 			.attr("d", mapPath(topojson.mesh(mapData, mapData.objects.wrl_polbnda_int_simple_uncs, (a, b) => a !== b)))
@@ -855,6 +913,9 @@ function createAllocations(selections, colors, mapData, lists) {
 			barChartPanel.main.selectAll("." + classPrefix + "bars")
 				.style("opacity", d => d.data.country === datum.country ? 1 : fadeOpacity);
 
+			barChartPanel.main.selectAll("." + classPrefix + "barsLabels")
+				.style("opacity", d => d.country === datum.country ? 1 : fadeOpacity);
+
 			xAxisGroup.selectAll(".tick")
 				.style("opacity", d => d === datum.country ? 1 : fadeOpacity);
 
@@ -939,6 +1000,9 @@ function createAllocations(selections, colors, mapData, lists) {
 			pieGroup.style("opacity", 1);
 
 			barChartPanel.main.selectAll("." + classPrefix + "bars")
+				.style("opacity", 1);
+
+			barChartPanel.main.selectAll("." + classPrefix + "barsLabels")
 				.style("opacity", 1);
 
 			xAxisGroup.selectAll(".tick")
@@ -1190,6 +1254,35 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("y", d => d[0] === d[1] ? yScale(0) : yScale(d[1]))
 			.attr("height", d => yScale(d[0]) - yScale(d[1]));
 
+		let barsLabels = barChartPanel.main.selectAll("." + classPrefix + "barsLabels")
+			.data(data, d => d.country);
+
+		const barsLabelsExit = barsLabels.exit()
+			.transition()
+			.duration(duration)
+			.style("opacity", 0)
+			.attr("y", barChartPanel.height - barChartPanel.padding[2])
+			.remove();
+
+		const barsLabelsEnter = barsLabels.enter()
+			.append("text")
+			.attr("class", classPrefix + "barsLabels")
+			.attr("x", d => xScale(d.country) + xScale.bandwidth() / 2)
+			.attr("y", barChartPanel.height - barChartPanel.padding[2])
+			.style("opacity", 0);
+
+		barsLabels = barsLabelsEnter.merge(barsLabels);
+
+		barsLabels.transition()
+			.duration(duration)
+			.style("opacity", 1)
+			.attr("x", d => xScale(d.country) + xScale.bandwidth() / 2)
+			.attr("y", d => yScale(chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]) - barChartPanel.labelsPadding)
+			.textTween((d, i, n) => {
+				const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]);
+				return t => d3.formatPrefix(".0", interpolator(t))(interpolator(t)).replace("G", "B");
+			});
+
 		let barsTooltipRectangles = barChartPanel.main.selectAll("." + classPrefix + "barsTooltipRectangles")
 			.data(data, d => d.country);
 
@@ -1232,6 +1325,8 @@ function createAllocations(selections, colors, mapData, lists) {
 		function mouseoverBarsTooltipRectangles(_, d) {
 
 			bars.style("opacity", e => e.data.country === d.country ? 1 : fadeOpacity);
+
+			barsLabels.style("opacity", e => e.country === d.country ? 1 : fadeOpacity);
 
 			xAxisGroup.selectAll(".tick")
 				.style("opacity", e => e === d.country ? 1 : fadeOpacity);
@@ -1316,6 +1411,8 @@ function createAllocations(selections, colors, mapData, lists) {
 
 			bars.style("opacity", 1);
 
+			barsLabels.style("opacity", 1);
+
 			xAxisGroup.selectAll(".tick")
 				.style("opacity", 1);
 
@@ -1346,15 +1443,32 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		const numberOfCountries = filteredData.filter(d => chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]).length;
 
-		const totalAllocations = d3.sum(filteredData, d => chartState.selectedFund === "cerf/cbpf" ? d.total : d[chartState.selectedFund]);
+		const rowFund = chartState.selectedFund === "cerf/cbpf" ? "total" : chartState.selectedFund;
+
+		const totalAllocations = d3.sum(filteredData, row => {
+			if (chartState.selectedChart === "allocationsByCountry") {
+				return chartState.selectedFund === "cerf/cbpf" ? row.total : row[chartState.selectedFund];
+			};
+			if (chartState.selectedChart === "allocationsBySector") {
+				let rowSum = 0;
+				chartState.selectedCluster.forEach(e => {
+					rowSum += row[`cluster##${e}##${rowFund}`];
+				});
+				return rowSum;
+			};
+		});
 
 		filteredData.forEach(row => {
 			row.allocationsList.forEach(allocation => {
 				if (chartState.selectedFund === "total" ||
 					chartState.selectedFund === "cerf/cbpf" ||
 					lists.fundTypesList[allocation.FundId] === chartState.selectedFund) {
-					allocation.ProjList.toString().split("##").forEach(e => numberOfProjects.add(e));
-					allocation.OrgList.toString().split("##").forEach(e => numberOfPartners.add(e));;
+					if (chartState.selectedChart !== "allocationsBySector" ||
+						!chartState.selectedCluster.length ||
+						chartState.selectedCluster.indexOf(allocation.ClusterId + "") > -1) {
+						allocation.ProjList.toString().split("##").forEach(e => numberOfProjects.add(e));
+						allocation.OrgList.toString().split("##").forEach(e => numberOfPartners.add(e));
+					};
 				};
 			});
 		});
@@ -1472,7 +1586,7 @@ function createAllocations(selections, colors, mapData, lists) {
 		};
 		if (chartState.selectedChart === "allocationsByType") {
 			const columnData = [];
-			createAllocationsByTypeColumnChart(columnDataType)
+			createAllocationsByTypeColumnChart(columnData)
 		};
 
 		function createAllocationsByCountryColumnChart(columnData) {
@@ -1677,6 +1791,8 @@ function createAllocations(selections, colors, mapData, lists) {
 					.attrTween("x", null)
 					.tween("text", null);
 			};
+
+			highlightBars();
 
 			//end of createAllocationsByCountryColumnChart
 		};
@@ -1884,6 +2000,8 @@ function createAllocations(selections, colors, mapData, lists) {
 					.tween("text", null);
 			};
 
+			highlightBars();
+
 			//end of createAllocationsBySectorColumnChart
 		};
 
@@ -1929,7 +2047,7 @@ function createAllocations(selections, colors, mapData, lists) {
 				copiedRow.cerf = 0;
 				copiedRow.cbpf = 0;
 
-				for (let key in lists.clustersList) {
+				for (const key in lists.clustersList) {
 					if (chartState.selectedCluster.length === 0 || chartState.selectedCluster.indexOf(key) > -1) {
 						if (chartState.selectedFund === "total") {
 							copiedRow.total += copiedRow[`cluster##${key}##total`];
@@ -1948,6 +2066,9 @@ function createAllocations(selections, colors, mapData, lists) {
 				};
 
 				data.push(copiedRow);
+			};
+			if (chartState.selectedChart === "allocationsByType") {
+
 			};
 		});
 
