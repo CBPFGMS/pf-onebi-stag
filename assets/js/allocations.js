@@ -1426,14 +1426,18 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		const totalAllocations = d3.sum(filteredData, row => {
 			if (chartState.selectedChart === "allocationsByCountry") {
-				return chartState.selectedFund === "cerf/cbpf" ? row.total : row[chartState.selectedFund];
+				return row[rowFund];
 			};
 			if (chartState.selectedChart === "allocationsBySector") {
-				let rowSum = 0;
-				chartState.selectedCluster.forEach(e => {
-					rowSum += row[`cluster##${e}##${rowFund}`];
-				});
-				return rowSum;
+				if (!chartState.selectedCluster.length) {
+					return row[rowFund];
+				} else {
+					let rowSum = 0;
+					chartState.selectedCluster.forEach(e => {
+						rowSum += row[`cluster##${e}##${rowFund}`];
+					});
+					return rowSum;
+				};
 			};
 		});
 
