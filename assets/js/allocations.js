@@ -1413,8 +1413,9 @@ function createAllocations(selections, colors, mapData, lists) {
 		const filteredData = originalData.filter(row => {
 			const filterRegion = !chartState.selectedRegion.length ? true : chartState.selectedRegion.indexOf(row.region) > -1;
 			const filterCluster = !chartState.selectedCluster.length ? true : chartState.selectedCluster.some(e => row[`cluster##${e}##total`]);
-			//ADD filterType
-			return filterRegion && filterCluster;
+			const filterType = !chartState.selectedType.length ? true : chartState.selectedType.some(e => row[`type##${e}##total`]);
+
+			return filterRegion && filterCluster && filterType;
 		});
 
 		const numberOfProjects = new Set(),
@@ -1439,6 +1440,17 @@ function createAllocations(selections, colors, mapData, lists) {
 					return rowSum;
 				};
 			};
+			if (chartState.selectedChart === "allocationsByType") {
+				if (!chartState.selectedType.length) {
+					return row[rowFund];
+				} else {
+					let rowSum = 0;
+					chartState.selectedType.forEach(e => {
+						rowSum += row[`type##${e}##${rowFund}`];
+					});
+					return rowSum;
+				};
+			};
 		});
 
 		filteredData.forEach(row => {
@@ -1446,9 +1458,11 @@ function createAllocations(selections, colors, mapData, lists) {
 				if (chartState.selectedFund === "total" ||
 					chartState.selectedFund === "cerf/cbpf" ||
 					lists.fundTypesList[allocation.FundId] === chartState.selectedFund) {
-					if (chartState.selectedChart !== "allocationsBySector" ||
-						!chartState.selectedCluster.length ||
-						chartState.selectedCluster.indexOf(allocation.ClusterId + "") > -1) {
+					if (chartState.selectedChart === "allocationsByCountry" ||
+						(chartState.selectedChart === "allocationsBySector" && !chartState.selectedCluster.length) ||
+						(chartState.selectedChart === "allocationsByType" && !chartState.selectedType.length) ||
+						(chartState.selectedChart === "allocationsBySector" && chartState.selectedCluster.indexOf(allocation.ClusterId + "") > -1) ||
+						(chartState.selectedChart === "allocationsByType" && chartState.selectedType.indexOf(allocation.AllocationSurceId + "") > -1)) {
 						allocation.ProjList.toString().split("##").forEach(e => numberOfProjects.add(e));
 						allocation.OrgList.toString().split("##").forEach(e => numberOfPartners.add(e));
 					};
@@ -1459,59 +1473,34 @@ function createAllocations(selections, colors, mapData, lists) {
 		const updateTransition = d3.transition()
 			.duration(duration);
 
-		if (chartState.selectedChart === "allocationsByCountry") {
+		updateValues(chartState.selectedChart === "allocationsByCountry" ? "Country" :
+			chartState.selectedChart === "allocationsBySector" ? "Sector" : "Type");
 
-			selections.byCountryAllocationsValue.transition(updateTransition)
+		function updateValues(selector) {
+
+			selections[`by${selector}AllocationsValue`].transition(updateTransition)
 				.textTween((_, i, n) => {
 					const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, totalAllocations);
 					return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
 				});
 
-			selections.byCountryAllocationsText.text((chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? "Total" :
+			selections[`by${selector}AllocationsText`].text((chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? "Total" :
 				chartState.selectedFund.toUpperCase()) + " allocations");
 
-			selections.byCountryCountriesValue.transition(updateTransition)
+			selections[`by${selector}CountriesValue`].transition(updateTransition)
 				.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfCountries));
 
-			selections.byCountryCountriesText.html(numberOfCountries > 1 ? "Countries" : "Country");
+			selections[`by${selector}CountriesText`].html(numberOfCountries > 1 ? "Countries" : "Country");
 
-			selections.byCountryProjectsValue.transition(updateTransition)
+			selections[`by${selector}ProjectsValue`].transition(updateTransition)
 				.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfProjects.size));
 
-			selections.byCountryProjectsText.html(numberOfProjects.size > 1 ? "Projects" : "Project");
+			selections[`by${selector}ProjectsText`].html(numberOfProjects.size > 1 ? "Projects" : "Project");
 
-			selections.byCountryPartnersValue.transition(updateTransition)
+			selections[`by${selector}PartnersValue`].transition(updateTransition)
 				.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfPartners.size));
 
-			selections.byCountryPartnersText.html(numberOfPartners.size > 1 ? "Partners" : "Partner");
-
-		};
-
-		if (chartState.selectedChart === "allocationsBySector") {
-
-			selections.bySectorAllocationsValue.transition(updateTransition)
-				.textTween((_, i, n) => {
-					const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, totalAllocations);
-					return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
-				});
-
-			selections.bySectorAllocationsText.text((chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? "Total" :
-				chartState.selectedFund.toUpperCase()) + " allocations");
-
-			selections.bySectorCountriesValue.transition(updateTransition)
-				.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfCountries));
-
-			selections.bySectorCountriesText.html(numberOfCountries > 1 ? "Countries" : "Country");
-
-			selections.bySectorProjectsValue.transition(updateTransition)
-				.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfProjects.size));
-
-			selections.bySectorProjectsText.html(numberOfProjects.size > 1 ? "Projects" : "Project");
-
-			selections.bySectorPartnersValue.transition(updateTransition)
-				.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfPartners.size));
-
-			selections.bySectorPartnersText.html(numberOfPartners.size > 1 ? "Partners" : "Partner");
+			selections[`by${selector}PartnersText`].html(numberOfPartners.size > 1 ? "Partners" : "Partner");
 
 		};
 
@@ -2055,7 +2044,29 @@ function createAllocations(selections, colors, mapData, lists) {
 				data.push(copiedRow);
 			};
 			if (chartState.selectedChart === "allocationsByType") {
+				copiedRow.total = 0;
+				copiedRow.cerf = 0;
+				copiedRow.cbpf = 0;
 
+				for (const key in lists.allocationTypesList) {
+					if (chartState.selectedType.length === 0 || chartState.selectedType.indexOf(key) > -1) {
+						if (chartState.selectedFund === "total") {
+							copiedRow.total += copiedRow[`type##${key}##total`];
+						};
+						if (chartState.selectedFund === "cerf/cbpf") {
+							copiedRow.cerf += copiedRow[`type##${key}##cerf`];
+							copiedRow.cbpf += copiedRow[`type##${key}##cbpf`];
+						};
+						if (chartState.selectedFund === "cerf") {
+							copiedRow.cerf += copiedRow[`type##${key}##cerf`];
+						};
+						if (chartState.selectedFund === "cbpf") {
+							copiedRow.cbpf += copiedRow[`type##${key}##cbpf`];
+						};
+					};
+				};
+
+				data.push(copiedRow);
 			};
 		});
 
