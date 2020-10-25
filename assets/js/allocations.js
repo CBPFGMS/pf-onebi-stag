@@ -35,14 +35,16 @@ const classPrefix = "pfbial",
 	formatSIaxes = d3.format("~s"),
 	formatMoney0Decimals = d3.format(",.0f"),
 	svgColumnChartWidth = 195,
-	svgColumnChartTypeHeight = 120,
 	svgMapPadding = [0, 10, 0, 10],
 	svgBarChartPadding = [4, 12, 4, 12],
 	svgColumnChartPaddingByCountry = [16, 8, 4, 56],
 	svgColumnChartPaddingBySector = [16, 8, 4, 66],
-	svgColumnChartPaddingByType = [4, 4, 4, 4],
+	svgColumnChartPaddingByType = [16, 8, 4, 66],
+	svgColumnChartTypeHeight = svgColumnChartPaddingByType[0] + svgColumnChartPaddingByType[2] + maxColumnRectHeight + 4 * maxColumnRectHeight,
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	stackKeys = ["total", "cerf", "cbpf"],
+	cbpfAllocationTypes = ["1", "2"],
+	cerfAllocationTypes = ["3", "4"],
 	centroids = {};
 
 //|variables
@@ -207,13 +209,6 @@ function createAllocations(selections, colors, mapData, lists) {
 		labelsPadding: 3
 	};
 
-	//test
-	// barChartPanel.main.append("rect")
-	// 	.attr("width", barChartPanel.width)
-	// 	.attr("height", barChartPanel.height)
-	// 	.style("fill", "wheat");
-	//test
-
 	const mapContainer = mapPanel.main.append("g")
 		.attr("class", classPrefix + "mapContainer");
 
@@ -260,11 +255,13 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	const yScaleColumnByTypeCerf = d3.scaleBand()
 		.range([svgColumnChartPaddingByType[0], svgColumnChartTypeHeight - svgColumnChartPaddingByType[2]])
+		.domain(cerfAllocationTypes.map(e => lists.allocationTypesList[e]))
 		.paddingInner(0.5)
 		.paddingOuter(0.5);
 
 	const yScaleColumnByTypeCbpf = d3.scaleBand()
 		.range([svgColumnChartPaddingByType[0], svgColumnChartTypeHeight - svgColumnChartPaddingByType[2]])
+		.domain(cbpfAllocationTypes.map(e => lists.allocationTypesList[e]))
 		.paddingInner(0.5)
 		.paddingOuter(0.5);
 
@@ -348,6 +345,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	const xAxisColumnByType = d3.axisTop(xScaleColumnByType)
 		.tickSizeOuter(0)
+		.tickSizeInner(-(svgColumnChartTypeHeight - svgColumnChartPaddingByType[2] - svgColumnChartPaddingByType[0]))
 		.ticks(2)
 		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
 
@@ -390,11 +388,11 @@ function createAllocations(selections, colors, mapData, lists) {
 		.attr("transform", "translate(0," + svgColumnChartPaddingByType[0] + ")");
 
 	const yAxisGroupColumnByTypeCerf = svgColumnChartByTypeCerf.append("g")
-		.attr("class", classPrefix + "yAxisGroupColumnByType")
+		.attr("class", classPrefix + "yAxisGroupColumnByTypeCerf")
 		.attr("transform", "translate(" + svgColumnChartPaddingByType[3] + ",0)");
 
 	const yAxisGroupColumnByTypeCbpf = svgColumnChartByTypeCbpf.append("g")
-		.attr("class", classPrefix + "yAxisGroupColumnByType")
+		.attr("class", classPrefix + "yAxisGroupColumnByTypeCbpf")
 		.attr("transform", "translate(" + svgColumnChartPaddingByType[3] + ",0)");
 
 	const zoom = d3.zoom()
@@ -1557,7 +1555,28 @@ function createAllocations(selections, colors, mapData, lists) {
 			createAllocationsBySectorColumnChart(columnData)
 		};
 		if (chartState.selectedChart === "allocationsByType") {
-			const columnData = [];
+			const columnData = originalData.reduce((acc, curr) => {
+				for (const key in lists.allocationTypesList) {
+					const foundCluster = acc.find(e => e.allocationType === lists.allocationTypesList[key]);
+					if (foundCluster) {
+						foundCluster.total += chartState.selectedFund === "total" ? curr[`type##${key}##total`] : 0;
+						foundCluster.cerf += chartState.selectedFund === "cerf" || chartState.selectedFund === "cerf/cbpf" ? curr[`type##${key}##cerf`] : 0;
+						foundCluster.cbpf += chartState.selectedFund === "cbpf" || chartState.selectedFund === "cerf/cbpf" ? curr[`type##${key}##cbpf`] : 0;
+					} else {
+						acc.push({
+							allocationType: lists.allocationTypesList[key],
+							allocationTypeId: key,
+							total: chartState.selectedFund === "total" ? curr[`type##${key}##total`] : 0,
+							cerf: chartState.selectedFund === "cerf" || chartState.selectedFund === "cerf/cbpf" ? curr[`type##${key}##cerf`] : 0,
+							cbpf: chartState.selectedFund === "cbpf" || chartState.selectedFund === "cerf/cbpf" ? curr[`type##${key}##cbpf`] : 0,
+						});
+					};
+				};
+				return acc;
+			}, []);
+			columnData.sort((a, b) => chartState.selectedFund === "cerf/cbpf" ? ((b.cerf + b.cbpf) - (a.cerf + a.cbpf)) :
+				b[chartState.selectedFund] - a[chartState.selectedFund]);
+			columnData.forEach(row => row.clicked = chartState.selectedType.indexOf(row.allocationTypeId) > -1);
 			createAllocationsByTypeColumnChart(columnData)
 		};
 
@@ -1983,6 +2002,407 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		function createAllocationsByTypeColumnChart(columnDataType) {
 
+			const cerfData = columnDataType.filter(d => cerfAllocationTypes.indexOf(d.allocationTypeId) > -1);
+			const cbpfData = columnDataType.filter(d => cbpfAllocationTypes.indexOf(d.allocationTypeId) > -1);
+
+			const cerfFilteredData = cerfData.filter(d => chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]);
+			const cbpfFilteredData = cbpfData.filter(d => chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]);
+
+			xScaleColumnByType.domain([0,
+				Math.max(cerfFilteredData.length ? d3.max(cerfFilteredData, e => chartState.selectedFund === "total" ? e.total : e.cbpf + e.cerf) : 0,
+					cbpfFilteredData.length ? d3.max(cbpfFilteredData, e => chartState.selectedFund === "total" ? e.total : e.cbpf + e.cerf) : 0)
+			]);
+
+			const stackedDataCerf = stack(cerfFilteredData);
+			const stackedDataCbpf = stack(cbpfFilteredData);
+
+			//CERF chart
+
+			let barsGroupsColumnCerf = svgColumnChartByTypeCerf.selectAll("." + classPrefix + "barsGroupsColumnCerf")
+				.data(stackedDataCerf, d => d.key);
+
+			const barsGroupsColumnCerfExit = barsGroupsColumnCerf.exit().remove();
+
+			const barsGroupsColumnCerfEnter = barsGroupsColumnCerf.enter()
+				.append("g")
+				.attr("class", classPrefix + "barsGroupsColumnCerf")
+				.attr("pointer-events", "none");
+
+			barsGroupsColumnCerf = barsGroupsColumnCerfEnter.merge(barsGroupsColumnCerf);
+
+			let barsColumnCerf = barsGroupsColumnCerf.selectAll("." + classPrefix + "barsColumnCerf")
+				.data(d => d, d => d.data.allocationType);
+
+			const barsColumnCerfExit = barsColumnCerf.exit()
+				.transition()
+				.duration(duration)
+				.attr("width", 0)
+				.attr("x", svgColumnChartPaddingByType[3])
+				.style("opacity", 0)
+				.remove();
+
+			const barsColumnCerfEnter = barsColumnCerf.enter()
+				.append("rect")
+				.attr("class", classPrefix + "barsColumnCerf")
+				.attr("stroke", "#aaa")
+				.attr("stroke-width", 0.5)
+				.attr("height", yScaleColumnByTypeCerf.bandwidth())
+				.attr("width", 0)
+				.style("fill", (d, i, n) => {
+					const thisKey = d3.select(n[i].parentNode).datum().key;
+					return d3.color(colors[thisKey]).brighter(0.25)
+				})
+				.attr("x", xScaleColumnByType(0))
+				.attr("y", d => yScaleColumnByTypeCerf(d.data.allocationType))
+
+			barsColumnCerf = barsColumnCerfEnter.merge(barsColumnCerf);
+
+			barsColumnCerf.transition()
+				.duration(duration)
+				.attr("height", yScaleColumnByTypeCerf.bandwidth())
+				.attr("y", d => yScaleColumnByTypeCerf(d.data.allocationType))
+				.attr("x", d => d[0] === d[1] ? xScaleColumnByType(0) : xScaleColumnByType(d[0]))
+				.attr("width", d => xScaleColumnByType(d[1]) - xScaleColumnByType(d[0]));
+
+			let barsColumnCerfTooltipRectangles = svgColumnChartByTypeCerf.selectAll("." + classPrefix + "barsColumnCerfTooltipRectangles")
+				.data(cerfFilteredData, d => d.allocationType);
+
+			const barsColumnCerfTooltipRectanglesExit = barsColumnCerfTooltipRectangles.exit().remove();
+
+			const barsColumnCerfTooltipRectanglesEnter = barsColumnCerfTooltipRectangles.enter()
+				.append("rect")
+				.attr("class", classPrefix + "barsColumnCerfTooltipRectangles")
+				.attr("pointer-events", "all")
+				.style("cursor", "pointer")
+				.style("opacity", 0)
+				.attr("x", svgColumnChartPaddingByType[3])
+				.attr("width", svgColumnChartWidth - svgColumnChartPaddingByType[1] - svgColumnChartPaddingByType[3])
+				.attr("height", yScaleColumnByTypeCerf.step())
+				.attr("y", d => yScaleColumnByTypeCerf(d.allocationType) - yScaleColumnByTypeCerf.bandwidth() / 2);
+
+			barsColumnCerfTooltipRectangles = barsColumnCerfTooltipRectanglesEnter.merge(barsColumnCerfTooltipRectangles);
+
+			barsColumnCerfTooltipRectangles.transition()
+				.duration(duration)
+				.attr("y", d => yScaleColumnByTypeCerf(d.allocationType) - yScaleColumnByTypeCerf.bandwidth() / 2);
+
+			barsColumnCerfTooltipRectangles.on("mouseover", mouseoverBarsColumnCerfTooltipRectangles)
+				.on("mouseout", mouseoutBarsColumnCerfTooltipRectangles)
+				.on("click", clickBarsColumnCerfTooltipRectangles);
+
+			function mouseoverBarsColumnCerfTooltipRectangles(event, d) {
+
+				if (!d.clicked) {
+					chartState.selectedType.push(d.allocationTypeId);
+				};
+
+				const data = filterData(originalData);
+
+				clearTimeout(mouseoverBarsColumnTimeout);
+
+				createColumnTopValues(originalData);
+
+				drawMap(data, originalData);
+				drawLegend(data);
+				drawBarChart(data, originalData);
+
+				selections.byTypeCerfText.html(d.clicked ? " (click to deselect)" : " (click to select)");
+
+				highlightBarsCerf();
+
+			};
+
+			function mouseoutBarsColumnCerfTooltipRectangles(event, d) {
+
+				if (!d.clicked) {
+					const index = chartState.selectedType.indexOf(d.allocationTypeId);
+					if (index > -1) {
+						chartState.selectedType.splice(index, 1);
+					};
+				};
+
+				const data = filterData(originalData);
+
+				mouseoverBarsColumnTimeout = setTimeout(() => {
+
+					createColumnTopValues(originalData);
+
+					drawMap(data, originalData);
+					drawLegend(data);
+					drawBarChart(data, originalData);
+
+				}, timeoutDuration);
+
+				selections.byTypeCerfText.html(null);
+
+				highlightBarsCerf();
+
+			};
+
+			function clickBarsColumnCerfTooltipRectangles(event, d) {
+
+				d.clicked = !d.clicked;
+
+				if (!d.clicked) {
+					const index = chartState.selectedType.indexOf(d.allocationTypeId);
+					chartState.selectedType.splice(index, 1);
+				} else {
+					if (chartState.selectedType.indexOf(d.allocationTypeId) === -1) {
+						chartState.selectedType.push(d.allocationTypeId);
+					}
+				};
+
+				const data = filterData(originalData);
+
+				clearTimeout(mouseoverBarsColumnTimeout);
+
+				createColumnTopValues(originalData);
+
+				drawMap(data, originalData);
+				drawLegend(data);
+				drawBarChart(data, originalData);
+
+				highlightBarsCerf();
+
+				selections.byTypeCerfText.html(d.clicked ? " (click to deselect)" : " (click to select)");
+
+			};
+
+			function highlightBarsCerf() {
+				barsColumnCerf.style("fill", (e, i, n) => {
+					const thisKey = d3.select(n[i].parentNode).datum().key;
+					return chartState.selectedType.indexOf(e.data.allocationTypeId) > -1 ? d3.color(colors[thisKey]).darker(0.5) : d3.color(colors[thisKey]).brighter(0.25);
+				});
+
+				yAxisGroupColumnByTypeCerf.selectAll(".tick text")
+					.classed(classPrefix + "darkTick", e => chartState.selectedType.indexOf(Object.keys(lists.allocationTypesList).find(f => lists.allocationTypesList[f] === e)) > -1);
+			};
+
+			xAxisGroupColumnByTypeCerf.transition()
+				.duration(duration)
+				.call(xAxisColumnByType);
+
+			xAxisGroupColumnByTypeCerf.selectAll(".tick")
+				.filter(d => d === 0)
+				.remove();
+
+			yAxisGroupColumnByTypeCerf.transition()
+				.duration(duration)
+				.call(customAxisCerf);
+
+			function customAxisCerf(group) {
+				const sel = group.selection ? group.selection() : group;
+				group.call(yAxisColumnByTypeCerf);
+				sel.selectAll(".tick text")
+					.filter(d => d.indexOf(" ") > -1)
+					.text(d => d.split(" ")[0])
+					.attr("x", -(yAxisColumnByTypeCerf.tickPadding() + yAxisColumnByTypeCerf.tickSize()))
+					.attr("dy", "-0.3em")
+					.append("tspan")
+					.attr("dy", "1.1em")
+					.attr("x", -(yAxisColumnByTypeCerf.tickPadding() + yAxisColumnByTypeCerf.tickSize()))
+					.text(d => d.split(" ")[1]);
+				if (sel !== group) group.selectAll(".tick text")
+					.filter(d => d.indexOf(" ") > -1)
+					.attrTween("x", null)
+					.tween("text", null);
+			};
+
+			highlightBarsCerf();
+
+			//CBPF chart
+
+			let barsGroupsColumnCbpf = svgColumnChartByTypeCbpf.selectAll("." + classPrefix + "barsGroupsColumnCbpf")
+				.data(stackedDataCbpf, d => d.key);
+
+			const barsGroupsColumnCbpfExit = barsGroupsColumnCbpf.exit().remove();
+
+			const barsGroupsColumnCbpfEnter = barsGroupsColumnCbpf.enter()
+				.append("g")
+				.attr("class", classPrefix + "barsGroupsColumnCbpf")
+				.attr("pointer-events", "none");
+
+			barsGroupsColumnCbpf = barsGroupsColumnCbpfEnter.merge(barsGroupsColumnCbpf);
+
+			let barsColumnCbpf = barsGroupsColumnCbpf.selectAll("." + classPrefix + "barsColumnCbpf")
+				.data(d => d, d => d.data.allocationType);
+
+			const barsColumnCbpfExit = barsColumnCbpf.exit()
+				.transition()
+				.duration(duration)
+				.attr("width", 0)
+				.attr("x", svgColumnChartPaddingByType[3])
+				.style("opacity", 0)
+				.remove();
+
+			const barsColumnCbpfEnter = barsColumnCbpf.enter()
+				.append("rect")
+				.attr("class", classPrefix + "barsColumnCbpf")
+				.attr("stroke", "#aaa")
+				.attr("stroke-width", 0.5)
+				.attr("height", yScaleColumnByTypeCbpf.bandwidth())
+				.attr("width", 0)
+				.style("fill", (d, i, n) => {
+					const thisKey = d3.select(n[i].parentNode).datum().key;
+					return d3.color(colors[thisKey]).brighter(0.25)
+				})
+				.attr("x", xScaleColumnByType(0))
+				.attr("y", d => yScaleColumnByTypeCbpf(d.data.allocationType))
+
+			barsColumnCbpf = barsColumnCbpfEnter.merge(barsColumnCbpf);
+
+			barsColumnCbpf.transition()
+				.duration(duration)
+				.attr("height", yScaleColumnByTypeCbpf.bandwidth())
+				.attr("y", d => yScaleColumnByTypeCbpf(d.data.allocationType))
+				.attr("x", d => d[0] === d[1] ? xScaleColumnByType(0) : xScaleColumnByType(d[0]))
+				.attr("width", d => xScaleColumnByType(d[1]) - xScaleColumnByType(d[0]));
+
+			let barsColumnCbpfTooltipRectangles = svgColumnChartByTypeCbpf.selectAll("." + classPrefix + "barsColumnCbpfTooltipRectangles")
+				.data(cbpfFilteredData, d => d.allocationType);
+
+			const barsColumnCbpfTooltipRectanglesExit = barsColumnCbpfTooltipRectangles.exit().remove();
+
+			const barsColumnCbpfTooltipRectanglesEnter = barsColumnCbpfTooltipRectangles.enter()
+				.append("rect")
+				.attr("class", classPrefix + "barsColumnCbpfTooltipRectangles")
+				.attr("pointer-events", "all")
+				.style("cursor", "pointer")
+				.style("opacity", 0)
+				.attr("x", svgColumnChartPaddingByType[3])
+				.attr("width", svgColumnChartWidth - svgColumnChartPaddingByType[1] - svgColumnChartPaddingByType[3])
+				.attr("height", yScaleColumnByTypeCbpf.step())
+				.attr("y", d => yScaleColumnByTypeCbpf(d.allocationType) - yScaleColumnByTypeCbpf.bandwidth() / 2);
+
+			barsColumnCbpfTooltipRectangles = barsColumnCbpfTooltipRectanglesEnter.merge(barsColumnCbpfTooltipRectangles);
+
+			barsColumnCbpfTooltipRectangles.transition()
+				.duration(duration)
+				.attr("y", d => yScaleColumnByTypeCbpf(d.allocationType) - yScaleColumnByTypeCbpf.bandwidth() / 2);
+
+			barsColumnCbpfTooltipRectangles.on("mouseover", mouseoverBarsColumnCbpfTooltipRectangles)
+				.on("mouseout", mouseoutBarsColumnCbpfTooltipRectangles)
+				.on("click", clickBarsColumnCbpfTooltipRectangles);
+
+			function mouseoverBarsColumnCbpfTooltipRectangles(event, d) {
+
+				if (!d.clicked) {
+					chartState.selectedType.push(d.allocationTypeId);
+				};
+
+				const data = filterData(originalData);
+
+				clearTimeout(mouseoverBarsColumnTimeout);
+
+				createColumnTopValues(originalData);
+
+				drawMap(data, originalData);
+				drawLegend(data);
+				drawBarChart(data, originalData);
+
+				selections.byTypeCbpfText.html(d.clicked ? " (click to deselect)" : " (click to select)");
+
+				highlightBarsCbpf();
+
+			};
+
+			function mouseoutBarsColumnCbpfTooltipRectangles(event, d) {
+
+				if (!d.clicked) {
+					const index = chartState.selectedType.indexOf(d.allocationTypeId);
+					if (index > -1) {
+						chartState.selectedType.splice(index, 1);
+					};
+				};
+
+				const data = filterData(originalData);
+
+				mouseoverBarsColumnTimeout = setTimeout(() => {
+
+					createColumnTopValues(originalData);
+
+					drawMap(data, originalData);
+					drawLegend(data);
+					drawBarChart(data, originalData);
+
+				}, timeoutDuration);
+
+				selections.byTypeCbpfText.html(null);
+
+				highlightBarsCbpf();
+
+			};
+
+			function clickBarsColumnCbpfTooltipRectangles(event, d) {
+
+				d.clicked = !d.clicked;
+
+				if (!d.clicked) {
+					const index = chartState.selectedType.indexOf(d.allocationTypeId);
+					chartState.selectedType.splice(index, 1);
+				} else {
+					if (chartState.selectedType.indexOf(d.allocationTypeId) === -1) {
+						chartState.selectedType.push(d.allocationTypeId);
+					}
+				};
+
+				const data = filterData(originalData);
+
+				clearTimeout(mouseoverBarsColumnTimeout);
+
+				createColumnTopValues(originalData);
+
+				drawMap(data, originalData);
+				drawLegend(data);
+				drawBarChart(data, originalData);
+
+				highlightBarsCbpf();
+
+				selections.byTypeCbpfText.html(d.clicked ? " (click to deselect)" : " (click to select)");
+
+			};
+
+			function highlightBarsCbpf() {
+				barsColumnCbpf.style("fill", (e, i, n) => {
+					const thisKey = d3.select(n[i].parentNode).datum().key;
+					return chartState.selectedType.indexOf(e.data.allocationTypeId) > -1 ? d3.color(colors[thisKey]).darker(0.5) : d3.color(colors[thisKey]).brighter(0.25);
+				});
+
+				yAxisGroupColumnByTypeCbpf.selectAll(".tick text")
+					.classed(classPrefix + "darkTick", e => chartState.selectedType.indexOf(Object.keys(lists.allocationTypesList).find(f => lists.allocationTypesList[f] === e)) > -1);
+			};
+
+			xAxisGroupColumnByTypeCbpf.transition()
+				.duration(duration)
+				.call(xAxisColumnByType);
+
+			xAxisGroupColumnByTypeCbpf.selectAll(".tick")
+				.filter(d => d === 0)
+				.remove();
+
+			yAxisGroupColumnByTypeCbpf.transition()
+				.duration(duration)
+				.call(customAxisCbpf);
+
+			function customAxisCbpf(group) {
+				const sel = group.selection ? group.selection() : group;
+				group.call(yAxisColumnByTypeCbpf);
+				sel.selectAll(".tick text")
+					.filter(d => d.indexOf(" ") > -1)
+					.text(d => d.split(" ")[0])
+					.attr("x", -(yAxisColumnByTypeCbpf.tickPadding() + yAxisColumnByTypeCbpf.tickSize()))
+					.attr("dy", "-0.3em")
+					.append("tspan")
+					.attr("dy", "1.1em")
+					.attr("x", -(yAxisColumnByTypeCbpf.tickPadding() + yAxisColumnByTypeCbpf.tickSize()))
+					.text(d => d.split(" ")[1]);
+				if (sel !== group) group.selectAll(".tick text")
+					.filter(d => d.indexOf(" ") > -1)
+					.attrTween("x", null)
+					.tween("text", null);
+			};
+
+			highlightBarsCbpf();
 
 			//end of createAllocationsByTypeColumnChart
 		};

@@ -426,7 +426,7 @@ footer{position: sticky; bottom: 0;}
   z-index: 1500;
 }
 
-#byCountryRegionsText, #bySectorSectorsText {
+#byCountryRegionsText, #bySectorSectorsText, #byTypeCerfText, #byTypeCbpfText {
   font-size: 0.7em;
   white-space: pre;
 }
@@ -570,11 +570,11 @@ footer{position: sticky; bottom: 0;}
   fill: #666;
 }
 
-.pfbialxAxisGroup line, .pfbialyAxisGroupColumnByCountry line, .pfbialyAxisGroupColumnBySector line {
+.pfbialxAxisGroup line, .pfbialyAxisGroupColumnByCountry line, .pfbialyAxisGroupColumnBySector line, .pfbialyAxisGroupColumnByTypeCerf line, .pfbialyAxisGroupColumnByTypeCbpf line {
   stroke: darkslategray;
 }
 
-.pfbialxAxisGroup path, .pfbialxAxisGroupColumnByCountry path, .pfbialxAxisGroupColumnBySector path, .pfbialyAxisGroup path, .pfbialyAxisGroupColumnByCountry path, .pfbialyAxisGroupColumnBySector path {
+.pfbialxAxisGroup path, .pfbialxAxisGroupColumnByCountry path, .pfbialxAxisGroupColumnBySector path, .pfbialxAxisGroupColumnByType path, .pfbialyAxisGroup path, .pfbialyAxisGroupColumnByCountry path, .pfbialyAxisGroupColumnBySector path, .pfbialyAxisGroupColumnByTypeCerf path, .pfbialyAxisGroupColumnByTypeCbpf path {
   stroke: none;
 }
 
@@ -590,14 +590,14 @@ footer{position: sticky; bottom: 0;}
   pointer-events: none;
 }
 
-.pfbialxAxisGroupColumnByCountry text, .pfbialxAxisGroupColumnBySector text {
+.pfbialxAxisGroupColumnByCountry text, .pfbialxAxisGroupColumnBySector text, .pfbialxAxisGroupColumnByType text {
   font-family: "Roboto", sans-serif;
   font-size: 10px;
   fill: #888;
   pointer-events: none;
 }
 
-.pfbialyAxisGroupColumnByCountry text, .pfbialyAxisGroupColumnBySector text {
+.pfbialyAxisGroupColumnByCountry text, .pfbialyAxisGroupColumnBySector text, .pfbialyAxisGroupColumnByTypeCerf text, .pfbialyAxisGroupColumnByTypeCbpf text {
   font-family: "Roboto", sans-serif;
   font-size: 10px;
   fill: #888;
@@ -610,7 +610,7 @@ footer{position: sticky; bottom: 0;}
   font-weight: 500;
 }
   
-.pfbialxAxisGroupColumnByCountry line, .pfbialxAxisGroupColumnBySector line {
+.pfbialxAxisGroupColumnByCountry line, .pfbialxAxisGroupColumnBySector line, .pfbialxAxisGroupColumnByType line {
   stroke: #ddd;
   stroke-dasharray: 2, 2;
 }
