@@ -451,6 +451,7 @@ footer{position: sticky; bottom: 0;}
   flex-direction: column;
   position: absolute;
   bottom: 0;
+  background-color: rgb(255,255,255,0.6);
 }
 
 .pfbialbarChartDivTitle {
@@ -581,6 +582,8 @@ footer{position: sticky; bottom: 0;}
 .pfbialxAxisGroup text {
   font-family: "Roboto", sans-serif;
   font-size: 9px;
+  text-anchor: end;
+  letter-spacing: -0.25px;
 }
 
 .pfbialyAxisGroup text {
