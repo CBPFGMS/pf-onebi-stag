@@ -63,7 +63,8 @@ let spinnerContainer,
 	drawContributionsByCerfCbpf,
 	drawContributionsByDonor,
 	allocationsData,
-	contributionsData;
+	contributionsData,
+	cerfPooledFundId;
 
 //|selections
 const selections = {
@@ -390,12 +391,45 @@ function processDataContributions(rawContributionsData) {
 
 		const foundDonor = data.find(e => e.donorId === row.DonorId);
 
+		if (foundDonor) {
+			const foundYear = foundDonor.contributions.find(e => e.year === row.FiscalYear);
+			if (foundYear) {
+
+			} else {
+
+			};
+		} else {
+			const donorObject = {
+				donor: donorNamesList[row.DonorId],
+				donorId: row.DonorId,
+				contributions: []
+			};
+			const yearObject = {
+				year: row.FiscalYear,
+				total: 0,
+				cerf: 0,
+				cbpf: 0,
+				"paid##total": 0,
+				"paid##cerf": 0,
+				"paid##cbpf": 0,
+				"pledged##total": 0,
+				"pledged##cerf": 0,
+				"pledged##cbpf": 0
+			};
+			pushCbpfOrCerfContribution(yearObject, row);
+			donorObject.contributions.push(yearObject);
+			data.push(donorObject);
+		};
+
 	});
 
 	return data;
 
 };
 
+function pushCbpfOrCerfContribution(obj, row) {
+	console.log(cerfPooledFundId);//CONTINUE HERE!!!
+};
 
 function fetchFile(fileName, url, warningString, method) {
 	if (localStorage.getItem(fileName) &&
@@ -485,6 +519,7 @@ function createFundNamesList(fundsData) {
 		fundIsoCodesList[row.id + ""] = row.ISO2Code;
 		fundIsoCodes3List[row.id + ""] = row.CountryCode;
 		fundLatLongList[row.ISO2Code] = [row.latitude, row.longitude];
+		if (row.PooledFundName === "CERF") cerfPooledFundId = row.id;
 	});
 };
 
