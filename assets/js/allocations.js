@@ -6,7 +6,7 @@ import {
 
 //|constants
 const classPrefix = "pfbial",
-	mapPercentage = 0.72,
+	mapPercentage = 0.7,
 	barChartPercentage = 1 - mapPercentage,
 	mapAspectRatio = 2.225,
 	legendPanelHeight = 132,
@@ -30,7 +30,7 @@ const classPrefix = "pfbial",
 	groupNamePadding = 2,
 	barWidth = 36,
 	fadeOpacity = 0.1,
-	labelMaxLength = 60,
+	maxLabelLength = 16,
 	localVariable = d3.local(),
 	formatPercent = d3.format("%"),
 	formatSIaxes = d3.format("~s"),
@@ -206,7 +206,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("transform", "translate(" + svgBarChartPadding[3] + "," + svgBarChartPadding[0] + ")"),
 		width: svgBarChartWidth - svgBarChartPadding[3] - svgBarChartPadding[1],
 		height: svgBarChartHeight - svgBarChartPadding[2] - svgBarChartPadding[0],
-		padding: [14, 0, 44, 32],
+		padding: [14, 0, 56, 32],
 		labelsPadding: 3
 	};
 
@@ -320,8 +320,8 @@ function createAllocations(selections, colors, mapData, lists) {
 		.order(d3.stackOrderDescending);
 
 	const xAxis = d3.axisBottom(xScale)
-		.tickSize(4)
-		.tickFormat(d => lists.fundNamesList[d]);
+		.tickSize(3)
+		.tickFormat(d => cutLabel(d, lists));
 
 	const yAxis = d3.axisLeft(yScale)
 		.tickSizeOuter(0)
@@ -1283,20 +1283,12 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("width", xScale.step())
 			.attr("x", d => xScale(d.country) - xScale.bandwidth() / 2);
 
-		xAxisGroup.call(xAxis)
-			.selectAll(".tick text")
-			.attr("y", 2)
-			.attr("x", -3)
-			.call(wrapTextLabel, labelMaxLength);
+		xAxisGroup.transition()
+			.duration(duration)
+			.call(xAxis);
 
 		xAxisGroup.selectAll(".tick text")
-			.attr("transform", "rotate(-45, 0, 0)");
-
-		xAxisGroup.selectAll(".tick text")
-			.each((d, i, n) => {
-				const children = n[i].childElementCount;
-				if (children > 1) d3.select(n[i]).attr("transform", `translate(${-4 * (children - 1)},0) rotate(-45, 0, 0)`)
-			});
+			.attr("transform", "rotate(-45, -5, 6)");
 
 		yAxis.tickSizeInner(-(xScale.range()[1] - barChartPanel.padding[3]));
 
@@ -2596,39 +2588,10 @@ function reverseFormat(s) {
 	return returnValue;
 };
 
-function wrapTextLabel(text, width) {
-	text.each(function() {
-		let text = d3.select(this),
-			words = text.text().split(/\s+/).reverse(),
-			word,
-			line = [],
-			lineNumber = 0,
-			lineHeight = 0.9,
-			y = text.attr("y"),
-			x = text.attr("x"),
-			dy = parseFloat(text.attr("dy")),
-			tspan = text.text(null)
-			.append("tspan")
-			.attr("x", x)
-			.attr("y", y)
-			.attr("dy", dy + "em");
-		while (word = words.pop()) {
-			line.push(word);
-			tspan.text(line.join(" "));
-			if (tspan.node()
-				.getComputedTextLength() > width) {
-				line.pop();
-				tspan.text(line.join(" "));
-				line = [word];
-				tspan = text.append("tspan")
-					.attr("x", x)
-					.attr("y", y)
-					.attr("dy", ++lineNumber * lineHeight + dy + "em")
-					.attr("dx", lineNumber * dy + "em")
-					.text(word);
-			}
-		}
-	});
+function cutLabel(d, lists) {
+	console.log(lists.fundNamesList[d].length);
+	return lists.fundNamesList[d].length < maxLabelLength ? lists.fundNamesList[d] :
+		lists.fundNamesList[d].slice(0, maxLabelLength - 6) + `...(${lists.fundIsoCodes3List[d]})`;
 };
 
 function capitalize(str) {
