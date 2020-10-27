@@ -926,10 +926,16 @@ function createAllocations(selections, colors, mapData, lists) {
 				let keySum;
 
 				if (chartState.selectedChart === "allocationsByCountry" ||
-					(chartState.selectedChart === "allocationsBySector" && !chartState.selectedCluster.length)) keySum = originalDatum[key];
+					(chartState.selectedChart === "allocationsBySector" && !chartState.selectedCluster.length) ||
+					(chartState.selectedChart === "allocationsByType" && !chartState.selectedType.length)) keySum = originalDatum[key];
 
 				if (chartState.selectedChart === "allocationsBySector" && chartState.selectedCluster.length) keySum = chartState.selectedCluster.reduce((acc, curr) => {
 					acc += originalDatum[`cluster##${curr}##${key}`];
+					return acc;
+				}, 0);
+
+				if (chartState.selectedChart === "allocationsByType" && chartState.selectedType.length) keySum = chartState.selectedType.reduce((acc, curr) => {
+					acc += originalDatum[`type##${curr}##${key}`];
 					return acc;
 				}, 0);
 
@@ -1167,6 +1173,10 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		if (chartState.selectedChart === "allocationsBySector") {
 			barTitleSpanText = chartState.selectedCluster.length === 0 ? "all sectors" : textWithCommas(chartState.selectedCluster.map(e => lists.clustersList[e]));
+		};
+
+		if (chartState.selectedChart === "allocationsByType") {
+			barTitleSpanText = chartState.selectedType.length === 0 ? "all allocation types" : textWithCommas(chartState.selectedType.map(e => lists.allocationTypesList[e]));
 		};
 
 		let barTitle = barChartDivTitleText.selectAll("." + classPrefix + "barTitle")
