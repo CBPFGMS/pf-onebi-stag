@@ -2512,7 +2512,6 @@ function createAllocations(selections, colors, mapData, lists) {
 						x: mapProjection([0, 0])[0],
 						y: mapProjection([0, 0])[1]
 					};
-					console.log(row);
 					console.warn("Attention: " + row.isoCode + "(" + row.countryName + ") has no centroid");
 				};
 			};
@@ -2589,7 +2588,6 @@ function reverseFormat(s) {
 };
 
 function cutLabel(d, lists) {
-	console.log(lists.fundNamesList[d].length);
 	return lists.fundNamesList[d].length < maxLabelLength ? lists.fundNamesList[d] :
 		lists.fundNamesList[d].slice(0, maxLabelLength - 6) + `...(${lists.fundIsoCodes3List[d]})`;
 };

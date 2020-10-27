@@ -278,7 +278,7 @@ function controlCharts([defaultValues,
 		if (chartState.selectedChart === "contributionsByCerfCbpf") return;
 		chartState.selectedChart = "contributionsByCerfCbpf";
 		selections.chartContainerDiv.selectChildren().remove();
-		drawContributionsByCerfCbpf = createContributionsByCerfCbpf(selections, colorsObject);
+		drawContributionsByCerfCbpf = createContributionsByCerfCbpf(selections, colorsObject, lists);
 		drawContributionsByCerfCbpf(contributionsData);
 	});
 
@@ -286,7 +286,7 @@ function controlCharts([defaultValues,
 		if (chartState.selectedChart === "contributionsByDonor") return;
 		chartState.selectedChart = "contributionsByDonor";
 		selections.chartContainerDiv.selectChildren().remove();
-		drawContributionsByDonor = createContributionsByDonor(selections, colorsObject);
+		drawContributionsByDonor = createContributionsByDonor(selections, colorsObject, lists);
 		drawContributionsByDonor(contributionsData);
 	});
 
@@ -378,6 +378,8 @@ function pushCbpfOrCerf(obj, row) {
 
 function processDataContributions(rawContributionsData) {
 
+	console.log(rawContributionsData);
+
 	const data = [];
 
 	rawContributionsData.forEach(row => {
@@ -385,6 +387,9 @@ function processDataContributions(rawContributionsData) {
 			topValues.contributions += +row.PaidAmt;
 			topValues.donors.add(row.DonorId);
 		};
+
+		const foundDonor = data.find(e => e.donorId === row.DonorId);
+
 	});
 
 	return data;

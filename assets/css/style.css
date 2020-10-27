@@ -692,3 +692,15 @@ footer{position: sticky; bottom: 0;}
   font-size: 9px;
   fill: #888;
 }
+
+.pfbicdmemberStatesContainerDiv {
+  width: 100%;
+  display: flex;
+  background-color: tan;
+}
+
+.pfbicdnonMemberStatesContainerDiv {
+  width: 100%;
+  display: flex;
+  background-color: lime;
+}
