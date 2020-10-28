@@ -99,13 +99,40 @@ function createContributionsByDonor(selections, colors, lists) {
 
 	function drawMemberStates(unfilteredData, originalData) {
 
-		console.log(unfilteredData);
+		const data = unfilteredData.filter(d => chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]);
 
+		data.sort((a, b) => b.total - a.total || (b.cbpf + b.cerf) - (a.cbpf + a.cerf));
+
+		console.log(data);
+
+		//end of drawMemberStates
 	};
 
 	function filterData(originalData) {
 
-		return originalData;
+		const data = JSON.parse(JSON.stringify(originalData));
+
+		data.forEach(donor => {
+			donor.contributions.forEach(row => {
+				if (chartState.selectedFund === "total") {
+					row.cbpf = 0;
+					row.cerf = 0;
+				};
+				if (chartState.selectedFund === "cerf/cbpf") {
+					row.total = 0;
+				};
+				if (chartState.selectedFund === "cerf") {
+					row.cbpf = 0;
+					row.total = 0;
+				};
+				if (chartState.selectedFund === "cbpf") {
+					row.cerf = 0;
+					row.total = 0;
+				};
+			});
+		});
+
+		return data;
 
 	};
 

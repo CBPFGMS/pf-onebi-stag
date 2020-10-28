@@ -416,6 +416,7 @@ function processDataContributions(rawContributionsData) {
 			const donorObject = {
 				donor: donorNamesList[row.DonorId],
 				donorId: row.DonorId,
+				isoCode: donorIsoCodesList[row.DonorId],
 				contributions: [],
 				total: 0,
 				cerf: 0,
