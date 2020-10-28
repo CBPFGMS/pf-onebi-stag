@@ -1005,7 +1005,10 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		function zoomToBoundingBox(data) {
 
+			let easternCountry;
+
 			const boundingBox = data.reduce((acc, curr) => {
+				if (centroids[curr.isoCode].x > acc.e) easternCountry = curr.country;
 				acc.n = Math.min(acc.n, centroids[curr.isoCode].y - radiusScale(chartState.selectedFund === "total" ? curr.total : curr.cbpf + curr.cerf));
 				acc.s = Math.max(acc.s, centroids[curr.isoCode].y + radiusScale(chartState.selectedFund === "total" ? curr.total : curr.cbpf + curr.cerf));
 				acc.e = Math.max(acc.e, centroids[curr.isoCode].x + radiusScale(chartState.selectedFund === "total" ? curr.total : curr.cbpf + curr.cerf));
@@ -1017,6 +1020,15 @@ function createAllocations(selections, colors, mapData, lists) {
 				e: -Infinity,
 				w: Infinity
 			});
+
+			const easternCountryName = piesContainer.append("text")
+				.style("opacity", 0)
+				.attr("class", classPrefix + "groupName")
+				.text(lists.fundNamesList[easternCountry]);
+
+			boundingBox.e = boundingBox.e + easternCountryName.node().getComputedTextLength() + 2;
+
+			easternCountryName.remove();
 
 			const midPointX = (boundingBox.w + boundingBox.e) / 2;
 			const midPointY = (boundingBox.n + boundingBox.s) / 2;
