@@ -8,8 +8,8 @@ import {
 const classPrefix = "pfbicd",
 	memberStatePercentage = 0.8,
 	nonMemberStatePercentage = 1 - memberStatePercentage,
-	donorDivWidth = 80,
-	donorDivHeight = 50,
+	donorDivWidth = 120,
+	donorDivHeight = 70,
 	formatPercent = d3.format("%"),
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"];
 
@@ -99,11 +99,28 @@ function createContributionsByDonor(selections, colors, lists) {
 
 	function drawMemberStates(unfilteredData, originalData) {
 
-		const data = unfilteredData.filter(d => chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]);
+		const data = unfilteredData.filter(d => lists.donorTypesList[d.donorId] === "Member State" &&
+			(chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]));
 
 		data.sort((a, b) => b.total - a.total || (b.cbpf + b.cerf) - (a.cbpf + a.cerf));
 
 		console.log(data);
+
+		let donorDiv = memberStatesChartAreaDiv.selectAll("." + classPrefix + "donorDiv")
+			.data(data, d => d.donorId);
+
+		const donorDivExit = donorDiv.exit()
+			.remove();
+
+		const donorDivEnter = donorDiv.enter()
+			.append("div")
+			.attr("class", classPrefix + "donorDiv")
+			.style("width", donorDivWidth + "px")
+			.style("height", donorDivHeight + "px");
+
+
+
+		donorDiv = donorDivEnter.merge(donorDiv);
 
 		//end of drawMemberStates
 	};
