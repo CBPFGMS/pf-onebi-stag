@@ -310,9 +310,7 @@ function createAllocations(selections, colors, mapData, lists) {
 		.outerRadius(0);
 
 	const pieGenerator = d3.pie()
-		.value(function(d) {
-			return d.value;
-		})
+		.value(d => d.value)
 		.sort(null);
 
 	const stack = d3.stack()
@@ -528,7 +526,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		const zoomInPath = zoomInGroup.append("path")
 			.attr("class", classPrefix + "zoomPath")
-			.attr("d", function() {
+			.attr("d", () => {
 				const drawPath = d3.path();
 				drawPath.moveTo(0, mapZoomButtonPanel.height / 2);
 				drawPath.lineTo(0, mapZoomButtonPanel.padding[0]);
@@ -553,7 +551,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		const zoomOutPath = zoomOutGroup.append("path")
 			.attr("class", classPrefix + "zoomPath")
-			.attr("d", function() {
+			.attr("d", () => {
 				const drawPath = d3.path();
 				drawPath.moveTo(0, mapZoomButtonPanel.height / 2);
 				drawPath.lineTo(0, mapZoomButtonPanel.height - mapZoomButtonPanel.padding[3]);
@@ -609,7 +607,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("y", 11)
 			.text("Show All");
 
-		showNamesGroup.on("click", function() {
+		showNamesGroup.on("click", () => {
 
 			chartState.showNames = !chartState.showNames;
 
@@ -781,9 +779,7 @@ function createAllocations(selections, colors, mapData, lists) {
 				value: d.total,
 				total: chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf,
 				type: "total"
-			}].filter(function(e) {
-				return e.value !== 0;
-			})), d => d.data.type);
+			}].filter(e => e.value !== 0)), d => d.data.type);
 
 		const slicesRemove = slices.exit()
 			.transition()
@@ -875,14 +871,10 @@ function createAllocations(selections, colors, mapData, lists) {
 		};
 
 		mapZoomButtonPanel.main.select("." + classPrefix + "zoomInGroupMap")
-			.on("click", function() {
-				zoom.scaleBy(svgMap.transition().duration(duration), 2);
-			});
+			.on("click", () => zoom.scaleBy(svgMap.transition().duration(duration), 2));
 
 		mapZoomButtonPanel.main.select("." + classPrefix + "zoomOutGroupMap")
-			.on("click", function() {
-				zoom.scaleBy(svgMap.transition().duration(duration), 0.5);
-			});
+			.on("click", () => zoom.scaleBy(svgMap.transition().duration(duration), 0.5));
 
 		function pieGroupMouseover(event, datum) {
 
@@ -2522,7 +2514,7 @@ function createAllocations(selections, colors, mapData, lists) {
 	};
 
 	function verifyCentroids(data) {
-		data.forEach(function(row) {
+		data.forEach(row => {
 			if (!centroids[row.isoCode] || isNaN(centroids[row.isoCode].x) || isNaN(centroids[row.isoCode].y)) {
 				if (!isNaN(lists.fundLatLongList[row.isoCode][0]) || !isNaN(lists.fundLatLongList[row.isoCode][1])) {
 					centroids[row.isoCode] = {
@@ -2542,6 +2534,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	return draw;
 
+	//end of createAllocations
 };
 
 function displayLabels(labelSelection) {

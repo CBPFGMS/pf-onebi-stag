@@ -392,17 +392,40 @@ function processDataContributions(rawContributionsData) {
 		const foundDonor = data.find(e => e.donorId === row.DonorId);
 
 		if (foundDonor) {
+			pushCbpfOrCerfContribution(foundDonor, row);
 			const foundYear = foundDonor.contributions.find(e => e.year === row.FiscalYear);
 			if (foundYear) {
-
+				pushCbpfOrCerfContribution(foundYear, row);
 			} else {
-
+				const yearObject = {
+					year: row.FiscalYear,
+					total: 0,
+					cerf: 0,
+					cbpf: 0,
+					"paid##total": 0,
+					"paid##cerf": 0,
+					"paid##cbpf": 0,
+					"pledged##total": 0,
+					"pledged##cerf": 0,
+					"pledged##cbpf": 0
+				};
+				pushCbpfOrCerfContribution(yearObject, row);
+				foundDonor.contributions.push(yearObject);
 			};
 		} else {
 			const donorObject = {
 				donor: donorNamesList[row.DonorId],
 				donorId: row.DonorId,
-				contributions: []
+				contributions: [],
+				total: 0,
+				cerf: 0,
+				cbpf: 0,
+				"paid##total": 0,
+				"paid##cerf": 0,
+				"paid##cbpf": 0,
+				"pledged##total": 0,
+				"pledged##cerf": 0,
+				"pledged##cbpf": 0
 			};
 			const yearObject = {
 				year: row.FiscalYear,
@@ -416,6 +439,7 @@ function processDataContributions(rawContributionsData) {
 				"pledged##cerf": 0,
 				"pledged##cbpf": 0
 			};
+			pushCbpfOrCerfContribution(donorObject, row);
 			pushCbpfOrCerfContribution(yearObject, row);
 			donorObject.contributions.push(yearObject);
 			data.push(donorObject);
@@ -428,7 +452,18 @@ function processDataContributions(rawContributionsData) {
 };
 
 function pushCbpfOrCerfContribution(obj, row) {
-	console.log(cerfPooledFundId);//CONTINUE HERE!!!
+	if (row.PooledFundId === cerfPooledFundId) {
+		obj.cerf += row.PaidAmt + row.PledgeAmt;
+		obj["paid##cerf"] += row.PaidAmt;
+		obj["pledged##cerf"] += row.PledgeAmt;
+	} else {
+		obj.cbpf += row.PaidAmt + row.PledgeAmt;
+		obj["paid##cbpf"] += row.PaidAmt;
+		obj["pledged##cbpf"] += row.PledgeAmt;
+	};
+	obj.total += row.PaidAmt + row.PledgeAmt;
+	obj["paid##total"] += row.PaidAmt;
+	obj["pledged##total"] += row.PledgeAmt;
 };
 
 function fetchFile(fileName, url, warningString, method) {
