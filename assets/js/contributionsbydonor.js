@@ -6,7 +6,7 @@ import {
 
 //|constants
 const classPrefix = "pfbicd",
-	memberStatePercentage = 0.8,
+	memberStatePercentage = 0.82,
 	nonMemberStatePercentage = 1 - memberStatePercentage,
 	svgWidth = 120,
 	svgHeight = 60,
@@ -270,7 +270,156 @@ function createContributionsByDonor(selections, colors, lists) {
 		const individualData = unfilteredData.filter(d => lists.donorTypesList[d.donorId] !== "Member State" &&
 			(chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]));
 
-		console.log(individualData);
+		const data = individualData.reduce((acc, originalRow) => {
+
+			const row = JSON.parse(JSON.stringify(originalRow));
+
+			const foundDonor = acc.find(e => e.donor === lists.donorTypesList[row.donorId]);
+
+			if (foundDonor) {
+				++foundDonor.count;
+				foundDonor.total += row.total;
+				foundDonor.cerf += row.cerf;
+				foundDonor.cbpf += row.cbpf;
+				foundDonor["paid##total"] += row["paid##total"];
+				foundDonor["paid##cerf"] += row["paid##cerf"];
+				foundDonor["paid##cbpf"] += row["paid##cbpf"];
+				foundDonor["pledged##total"] += row["pledged##total"];
+				foundDonor["pledged##cerf"] += row["pledged##cerf"];
+				foundDonor["pledged##cbpf"] += row["pledged##cbpf"];
+
+				row.contributions.forEach(yearRow => {
+					const foundYear = foundDonor.contributions.find(e => e.year === yearRow.year);
+					if (foundYear) {
+						foundYear.total += yearRow.total;
+						foundYear.cerf += yearRow.cerf;
+						foundYear.cbpf += yearRow.cbpf;
+						foundYear["paid##total"] += yearRow["paid##total"];
+						foundYear["paid##cerf"] += yearRow["paid##cerf"];
+						foundYear["paid##cbpf"] += yearRow["paid##cbpf"];
+						foundYear["pledged##total"] += yearRow["pledged##total"];
+						foundYear["pledged##cerf"] += yearRow["pledged##cerf"];
+						foundYear["pledged##cbpf"] += yearRow["pledged##cbpf"];
+					} else {
+						foundDonor.contributions.push(yearRow);
+					};
+				});
+
+			} else {
+				row.donor = lists.donorTypesList[row.donorId];
+				row.count = 1;
+				delete row.donorId;
+				acc.push(row);
+			};
+
+			return acc;
+		}, []);
+
+		data.sort((a, b) => b.total - a.total || (b.cbpf + b.cerf) - (a.cbpf + a.cerf));
+
+		let nonMemberDonorDiv = nonMemberStatesChartAreaDiv.selectAll("." + classPrefix + "nonMemberDonorDiv")
+			.data(data, d => d.donor);
+
+		const nonMemberDonorDivExit = nonMemberDonorDiv.exit()
+			.remove();
+
+		const nonMemberDonorDivEnter = nonMemberDonorDiv.enter()
+			.append("div")
+			.attr("class", classPrefix + "nonMemberDonorDiv")
+			.style("width", svgWidth + "px")
+			.style("min-height", svgHeight + donorNameDivHeight + "px");
+
+		const nonMemberDonorSvgEnter = nonMemberDonorDivEnter.append("svg")
+			.attr("width", svgWidth)
+			.attr("height", svgHeight)
+			.style("overflow", "visible")
+
+		const xAxisGroup = nonMemberDonorSvgEnter.append("g")
+			.attr("class", classPrefix + "xAxisGroup")
+			.attr("transform", "translate(0," + (svgHeight - svgPadding[2]) + ")")
+			.call(xAxis);
+
+		const nonMemberDonorNameDiv = nonMemberDonorDivEnter.append("div")
+			.attr("class", classPrefix + "nonMemberDonorNameDiv")
+			.style("min-height", donorNameDivHeight + "px")
+			.html(d => d.donor);
+
+		nonMemberDonorDiv = nonMemberDonorDivEnter.merge(nonMemberDonorDiv);
+
+		const nonMemberDonorSvg = nonMemberDonorDiv.select("svg");
+
+		nonMemberDonorSvg.each((d, i, n) => {
+			const yScale = localyScale.set(n[i], d3.scaleLinear()
+				.range(yScaleRange)
+				.domain([0, d3.max(d.contributions, e => d3.max(d.contributions, e => chartState.selectedFund === "cerf/cbpf" ? e.cerf + e.cbpf : e[chartState.selectedFund]))]))
+		});
+
+		let barsGroups = nonMemberDonorSvg.selectAll("." + classPrefix + "barsGroups")
+			.data(d => stack(d.contributions), d => d.key);
+
+		const barGroupsExit = barsGroups.exit().remove();
+
+		const barGroupsEnter = barsGroups.enter()
+			.append("g")
+			.attr("class", classPrefix + "barsGroups")
+			.attr("pointer-events", "none")
+			.style("fill", d => colors[d.key]);
+
+		barsGroups = barGroupsEnter.merge(barsGroups);
+
+		let bars = barsGroups.selectAll("." + classPrefix + "bars")
+			.data(d => d, d => d.data.year);
+
+		const barsExit = bars.exit()
+			.transition()
+			.duration(duration)
+			.attr("height", 0)
+			.attr("y", svgHeight - svgPadding[2])
+			.style("opacity", 0)
+			.remove();
+
+		const barsEnter = bars.enter()
+			.append("rect")
+			.attr("class", classPrefix + "bars")
+			.attr("width", xScale.bandwidth())
+			.attr("height", 0)
+			.attr("y", svgHeight - svgPadding[2])
+			.attr("x", d => xScale(d.data.year))
+
+		bars = barsEnter.merge(bars);
+
+		bars.transition()
+			.duration(duration)
+			.style("opacity", 1)
+			.attr("y", (d, i, n) => d[0] === d[1] ? svgHeight - svgPadding[2] : localyScale.get(n[i])(d[1]))
+			.attr("height", (d, i, n) => localyScale.get(n[i])(d[0]) - localyScale.get(n[i])(d[1]));
+
+		let barLabel = nonMemberDonorSvg.selectAll("." + classPrefix + "barLabel")
+			.data(d => [d.contributions.find(e => e.year === currentYear - 1) || zeroObject]);
+
+		const barLabelExit = barLabel.exit()
+			.transition()
+			.duration(duration)
+			.style("opacity", 0)
+			.remove();
+
+		const barLabelEnter = barLabel.enter()
+			.append("text")
+			.attr("class", classPrefix + "barLabel")
+			.style("opacity", 0)
+			.attr("x", xScale(currentYear - 1) + barLabelPadding)
+			.attr("y", svgHeight - svgPadding[2]);
+
+		barLabel = barLabelEnter.merge(barLabel);
+
+		barLabel.transition()
+			.duration(duration)
+			.style("opacity", 1)
+			.attr("y", (d, i, n) => Math.min(svgHeight - svgPadding[2] - labelMinPadding, localyScale.get(n[i])(chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund])))
+			.textTween((d, i, n) => {
+				const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]);
+				return t => d3.formatPrefix(".0", interpolator(t))(interpolator(t)).replace("G", "B");
+			});
 
 		//end of drawNonMemberStates
 	};
