@@ -153,7 +153,7 @@ function createContributionsByDonor(selections, colors, lists) {
 		const donorSvgEnter = donorDivEnter.append("svg")
 			.attr("width", svgWidth)
 			.attr("height", svgHeight)
-			.style("overflow", "visible");
+			.style("overflow", "visible")
 
 		const xAxisGroup = donorSvgEnter.append("g")
 			.attr("class", classPrefix + "xAxisGroup")
@@ -167,7 +167,7 @@ function createContributionsByDonor(selections, colors, lists) {
 		const donorFlag = donorNameDiv.append("img")
 			.attr("width", flagSize)
 			.attr("height", flagSize)
-			.attr("src", d => flagUrl + d.isoCode + ".png");
+			.attr("src", d => flagUrl + d.isoCode.toLowerCase() + ".png");
 
 		const donorName = donorNameDiv.append("span")
 			.html(d => d.donor);
