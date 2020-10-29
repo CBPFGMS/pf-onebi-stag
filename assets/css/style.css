@@ -707,14 +707,19 @@ footer{position: sticky; bottom: 0;}
 .pfbicdnonMemberStatesContainerDiv {
   width: 100%;
   display: flex;
-  background-color: lime;
+  flex-direction: column;
 }
 
-.pfbicdmemberStatesTopDiv {
+.pfbicdmemberStatesTopDiv, .pfbicdnonMemberStatesTopDiv {
   width: 100%;
   display: flex;
   flex-direction: row;
   height: 5vh;
+}
+
+.pfbicdnonMemberStatesTopDiv {
+  align-items: center;
+  box-shadow: 0px -3px 3px 0 #ccc;
 }
 
 .pfbicdmemberStatesTitleDiv {
@@ -724,7 +729,7 @@ footer{position: sticky; bottom: 0;}
   align-items: center;
 }
 
-.pfbicdmemberStatesTitleDiv span {
+.pfbicdmemberStatesTitleDiv span, .pfbicdnonMemberStatesTopDiv span {
   font-family: "Roboto", sans-serif;
   font-size: 0.95rem;
   color: #333;
@@ -753,6 +758,14 @@ footer{position: sticky; bottom: 0;}
   height: 100%;
   justify-content: space-around;
   overflow-y: scroll;
+}
+
+.pfbicdnonMemberStatesChartAreaDiv {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  height: 100%;
+  justify-content: space-around;
 }
 
 .pfbicddonorDiv {

@@ -42,10 +42,6 @@ function createContributionsByDonor(selections, colors, lists) {
 		.attr("class", classPrefix + "memberStatesContainerDiv")
 		.style("height", formatPercent(memberStatePercentage));
 
-	const nonMemberStatesContainerDiv = containerDiv.append("div")
-		.attr("class", classPrefix + "nonMemberStatesContainerDiv")
-		.style("height", formatPercent(nonMemberStatePercentage));
-
 	const memberStatesTopDiv = memberStatesContainerDiv.append("div")
 		.attr("class", classPrefix + "memberStatesTopDiv");
 
@@ -63,6 +59,19 @@ function createContributionsByDonor(selections, colors, lists) {
 
 	const memberStatesTitle = memberStatesTitleDiv.append("span")
 		.html("Member States");
+
+	const nonMemberStatesContainerDiv = containerDiv.append("div")
+		.attr("class", classPrefix + "nonMemberStatesContainerDiv")
+		.style("height", formatPercent(nonMemberStatePercentage));
+
+	const nonMemberStatesTopDiv = nonMemberStatesContainerDiv.append("div")
+		.attr("class", classPrefix + "nonMemberStatesTopDiv");
+
+	const nonMemberStatesChartAreaDiv = nonMemberStatesContainerDiv.append("div")
+		.attr("class", classPrefix + "nonMemberStatesChartAreaDiv");
+
+	const nonMemberStatesTitle = nonMemberStatesTopDiv.append("span")
+		.html("non-Member States");
 
 	const xScale = d3.scaleBand()
 		.range([svgPadding[3], svgWidth - svgPadding[1]])
@@ -90,6 +99,8 @@ function createContributionsByDonor(selections, colors, lists) {
 
 		drawMemberStates(data, originalData);
 
+		drawNonMemberStates(data, originalData);
+
 		// createColumnTopValues(originalData);
 
 		// createColumnChart(originalData);
@@ -108,6 +119,8 @@ function createContributionsByDonor(selections, colors, lists) {
 			// createColumnChart(originalData);
 
 			drawMemberStates(data, originalData);
+
+			drawNonMemberStates(data, originalData);
 		});
 
 		//end of draw
@@ -250,6 +263,16 @@ function createContributionsByDonor(selections, colors, lists) {
 			});
 
 		//end of drawMemberStates
+	};
+
+	function drawNonMemberStates(unfilteredData, originalData) {
+
+		const individualData = unfilteredData.filter(d => lists.donorTypesList[d.donorId] !== "Member State" &&
+			(chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]));
+
+		console.log(individualData);
+
+		//end of drawNonMemberStates
 	};
 
 	function filterData(originalData) {
