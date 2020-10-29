@@ -44,8 +44,8 @@ const classPrefix = "pfbial",
 	svgColumnChartTypeHeight = svgColumnChartPaddingByType[0] + svgColumnChartPaddingByType[2] + maxColumnRectHeight + 4 * maxColumnRectHeight,
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	stackKeys = ["total", "cerf", "cbpf"],
-	cbpfAllocationTypes = ["1", "2"],
-	cerfAllocationTypes = ["3", "4"],
+	cbpfAllocationTypes = ["1", "2"], //THIS SHOULD NOT BE HARDCODED
+	cerfAllocationTypes = ["3", "4"], //THIS SHOULD NOT BE HARDCODED
 	centroids = {};
 
 //|variables

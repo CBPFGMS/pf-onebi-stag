@@ -8,10 +8,28 @@ import {
 const classPrefix = "pfbicd",
 	memberStatePercentage = 0.8,
 	nonMemberStatePercentage = 1 - memberStatePercentage,
-	donorDivWidth = 120,
-	donorDivHeight = 70,
+	svgWidth = 120,
+	svgHeight = 60,
+	donorNameDivHeight = 18,
+	flagSize = 16,
+	svgPadding = [10, 26, 14, 26],
+	yScaleRange = [svgHeight - svgPadding[2], svgPadding[0]],
+	localyScale = d3.local(),
+	localLine = d3.local(),
+	currentDate = new Date(),
+	currentYear = currentDate.getFullYear(),
+	duration = 1000,
+	barLabelPadding = 6,
+	labelMinPadding = 5,
+	flagUrl = "./assets/img/flags16/",
 	formatPercent = d3.format("%"),
-	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"];
+	stackKeys = ["total", "cerf", "cbpf"],
+	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
+	zeroObject = {
+		total: 0,
+		cerf: 0,
+		cbpf: 0
+	};
 
 //|variables
 
@@ -46,11 +64,27 @@ function createContributionsByDonor(selections, colors, lists) {
 	const memberStatesTitle = memberStatesTitleDiv.append("span")
 		.html("Member States");
 
+	const xScale = d3.scaleBand()
+		.range([svgPadding[3], svgWidth - svgPadding[1]])
+		.domain(d3.range(lists.yearsArrayContributions[0], currentYear, 1))
+		.paddingInner(0.4)
+		.paddingOuter(0);
 
+	const stack = d3.stack()
+		.keys(stackKeys)
+		.order(d3.stackOrderDescending);
+
+	const xAxis = d3.axisBottom(xScale)
+		.tickValues(d3.extent(xScale.domain()))
+		.tickSizeOuter(0)
+		.tickSizeInner(3)
+		.tickPadding(2);
 
 	createButtons();
 
 	function draw(originalData) {
+
+		//CREATE SAVEFLAG FUNCTION
 
 		const data = filterData(originalData);
 
@@ -104,8 +138,6 @@ function createContributionsByDonor(selections, colors, lists) {
 
 		data.sort((a, b) => b.total - a.total || (b.cbpf + b.cerf) - (a.cbpf + a.cerf));
 
-		console.log(data);
-
 		let donorDiv = memberStatesChartAreaDiv.selectAll("." + classPrefix + "donorDiv")
 			.data(data, d => d.donorId);
 
@@ -115,12 +147,107 @@ function createContributionsByDonor(selections, colors, lists) {
 		const donorDivEnter = donorDiv.enter()
 			.append("div")
 			.attr("class", classPrefix + "donorDiv")
-			.style("width", donorDivWidth + "px")
-			.style("height", donorDivHeight + "px");
+			.style("width", svgWidth + "px")
+			.style("min-height", svgHeight + donorNameDivHeight + "px");
 
+		const donorSvgEnter = donorDivEnter.append("svg")
+			.attr("width", svgWidth)
+			.attr("height", svgHeight)
+			.style("overflow", "visible");
 
+		const xAxisGroup = donorSvgEnter.append("g")
+			.attr("class", classPrefix + "xAxisGroup")
+			.attr("transform", "translate(0," + (svgHeight - svgPadding[2]) + ")")
+			.call(xAxis);
+
+		const donorNameDiv = donorDivEnter.append("div")
+			.attr("class", classPrefix + "donorNameDiv")
+			.style("min-height", donorNameDivHeight + "px");
+
+		const donorFlag = donorNameDiv.append("img")
+			.attr("width", flagSize)
+			.attr("height", flagSize)
+			.attr("src", d => flagUrl + d.isoCode + ".png");
+
+		const donorName = donorNameDiv.append("span")
+			.html(d => d.donor);
 
 		donorDiv = donorDivEnter.merge(donorDiv);
+
+		const donorSvg = donorDiv.select("svg");
+
+		donorSvg.each((d, i, n) => {
+			const yScale = localyScale.set(n[i], d3.scaleLinear()
+				.range(yScaleRange)
+				.domain([0, d3.max(d.contributions, e => d3.max(d.contributions, e => chartState.selectedFund === "cerf/cbpf" ? e.cerf + e.cbpf : e[chartState.selectedFund]))]))
+		});
+
+		let barsGroups = donorSvg.selectAll("." + classPrefix + "barsGroups")
+			.data(d => stack(d.contributions), d => d.key);
+
+		const barGroupsExit = barsGroups.exit().remove();
+
+		const barGroupsEnter = barsGroups.enter()
+			.append("g")
+			.attr("class", classPrefix + "barsGroups")
+			.attr("pointer-events", "none")
+			.style("fill", d => colors[d.key]);
+
+		barsGroups = barGroupsEnter.merge(barsGroups);
+
+		let bars = barsGroups.selectAll("." + classPrefix + "bars")
+			.data(d => d, d => d.data.year);
+
+		const barsExit = bars.exit()
+			.transition()
+			.duration(duration)
+			.attr("height", 0)
+			.attr("y", svgHeight - svgPadding[2])
+			.style("opacity", 0)
+			.remove();
+
+		const barsEnter = bars.enter()
+			.append("rect")
+			.attr("class", classPrefix + "bars")
+			.attr("width", xScale.bandwidth())
+			.attr("height", 0)
+			.attr("y", svgHeight - svgPadding[2])
+			.attr("x", d => xScale(d.data.year))
+
+		bars = barsEnter.merge(bars);
+
+		bars.transition()
+			.duration(duration)
+			.style("opacity", 1)
+			.attr("y", (d, i, n) => d[0] === d[1] ? svgHeight - svgPadding[2] : localyScale.get(n[i])(d[1]))
+			.attr("height", (d, i, n) => localyScale.get(n[i])(d[0]) - localyScale.get(n[i])(d[1]));
+
+		let barLabel = donorSvg.selectAll("." + classPrefix + "barLabel")
+			.data(d => [d.contributions.find(e => e.year === currentYear - 1) || zeroObject]);
+
+		const barLabelExit = barLabel.exit()
+			.transition()
+			.duration(duration)
+			.style("opacity", 0)
+			.remove();
+
+		const barLabelEnter = barLabel.enter()
+			.append("text")
+			.attr("class", classPrefix + "barLabel")
+			.style("opacity", 0)
+			.attr("x", xScale(currentYear - 1) + barLabelPadding)
+			.attr("y", svgHeight - svgPadding[2]);
+
+		barLabel = barLabelEnter.merge(barLabel);
+
+		barLabel.transition()
+			.duration(duration)
+			.style("opacity", 1)
+			.attr("y", (d, i, n) => Math.min(svgHeight - svgPadding[2] - labelMinPadding, localyScale.get(n[i])(chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund])))
+			.textTween((d, i, n) => {
+				const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]);
+				return t => d3.formatPrefix(".0", interpolator(t))(interpolator(t)).replace("G", "B");
+			});
 
 		//end of drawMemberStates
 	};
@@ -156,6 +283,41 @@ function createContributionsByDonor(selections, colors, lists) {
 	return draw;
 
 	//end of createContributionsByDonor
+};
+
+function reverseFormat(s) {
+	if (+s === 0) return 0;
+	let returnValue;
+	const transformation = {
+		Y: Math.pow(10, 24),
+		Z: Math.pow(10, 21),
+		E: Math.pow(10, 18),
+		P: Math.pow(10, 15),
+		T: Math.pow(10, 12),
+		G: Math.pow(10, 9),
+		B: Math.pow(10, 9),
+		M: Math.pow(10, 6),
+		k: Math.pow(10, 3),
+		h: Math.pow(10, 2),
+		da: Math.pow(10, 1),
+		d: Math.pow(10, -1),
+		c: Math.pow(10, -2),
+		m: Math.pow(10, -3),
+		μ: Math.pow(10, -6),
+		n: Math.pow(10, -9),
+		p: Math.pow(10, -12),
+		f: Math.pow(10, -15),
+		a: Math.pow(10, -18),
+		z: Math.pow(10, -21),
+		y: Math.pow(10, -24)
+	};
+	Object.keys(transformation).some(k => {
+		if (s.indexOf(k) > 0) {
+			returnValue = parseFloat(s.split(k)[0]) * transformation[k];
+			return true;
+		}
+	});
+	return returnValue;
 };
 
 function capitalize(str) {

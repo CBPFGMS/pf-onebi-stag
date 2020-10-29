@@ -6,6 +6,7 @@ const generalClassPrefix = "pfbihp",
 	defaultChart = "allocationsByCountry",
 	localStorageTime = 3600000,
 	currentDate = new Date(),
+	currentYear = currentDate.getFullYear(),
 	localVariable = d3.local(),
 	duration = 1000,
 	unBlue = "#65A8DC",
@@ -183,7 +184,8 @@ function controlCharts([defaultValues,
 		clustersList: clustersList,
 		allocationTypesList: allocationTypesList,
 		fundNamesListKeys: fundNamesListKeys,
-		donorNamesListKeys: donorNamesListKeys
+		donorNamesListKeys: donorNamesListKeys,
+		yearsArrayContributions: yearsArrayContributions
 	};
 
 	preProcessData(rawAllocationsData, rawContributionsData);
@@ -195,6 +197,8 @@ function controlCharts([defaultValues,
 	allocationsData = processDataAllocations(rawAllocationsData);
 
 	contributionsData = processDataContributions(rawContributionsData);
+
+	processContributionsYearData(rawContributionsData);
 
 	spinnerContainer.remove();
 
@@ -226,11 +230,9 @@ function controlCharts([defaultValues,
 		chartState.selectedYear = +event.target.value;
 		resetTopValues(topValues);
 		allocationsData = processDataAllocations(rawAllocationsData);
-		contributionsData = processDataContributions(rawContributionsData);
+		processContributionsYearData(rawContributionsData);
 		updateTopValues(topValues, selections);
-		if (chartTypesAllocations.indexOf(chartState.selectedChart) > -1) drawAllocations(allocationsData);
-		if (chartState.selectedChart === "contributionsByCerfCbpf") drawContributionsByCerfCbpf(contributionsData);
-		if (chartState.selectedChart === "contributionsByDonor") drawContributionsByDonor(contributionsData);
+		drawAllocations(allocationsData);
 	});
 
 	selections.navlinkAllocationsByCountry.on("click", () => {
@@ -377,26 +379,61 @@ function pushCbpfOrCerf(obj, row) {
 	obj[`type${separator}${row.AllocationSurceId}${separator}total`] += +row.ClusterBudget;;
 };
 
-function processDataContributions(rawContributionsData) {
-
-	console.log(rawContributionsData);
-
-	const data = [];
-
+function processContributionsYearData(rawContributionsData) {
 	rawContributionsData.forEach(row => {
 		if (row.FiscalYear === chartState.selectedYear) {
 			topValues.contributions += +row.PaidAmt;
 			topValues.donors.add(row.DonorId);
 		};
+	});
+};
 
-		const foundDonor = data.find(e => e.donorId === row.DonorId);
+function processDataContributions(rawContributionsData) {
 
-		if (foundDonor) {
-			pushCbpfOrCerfContribution(foundDonor, row);
-			const foundYear = foundDonor.contributions.find(e => e.year === row.FiscalYear);
-			if (foundYear) {
-				pushCbpfOrCerfContribution(foundYear, row);
+	const data = [];
+
+	rawContributionsData.forEach(row => {
+		if (row.FiscalYear <= (currentYear - 1)) {
+
+			const foundDonor = data.find(e => e.donorId === row.DonorId);
+
+			if (foundDonor) {
+				pushCbpfOrCerfContribution(foundDonor, row);
+				const foundYear = foundDonor.contributions.find(e => e.year === row.FiscalYear);
+				if (foundYear) {
+					pushCbpfOrCerfContribution(foundYear, row);
+				} else {
+					const yearObject = {
+						year: row.FiscalYear,
+						total: 0,
+						cerf: 0,
+						cbpf: 0,
+						"paid##total": 0,
+						"paid##cerf": 0,
+						"paid##cbpf": 0,
+						"pledged##total": 0,
+						"pledged##cerf": 0,
+						"pledged##cbpf": 0
+					};
+					pushCbpfOrCerfContribution(yearObject, row);
+					foundDonor.contributions.push(yearObject);
+				};
 			} else {
+				const donorObject = {
+					donor: donorNamesList[row.DonorId],
+					donorId: row.DonorId,
+					isoCode: donorIsoCodesList[row.DonorId],
+					contributions: [],
+					total: 0,
+					cerf: 0,
+					cbpf: 0,
+					"paid##total": 0,
+					"paid##cerf": 0,
+					"paid##cbpf": 0,
+					"pledged##total": 0,
+					"pledged##cerf": 0,
+					"pledged##cbpf": 0
+				};
 				const yearObject = {
 					year: row.FiscalYear,
 					total: 0,
@@ -409,43 +446,12 @@ function processDataContributions(rawContributionsData) {
 					"pledged##cerf": 0,
 					"pledged##cbpf": 0
 				};
+				pushCbpfOrCerfContribution(donorObject, row);
 				pushCbpfOrCerfContribution(yearObject, row);
-				foundDonor.contributions.push(yearObject);
+				donorObject.contributions.push(yearObject);
+				data.push(donorObject);
 			};
-		} else {
-			const donorObject = {
-				donor: donorNamesList[row.DonorId],
-				donorId: row.DonorId,
-				isoCode: donorIsoCodesList[row.DonorId],
-				contributions: [],
-				total: 0,
-				cerf: 0,
-				cbpf: 0,
-				"paid##total": 0,
-				"paid##cerf": 0,
-				"paid##cbpf": 0,
-				"pledged##total": 0,
-				"pledged##cerf": 0,
-				"pledged##cbpf": 0
-			};
-			const yearObject = {
-				year: row.FiscalYear,
-				total: 0,
-				cerf: 0,
-				cbpf: 0,
-				"paid##total": 0,
-				"paid##cerf": 0,
-				"paid##cbpf": 0,
-				"pledged##total": 0,
-				"pledged##cerf": 0,
-				"pledged##cbpf": 0
-			};
-			pushCbpfOrCerfContribution(donorObject, row);
-			pushCbpfOrCerfContribution(yearObject, row);
-			donorObject.contributions.push(yearObject);
-			data.push(donorObject);
 		};
-
 	});
 
 	return data;
