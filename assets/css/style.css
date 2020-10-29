@@ -755,7 +755,7 @@ footer{position: sticky; bottom: 0;}
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(124px, 1fr));
   overflow-y: scroll;
 }
 
@@ -763,10 +763,11 @@ footer{position: sticky; bottom: 0;}
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(124px, 1fr));
 }
 
 .pfbicddonorDiv {
+  justify-self: center;
   margin-bottom: 10px;
 }
 
