@@ -97,9 +97,9 @@ function createContributionsByDonor(selections, colors, lists) {
 
 		const data = filterData(originalData);
 
-		drawMemberStates(data, originalData);
+		drawMemberStates(data);
 
-		drawNonMemberStates(data, originalData);
+		drawNonMemberStates(data);
 
 		// createColumnTopValues(originalData);
 
@@ -118,9 +118,9 @@ function createContributionsByDonor(selections, colors, lists) {
 
 			// createColumnChart(originalData);
 
-			drawMemberStates(data, originalData);
+			drawMemberStates(data);
 
-			drawNonMemberStates(data, originalData);
+			drawNonMemberStates(data);
 		});
 
 		//end of draw
@@ -144,7 +144,7 @@ function createContributionsByDonor(selections, colors, lists) {
 			.html(d => " " + (d === "total" ? capitalize(d) : d.toUpperCase()));
 	};
 
-	function drawMemberStates(unfilteredData, originalData) {
+	function drawMemberStates(unfilteredData) {
 
 		const data = unfilteredData.filter(d => lists.donorTypesList[d.donorId] === "Member State" &&
 			(chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]));
@@ -292,7 +292,7 @@ function createContributionsByDonor(selections, colors, lists) {
 		//end of drawMemberStates
 	};
 
-	function drawNonMemberStates(unfilteredData, originalData) {
+	function drawNonMemberStates(unfilteredData) {
 
 		const individualData = unfilteredData.filter(d => lists.donorTypesList[d.donorId] !== "Member State" &&
 			(chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]));
@@ -476,6 +476,11 @@ function createContributionsByDonor(selections, colors, lists) {
 			});
 
 		//end of drawNonMemberStates
+	};
+
+	function createColumnTopValues(originalData){
+
+		//end of createColumnTopValues
 	};
 
 	function filterData(originalData) {
