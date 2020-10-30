@@ -1604,7 +1604,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 			yScaleColumnByCountry.domain(filteredData.map(e => e.region))
 				.range([svgColumnChartPaddingByCountry[0],
-					Math.min(svgColumnChartByCountryHeight - svgColumnChartPaddingByCountry[2], maxColumnRectHeight * 2 * filteredData.length)
+					Math.min(svgColumnChartByCountryHeight - svgColumnChartPaddingByCountry[2], maxColumnRectHeight * 2 * (filteredData.length + 1))
 				]);
 
 			xScaleColumnByCountry.domain([0, d3.max(filteredData, e => chartState.selectedFund === "total" ? e.total : e.cbpf + e.cerf)]);
@@ -1814,7 +1814,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 			yScaleColumnBySector.domain(filteredData.map(e => e.cluster))
 				.range([svgColumnChartPaddingBySector[0],
-					Math.min(svgColumnChartBySectorHeight - svgColumnChartPaddingBySector[2], maxColumnRectHeight * 2 * filteredData.length)
+					Math.min(svgColumnChartBySectorHeight - svgColumnChartPaddingBySector[2], maxColumnRectHeight * 2 * (filteredData.length + 1))
 				]);
 
 			xScaleColumnBySector.domain([0, d3.max(filteredData, e => chartState.selectedFund === "total" ? e.total : e.cbpf + e.cerf)]);
