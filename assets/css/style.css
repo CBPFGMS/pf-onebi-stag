@@ -235,18 +235,19 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
   height: 100%;
   width: 0;
   position: fixed;
-  z-index: 1;
+  z-index: 1040;
   top: 56px;
-  left: 225px;
-  background-color: rgba(255, 255, 255, 0.9);
+  left: 0;
+  background-color: rgba(255, 255, 255);
   overflow-x: hidden;
-  transition: 0.5s;
-  padding-top: 15px;
+  transition: 0.3s;
+  padding-top: 0;
   white-space: nowrap;
+	margin-top: 70px;
+	transition-timing-function: cubic-bezier(0.0,0.0,0.2,1);
 }
 
-.link-sidenav a {
-  padding: 8px 8px 8px 32px;
+.link-sidenav a {  
   text-decoration: none;
   font-size: 25px;
   color: #aaa;
@@ -259,20 +260,24 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
 }
 
 .link-sidenav .closebtn {
-  position: absolute;
-  top: -20px;
-  right: 20px;
+  position: relative;
   font-size: 30px;
-  margin-left: 50px;
+  text-align: right;
+  float:right;
+	line-height: normal;
 }
-.side-panel{padding:5px 10px; border-bottom:1px solid #ccc; }
+.side-panel{padding:5px 10px; border-bottom:1px solid #ccc; margin: 0 15px;}
 .side-panel h6{margin-bottom:0; font-size:1rem; font-family: 'Roboto', sans-serif; font-weight: 600; line-height: normal; float: left;
     margin-right: 5px;}
-.side-panel h4{font-weight: 400; font-size: 0.9rem; line-height: normal; color: #B52625;}
+.side-panel h4{font-weight: 400; font-size: 0.9rem; line-height: normal; color: #fff; padding: 5px !important; background-color: #7C6BB0; margin-top: 10px;}
 .side-panel h4 span{white-space: normal !important;}
 .side-panel p{font-size: 0.85em; font-weight: 300; margin: 0;}
-.ss-content {padding: 0 30px 0 0; right: -15px;}
+.ss-content {padding: 0; right: 0;}
 .ss-wrapper{width:100%;}
+.ss-scroll{left:216px; right: -216px;}
+.sidenav-title{background-color: #d2e5f5; padding: 5px 10px 5px 8px; overflow: hidden; display: flex; align-items: center; justify-content: space-between; border-top:1px solid #b7d2e8;}
+.sidenav-title .sb-nav-link-icon{font-weight: 300; font-size: 1.1rem;}
+.sidenav-title .sb-nav-link-icon i{color:#3289c9;}
 .main-high-level-fugure{display:block; padding: 0 1rem 1rem 1rem;}
 .main-high-level-fugure .panel{float:left; background-color: #D2E5F5; padding: 0.5rem; margin: 0.2rem; width: 46%; text-align: center;     border-radius: 15px 0;}
 .main-high-level-fugure .panel h3{font-size:1.2rem; font-weight:400; margin-bottom: 0;} 
@@ -297,7 +302,7 @@ footer{position: sticky; bottom: 0;}
 	.link-sidenav{left: 0;}
 }
 @media (min-width: 576px) { 
-	.link-sidenav{left: 225px;}
+	.link-sidenav{left: 0;}
 }
 @media (max-width: 767.98px) { 
 	#sidebarToggle{display:block !important;}
