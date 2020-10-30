@@ -192,7 +192,12 @@ function createContributionsByDonor(selections, colors, lists) {
 		donorSvg.each((d, i, n) => {
 			const yScale = localyScale.set(n[i], d3.scaleLinear()
 				.range(yScaleRange)
-				.domain([0, d3.max(d.contributions, e => d3.max(d.contributions, e => chartState.selectedFund === "cerf/cbpf" ? e.cerf + e.cbpf : e[chartState.selectedFund]))]))
+				.domain([0, d3.max(d.contributions, e => d3.max(d.contributions, e => chartState.selectedFund === "cerf/cbpf" ? e.cerf + e.cbpf : e[chartState.selectedFund]))]));
+
+			localLine.set(n[i], d3.line()
+				.x(d => xScale(d.year) + xScale.bandwidth() / 2)
+				.y(d => yScale(chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]))
+				.curve(d3.curveCatmullRom));
 		});
 
 		let barsGroups = donorSvg.selectAll("." + classPrefix + "barsGroups")
@@ -234,6 +239,28 @@ function createContributionsByDonor(selections, colors, lists) {
 			.style("opacity", 1)
 			.attr("y", (d, i, n) => d[0] === d[1] ? svgHeight - svgPadding[2] : localyScale.get(n[i])(d[1]))
 			.attr("height", (d, i, n) => localyScale.get(n[i])(d[0]) - localyScale.get(n[i])(d[1]));
+
+		let barLine = donorSvg.selectAll("." + classPrefix + "barLine")
+			.data(d => fillWithZeros(d.contributions));
+
+		const barLineExit = barLine.exit()
+			.remove();
+
+		const barLineEnter = barLine.enter()
+			.append("path")
+			.attr("class", classPrefix + "barLine")
+			.style("stroke", "#666")
+			.style("stroke-width", "2px")
+			.style("fill", "none")
+			.style("opacity", 0)
+			.attr("d", (d, i, n) => localLine.get(n[i])(d));
+
+		barLine = barLineEnter.merge(barLine);
+
+		barLine.transition()
+			.duration(duration)
+			.style("opacity", 1)
+			.attr("d", (d, i, n) => localLine.get(n[i])(d));
 
 		let barLabel = donorSvg.selectAll("." + classPrefix + "barLabel")
 			.data(d => [d.contributions.find(e => e.year === currentYear - 1) || zeroObject]);
@@ -351,7 +378,12 @@ function createContributionsByDonor(selections, colors, lists) {
 		nonMemberDonorSvg.each((d, i, n) => {
 			const yScale = localyScale.set(n[i], d3.scaleLinear()
 				.range(yScaleRange)
-				.domain([0, d3.max(d.contributions, e => d3.max(d.contributions, e => chartState.selectedFund === "cerf/cbpf" ? e.cerf + e.cbpf : e[chartState.selectedFund]))]))
+				.domain([0, d3.max(d.contributions, e => d3.max(d.contributions, e => chartState.selectedFund === "cerf/cbpf" ? e.cerf + e.cbpf : e[chartState.selectedFund]))]));
+
+			localLine.set(n[i], d3.line()
+				.x(d => xScale(d.year) + xScale.bandwidth() / 2)
+				.y(d => yScale(chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]))
+				.curve(d3.curveCatmullRom));
 		});
 
 		let barsGroups = nonMemberDonorSvg.selectAll("." + classPrefix + "barsGroups")
@@ -393,6 +425,28 @@ function createContributionsByDonor(selections, colors, lists) {
 			.style("opacity", 1)
 			.attr("y", (d, i, n) => d[0] === d[1] ? svgHeight - svgPadding[2] : localyScale.get(n[i])(d[1]))
 			.attr("height", (d, i, n) => localyScale.get(n[i])(d[0]) - localyScale.get(n[i])(d[1]));
+
+		let barLine = nonMemberDonorSvg.selectAll("." + classPrefix + "barLine")
+			.data(d => fillWithZeros(d.contributions));
+
+		const barLineExit = barLine.exit()
+			.remove();
+
+		const barLineEnter = barLine.enter()
+			.append("path")
+			.attr("class", classPrefix + "barLine")
+			.style("stroke", "#666")
+			.style("stroke-width", "2px")
+			.style("fill", "none")
+			.style("opacity", 0)
+			.attr("d", (d, i, n) => localLine.get(n[i])(d));
+
+		barLine = barLineEnter.merge(barLine);
+
+		barLine.transition()
+			.duration(duration)
+			.style("opacity", 1)
+			.attr("d", (d, i, n) => localLine.get(n[i])(d));
 
 		let barLabel = nonMemberDonorSvg.selectAll("." + classPrefix + "barLabel")
 			.data(d => [d.contributions.find(e => e.year === currentYear - 1) || zeroObject]);
@@ -450,6 +504,28 @@ function createContributionsByDonor(selections, colors, lists) {
 
 		return data;
 
+	};
+
+	function fillWithZeros(contributionsArray) {
+		const copiedArray = JSON.parse(JSON.stringify(contributionsArray));
+		xScale.domain().forEach(year => {
+			if (!copiedArray.find(e => e.year === year)) {
+				copiedArray.push({
+					year: year,
+					total: 0,
+					cerf: 0,
+					cbpf: 0,
+					"paid##total": 0,
+					"paid##cerf": 0,
+					"paid##cbpf": 0,
+					"pledged##total": 0,
+					"pledged##cerf": 0,
+					"pledged##cbpf": 0
+				})
+			};
+		});
+		copiedArray.sort((a, b) => a.year - b.year);
+		return [copiedArray];
 	};
 
 	return draw;

@@ -206,7 +206,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("transform", "translate(" + svgBarChartPadding[3] + "," + svgBarChartPadding[0] + ")"),
 		width: svgBarChartWidth - svgBarChartPadding[3] - svgBarChartPadding[1],
 		height: svgBarChartHeight - svgBarChartPadding[2] - svgBarChartPadding[0],
-		padding: [14, 0, 56, 32],
+		padding: [14, 0, 54, 32],
 		labelsPadding: 3
 	};
 
@@ -319,7 +319,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	const xAxis = d3.axisBottom(xScale)
 		.tickSize(3)
-		.tickFormat(d => cutLabel(d, lists));
+		.tickFormat(d => lists.fundAbbreviatedNamesList[d]);
 
 	const yAxis = d3.axisLeft(yScale)
 		.tickSizeOuter(0)
@@ -1302,7 +1302,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			.call(xAxis);
 
 		xAxisGroup.selectAll(".tick text")
-			.attr("transform", "rotate(-45, -5, 6)");
+			.attr("transform", "rotate(-40, -4, 7)");
 
 		yAxis.tickSizeInner(-(xScale.range()[1] - barChartPanel.padding[3]));
 
@@ -2600,11 +2600,6 @@ function reverseFormat(s) {
 		}
 	});
 	return returnValue;
-};
-
-function cutLabel(d, lists) {
-	return lists.fundNamesList[d].length < maxLabelLength ? lists.fundNamesList[d] :
-		lists.fundNamesList[d].slice(0, maxLabelLength - 6) + `...(${lists.fundIsoCodes3List[d]})`;
 };
 
 function capitalize(str) {

@@ -38,6 +38,7 @@ const yearsArrayAllocations = [],
 	donorsInSelectedYear = [],
 	fundsInSelectedYear = [],
 	fundNamesList = {},
+	fundAbbreviatedNamesList = {},
 	fundRegionsList = {},
 	fundIsoCodesList = {},
 	fundIsoCodes3List = {},
@@ -172,6 +173,7 @@ function controlCharts([defaultValues,
 
 	const lists = {
 		fundNamesList: fundNamesList,
+		fundAbbreviatedNamesList: fundAbbreviatedNamesList,
 		fundRegionsList: fundRegionsList,
 		fundIsoCodesList: fundIsoCodesList,
 		fundIsoCodes3List: fundIsoCodes3List,
@@ -556,6 +558,7 @@ function validateDefault(values) {
 function createFundNamesList(fundsData) {
 	fundsData.forEach(row => {
 		fundNamesList[row.id + ""] = row.PooledFundName;
+		fundAbbreviatedNamesList[row.id + ""] = row.PooledFundNameAbbrv;
 		fundNamesListKeys.push(row.id + "");
 		fundRegionsList[row.id + ""] = row.RegionName;
 		fundIsoCodesList[row.id + ""] = row.ISO2Code;
