@@ -112,7 +112,25 @@ const selections = {
 	byTypePartnersValue: d3.select("#byTypePartnersValue"),
 	byTypePartnersText: d3.select("#byTypePartnersText"),
 	byTypeCerfText: d3.select("#byTypeCerfText"),
-	byTypeCbpfText: d3.select("#byTypeCbpfText")
+	byTypeCbpfText: d3.select("#byTypeCbpfText"),
+	byDonorContributionsValue: d3.select("#byDonorContributionsValue"),
+	byDonorContributionsText: d3.select("#byDonorContributionsText"),
+	byDonorPaidValue: d3.select("#byDonorPaidValue"),
+	byDonorPaidText: d3.select("#byDonorPaidText"),
+	byDonorPledgedValue: d3.select("#byDonorPledgedValue"),
+	byDonorPledgedText: d3.select("#byDonorPledgedText"),
+	byDonorDonorsValue: d3.select("#byDonorDonorsValue"),
+	byDonorDonorsText: d3.select("#byDonorDonorsText"),
+	byCerfCbpfContributionsValue: d3.select("#byCerfCbpfContributionsValue"),
+	byCerfCbpfContributionsText: d3.select("#byCerfCbpfContributionsText"),
+	byCerfCbpfPaidValue: d3.select("#byCerfCbpfPaidValue"),
+	byCerfCbpfPaidText: d3.select("#byCerfCbpfPaidText"),
+	byCerfCbpfPledgedValue: d3.select("#byCerfCbpfPledgedValue"),
+	byCerfCbpfPledgedText: d3.select("#byCerfCbpfPledgedText"),
+	byCerfCbpfDonorsValue: d3.select("#byCerfCbpfDonorsValue"),
+	byCerfCbpfDonorsText: d3.select("#byCerfCbpfDonorsText"),
+	byDonorChartContainer: d3.select("#bydonor-bar-chart"),
+	byCerfCbpfChartContainer: d3.select("#bycerfcbpf-bar-chart")
 };
 
 createSpinner(selections.chartContainerDiv);

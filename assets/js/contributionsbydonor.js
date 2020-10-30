@@ -21,6 +21,7 @@ const classPrefix = "pfbicd",
 	duration = 1000,
 	barLabelPadding = 6,
 	labelMinPadding = 5,
+	svgColumnChartWidth = 195,
 	flagUrl = "./assets/img/flags16/",
 	formatPercent = d3.format("%"),
 	stackKeys = ["total", "cerf", "cbpf"],
@@ -73,6 +74,17 @@ function createContributionsByDonor(selections, colors, lists) {
 	const nonMemberStatesTitle = nonMemberStatesTopDiv.append("span")
 		.html("non-Member States");
 
+	const columnChartContainer = selections.byDonorChartContainer;
+
+	columnChartContainer.html(null);
+
+	const svgColumnChartHeight = columnChartContainer.node().getBoundingClientRect().height;
+
+	const svgColumnChart = columnChartContainer.append("svg")
+		.attr("width", svgColumnChartWidth)
+		.attr("height", svgColumnChartHeight)
+		.style("background-color", "tomato");
+
 	const xScale = d3.scaleBand()
 		.range([svgPadding[3], svgWidth - svgPadding[1]])
 		.domain(d3.range(lists.yearsArrayContributions[0], currentYear, 1))
@@ -101,7 +113,7 @@ function createContributionsByDonor(selections, colors, lists) {
 
 		drawNonMemberStates(data);
 
-		// createColumnTopValues(originalData);
+		createColumnTopValues(originalData);
 
 		// createColumnChart(originalData);
 
@@ -114,7 +126,7 @@ function createContributionsByDonor(selections, colors, lists) {
 
 			const data = filterData(originalData);
 
-			// createColumnTopValues(originalData);
+			createColumnTopValues(originalData);
 
 			// createColumnChart(originalData);
 
@@ -478,7 +490,47 @@ function createContributionsByDonor(selections, colors, lists) {
 		//end of drawNonMemberStates
 	};
 
-	function createColumnTopValues(originalData){
+	function createColumnTopValues(originalData) {
+
+		let totalContributions = 0,
+			totalPaid = 0,
+			totalPledged = 0;
+
+		const numberOfDonors = originalData.length;
+
+		originalData.forEach(row => {
+			totalContributions += chartState.selectedFund === "cerf/cbpf" ? row.cerf + row.cbpf : row[chartState.selectedFund];
+			totalPaid += chartState.selectedFund === "cerf/cbpf" ? row["paid##cerf"] + row["paid##cbpf"] : row[`paid##${chartState.selectedFund}`];
+			totalPledged += chartState.selectedFund === "cerf/cbpf" ? row["pledged##cerf"] + row["pledged##cbpf"] : row[`pledged##${chartState.selectedFund}`];
+		});
+
+		const updateTransition = d3.transition()
+			.duration(duration);
+
+		selections.byDonorContributionsValue.transition(updateTransition)
+			.textTween((_, i, n) => {
+				const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, totalContributions);
+				return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
+			});
+
+		selections.byDonorPaidValue.transition(updateTransition)
+			.textTween((_, i, n) => {
+				const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, totalPaid);
+				return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
+			});
+
+		selections.byDonorPledgedValue.transition(updateTransition)
+			.textTween((_, i, n) => {
+				const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, totalPledged);
+				return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
+			});
+
+		selections.byDonorDonorsValue.transition(updateTransition)
+			.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfDonors));
+
+		selections.byDonorDonorsText.html(numberOfDonors > 1 ? "Donors" : "Donor");
+
+
 
 		//end of createColumnTopValues
 	};
@@ -536,6 +588,12 @@ function createContributionsByDonor(selections, colors, lists) {
 	return draw;
 
 	//end of createContributionsByDonor
+};
+
+function formatSIFloat(value) {
+	const length = (~~Math.log10(value) + 1) % 3;
+	const digits = length === 1 ? 2 : length === 2 ? 1 : 0;
+	return d3.formatPrefix("." + digits, value)(value);
 };
 
 function reverseFormat(s) {
