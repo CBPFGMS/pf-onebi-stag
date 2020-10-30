@@ -13,6 +13,7 @@ const classPrefix = "pfbicd",
 	donorNameDivHeight = 18,
 	flagSize = 16,
 	svgPadding = [10, 26, 14, 26],
+	svgColumnPadding = [4, 4, 4, 4],
 	yScaleRange = [svgHeight - svgPadding[2], svgPadding[0]],
 	localyScale = d3.local(),
 	localLine = d3.local(),
@@ -22,6 +23,7 @@ const classPrefix = "pfbicd",
 	barLabelPadding = 6,
 	labelMinPadding = 5,
 	svgColumnChartWidth = 195,
+	topDonors = 10,
 	flagUrl = "./assets/img/flags16/",
 	formatPercent = d3.format("%"),
 	stackKeys = ["total", "cerf", "cbpf"],
@@ -91,6 +93,14 @@ function createContributionsByDonor(selections, colors, lists) {
 		.paddingInner(0.4)
 		.paddingOuter(0);
 
+	const xScaleColumn = d3.scaleLinear()
+		.range([svgColumnPadding[3], svgColumnChartWidth - svgColumnPadding[1]]);
+
+	const yScaleColumn = d3.scaleBand()
+		.range([svgColumnPadding[0], svgColumnChartHeight - svgColumnPadding[2]])
+		.paddingInner(0.5)
+		.paddingOuter(0.5);
+
 	const stack = d3.stack()
 		.keys(stackKeys)
 		.order(d3.stackOrderDescending);
@@ -100,6 +110,22 @@ function createContributionsByDonor(selections, colors, lists) {
 		.tickSizeOuter(0)
 		.tickSizeInner(3)
 		.tickPadding(2);
+
+	const xAxisColumn = d3.axisTop(xScaleColumn)
+		.tickSizeOuter(0)
+		.ticks(2)
+		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
+
+	const yAxisColumn = d3.axisLeft(yScaleColumn)
+		.tickSize(4);
+
+	const xAxisGroupColumn = svgColumnChart.append("g")
+		.attr("class", classPrefix + "xAxisGroupColumn")
+		.attr("transform", "translate(0," + svgColumnPadding[0] + ")");
+
+	const yAxisGroupColumn = svgColumnChart.append("g")
+		.attr("class", classPrefix + "yAxisGroupColumn")
+		.attr("transform", "translate(" + svgColumnPadding[3] + ",0)");
 
 	createButtons();
 
@@ -115,7 +141,7 @@ function createContributionsByDonor(selections, colors, lists) {
 
 		createColumnTopValues(originalData);
 
-		// createColumnChart(originalData);
+		createColumnChart(originalData);
 
 		const buttons = buttonsDiv.selectAll("button");
 
@@ -128,7 +154,7 @@ function createContributionsByDonor(selections, colors, lists) {
 
 			createColumnTopValues(originalData);
 
-			// createColumnChart(originalData);
+			createColumnChart(originalData);
 
 			drawMemberStates(data);
 
@@ -261,8 +287,8 @@ function createContributionsByDonor(selections, colors, lists) {
 		const barLineEnter = barLine.enter()
 			.append("path")
 			.attr("class", classPrefix + "barLine")
-			.style("stroke", "#666")
-			.style("stroke-width", "2px")
+			.style("stroke", "#888")
+			.style("stroke-width", "1.5px")
 			.style("fill", "none")
 			.style("opacity", 0)
 			.attr("d", (d, i, n) => localLine.get(n[i])(d));
@@ -271,7 +297,7 @@ function createContributionsByDonor(selections, colors, lists) {
 
 		barLine.transition()
 			.duration(duration)
-			.style("opacity", 1)
+			.style("opacity", chartState.selectedFund !== "cerf/cbpf" ? 1 : 0)
 			.attr("d", (d, i, n) => localLine.get(n[i])(d));
 
 		let barLabel = donorSvg.selectAll("." + classPrefix + "barLabel")
@@ -447,8 +473,8 @@ function createContributionsByDonor(selections, colors, lists) {
 		const barLineEnter = barLine.enter()
 			.append("path")
 			.attr("class", classPrefix + "barLine")
-			.style("stroke", "#666")
-			.style("stroke-width", "2px")
+			.style("stroke", "#888")
+			.style("stroke-width", "1.5px")
 			.style("fill", "none")
 			.style("opacity", 0)
 			.attr("d", (d, i, n) => localLine.get(n[i])(d));
@@ -457,7 +483,7 @@ function createContributionsByDonor(selections, colors, lists) {
 
 		barLine.transition()
 			.duration(duration)
-			.style("opacity", 1)
+			.style("opacity", chartState.selectedFund !== "cerf/cbpf" ? 1 : 0)
 			.attr("d", (d, i, n) => localLine.get(n[i])(d));
 
 		let barLabel = nonMemberDonorSvg.selectAll("." + classPrefix + "barLabel")
@@ -530,9 +556,39 @@ function createContributionsByDonor(selections, colors, lists) {
 
 		selections.byDonorDonorsText.html(numberOfDonors > 1 ? "Donors" : "Donor");
 
-
-
 		//end of createColumnTopValues
+	};
+
+	function createColumnChart(originalData) {
+
+		originalData.sort((a, b) => b.total - a.total);
+
+		const columnData = originalData.reduce((acc, curr, index) => {
+			if (index < topDonors) {
+				acc.push({
+					donor: curr.donor,
+					total: curr.total,
+					cerf: curr.cerf,
+					cbpf: curr.cbpf
+				});
+			} else if (index === topDonors) {
+				acc.push({
+					donor: "Others",
+					total: curr.total,
+					cerf: curr.cerf,
+					cbpf: curr.cbpf
+				});
+			} else {
+				acc[topDonors].total += curr.total;
+				acc[topDonors].cerf += curr.cerf;
+				acc[topDonors].cbpf += curr.cbpf;
+			};
+			return acc;
+		}, []);
+
+		console.log(columnData);
+
+		//end of createColumnChart
 	};
 
 	function filterData(originalData) {
