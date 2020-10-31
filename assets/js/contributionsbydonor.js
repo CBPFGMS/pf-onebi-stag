@@ -586,7 +586,7 @@ function createContributionsByDonor(selections, colors, lists) {
 			return acc;
 		}, []);
 
-		console.log(columnData);
+		
 
 		//end of createColumnChart
 	};
