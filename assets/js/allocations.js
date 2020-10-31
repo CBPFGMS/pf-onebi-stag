@@ -31,6 +31,7 @@ const classPrefix = "pfbial",
 	barWidth = 36,
 	fadeOpacity = 0.1,
 	maxLabelLength = 16,
+	labelsColumnPadding = 2,
 	localVariable = d3.local(),
 	formatPercent = d3.format("%"),
 	formatSIaxes = d3.format("~s"),
@@ -38,9 +39,9 @@ const classPrefix = "pfbial",
 	svgColumnChartWidth = 195,
 	svgMapPadding = [0, 10, 0, 10],
 	svgBarChartPadding = [4, 12, 4, 12],
-	svgColumnChartPaddingByCountry = [16, 8, 4, 56],
-	svgColumnChartPaddingBySector = [16, 8, 4, 66],
-	svgColumnChartPaddingByType = [16, 8, 4, 66],
+	svgColumnChartPaddingByCountry = [16, 26, 4, 56],
+	svgColumnChartPaddingBySector = [16, 26, 4, 66],
+	svgColumnChartPaddingByType = [16, 26, 4, 66],
 	svgColumnChartTypeHeight = svgColumnChartPaddingByType[0] + svgColumnChartPaddingByType[2] + maxColumnRectHeight + 4 * maxColumnRectHeight,
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	stackKeys = ["total", "cerf", "cbpf"],
@@ -114,8 +115,6 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	const columnChartContainerByCountrySize = columnChartContainerByCountry.node().getBoundingClientRect();
 	const columnChartContainerBySectorSize = columnChartContainerBySector.node().getBoundingClientRect();
-
-	console.log(columnChartContainerByCountrySize)
 
 	let svgColumnChartByCountryHeight = columnChartContainerByCountrySize.height;
 	let svgColumnChartBySectorHeight = columnChartContainerBySectorSize.height;
@@ -1657,6 +1656,35 @@ function createAllocations(selections, colors, mapData, lists) {
 				.attr("x", d => d[0] === d[1] ? xScaleColumnByCountry(0) : xScaleColumnByCountry(d[0]))
 				.attr("width", d => xScaleColumnByCountry(d[1]) - xScaleColumnByCountry(d[0]));
 
+			let labelsColumn = svgColumnChartByCountry.selectAll("." + classPrefix + "labelsColumnByCountry")
+				.data(filteredData, d => d.region);
+
+			const labelsColumnExit = labelsColumn.exit()
+				.transition()
+				.duration(duration)
+				.style("opacity", 0)
+				.attr("x", svgColumnChartPaddingByCountry[3] + labelsColumnPadding)
+				.remove();
+
+			const labelsColumnEnter = labelsColumn.enter()
+				.append("text")
+				.attr("class", classPrefix + "labelsColumnByCountry")
+				.style("opacity", 0)
+				.attr("x", svgColumnChartPaddingByCountry[3] + labelsColumnPadding)
+				.attr("y", d => yScaleColumnByCountry(d.region) + yScaleColumnByCountry.bandwidth() / 2);
+
+			labelsColumn = labelsColumnEnter.merge(labelsColumn);
+
+			labelsColumn.transition()
+				.duration(duration)
+				.style("opacity", 1)
+				.attr("x", d => xScaleColumnByCountry(chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]) + labelsColumnPadding)
+				.attr("y", d => yScaleColumnByCountry(d.region) + yScaleColumnByCountry.bandwidth() / 2)
+				.textTween((d, i, n) => {
+					const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]);
+					return t => formatSIFloat(interpolator(t)).replace("G", "B");
+				});
+
 			let barsColumnTooltipRectangles = svgColumnChartByCountry.selectAll("." + classPrefix + "barsColumnTooltipRectangles")
 				.data(filteredData, d => d.region);
 
@@ -1866,6 +1894,35 @@ function createAllocations(selections, colors, mapData, lists) {
 				.attr("y", d => yScaleColumnBySector(d.data.cluster))
 				.attr("x", d => d[0] === d[1] ? xScaleColumnBySector(0) : xScaleColumnBySector(d[0]))
 				.attr("width", d => xScaleColumnBySector(d[1]) - xScaleColumnBySector(d[0]));
+
+			let labelsColumn = svgColumnChartBySector.selectAll("." + classPrefix + "labelsColumnBySector")
+				.data(filteredData, d => d.cluster);
+
+			const labelsColumnExit = labelsColumn.exit()
+				.transition()
+				.duration(duration)
+				.style("opacity", 0)
+				.attr("x", svgColumnChartPaddingBySector[3] + labelsColumnPadding)
+				.remove();
+
+			const labelsColumnEnter = labelsColumn.enter()
+				.append("text")
+				.attr("class", classPrefix + "labelsColumnBySector")
+				.style("opacity", 0)
+				.attr("x", svgColumnChartPaddingBySector[3] + labelsColumnPadding)
+				.attr("y", d => yScaleColumnBySector(d.cluster) + yScaleColumnBySector.bandwidth() / 2);
+
+			labelsColumn = labelsColumnEnter.merge(labelsColumn);
+
+			labelsColumn.transition()
+				.duration(duration)
+				.style("opacity", 1)
+				.attr("x", d => xScaleColumnBySector(chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]) + labelsColumnPadding)
+				.attr("y", d => yScaleColumnBySector(d.cluster) + yScaleColumnBySector.bandwidth() / 2)
+				.textTween((d, i, n) => {
+					const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]);
+					return t => formatSIFloat(interpolator(t)).replace("G", "B");
+				});
 
 			let barsColumnTooltipRectangles = svgColumnChartBySector.selectAll("." + classPrefix + "barsColumnTooltipRectangles")
 				.data(filteredData, d => d.cluster);
@@ -2082,6 +2139,35 @@ function createAllocations(selections, colors, mapData, lists) {
 				.attr("x", d => d[0] === d[1] ? xScaleColumnByType(0) : xScaleColumnByType(d[0]))
 				.attr("width", d => xScaleColumnByType(d[1]) - xScaleColumnByType(d[0]));
 
+			let labelsColumnCerf = svgColumnChartByTypeCerf.selectAll("." + classPrefix + "labelsColumnByTypeCerf")
+				.data(cerfFilteredData, d => d.allocationType);
+
+			const labelsColumnCerfExit = labelsColumnCerf.exit()
+				.transition()
+				.duration(duration)
+				.style("opacity", 0)
+				.attr("x", svgColumnChartPaddingByType[3] + labelsColumnPadding)
+				.remove();
+
+			const labelsColumnCerfEnter = labelsColumnCerf.enter()
+				.append("text")
+				.attr("class", classPrefix + "labelsColumnByTypeCerf")
+				.style("opacity", 0)
+				.attr("x", svgColumnChartPaddingByType[3] + labelsColumnPadding)
+				.attr("y", d => yScaleColumnByTypeCerf(d.allocationType) + yScaleColumnByTypeCerf.bandwidth() / 2);
+
+			labelsColumnCerf = labelsColumnCerfEnter.merge(labelsColumnCerf);
+
+			labelsColumnCerf.transition()
+				.duration(duration)
+				.style("opacity", 1)
+				.attr("x", d => xScaleColumnByType(chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]) + labelsColumnPadding)
+				.attr("y", d => yScaleColumnByTypeCerf(d.allocationType) + yScaleColumnByTypeCerf.bandwidth() / 2)
+				.textTween((d, i, n) => {
+					const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]);
+					return t => formatSIFloat(interpolator(t)).replace("G", "B");
+				});
+
 			let barsColumnCerfTooltipRectangles = svgColumnChartByTypeCerf.selectAll("." + classPrefix + "barsColumnCerfTooltipRectangles")
 				.data(cerfFilteredData, d => d.allocationType);
 
@@ -2275,6 +2361,35 @@ function createAllocations(selections, colors, mapData, lists) {
 				.attr("y", d => yScaleColumnByTypeCbpf(d.data.allocationType))
 				.attr("x", d => d[0] === d[1] ? xScaleColumnByType(0) : xScaleColumnByType(d[0]))
 				.attr("width", d => xScaleColumnByType(d[1]) - xScaleColumnByType(d[0]));
+
+			let labelsColumnCbpf = svgColumnChartByTypeCbpf.selectAll("." + classPrefix + "labelsColumnByTypeCbpf")
+				.data(cbpfFilteredData, d => d.allocationType);
+
+			const labelsColumnCbpfExit = labelsColumnCbpf.exit()
+				.transition()
+				.duration(duration)
+				.style("opacity", 0)
+				.attr("x", svgColumnChartPaddingByType[3] + labelsColumnPadding)
+				.remove();
+
+			const labelsColumnCbpfEnter = labelsColumnCbpf.enter()
+				.append("text")
+				.attr("class", classPrefix + "labelsColumnByTypeCbpf")
+				.style("opacity", 0)
+				.attr("x", svgColumnChartPaddingByType[3] + labelsColumnPadding)
+				.attr("y", d => yScaleColumnByTypeCbpf(d.allocationType) + yScaleColumnByTypeCbpf.bandwidth() / 2);
+
+			labelsColumnCbpf = labelsColumnCbpfEnter.merge(labelsColumnCbpf);
+
+			labelsColumnCbpf.transition()
+				.duration(duration)
+				.style("opacity", 1)
+				.attr("x", d => xScaleColumnByType(chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]) + labelsColumnPadding)
+				.attr("y", d => yScaleColumnByTypeCbpf(d.allocationType) + yScaleColumnByTypeCbpf.bandwidth() / 2)
+				.textTween((d, i, n) => {
+					const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]);
+					return t => formatSIFloat(interpolator(t)).replace("G", "B");
+				});
 
 			let barsColumnCbpfTooltipRectangles = svgColumnChartByTypeCbpf.selectAll("." + classPrefix + "barsColumnCbpfTooltipRectangles")
 				.data(cbpfFilteredData, d => d.allocationType);

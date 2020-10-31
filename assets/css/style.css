@@ -578,11 +578,11 @@ footer{position: sticky; bottom: 0;}
   fill: #666;
 }
 
-.pfbialxAxisGroup line, .pfbialyAxisGroupColumnByCountry line, .pfbialyAxisGroupColumnBySector line, .pfbialyAxisGroupColumnByTypeCerf line, .pfbialyAxisGroupColumnByTypeCbpf line {
+.pfbialxAxisGroup line, .pfbicdyAxisGroupColumn line, .pfbialyAxisGroupColumnByCountry line, .pfbialyAxisGroupColumnBySector line, .pfbialyAxisGroupColumnByTypeCerf line, .pfbialyAxisGroupColumnByTypeCbpf line {
   stroke: darkslategray;
 }
 
-.pfbialxAxisGroup path, .pfbialxAxisGroupColumnByCountry path, .pfbialxAxisGroupColumnBySector path, .pfbialxAxisGroupColumnByType path, .pfbialyAxisGroup path, .pfbialyAxisGroupColumnByCountry path, .pfbialyAxisGroupColumnBySector path, .pfbialyAxisGroupColumnByTypeCerf path, .pfbialyAxisGroupColumnByTypeCbpf path {
+.pfbialxAxisGroup path, .pfbicdxAxisGroupColumn path, .pfbialxAxisGroupColumnByCountry path, .pfbialxAxisGroupColumnBySector path, .pfbialxAxisGroupColumnByType path, .pfbialyAxisGroup path, .pfbicdyAxisGroupColumn path, .pfbialyAxisGroupColumnByCountry path, .pfbialyAxisGroupColumnBySector path, .pfbialyAxisGroupColumnByTypeCerf path, .pfbialyAxisGroupColumnByTypeCbpf path {
   stroke: none;
 }
 
@@ -600,14 +600,23 @@ footer{position: sticky; bottom: 0;}
   pointer-events: none;
 }
 
-.pfbialxAxisGroupColumnByCountry text, .pfbialxAxisGroupColumnBySector text, .pfbialxAxisGroupColumnByType text {
+.pfbicdlabelsColumn, .pfbicclabelsColumn, .pfbiallabelsColumnByCountry, .pfbiallabelsColumnBySector, .pfbiallabelsColumnByTypeCerf, .pfbiallabelsColumnByTypeCbpf {
+  font-family: "Roboto", sans-serif;
+  font-size: 9px;
+  fill: #333;
+  letter-spacing: -0.25px;
+  pointer-events: none;
+  dominant-baseline: middle;
+} 
+
+.pfbicdxAxisGroupColumn text, .pfbialxAxisGroupColumnByCountry text, .pfbialxAxisGroupColumnBySector text, .pfbialxAxisGroupColumnByType text {
   font-family: "Roboto", sans-serif;
   font-size: 10px;
   fill: #888;
   pointer-events: none;
 }
 
-.pfbialyAxisGroupColumnByCountry text, .pfbialyAxisGroupColumnBySector text, .pfbialyAxisGroupColumnByTypeCerf text, .pfbialyAxisGroupColumnByTypeCbpf text {
+.pfbicdyAxisGroupColumn text, .pfbialyAxisGroupColumnByCountry text, .pfbialyAxisGroupColumnBySector text, .pfbialyAxisGroupColumnByTypeCerf text, .pfbialyAxisGroupColumnByTypeCbpf text {
   font-family: "Roboto", sans-serif;
   font-size: 10px;
   fill: #888;
@@ -620,7 +629,7 @@ footer{position: sticky; bottom: 0;}
   font-weight: 500;
 }
   
-.pfbialxAxisGroupColumnByCountry line, .pfbialxAxisGroupColumnBySector line, .pfbialxAxisGroupColumnByType line {
+.pfbicdxAxisGroupColumn line, .pfbialxAxisGroupColumnByCountry line, .pfbialxAxisGroupColumnBySector line, .pfbialxAxisGroupColumnByType line {
   stroke: #ddd;
   stroke-dasharray: 2, 2;
 }

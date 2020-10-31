@@ -12,16 +12,19 @@ const classPrefix = "pfbicd",
 	svgHeight = 60,
 	donorNameDivHeight = 18,
 	flagSize = 16,
+	maxColumnRectHeight = 16,
 	svgPadding = [10, 26, 14, 26],
-	svgColumnPadding = [4, 4, 4, 4],
+	svgColumnPadding = [16, 26, 8, 60],
 	yScaleRange = [svgHeight - svgPadding[2], svgPadding[0]],
 	localyScale = d3.local(),
 	localLine = d3.local(),
 	currentDate = new Date(),
 	currentYear = currentDate.getFullYear(),
+	formatSIaxes = d3.format("~s"),
 	duration = 1000,
 	barLabelPadding = 6,
 	labelMinPadding = 5,
+	labelsColumnPadding = 2,
 	svgColumnChartWidth = 195,
 	topDonors = 10,
 	flagUrl = "./assets/img/flags16/",
@@ -84,8 +87,7 @@ function createContributionsByDonor(selections, colors, lists) {
 
 	const svgColumnChart = columnChartContainer.append("svg")
 		.attr("width", svgColumnChartWidth)
-		.attr("height", svgColumnChartHeight)
-		.style("background-color", "tomato");
+		.attr("height", svgColumnChartHeight);
 
 	const xScale = d3.scaleBand()
 		.range([svgPadding[3], svgWidth - svgPadding[1]])
@@ -141,7 +143,7 @@ function createContributionsByDonor(selections, colors, lists) {
 
 		createColumnTopValues(originalData);
 
-		createColumnChart(originalData);
+		createColumnChart(data);
 
 		const buttons = buttonsDiv.selectAll("button");
 
@@ -154,7 +156,7 @@ function createContributionsByDonor(selections, colors, lists) {
 
 			createColumnTopValues(originalData);
 
-			createColumnChart(originalData);
+			createColumnChart(data);
 
 			drawMemberStates(data);
 
@@ -187,7 +189,8 @@ function createContributionsByDonor(selections, colors, lists) {
 		const data = unfilteredData.filter(d => lists.donorTypesList[d.donorId] === "Member State" &&
 			(chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]));
 
-		data.sort((a, b) => b.total - a.total || (b.cbpf + b.cerf) - (a.cbpf + a.cerf));
+		data.sort((a, b) => chartState.selectedFund === "cerf/cbpf" ? (b.cbpf + b.cerf) - (a.cbpf + a.cerf) :
+			b[chartState.selectedFund] - a[chartState.selectedFund]);
 
 		let donorDiv = memberStatesChartAreaDiv.selectAll("." + classPrefix + "donorDiv")
 			.data(data, d => d.donorId);
@@ -224,6 +227,8 @@ function createContributionsByDonor(selections, colors, lists) {
 			.html(d => d.donor);
 
 		donorDiv = donorDivEnter.merge(donorDiv);
+
+		donorDiv.order();
 
 		const donorSvg = donorDiv.select("svg");
 
@@ -380,7 +385,8 @@ function createContributionsByDonor(selections, colors, lists) {
 			return acc;
 		}, []);
 
-		data.sort((a, b) => b.total - a.total || (b.cbpf + b.cerf) - (a.cbpf + a.cerf));
+		data.sort((a, b) => chartState.selectedFund === "cerf/cbpf" ? (b.cbpf + b.cerf) - (a.cbpf + a.cerf) :
+			b[chartState.selectedFund] - a[chartState.selectedFund]);
 
 		let nonMemberDonorDiv = nonMemberStatesChartAreaDiv.selectAll("." + classPrefix + "nonMemberDonorDiv")
 			.data(data, d => d.donor);
@@ -410,6 +416,8 @@ function createContributionsByDonor(selections, colors, lists) {
 			.html(d => d.donor);
 
 		nonMemberDonorDiv = nonMemberDonorDivEnter.merge(nonMemberDonorDiv);
+
+		nonMemberDonorDiv.order();
 
 		const nonMemberDonorSvg = nonMemberDonorDiv.select("svg");
 
@@ -559,11 +567,14 @@ function createContributionsByDonor(selections, colors, lists) {
 		//end of createColumnTopValues
 	};
 
-	function createColumnChart(originalData) {
+	function createColumnChart(data) {
 
-		originalData.sort((a, b) => b.total - a.total);
+		console.log(data);
 
-		const columnData = originalData.reduce((acc, curr, index) => {
+		data.sort((a, b) => chartState.selectedFund === "cerf/cbpf" ? (b.cbpf + b.cerf) - (a.cbpf + a.cerf) :
+			b[chartState.selectedFund] - a[chartState.selectedFund]);
+
+		const columnData = data.reduce((acc, curr, index) => {
 			if (index < topDonors) {
 				acc.push({
 					donor: curr.donor,
@@ -586,7 +597,120 @@ function createContributionsByDonor(selections, colors, lists) {
 			return acc;
 		}, []);
 
-		
+		yScaleColumn.domain(columnData.map(e => e.donor))
+			.range([svgColumnPadding[0],
+				Math.min(svgColumnChartHeight - svgColumnPadding[2], maxColumnRectHeight * 2 * (columnData.length + 1))
+			]);
+
+		xScaleColumn.domain([0, d3.max(columnData, e => chartState.selectedFund === "total" ? e.total : e.cbpf + e.cerf)]);
+
+		const stackedData = stack(columnData);
+
+		let barsGroupsColumn = svgColumnChart.selectAll("." + classPrefix + "barsGroupsColumn")
+			.data(stackedData, d => d.key);
+
+		const barsGroupsColumnExit = barsGroupsColumn.exit().remove();
+
+		const barsGroupsColumnEnter = barsGroupsColumn.enter()
+			.append("g")
+			.attr("class", classPrefix + "barsGroupsColumn")
+			.attr("pointer-events", "none");
+
+		barsGroupsColumn = barsGroupsColumnEnter.merge(barsGroupsColumn);
+
+		let barsColumn = barsGroupsColumn.selectAll("." + classPrefix + "barsColumn")
+			.data(d => d, d => d.data.donor);
+
+		const barsColumnExit = barsColumn.exit()
+			.transition()
+			.duration(duration)
+			.attr("width", 0)
+			.attr("x", svgColumnPadding[3])
+			.style("opacity", 0)
+			.remove();
+
+		const barsColumnEnter = barsColumn.enter()
+			.append("rect")
+			.attr("class", classPrefix + "barsColumn")
+			.attr("stroke", "#aaa")
+			.attr("stroke-width", 0.5)
+			.attr("height", yScaleColumn.bandwidth())
+			.attr("width", 0)
+			.style("fill", (d, i, n) => {
+				const thisKey = d3.select(n[i].parentNode).datum().key;
+				return d3.color(colors[thisKey]).brighter(0.25)
+			})
+			.attr("x", xScaleColumn(0))
+			.attr("y", d => yScaleColumn(d.data.donor))
+
+		barsColumn = barsColumnEnter.merge(barsColumn);
+
+		barsColumn.transition()
+			.duration(duration)
+			.attr("height", yScaleColumn.bandwidth())
+			.attr("y", d => yScaleColumn(d.data.donor))
+			.attr("x", d => d[0] === d[1] ? xScaleColumn(0) : xScaleColumn(d[0]))
+			.attr("width", d => xScaleColumn(d[1]) - xScaleColumn(d[0]));
+
+		let labelsColumn = svgColumnChart.selectAll("." + classPrefix + "labelsColumn")
+			.data(columnData, d => d.donor);
+
+		const labelsColumnExit = labelsColumn.exit()
+			.transition()
+			.duration(duration)
+			.style("opacity", 0)
+			.remove();
+
+		const labelsColumnEnter = labelsColumn.enter()
+			.append("text")
+			.attr("class", classPrefix + "labelsColumn")
+			.style("opacity", 0)
+			.attr("x", svgColumnPadding[3] + labelsColumnPadding)
+			.attr("y", d => yScaleColumn(d.donor) + yScaleColumn.bandwidth() / 2);
+
+		labelsColumn = labelsColumnEnter.merge(labelsColumn);
+
+		labelsColumn.transition()
+			.duration(duration)
+			.style("opacity", 1)
+			.attr("x", d => xScaleColumn(chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]) + labelsColumnPadding)
+			.attr("y", d => yScaleColumn(d.donor) + yScaleColumn.bandwidth() / 2)
+			.textTween((d, i, n) => {
+				const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]);
+				return t => formatSIFloat(interpolator(t)).replace("G", "B");
+			});
+
+		xAxisColumn.tickSizeInner(-(yScaleColumn.range()[1] - yScaleColumn.range()[0]));
+
+		xAxisGroupColumn.transition()
+			.duration(duration)
+			.call(xAxisColumn);
+
+		xAxisGroupColumn.selectAll(".tick")
+			.filter(d => d === 0)
+			.remove();
+
+		yAxisGroupColumn.transition()
+			.duration(duration)
+			.call(customAxis);
+
+		function customAxis(group) {
+			const sel = group.selection ? group.selection() : group;
+			group.call(yAxisColumn);
+			sel.selectAll(".tick text")
+				.filter(d => d.indexOf(" ") > -1)
+				.text(d => d.split(" ")[0])
+				.attr("x", -(yAxisColumn.tickPadding() + yAxisColumn.tickSize()))
+				.attr("dy", "-0.3em")
+				.append("tspan")
+				.attr("dy", "1.1em")
+				.attr("x", -(yAxisColumn.tickPadding() + yAxisColumn.tickSize()))
+				.text(d => d.split(" ")[1]);
+			if (sel !== group) group.selectAll(".tick text")
+				.filter(d => d.indexOf(" ") > -1)
+				.attrTween("x", null)
+				.tween("text", null);
+		};
 
 		//end of createColumnChart
 	};
@@ -596,6 +720,21 @@ function createContributionsByDonor(selections, colors, lists) {
 		const data = JSON.parse(JSON.stringify(originalData));
 
 		data.forEach(donor => {
+			if (chartState.selectedFund === "total") {
+				donor.cbpf = 0;
+				donor.cerf = 0;
+			};
+			if (chartState.selectedFund === "cerf/cbpf") {
+				donor.total = 0;
+			};
+			if (chartState.selectedFund === "cerf") {
+				donor.cbpf = 0;
+				donor.total = 0;
+			};
+			if (chartState.selectedFund === "cbpf") {
+				donor.cerf = 0;
+				donor.total = 0;
+			};
 			donor.contributions.forEach(row => {
 				if (chartState.selectedFund === "total") {
 					row.cbpf = 0;
