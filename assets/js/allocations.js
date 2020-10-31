@@ -90,8 +90,7 @@ function createAllocations(selections, colors, mapData, lists) {
 		.attr("class", classPrefix + "barChartDivTitle");
 
 	const barChartDivTitleText = barChartDivTitle.append("div")
-		.attr("class", classPrefix + "barChartDivTitleText")
-		.style("border-bottom-color", chartState.selectedFund === "cerf/cbpf" ? colors.cbpf : colors[chartState.selectedFund]);
+		.attr("class", classPrefix + "barChartDivTitleText");
 
 	const barChartDiv = barChartDivOuter.append("div")
 		.attr("class", classPrefix + "barChartDiv");
@@ -115,6 +114,8 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	const columnChartContainerByCountrySize = columnChartContainerByCountry.node().getBoundingClientRect();
 	const columnChartContainerBySectorSize = columnChartContainerBySector.node().getBoundingClientRect();
+
+	console.log(columnChartContainerByCountrySize)
 
 	let svgColumnChartByCountryHeight = columnChartContainerByCountrySize.height;
 	let svgColumnChartBySectorHeight = columnChartContainerBySectorSize.height;
@@ -1197,8 +1198,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		barChartDivTitleText.transition()
 			.duration(duration)
-			.style("margin-left", ((svgBarChartWidth - dynamicWidth) / 2) + "px")
-			.style("border-bottom-color", chartState.selectedFund === "cerf/cbpf" ? colors.cbpf : colors[chartState.selectedFund]);
+			.style("margin-left", ((svgBarChartWidth - dynamicWidth) / 2) + "px");
 
 		const stackedData = stack(data);
 
