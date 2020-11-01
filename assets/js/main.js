@@ -258,6 +258,7 @@ function controlCharts([defaultValues,
 	selections.navlinkAllocationsByCountry.on("click", () => {
 		if (chartState.selectedChart === "allocationsByCountry") return;
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
+			clearDisabledOption(selections.yearDropdown);
 			selections.chartContainerDiv.selectChildren().remove();
 			chartState.selectedChart = "allocationsByCountry";
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
@@ -272,6 +273,7 @@ function controlCharts([defaultValues,
 	selections.navlinkAllocationsBySector.on("click", () => {
 		if (chartState.selectedChart === "allocationsBySector") return;
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
+			clearDisabledOption(selections.yearDropdown);
 			selections.chartContainerDiv.selectChildren().remove();
 			chartState.selectedChart = "allocationsBySector";
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
@@ -286,6 +288,7 @@ function controlCharts([defaultValues,
 	selections.navlinkAllocationsByType.on("click", () => {
 		if (chartState.selectedChart === "allocationsByType") return;
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
+			clearDisabledOption(selections.yearDropdown);
 			selections.chartContainerDiv.selectChildren().remove();
 			chartState.selectedChart = "allocationsByType";
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
@@ -300,6 +303,7 @@ function controlCharts([defaultValues,
 	selections.navlinkContributionsByCerfCbpf.on("click", () => {
 		if (chartState.selectedChart === "contributionsByCerfCbpf") return;
 		chartState.selectedChart = "contributionsByCerfCbpf";
+		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
 		selections.chartContainerDiv.selectChildren().remove();
 		drawContributionsByCerfCbpf = createContributionsByCerfCbpf(selections, colorsObject, lists);
 		drawContributionsByCerfCbpf(contributionsData);
@@ -308,6 +312,7 @@ function controlCharts([defaultValues,
 	selections.navlinkContributionsByDonor.on("click", () => {
 		if (chartState.selectedChart === "contributionsByDonor") return;
 		chartState.selectedChart = "contributionsByDonor";
+		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
 		selections.chartContainerDiv.selectChildren().remove();
 		drawContributionsByDonor = createContributionsByDonor(selections, colorsObject, lists);
 		drawContributionsByDonor(contributionsData);
@@ -674,4 +679,19 @@ function createSpinner(container) {
 
 	spinnerContainer.append("div")
 		.attr("class", "loader");
+};
+
+function createDisabledOption(dropdownContainer, yearsArray) {
+	dropdownContainer.append("option")
+		.attr("id", generalClassPrefix + "disabledOption")
+		.property("selected", true)
+		.property("disabled", true)
+		.html(chartState.selectedChart === "contributionsByDonor" ? yearsArray[0] + " - " + (currentYear - 1) :
+			"Buttons on the right");
+};
+
+function clearDisabledOption(dropdownContainer) {
+	dropdownContainer.select("#" + generalClassPrefix + "disabledOption").remove();
+	dropdownContainer.selectAll("option")
+		.property("selected", d => chartState.selectedYear === d);
 };
