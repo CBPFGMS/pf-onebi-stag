@@ -628,8 +628,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			.data(buttonsList)
 			.enter()
 			.append("button")
-			.classed("active", d => chartState.selectedFund === d)
-			.attr("id", d => classPrefix + "button" + d);
+			.classed("active", d => chartState.selectedFund === d);
 
 		const bullet = buttons.append("span")
 			.attr("class", "icon-circle")
