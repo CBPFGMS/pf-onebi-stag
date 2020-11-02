@@ -213,9 +213,6 @@ function controlCharts([defaultValues,
 
 	validateDefault(defaultValues);
 
-	//TEMPORARY, REMOVE!
-	chartState.selectedChart = "contributionsByCerfCbpf";
-
 	resetTopValues(topValues);
 
 	allocationsData = processDataAllocations(rawAllocationsData);
