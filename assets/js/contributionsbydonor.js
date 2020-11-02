@@ -568,8 +568,6 @@ function createContributionsByDonor(selections, colors, lists) {
 
 	function createColumnChart(data) {
 
-		console.log(data);
-
 		data.sort((a, b) => chartState.selectedFund === "cerf/cbpf" ? (b.cbpf + b.cerf) - (a.cbpf + a.cerf) :
 			b[chartState.selectedFund] - a[chartState.selectedFund]);
 
