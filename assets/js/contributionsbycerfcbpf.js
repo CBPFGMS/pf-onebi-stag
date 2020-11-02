@@ -458,7 +458,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		lineCbpf.transition()
 			.duration(duration)
-			.attrTween("d", (d, i, n) => pathTween(lineGeneratorCerf(d), precision, n[i])());
+			.attrTween("d", (d, i, n) => pathTween(lineGeneratorCbpf(d), precision, n[i])());
 
 		let labelsCbpf = svgCbpf.selectAll("." + classPrefix + "labelsCbpf")
 			.data(data, d => d[xValue]);
