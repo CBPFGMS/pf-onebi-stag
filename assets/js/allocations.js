@@ -462,7 +462,7 @@ function createAllocations(selections, colors, mapData, lists) {
 		mapButtons.on("click", (event, d) => {
 			chartState.selectedFund = d;
 
-			mapButtons.classed("active", d => chartState.selectedFund === d);
+			mapButtons.classed("active", e => e === chartState.selectedFund);
 
 			const data = filterData(originalData);
 

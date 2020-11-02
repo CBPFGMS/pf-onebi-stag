@@ -66,7 +66,6 @@ let spinnerContainer,
 	drawContributionsByDonor,
 	allocationsData,
 	contributionsDataByDonor,
-	contributionsDataByCerfCbpf,
 	cerfPooledFundId;
 
 //|selections
@@ -206,7 +205,8 @@ function controlCharts([defaultValues,
 		allocationTypesList: allocationTypesList,
 		fundNamesListKeys: fundNamesListKeys,
 		donorNamesListKeys: donorNamesListKeys,
-		yearsArrayContributions: yearsArrayContributions
+		yearsArrayContributions: yearsArrayContributions,
+		cerfPooledFundId: cerfPooledFundId
 	};
 
 	preProcessData(rawAllocationsData, rawContributionsData);
@@ -219,8 +219,6 @@ function controlCharts([defaultValues,
 
 	contributionsDataByDonor = processDataContributionsByDonor(rawContributionsData);
 
-	contributionsDataByCerfCbpf = processDataContributionsByCerfCbpf(rawContributionsData);
-
 	processContributionsYearData(rawContributionsData);
 
 	spinnerContainer.remove();
@@ -231,20 +229,20 @@ function controlCharts([defaultValues,
 
 	//|Open the link and draws charts according to chartState
 	if (chartTypesAllocations.indexOf(chartState.selectedChart) > -1) {
-		setTimeout(() => openNav(selections.navlinkAllocationsByCountry.node(), "byCountry", false), duration * 2);
+		setTimeout(() => openNav(selections.navlinkAllocationsByCountry.node(), "byCountry", false), duration);
 		drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		drawAllocations(allocationsData);
 	};
 
 	if (chartState.selectedChart === "contributionsByCerfCbpf") {
-		setTimeout(() => openNav(selections.navlinkContributionsByCerfCbpf.node(), "byCerfCbpf", false), duration * 2);
-		drawContributionsByCerfCbpf = createContributionsByCerfCbpf(selections, colorsObject);
-		drawContributionsByCerfCbpf(contributionsDataByCerfCbpf);
+		setTimeout(() => openNav(selections.navlinkContributionsByCerfCbpf.node(), "byCerfCbpf", false), duration);
+		drawContributionsByCerfCbpf = createContributionsByCerfCbpf(selections, colorsObject, lists);
+		drawContributionsByCerfCbpf(rawContributionsData);
 	};
 
 	if (chartState.selectedChart === "contributionsByDonor") {
-		setTimeout(() => openNav(selections.navlinkContributionsByDonor.node(), "byDonor", false), duration * 2);
-		drawContributionsByDonor = createContributionsByDonor(selections, colorsObject);
+		setTimeout(() => openNav(selections.navlinkContributionsByDonor.node(), "byDonor", false), duration);
+		drawContributionsByDonor = createContributionsByDonor(selections, colorsObject, lists);
 		drawContributionsByDonor(contributionsDataByDonor);
 	};
 
@@ -309,7 +307,7 @@ function controlCharts([defaultValues,
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
 		selections.chartContainerDiv.selectChildren().remove();
 		drawContributionsByCerfCbpf = createContributionsByCerfCbpf(selections, colorsObject, lists);
-		drawContributionsByCerfCbpf(contributionsDataByCerfCbpf);
+		drawContributionsByCerfCbpf(rawContributionsData);
 	});
 
 	selections.navlinkContributionsByDonor.on("click", () => {
@@ -436,12 +434,12 @@ function processDataContributionsByDonor(rawContributionsData) {
 						total: 0,
 						cerf: 0,
 						cbpf: 0,
-						"paid##total": 0,
-						"paid##cerf": 0,
-						"paid##cbpf": 0,
-						"pledged##total": 0,
-						"pledged##cerf": 0,
-						"pledged##cbpf": 0
+						[`paid${separator}total`]: 0,
+						[`paid${separator}cerf`]: 0,
+						[`paid${separator}cbpf`]: 0,
+						[`pledged${separator}total`]: 0,
+						[`pledged${separator}cerf`]: 0,
+						[`pledged${separator}cbpf`]: 0
 					};
 					pushCbpfOrCerfContribution(yearObject, row);
 					foundDonor.contributions.push(yearObject);
@@ -455,24 +453,24 @@ function processDataContributionsByDonor(rawContributionsData) {
 					total: 0,
 					cerf: 0,
 					cbpf: 0,
-					"paid##total": 0,
-					"paid##cerf": 0,
-					"paid##cbpf": 0,
-					"pledged##total": 0,
-					"pledged##cerf": 0,
-					"pledged##cbpf": 0
+					[`paid${separator}total`]: 0,
+					[`paid${separator}cerf`]: 0,
+					[`paid${separator}cbpf`]: 0,
+					[`pledged${separator}total`]: 0,
+					[`pledged${separator}cerf`]: 0,
+					[`pledged${separator}cbpf`]: 0
 				};
 				const yearObject = {
 					year: row.FiscalYear,
 					total: 0,
 					cerf: 0,
 					cbpf: 0,
-					"paid##total": 0,
-					"paid##cerf": 0,
-					"paid##cbpf": 0,
-					"pledged##total": 0,
-					"pledged##cerf": 0,
-					"pledged##cbpf": 0
+					[`paid${separator}total`]: 0,
+					[`paid${separator}cerf`]: 0,
+					[`paid${separator}cbpf`]: 0,
+					[`pledged${separator}total`]: 0,
+					[`pledged${separator}cerf`]: 0,
+					[`pledged${separator}cbpf`]: 0
 				};
 				pushCbpfOrCerfContribution(donorObject, row);
 				pushCbpfOrCerfContribution(yearObject, row);
@@ -489,33 +487,16 @@ function processDataContributionsByDonor(rawContributionsData) {
 function pushCbpfOrCerfContribution(obj, row) {
 	if (row.PooledFundId === cerfPooledFundId) {
 		obj.cerf += row.PaidAmt + row.PledgeAmt;
-		obj["paid##cerf"] += row.PaidAmt;
-		obj["pledged##cerf"] += row.PledgeAmt;
+		obj[`paid${separator}cerf`] += row.PaidAmt;
+		obj[`pledged${separator}cerf`] += row.PledgeAmt;
 	} else {
 		obj.cbpf += row.PaidAmt + row.PledgeAmt;
-		obj["paid##cbpf"] += row.PaidAmt;
-		obj["pledged##cbpf"] += row.PledgeAmt;
+		obj[`paid${separator}cbpf`] += row.PaidAmt;
+		obj[`pledged${separator}cbpf`] += row.PledgeAmt;
 	};
 	obj.total += row.PaidAmt + row.PledgeAmt;
-	obj["paid##total"] += row.PaidAmt;
-	obj["pledged##total"] += row.PledgeAmt;
-};
-
-function processDataContributionsByCerfCbpf(rawContributionsData) {
-
-	const data = {
-		cerf: [],
-		cbpf: []
-	};
-
-	rawContributionsData.forEach(row => {
-		if (row.FiscalYear < currentYear) {
-			//
-		};
-	});
-
-	return data;
-
+	obj[`paid${separator}total`] += row.PaidAmt;
+	obj[`pledged${separator}total`] += row.PledgeAmt;
 };
 
 function fetchFile(fileName, url, warningString, method) {

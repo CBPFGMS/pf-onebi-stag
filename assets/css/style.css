@@ -416,7 +416,7 @@ footer{position: sticky; bottom: 0;}
   position: relative;
 }
 
-#pfbialtooltipDivMap, #pfbialtooltipDivBarChart {    
+#pfbialtooltipDivMap, #pfbialtooltipDivBarChart, #pfbicctooltipDiv {    
   position: absolute;
   text-align: left;
   color: darkslategray;
@@ -867,7 +867,6 @@ footer{position: sticky; bottom: 0;}
   height: 100%;
   display: flex;
   flex-direction: row;
-  background-color: blue;
 }
 
 .pfbicccerfContainerDiv {
@@ -875,7 +874,6 @@ footer{position: sticky; bottom: 0;}
   display: flex;
   height: 100%;
   align-items: center;
-  background-color: tan;
 }
 
 .pfbicccbpfContainerDiv {
@@ -883,7 +881,6 @@ footer{position: sticky; bottom: 0;}
   display: flex;
   height: 100%;
   align-items: center;
-  background-color: powderblue;
 }
 
 .pfbiccyearButtonsDiv button, .pfbiccpaidPledgedButtonsDiv button {
@@ -908,3 +905,46 @@ footer{position: sticky; bottom: 0;}
 .pfbiccpaidPledgedButtonsDiv button:hover{background-color: #3289C9; color:#fff; border-color:#3289C9;}
 .pfbiccpaidPledgedButtonsDiv button.active{background-color: #3289C9; color:#fff; border-color:#3289C9;}
 
+.pfbiccxAxisGroupCerf text, .pfbiccxAxisGroupCbpf text {
+  font-family: "Roboto", sans-serif;
+  font-size: 10px;
+  fill: #666;
+  pointer-events: none;
+}
+
+.pfbiccyAxisGroupCerf text, .pfbiccyAxisGroupCbpf text {
+  font-family: "Roboto", sans-serif;
+  font-size: 10px;
+  fill: #999;
+  pointer-events: none;
+}
+  
+.pfbiccyAxisGroupCerf line, .pfbiccyAxisGroupCbpf line {
+  stroke: #ddd;
+  stroke-dasharray: 2, 2;
+}
+
+.pfbiccxAxisGroupCerf path, .pfbiccxAxisGroupCbpf path, .pfbiccyAxisGroupCerf path, .pfbiccyAxisGroupCbpf path {
+  stroke: none;
+}
+
+.pfbicclabelsCerf, .pfbicclabelsCbpf {
+  font-family: "Roboto", sans-serif;
+  font-size: 10px;
+  fill: #666;
+  font-weight: bold;
+  text-anchor: middle;
+  pointer-events: none;
+} 
+
+.pfbiccchartTitleCerf, .pfbiccchartTitleCbpf {
+  font-family: "Roboto", sans-serif;
+  font-size: 18px;
+  fill: #444;
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.pfbiccchartTitleSpanCerf, .pfbiccchartTitleSpanCbpf {
+  font-size: 14px;
+} 
