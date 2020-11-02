@@ -206,13 +206,13 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
   color: #3289C9;
 }
 .sb-sidenav-light .sb-sidenav-menu .nav-link.active {
-  color: #3289C9; font-weight: 500;
+  color: #fff; font-weight: 500; background-color: #3289C9;
 }
 .sb-sidenav-light .sb-sidenav-menu .nav-link.active .sb-nav-link-icon {
-  color: #3289C9;
+  color: #fff;
 }
 .sb-sidenav-light .sb-sidenav-menu .nav-link.active .sb-sidenav-collapse-arrow {
-  color: #3289C9;-ms-transform: rotate(180deg); /* IE 9 */
+  color: #fff;-ms-transform: rotate(180deg); /* IE 9 */
   transform: rotate(180deg); transition: all 0.2s linear;
 }
 .sb-sidenav-light .sb-sidenav-footer {
