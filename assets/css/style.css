@@ -205,14 +205,16 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
 .sb-sidenav-light .sb-sidenav-menu .nav-link:hover .sb-nav-link-icon{
   color: #3289C9;
 }
-.sb-sidenav-light .sb-sidenav-menu .nav-link.active {
+.sb-sidenav-light .sb-sidenav-menu .nav-link.menuactive {
   color: #fff; font-weight: 500; background-color: #3289C9; transition: all 0.2s linear;
 }
-.sb-sidenav-light .sb-sidenav-menu .nav-link.active .sb-nav-link-icon {
+.sb-sidenav-light .sb-sidenav-menu .nav-link.menuactive .sb-nav-link-icon {
+  color: #fff; transition: all 0.2s linear;
+}
+.sb-sidenav-light .sb-sidenav-menu .nav-link.menuactive .sb-sidenav-collapse-arrow {
   color: #fff; transition: all 0.2s linear;
 }
 .sb-sidenav-light .sb-sidenav-menu .nav-link.active .sb-sidenav-collapse-arrow {
-  color: #fff;-ms-transform: rotate(180deg); /* IE 9 */
   transform: rotate(180deg); transition: all 0.2s linear;
 }
 .sb-sidenav-light .sb-sidenav-footer {
