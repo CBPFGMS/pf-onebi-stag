@@ -206,10 +206,10 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
   color: #3289C9;
 }
 .sb-sidenav-light .sb-sidenav-menu .nav-link.active {
-  color: #fff; font-weight: 500; background-color: #3289C9;
+  color: #fff; font-weight: 500; background-color: #3289C9; transition: all 0.2s linear;
 }
 .sb-sidenav-light .sb-sidenav-menu .nav-link.active .sb-nav-link-icon {
-  color: #fff;
+  color: #fff; transition: all 0.2s linear;
 }
 .sb-sidenav-light .sb-sidenav-menu .nav-link.active .sb-sidenav-collapse-arrow {
   color: #fff;-ms-transform: rotate(180deg); /* IE 9 */
