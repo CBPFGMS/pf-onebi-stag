@@ -17,6 +17,7 @@ const classPrefix = "pfbicc",
 	labelMargin = 22,
 	labelPadding = 8,
 	titlePadding = 6,
+	precision = 6,
 	monthFormat = d3.timeFormat("%b"),
 	monthAbbrvParse = d3.timeParse("%b"),
 	monthParse = d3.timeParse("%m"),
@@ -340,7 +341,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		lineCerf.transition()
 			.duration(duration)
-			.attr("d", lineGeneratorCerf);
+			.attrTween("d", (d, i, n) => pathTween(lineGeneratorCerf(d), precision, n[i])());
 
 		let labelsCerf = svgCerf.selectAll("." + classPrefix + "labelsCerf")
 			.data(data, d => d[xValue]);
@@ -457,7 +458,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		lineCbpf.transition()
 			.duration(duration)
-			.attr("d", lineGeneratorCbpf);
+			.attrTween("d", (d, i, n) => pathTween(lineGeneratorCerf(d), precision, n[i])());
 
 		let labelsCbpf = svgCbpf.selectAll("." + classPrefix + "labelsCbpf")
 			.data(data, d => d[xValue]);
@@ -619,6 +620,33 @@ function reverseFormat(s) {
 function capitalize(str) {
 	return str[0].toUpperCase() + str.substring(1)
 };
+
+function pathTween(newPath, precision, self) {
+	return function() {
+		var path0 = self,
+			path1 = path0.cloneNode(),
+			n0 = path0.getTotalLength(),
+			n1 = (path1.setAttribute("d", newPath), path1).getTotalLength();
+
+		var distances = [0],
+			i = 0,
+			dt = precision / Math.max(n0, n1);
+		while ((i += dt) < 1) distances.push(i);
+		distances.push(1);
+
+		var points = distances.map(function(t) {
+			var p0 = path0.getPointAtLength(t * n0),
+				p1 = path1.getPointAtLength(t * n1);
+			return d3.interpolate([p0.x, p0.y], [p1.x, p1.y]);
+		});
+
+		return function(t) {
+			return t < 1 ? "M" + points.map(function(p) {
+				return p(t);
+			}).join("L") : newPath;
+		};
+	};
+}
 
 export {
 	createContributionsByCerfCbpf
