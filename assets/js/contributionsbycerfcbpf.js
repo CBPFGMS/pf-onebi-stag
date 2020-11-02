@@ -15,7 +15,7 @@ const classPrefix = "pfbicc",
 	svgPaddingsCbpf = [38, 24, 20, 68],
 	duration = 1000,
 	labelMargin = 22,
-	labelPadding = 4,
+	labelPadding = 8,
 	titlePadding = 6,
 	monthFormat = d3.timeFormat("%b"),
 	monthAbbrvParse = d3.timeParse("%b"),
@@ -91,12 +91,22 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 	const lineGeneratorCerf = d3.line()
 		.y(d => yScaleCerf(d[`${selectedValue}${separator}cerf`]))
-		.x(d => selectedYear.indexOf(allYears) > -1 ? xScaleCerf(d.month) : xScaleCerf(d.year))
+		.x(d => (selectedYear.indexOf(allYears) > -1 ? xScaleCerf(d.year) : xScaleCerf(d.month)) + xScaleCerf.bandwidth() / 2)
 		.curve(d3.curveCatmullRom);
 
 	const lineGeneratorCbpf = d3.line()
 		.y(d => yScaleCbpf(d[`${selectedValue}${separator}cbpf`]))
-		.x(d => selectedYear.indexOf(allYears) > -1 ? xScaleCerf(d.month) : xScaleCerf(d.year))
+		.x(d => (selectedYear.indexOf(allYears) > -1 ? xScaleCbpf(d.year) : xScaleCbpf(d.month)) + xScaleCbpf.bandwidth() / 2)
+		.curve(d3.curveCatmullRom);
+
+	const lineGeneratorBaseCerf = d3.line()
+		.y(() => yScaleCerf(0))
+		.x(d => (selectedYear.indexOf(allYears) > -1 ? xScaleCerf(d.year) : xScaleCerf(d.month)) + xScaleCerf.bandwidth() / 2)
+		.curve(d3.curveCatmullRom);
+
+	const lineGeneratorBaseCbpf = d3.line()
+		.y(() => yScaleCbpf(0))
+		.x(d => (selectedYear.indexOf(allYears) > -1 ? xScaleCbpf(d.year) : xScaleCbpf(d.month)) + xScaleCbpf.bandwidth() / 2)
 		.curve(d3.curveCatmullRom);
 
 	const xAxisCerf = d3.axisBottom(xScaleCerf)
@@ -311,6 +321,27 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("y", d => yScaleCerf(d[`${selectedValue}${separator}cerf`]))
 			.attr("height", d => svgHeightCerf - svgPaddingsCerf[2] - yScaleCerf(d[`${selectedValue}${separator}cerf`]));
 
+		let lineCerf = svgCerf.selectAll("." + classPrefix + "lineCerf")
+			.data([data]);
+
+		const lineCerfExit = lineCerf.exit()
+			.remove();
+
+		const lineCerfEnter = lineCerf.enter()
+			.append("path")
+			.attr("class", classPrefix + "lineCerf")
+			.style("fill", "none")
+			.style("stroke-width", "2px")
+			.style("opacity", 0.5)
+			.style("stroke", "#aaa")
+			.attr("d", lineGeneratorBaseCerf);
+
+		lineCerf = lineCerfEnter.merge(lineCerf);
+
+		lineCerf.transition()
+			.duration(duration)
+			.attr("d", lineGeneratorCerf);
+
 		let labelsCerf = svgCerf.selectAll("." + classPrefix + "labelsCerf")
 			.data(data, d => d[xValue]);
 
@@ -406,6 +437,27 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.style("opacity", 1)
 			.attr("y", d => yScaleCbpf(d[`${selectedValue}${separator}cbpf`]))
 			.attr("height", d => svgHeightCbpf - svgPaddingsCbpf[2] - yScaleCbpf(d[`${selectedValue}${separator}cbpf`]));
+
+		let lineCbpf = svgCbpf.selectAll("." + classPrefix + "lineCbpf")
+			.data([data]);
+
+		const lineCbpfExit = lineCbpf.exit()
+			.remove();
+
+		const lineCbpfEnter = lineCbpf.enter()
+			.append("path")
+			.attr("class", classPrefix + "lineCbpf")
+			.style("fill", "none")
+			.style("stroke-width", "2px")
+			.style("opacity", 0.5)
+			.style("stroke", "#aaa")
+			.attr("d", lineGeneratorBaseCbpf);
+
+		lineCbpf = lineCbpfEnter.merge(lineCbpf);
+
+		lineCbpf.transition()
+			.duration(duration)
+			.attr("d", lineGeneratorCbpf);
 
 		let labelsCbpf = svgCbpf.selectAll("." + classPrefix + "labelsCbpf")
 			.data(data, d => d[xValue]);
