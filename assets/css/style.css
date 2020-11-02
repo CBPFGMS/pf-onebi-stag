@@ -229,7 +229,8 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
       font-style: normal;
 }
 .select-panel{padding: 1rem;}
-.select-panel select{border:1px solid #65A8DC; }
+.select-panel select{border:1px solid #65A8DC; transition: all 0.2s linear;}
+.select-panel .form-control:disabled{border: 1px solid #ccc;}
 
 .link-sidenav {
   height: 100%;
