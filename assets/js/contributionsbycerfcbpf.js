@@ -28,11 +28,14 @@ const classPrefix = "pfbicc",
 	valueTypes = ["total", "paid", "pledged"];
 
 //|variables
-let selectedYear = [allYears],
-	selectedValue = "total",
+let selectedYear,
+	selectedValue,
 	yearsArray;
 
 function createContributionsByCerfCbpf(selections, colors, lists) {
+
+	selectedYear = [allYears];
+	selectedValue = "total";
 
 	const containerDiv = selections.chartContainerDiv.append("div")
 		.attr("class", classPrefix + "containerDiv");
@@ -151,9 +154,11 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	function draw(originalData) {
 
 		let data = filterData(originalData);
+		let columnData = filterDataColumn(originalData);
 
 		drawCerf(data);
 		drawCbpf(data);
+		createColumnTopValues(columnData);
 
 		const yearButtons = yearButtonsDiv.selectAll("button");
 
@@ -222,11 +227,15 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			};
 
 			data = filterData(originalData);
+			columnData = filterDataColumn(originalData);
 
 			drawCerf(data);
 			drawCbpf(data);
+			createColumnTopValues(columnData);
 
 			yearButtons.classed("active", d => selectedYear.indexOf(d) > -1);
+			selections.yearDropdown.select("#pfbihpdisabledOption")
+				.html(selectedYear.length > 1 ? "Multiple years" : selectedYear[0] === allYears ? "All" : selectedYear[0]);
 		};
 
 		valueButtons.on("click", (event, d) => {
@@ -234,6 +243,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			valueButtons.classed("active", e => e === selectedValue);
 			drawCerf(data);
 			drawCbpf(data);
+			createColumnTopValues(columnData);
 		});
 
 		//end of draw
@@ -338,6 +348,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("d", lineGeneratorBaseCerf);
 
 		lineCerf = lineCerfEnter.merge(lineCerf);
+
+		lineCerf.raise();
 
 		lineCerf.transition()
 			.duration(duration)
@@ -456,6 +468,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		lineCbpf = lineCbpfEnter.merge(lineCbpf);
 
+		lineCbpf.raise();
+
 		lineCbpf.transition()
 			.duration(duration)
 			.attrTween("d", (d, i, n) => pathTween(lineGeneratorCbpf(d), precision, n[i])());
@@ -495,7 +509,50 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.call(yAxisCbpf);
 
 		//end of drawCbpf
-	}
+	};
+
+	function createColumnTopValues(originalData) {
+
+		let totalContributions = 0,
+			totalPaid = 0,
+			totalPledged = 0;
+
+		const numberOfDonors = originalData.length;
+
+		originalData.forEach(row => {
+			totalContributions += row[`total${separator}total`];
+			totalPaid += row[`paid${separator}total`];
+			totalPledged += row[`pledged${separator}total`];
+		});
+
+		const updateTransition = d3.transition()
+			.duration(duration);
+
+		selections.byCerfCbpfContributionsValue.transition(updateTransition)
+			.textTween((_, i, n) => {
+				const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, totalContributions);
+				return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
+			});
+
+		selections.byCerfCbpfPaidValue.transition(updateTransition)
+			.textTween((_, i, n) => {
+				const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, totalPaid);
+				return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
+			});
+
+		selections.byCerfCbpfPledgedValue.transition(updateTransition)
+			.textTween((_, i, n) => {
+				const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, totalPledged);
+				return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
+			});
+
+		selections.byCerfCbpfDonorsValue.transition(updateTransition)
+			.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfDonors));
+
+		selections.byCerfCbpfDonorsText.html(numberOfDonors > 1 ? "Donors" : "Donor");
+
+		//end of createColumnTopValues
+	};
 
 	function filterData(originalData) {
 
@@ -562,6 +619,69 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 	};
 
+	function filterDataColumn(originalData) {
+
+		const data = [];
+
+		originalData.forEach(row => {
+			if (selectedYear.indexOf(allYears) > -1 && row.FiscalYear < currentYear) {
+
+				const foundDonor = data.find(e => e.donorId === row.DonorId);
+
+				if (foundDonor) {
+					pushCbpfOrCerfContribution(foundDonor, row);
+				} else {
+					const donorObject = {
+						donor: lists.donorNamesList[row.DonorId],
+						donorId: row.DonorId,
+						isoCode: lists.donorIsoCodesList[row.DonorId],
+						[`total${separator}total`]: 0,
+						[`total${separator}cerf`]: 0,
+						[`total${separator}cbpf`]: 0,
+						[`paid${separator}total`]: 0,
+						[`paid${separator}cerf`]: 0,
+						[`paid${separator}cbpf`]: 0,
+						[`pledged${separator}total`]: 0,
+						[`pledged${separator}cerf`]: 0,
+						[`pledged${separator}cbpf`]: 0
+					};
+					pushCbpfOrCerfContribution(donorObject, row);
+					data.push(donorObject);
+				};
+			} else {
+				if (selectedYear.indexOf(row.FiscalYear) > -1) {
+
+					const foundDonor = data.find(e => e.donorId === row.DonorId);
+
+					if (foundDonor) {
+						pushCbpfOrCerfContribution(foundDonor, row);
+					} else {
+						const donorObject = {
+							donor: lists.donorNamesList[row.DonorId],
+							donorId: row.DonorId,
+							isoCode: lists.donorIsoCodesList[row.DonorId],
+							[`total${separator}total`]: 0,
+							[`total${separator}cerf`]: 0,
+							[`total${separator}cbpf`]: 0,
+							[`paid${separator}total`]: 0,
+							[`paid${separator}cerf`]: 0,
+							[`paid${separator}cbpf`]: 0,
+							[`pledged${separator}total`]: 0,
+							[`pledged${separator}cerf`]: 0,
+							[`pledged${separator}cbpf`]: 0
+						};
+						pushCbpfOrCerfContribution(donorObject, row);
+						data.push(donorObject);
+					};
+				};
+
+			};
+		});
+
+		return data;
+
+	};
+
 	function pushCbpfOrCerfContribution(obj, row) {
 		if (row.PooledFundId === lists.cerfPooledFundId) {
 			obj[`total${separator}cerf`] += row.PaidAmt + row.PledgeAmt;
@@ -580,6 +700,12 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	return draw;
 
 	//end of createContributionsByCerfCbpf
+};
+
+function formatSIFloat(value) {
+	const length = (~~Math.log10(value) + 1) % 3;
+	const digits = length === 1 ? 2 : length === 2 ? 1 : 0;
+	return d3.formatPrefix("." + digits, value)(value);
 };
 
 function reverseFormat(s) {

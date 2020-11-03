@@ -234,6 +234,9 @@ function controlCharts([defaultValues,
 
 	populateYearDropdown(yearsArrayAllocations, selections.yearDropdown);
 
+	//REMOVE
+	chartState.selectedChart = "contributionsByCerfCbpf";
+
 	//|Open the link and draws charts according to chartState
 	if (chartState.selectedChart === "allocationsByCountry") {
 		setTimeout(() => openNav(selections.navlinkAllocationsByCountry.node(), "byCountry", false), duration);
@@ -242,16 +245,32 @@ function controlCharts([defaultValues,
 		drawAllocations(allocationsData);
 	};
 
+	if (chartState.selectedChart === "allocationsBySector") {
+		setTimeout(() => openNav(selections.navlinkAllocationsBySector.node(), "bySector", false), duration);
+		selections.navlinkAllocationsBySector.classed("menuactive", true);
+		drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
+		drawAllocations(allocationsData);
+	};
+
+	if (chartState.selectedChart === "allocationsByType") {
+		setTimeout(() => openNav(selections.navlinkAllocationsByType.node(), "byAllocationType", false), duration);
+		selections.navlinkAllocationsByType.classed("menuactive", true);
+		drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
+		drawAllocations(allocationsData);
+	};
+
 	if (chartState.selectedChart === "contributionsByCerfCbpf") {
-		setTimeout(() => openNav(selections.navlinkContributionsByCerfCbpf.node(), "byCerfCbpf", false), duration);
+		setTimeout(() => openNav(selections.navlinkContributionsByCerfCbpf.node(), "byCerfCbpf", true), duration);
 		selections.navlinkContributionsByCerfCbpf.classed("menuactive", true);
+		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
 		drawContributionsByCerfCbpf = createContributionsByCerfCbpf(selections, colorsObject, lists);
 		drawContributionsByCerfCbpf(rawContributionsData);
 	};
 
 	if (chartState.selectedChart === "contributionsByDonor") {
-		setTimeout(() => openNav(selections.navlinkContributionsByDonor.node(), "byDonor", false), duration);
+		setTimeout(() => openNav(selections.navlinkContributionsByDonor.node(), "byDonor", true), duration);
 		selections.navlinkContributionsByDonor.classed("menuactive", true);
+		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
 		drawContributionsByDonor = createContributionsByDonor(selections, colorsObject, lists);
 		drawContributionsByDonor(contributionsDataByDonor);
 	};
@@ -698,12 +717,17 @@ function createSpinner(container) {
 };
 
 function createDisabledOption(dropdownContainer, yearsArray) {
-	dropdownContainer.append("option")
+	let disabledOption = dropdownContainer.selectAll("#" + generalClassPrefix + "disabledOption")
+		.data([true]);
+
+	disabledOption = disabledOption.enter()
+		.append("option")
 		.attr("id", generalClassPrefix + "disabledOption")
+		.merge(disabledOption)
 		.property("selected", true)
 		.property("disabled", true)
 		.html(chartState.selectedChart === "contributionsByDonor" ? yearsArray[0] + " - " + (currentYear - 1) :
-			"Buttons on the right");
+			"All");
 };
 
 function clearDisabledOption(dropdownContainer) {
