@@ -23,7 +23,10 @@ const classPrefix = "pfbicc",
 	titlePadding = 6,
 	precision = 6,
 	topDonors = 10,
+	tooltipPadding = 12,
+	formatMoney0Decimals = d3.format(",.0f"),
 	monthFormat = d3.timeFormat("%b"),
+	monthFormatFull = d3.timeFormat("%B"),
 	monthAbbrvParse = d3.timeParse("%b"),
 	monthParse = d3.timeParse("%m"),
 	pledgeDateParse = d3.timeParse("%m-%Y"),
@@ -124,22 +127,22 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	const lineGeneratorCerf = d3.line()
 		.y(d => yScaleCerf(d[`${selectedValue}${separator}cerf`]))
 		.x(d => (selectedYear.indexOf(allYears) > -1 ? xScaleCerf(d.year) : xScaleCerf(d.month)) + xScaleCerf.bandwidth() / 2)
-		.curve(d3.curveCatmullRom);
+		.curve(d3.curveMonotoneX);
 
 	const lineGeneratorCbpf = d3.line()
 		.y(d => yScaleCbpf(d[`${selectedValue}${separator}cbpf`]))
 		.x(d => (selectedYear.indexOf(allYears) > -1 ? xScaleCbpf(d.year) : xScaleCbpf(d.month)) + xScaleCbpf.bandwidth() / 2)
-		.curve(d3.curveCatmullRom);
+		.curve(d3.curveMonotoneX);
 
 	const lineGeneratorBaseCerf = d3.line()
 		.y(() => yScaleCerf(0))
 		.x(d => (selectedYear.indexOf(allYears) > -1 ? xScaleCerf(d.year) : xScaleCerf(d.month)) + xScaleCerf.bandwidth() / 2)
-		.curve(d3.curveCatmullRom);
+		.curve(d3.curveMonotoneX);
 
 	const lineGeneratorBaseCbpf = d3.line()
 		.y(() => yScaleCbpf(0))
 		.x(d => (selectedYear.indexOf(allYears) > -1 ? xScaleCbpf(d.year) : xScaleCbpf(d.month)) + xScaleCbpf.bandwidth() / 2)
-		.curve(d3.curveCatmullRom);
+		.curve(d3.curveMonotoneX);
 
 	const xAxisCerf = d3.axisBottom(xScaleCerf)
 		.tickSizeOuter(0);
@@ -190,6 +193,11 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	const yAxisGroupColumn = svgColumnChart.append("g")
 		.attr("class", classPrefix + "yAxisGroupColumn")
 		.attr("transform", "translate(" + svgColumnPadding[3] + ",0)");
+
+	const chartLayerCerf = svgCerf.append("g");
+	const chartLayerCbpf = svgCbpf.append("g");
+	const tooltipRectLayerCerf = svgCerf.append("g");
+	const tooltipRectLayerCbpf = svgCbpf.append("g");
 
 	createYearButtons(yearButtonsDiv);
 
@@ -248,7 +256,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		};
 
 		function mouseoutyearButtons() {
-			tooltipDiv.style("display", "none");
+			tooltipDiv.html(null)
+				.style("display", "none");
 		};
 
 		function clickyearButtons(d, singleSelection) {
@@ -322,6 +331,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 	function drawCerf(data) {
 
+		console.log(data);
+
 		const xValue = selectedYear.indexOf(allYears) > -1 ? "year" : "month";
 
 		const minxScaleValue = d3.max(data, d => d[`total${separator}cerf`]);
@@ -348,7 +359,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		chartTitleCerf.select("tspan")
 			.text("(" + capitalize(selectedValue) + ")");
 
-		let barsCerf = svgCerf.selectAll("." + classPrefix + "barsCerf")
+		let barsCerf = chartLayerCerf.selectAll("." + classPrefix + "barsCerf")
 			.data(data, d => d[xValue]);
 
 		const barsCerfExit = barsCerf.exit()
@@ -379,7 +390,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("y", d => yScaleCerf(d[`${selectedValue}${separator}cerf`]))
 			.attr("height", d => svgHeightCerf - svgPaddingsCerf[2] - yScaleCerf(d[`${selectedValue}${separator}cerf`]));
 
-		let lineCerf = svgCerf.selectAll("." + classPrefix + "lineCerf")
+		let lineCerf = chartLayerCerf.selectAll("." + classPrefix + "lineCerf")
 			.data([data]);
 
 		const lineCerfExit = lineCerf.exit()
@@ -402,8 +413,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.duration(duration)
 			.attrTween("d", (d, i, n) => pathTween(lineGeneratorCerf(d), precision, n[i])());
 
-		let labelsCerf = svgCerf.selectAll("." + classPrefix + "labelsCerf")
-			.data(data, d => d[xValue]);
+		let labelsCerf = chartLayerCerf.selectAll("." + classPrefix + "labelsCerf")
+			.data(data.filter(e => e[`${selectedValue}${separator}cerf`]), d => d[xValue]);
 
 		const labelsCerfExit = labelsCerf.exit()
 			.transition()
@@ -427,6 +438,104 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, d[`${selectedValue}${separator}cerf`]);
 				return t => d3.formatPrefix(".0", interpolator(t))(interpolator(t)).replace("G", "B");
 			});
+
+		let tooltipRectCerf = tooltipRectLayerCerf.selectAll("." + classPrefix + "tooltipRectCerf")
+			.data(data, d => d[xValue]);
+
+		const tooltipRectCerfExit = tooltipRectCerf.exit()
+			.remove();
+
+		const tooltipRectCerfEnter = tooltipRectCerf.enter()
+			.append("rect")
+			.style("opacity", 0)
+			.attr("pointer-events", "all")
+			.attr("class", classPrefix + "tooltipRectCerf")
+			.attr("x", d => xScaleCerf(d[xValue]))
+			.attr("y", svgPaddingsCerf[0])
+			.attr("width", xScaleCerf.bandwidth())
+			.attr("height", svgHeightCerf - svgPaddingsCerf[0] - svgPaddingsCerf[2]);
+
+		tooltipRectCerf = tooltipRectCerfEnter.merge(tooltipRectCerf);
+
+		tooltipRectCerf.attr("x", d => xScaleCerf(d[xValue]));
+
+		tooltipRectCerf.on("mouseover", mouseoverTooltipCerf)
+			.on("mouseout", mouseoutTooltipCerf);
+
+		function mouseoverTooltipCerf(event, d) {
+
+			const monthlyData = d.monthValues.reduce((acc, curr) => {
+				if (curr.PooledFundId === lists.cerfPooledFundId) {
+					const foundYear = acc.find(e => e.year === curr.FiscalYear);
+					if (foundYear) {
+						foundYear.total += curr.PaidAmt + curr.PledgeAmt;
+					} else {
+						acc.push({
+							year: curr.FiscalYear,
+							total: curr.PaidAmt + curr.PledgeAmt
+						});
+					};
+				};
+				return acc;
+			}, []);
+
+			if (selectedYear.indexOf(allYears) > -1 || !monthlyData.length) return;
+
+			tooltipDiv.style("display", "block")
+				.html(null);
+
+			const innerTooltipDiv = tooltipDiv.append("div")
+				.style("max-width", "210px")
+				.attr("id", classPrefix + "innerTooltipDiv");
+
+			innerTooltipDiv.append("div")
+				.style("margin-bottom", "8px")
+				.append("strong")
+				.html(monthFormatFull(monthAbbrvParse(d.month)));
+
+			const tooltipContainer = innerTooltipDiv.append("div")
+				.style("margin", "0px")
+				.style("display", "flex")
+				.style("flex-wrap", "wrap")
+				.style("white-space", "pre")
+				.style("line-height", 1.4)
+				.style("width", "100%");
+
+			monthlyData.forEach(row => {
+				const rowDiv = tooltipContainer.append("div")
+					.style("display", "flex")
+					.style("align-items", "center")
+					.style("width", "100%");
+
+				rowDiv.append("span")
+					.attr("class", classPrefix + "tooltipYears")
+					.html(row.year);
+
+				rowDiv.append("span")
+					.attr("class", classPrefix + "tooltipLeader");
+
+				rowDiv.append("span")
+					.attr("class", classPrefix + "tooltipValues")
+					.html("$" + formatMoney0Decimals(row.total));
+			});
+
+			const containerSize = containerDiv.node().getBoundingClientRect();
+			const thisSize = this.getBoundingClientRect();
+			const tooltipSize = tooltipDiv.node().getBoundingClientRect();
+
+			const thisoffsetLeft = (tooltipPadding + thisSize.left + thisSize.width / 2 - tooltipSize.width / 2) < containerSize.left ?
+				tooltipPadding : (tooltipPadding + thisSize.left + thisSize.width / 2 - tooltipSize.width / 2) > containerSize.width ?
+				containerSize.width - tooltipSize.width - tooltipPadding : (thisSize.left + thisSize.width / 2 - tooltipSize.width / 2) - containerSize.left;
+
+			tooltipDiv.style("left", thisoffsetLeft + "px")
+				.style("top", (thisSize.top + thisSize.height / 2 - tooltipSize.height / 2) - containerSize.top + "px");
+
+		};
+
+		function mouseoutTooltipCerf(event, d) {
+			tooltipDiv.html(null)
+				.style("display", "none");
+		};
 
 		xAxisGroupCerf.transition()
 			.duration(duration)
@@ -467,7 +576,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		chartTitleCbpf.select("tspan")
 			.text("(" + capitalize(selectedValue) + ")");
 
-		let barsCbpf = svgCbpf.selectAll("." + classPrefix + "barsCbpf")
+		let barsCbpf = chartLayerCbpf.selectAll("." + classPrefix + "barsCbpf")
 			.data(data, d => d[xValue]);
 
 		const barsCbpfExit = barsCbpf.exit()
@@ -498,7 +607,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("y", d => yScaleCbpf(d[`${selectedValue}${separator}cbpf`]))
 			.attr("height", d => svgHeightCbpf - svgPaddingsCbpf[2] - yScaleCbpf(d[`${selectedValue}${separator}cbpf`]));
 
-		let lineCbpf = svgCbpf.selectAll("." + classPrefix + "lineCbpf")
+		let lineCbpf = chartLayerCbpf.selectAll("." + classPrefix + "lineCbpf")
 			.data([data]);
 
 		const lineCbpfExit = lineCbpf.exit()
@@ -521,8 +630,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.duration(duration)
 			.attrTween("d", (d, i, n) => pathTween(lineGeneratorCbpf(d), precision, n[i])());
 
-		let labelsCbpf = svgCbpf.selectAll("." + classPrefix + "labelsCbpf")
-			.data(data, d => d[xValue]);
+		let labelsCbpf = chartLayerCbpf.selectAll("." + classPrefix + "labelsCbpf")
+			.data(data.filter(e => e[`${selectedValue}${separator}cbpf`]), d => d[xValue]);
 
 		const labelsCbpfExit = labelsCbpf.exit()
 			.transition()
@@ -546,6 +655,104 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, d[`${selectedValue}${separator}cbpf`]);
 				return t => d3.formatPrefix(".0", interpolator(t))(interpolator(t)).replace("G", "B");
 			});
+
+		let tooltipRectCbpf = tooltipRectLayerCbpf.selectAll("." + classPrefix + "tooltipRectCbpf")
+			.data(data, d => d[xValue]);
+
+		const tooltipRectCbpfExit = tooltipRectCbpf.exit()
+			.remove();
+
+		const tooltipRectCbpfEnter = tooltipRectCbpf.enter()
+			.append("rect")
+			.style("opacity", 0)
+			.attr("pointer-events", "all")
+			.attr("class", classPrefix + "tooltipRectCbpf")
+			.attr("x", d => xScaleCbpf(d[xValue]))
+			.attr("y", svgPaddingsCbpf[0])
+			.attr("width", xScaleCbpf.bandwidth())
+			.attr("height", svgHeightCbpf - svgPaddingsCbpf[0] - svgPaddingsCbpf[2]);
+
+		tooltipRectCbpf = tooltipRectCbpfEnter.merge(tooltipRectCbpf);
+
+		tooltipRectCbpf.attr("x", d => xScaleCbpf(d[xValue]));
+
+		tooltipRectCbpf.on("mouseover", mouseoverTooltipCbpf)
+			.on("mouseout", mouseoutTooltipCbpf);
+
+		function mouseoverTooltipCbpf(event, d) {
+
+			const monthlyData = d.monthValues.reduce((acc, curr) => {
+				if (curr.PooledFundId !== lists.cerfPooledFundId) {
+					const foundYear = acc.find(e => e.year === curr.FiscalYear);
+					if (foundYear) {
+						foundYear.total += curr.PaidAmt + curr.PledgeAmt;
+					} else {
+						acc.push({
+							year: curr.FiscalYear,
+							total: curr.PaidAmt + curr.PledgeAmt
+						});
+					};
+				};
+				return acc;
+			}, []);
+
+			if (selectedYear.indexOf(allYears) > -1 || !monthlyData.length) return;
+
+			tooltipDiv.style("display", "block")
+				.html(null);
+
+			const innerTooltipDiv = tooltipDiv.append("div")
+				.style("max-width", "210px")
+				.attr("id", classPrefix + "innerTooltipDiv");
+
+			innerTooltipDiv.append("div")
+				.style("margin-bottom", "8px")
+				.append("strong")
+				.html(monthFormatFull(monthAbbrvParse(d.month)));
+
+			const tooltipContainer = innerTooltipDiv.append("div")
+				.style("margin", "0px")
+				.style("display", "flex")
+				.style("flex-wrap", "wrap")
+				.style("white-space", "pre")
+				.style("line-height", 1.4)
+				.style("width", "100%");
+
+			monthlyData.forEach(row => {
+				const rowDiv = tooltipContainer.append("div")
+					.style("display", "flex")
+					.style("align-items", "center")
+					.style("width", "100%");
+
+				rowDiv.append("span")
+					.attr("class", classPrefix + "tooltipYears")
+					.html(row.year);
+
+				rowDiv.append("span")
+					.attr("class", classPrefix + "tooltipLeader");
+
+				rowDiv.append("span")
+					.attr("class", classPrefix + "tooltipValues")
+					.html("$" + formatMoney0Decimals(row.total));
+			});
+
+			const containerSize = containerDiv.node().getBoundingClientRect();
+			const thisSize = this.getBoundingClientRect();
+			const tooltipSize = tooltipDiv.node().getBoundingClientRect();
+
+			const thisoffsetLeft = (tooltipPadding + thisSize.left + thisSize.width / 2 - tooltipSize.width / 2) < containerSize.left ?
+				tooltipPadding : (tooltipPadding + thisSize.left + thisSize.width / 2 - tooltipSize.width / 2) > containerSize.width ?
+				containerSize.width - tooltipSize.width - tooltipPadding : (thisSize.left + thisSize.width / 2 - tooltipSize.width / 2) - containerSize.left;
+
+			tooltipDiv.style("left", thisoffsetLeft + "px")
+				.style("top", (thisSize.top + thisSize.height / 2 - tooltipSize.height / 2) - containerSize.top + "px");
+
+		};
+
+		function mouseoutTooltipCbpf(event, d) {
+			tooltipDiv.html(null)
+				.style("display", "none");
+		};
 
 		xAxisGroupCbpf.transition()
 			.duration(duration)
@@ -624,8 +831,6 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			};
 			return acc;
 		}, []);
-
-		console.log(columnData);
 
 		yScaleColumn.domain(columnData.map(e => e.donor))
 			.range([svgColumnPadding[0],
@@ -782,6 +987,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 					if (foundMonth) {
 						pushCbpfOrCerfContribution(foundMonth, row);
+						foundMonth.monthValues.push(row);
 					} else {
 						const monthObject = {
 							month: monthFormat(pledgeDateParse(row.PledgeDate)),
@@ -793,9 +999,11 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 							[`paid${separator}cbpf`]: 0,
 							[`pledged${separator}total`]: 0,
 							[`pledged${separator}cerf`]: 0,
-							[`pledged${separator}cbpf`]: 0
+							[`pledged${separator}cbpf`]: 0,
+							monthValues: []
 						};
 						pushCbpfOrCerfContribution(monthObject, row);
+						monthObject.monthValues.push(row);
 						data.push(monthObject);
 					};
 				};

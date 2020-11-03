@@ -504,6 +504,8 @@ footer{position: sticky; bottom: 0;}
   height: 100%;
   display: flex;
   flex-direction: column;
+  overflow-y: hidden;
+  position: relative;
 }
 
 .pfbialzoomPath {
@@ -609,7 +611,7 @@ footer{position: sticky; bottom: 0;}
   fill: #333;
   letter-spacing: -0.25px;
   pointer-events: none;
-  dominant-baseline: middle;
+  dominant-baseline: central;
 } 
 
 .pfbicdxAxisGroupColumn text, .pfbiccxAxisGroupColumn text, .pfbialxAxisGroupColumnByCountry text, .pfbialxAxisGroupColumnBySector text, .pfbialxAxisGroupColumnByType text {
@@ -650,17 +652,17 @@ footer{position: sticky; bottom: 0;}
   text-anchor: middle;
 }
 
-.pfbialtooltipValues, .pfbialtooltipKeys {
+.pfbialtooltipValues, .pfbialtooltipKeys, .pfbicctooltipValues, .pfbicctooltipYears {
    flex: 1 0 auto;
  }
 
- .pfbialtooltipLeader {
+ .pfbialtooltipLeader, .pfbicctooltipLeader {
    flex: 0 1 auto;
    overflow: hidden;
    color: #ccc;
  }
 
- .pfbialtooltipLeader::before {
+ .pfbialtooltipLeader::before, .pfbicctooltipLeader::before {
    display: block;
    overflow: hidden;
    text-overflow: clip;
