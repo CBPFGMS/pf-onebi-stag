@@ -32,6 +32,8 @@ const classPrefix = "pfbial",
 	fadeOpacity = 0.1,
 	maxLabelLength = 16,
 	labelsColumnPadding = 2,
+	clusterIconSize = 18,
+	clusterIconPadding = 2,
 	localVariable = d3.local(),
 	formatPercent = d3.format("%"),
 	formatSIaxes = d3.format("~s"),
@@ -40,11 +42,12 @@ const classPrefix = "pfbial",
 	svgMapPadding = [0, 10, 0, 10],
 	svgBarChartPadding = [4, 12, 4, 12],
 	svgColumnChartPaddingByCountry = [16, 26, 4, 56],
-	svgColumnChartPaddingBySector = [16, 26, 4, 66],
+	svgColumnChartPaddingBySector = [16, 26, 4, 86],
 	svgColumnChartPaddingByType = [16, 26, 4, 66],
 	svgColumnChartTypeHeight = svgColumnChartPaddingByType[0] + svgColumnChartPaddingByType[2] + maxColumnRectHeight + 4 * maxColumnRectHeight,
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	stackKeys = ["total", "cerf", "cbpf"],
+	clustersUrl = "./assets/img/clusters/cluster",
 	cbpfAllocationTypes = ["1", "2"], //THIS SHOULD NOT BE HARDCODED
 	cerfAllocationTypes = ["3", "4"], //THIS SHOULD NOT BE HARDCODED
 	centroids = {};
@@ -340,7 +343,8 @@ function createAllocations(selections, colors, mapData, lists) {
 		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
 
 	const yAxisColumnBySector = d3.axisLeft(yScaleColumnBySector)
-		.tickSize(4);
+		.tickPadding(clusterIconSize + 2 * clusterIconPadding)
+		.tickSize(3);
 
 	const xAxisColumnByType = d3.axisTop(xScaleColumnByType)
 		.tickSizeOuter(0)
@@ -1914,6 +1918,32 @@ function createAllocations(selections, colors, mapData, lists) {
 					const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]);
 					return t => formatSIFloat(interpolator(t)).replace("G", "B");
 				});
+
+			let clusterIconsColumn = svgColumnChartBySector.selectAll("." + classPrefix + "clusterIconsColumn")
+				.data(filteredData, d => d.cluster);
+
+			const clusterIconsColumnExit = clusterIconsColumn.exit()
+				.transition()
+				.duration(duration)
+				.style("opacity", 0)
+				.remove();
+
+			const clusterIconsColumnEnter = clusterIconsColumn.enter()
+				.append("image")
+				.attr("class", classPrefix + "clusterIconsColumn")
+				.style("opacity", 0)
+				.attr("x", svgColumnChartPaddingBySector[3] - clusterIconPadding - clusterIconSize - yAxisColumnBySector.tickSize())
+				.attr("y", d => yScaleColumnBySector(d.cluster) - (clusterIconSize - yScaleColumnBySector.bandwidth()) / 2)
+				.attr("width", clusterIconSize)
+				.attr("height", clusterIconSize)
+				.attr("href", d => clustersUrl + d.clusterId + ".png");
+
+			clusterIconsColumn = clusterIconsColumnEnter.merge(clusterIconsColumn);
+
+			clusterIconsColumn.transition()
+				.duration(duration)
+				.style("opacity", 1)
+				.attr("y", d => yScaleColumnBySector(d.cluster) - (clusterIconSize - yScaleColumnBySector.bandwidth()) / 2);
 
 			let barsColumnTooltipRectangles = svgColumnChartBySector.selectAll("." + classPrefix + "barsColumnTooltipRectangles")
 				.data(filteredData, d => d.cluster);
