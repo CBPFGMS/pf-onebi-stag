@@ -234,9 +234,6 @@ function controlCharts([defaultValues,
 
 	populateYearDropdown(yearsArrayAllocations, selections.yearDropdown);
 
-	//REMOVE
-	chartState.selectedChart = "contributionsByCerfCbpf";
-
 	//|Open the link and draws charts according to chartState
 	if (chartState.selectedChart === "allocationsByCountry") {
 		setTimeout(() => openNav(selections.navlinkAllocationsByCountry.node(), "byCountry", false), duration);

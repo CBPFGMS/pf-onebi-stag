@@ -239,7 +239,7 @@ function createContributionsByDonor(selections, colors, lists) {
 			localLine.set(n[i], d3.line()
 				.x(d => xScale(d.year) + xScale.bandwidth() / 2)
 				.y(d => yScale(chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]))
-				.curve(d3.curveCatmullRom));
+				.curve(d3.curveMonotoneX));
 		});
 
 		let barsGroups = donorSvg.selectAll("." + classPrefix + "barsGroups")
@@ -428,7 +428,7 @@ function createContributionsByDonor(selections, colors, lists) {
 			localLine.set(n[i], d3.line()
 				.x(d => xScale(d.year) + xScale.bandwidth() / 2)
 				.y(d => yScale(chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]))
-				.curve(d3.curveCatmullRom));
+				.curve(d3.curveMonotoneX));
 		});
 
 		let barsGroups = nonMemberDonorSvg.selectAll("." + classPrefix + "barsGroups")

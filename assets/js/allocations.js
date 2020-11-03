@@ -888,8 +888,6 @@ function createAllocations(selections, colors, mapData, lists) {
 			xAxisGroup.selectAll(".tick")
 				.style("opacity", d => d === datum.country ? 1 : fadeOpacity);
 
-			// currentHoveredElem = this;
-
 			tooltipDivMap.style("display", "block")
 				.html(null);
 
@@ -982,12 +980,6 @@ function createAllocations(selections, colors, mapData, lists) {
 
 			xAxisGroup.selectAll(".tick")
 				.style("opacity", 1);
-
-			// if (isSnapshotTooltipVisible) return;
-
-			// currentHoveredElem = null;
-
-			// pieGroup.style("opacity", 1);
 
 			tooltipDivMap.html(null)
 				.style("display", "none");
