@@ -12,9 +12,10 @@ const classPrefix = "pfbicd",
 	svgHeight = 60,
 	donorNameDivHeight = 18,
 	flagSize = 16,
+	flagPadding = 2,
 	maxColumnRectHeight = 16,
 	svgPadding = [10, 26, 14, 26],
-	svgColumnPadding = [16, 26, 8, 60],
+	svgColumnPadding = [16, 26, 8, 80],
 	yScaleRange = [svgHeight - svgPadding[2], svgPadding[0]],
 	localyScale = d3.local(),
 	localLine = d3.local(),
@@ -119,7 +120,8 @@ function createContributionsByDonor(selections, colors, lists) {
 		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
 
 	const yAxisColumn = d3.axisLeft(yScaleColumn)
-		.tickSize(4);
+		.tickPadding(flagSize + 2 * flagPadding)
+		.tickSize(3);
 
 	const xAxisGroupColumn = svgColumnChart.append("g")
 		.attr("class", classPrefix + "xAxisGroupColumn")
@@ -575,6 +577,7 @@ function createContributionsByDonor(selections, colors, lists) {
 			if (index < topDonors) {
 				acc.push({
 					donor: curr.donor,
+					isoCode: curr.isoCode.toLowerCase(),
 					total: curr.total,
 					cerf: curr.cerf,
 					cbpf: curr.cbpf
@@ -677,6 +680,32 @@ function createContributionsByDonor(selections, colors, lists) {
 				return t => formatSIFloat(interpolator(t)).replace("G", "B");
 			});
 
+		let flagsColumn = svgColumnChart.selectAll("." + classPrefix + "flagsColumn")
+			.data(columnData.slice(0, topDonors), d => d.donor);
+
+		const flagsColumnExit = flagsColumn.exit()
+			.transition()
+			.duration(duration)
+			.style("opacity", 0)
+			.remove();
+
+		const flagsColumnEnter = flagsColumn.enter()
+			.append("image")
+			.attr("class", classPrefix + "flagsColumn")
+			.style("opacity", 0)
+			.attr("x", svgColumnPadding[3] - flagPadding - flagSize - yAxisColumn.tickSize())
+			.attr("y", d => yScaleColumn(d.donor))
+			.attr("width", flagSize)
+			.attr("height", flagSize)
+			.attr("href", d => flagUrl + d.isoCode + ".png");
+
+		flagsColumn = flagsColumnEnter.merge(flagsColumn);
+
+		flagsColumn.transition()
+			.duration(duration)
+			.style("opacity", 1)
+			.attr("y", d => yScaleColumn(d.donor));
+
 		xAxisColumn.tickSizeInner(-(yScaleColumn.range()[1] - yScaleColumn.range()[0]));
 
 		xAxisGroupColumn.transition()
@@ -703,6 +732,9 @@ function createContributionsByDonor(selections, colors, lists) {
 				.attr("dy", "1.1em")
 				.attr("x", -(yAxisColumn.tickPadding() + yAxisColumn.tickSize()))
 				.text(d => d.split(" ")[1]);
+			sel.selectAll(".tick text")
+				.filter(d => d === "Others")
+				.attr("dx", flagSize + flagPadding);
 			if (sel !== group) group.selectAll(".tick text")
 				.filter(d => d.indexOf(" ") > -1)
 				.attrTween("x", null)

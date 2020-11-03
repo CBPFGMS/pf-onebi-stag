@@ -13,10 +13,13 @@ const classPrefix = "pfbicc",
 	allYears = "all",
 	svgPaddingsCerf = [38, 24, 20, 68],
 	svgPaddingsCbpf = [38, 24, 20, 68],
-	svgColumnPadding = [16, 26, 8, 60],
+	svgColumnPadding = [16, 26, 8, 80],
 	svgColumnChartWidth = 195,
 	maxColumnRectHeight = 16,
 	labelsColumnPadding = 2,
+	flagSize = 16,
+	flagPadding = 2,
+	flagUrl = "./assets/img/flags16/",
 	duration = 1000,
 	labelMargin = 22,
 	labelPadding = 8,
@@ -184,7 +187,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
 
 	const yAxisColumn = d3.axisLeft(yScaleColumn)
-		.tickSize(4);
+		.tickPadding(flagSize + 2 * flagPadding)
+		.tickSize(3);
 
 	const xAxisGroupColumn = svgColumnChart.append("g")
 		.attr("class", classPrefix + "xAxisGroupColumn")
@@ -251,7 +255,9 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			const thisSize = this.getBoundingClientRect();
 			const tooltipSize = tooltipDiv.node().getBoundingClientRect();
 
-			tooltipDiv.style("left", thisSize.left + thisSize.width / 2 - tooltipSize.width / 2 + "px")
+			tooltipDiv.style("left", (tooltipPadding + thisSize.left + thisSize.width / 2 - tooltipSize.width / 2) < containerSize.left ?
+					tooltipPadding :
+					thisSize.left + thisSize.width / 2 - tooltipSize.width / 2 - containerSize.left + "px")
 				.style("top", thisSize.top - containerSize.top + thisSize.height + 4 + "px");
 		};
 
@@ -330,8 +336,6 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	};
 
 	function drawCerf(data) {
-
-		console.log(data);
 
 		const xValue = selectedYear.indexOf(allYears) > -1 ? "year" : "month";
 
@@ -464,6 +468,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		function mouseoverTooltipCerf(event, d) {
 
+			if (selectedYear.indexOf(allYears) > -1) return;
+
 			const monthlyData = d.monthValues.reduce((acc, curr) => {
 				if (curr.PooledFundId === lists.cerfPooledFundId) {
 					const foundYear = acc.find(e => e.year === curr.FiscalYear);
@@ -479,7 +485,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				return acc;
 			}, []);
 
-			if (selectedYear.indexOf(allYears) > -1 || !monthlyData.length) return;
+			if (!monthlyData.length) return;
 
 			tooltipDiv.style("display", "block")
 				.html(null);
@@ -681,6 +687,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		function mouseoverTooltipCbpf(event, d) {
 
+			if (selectedYear.indexOf(allYears) > -1) return;
+
 			const monthlyData = d.monthValues.reduce((acc, curr) => {
 				if (curr.PooledFundId !== lists.cerfPooledFundId) {
 					const foundYear = acc.find(e => e.year === curr.FiscalYear);
@@ -696,7 +704,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				return acc;
 			}, []);
 
-			if (selectedYear.indexOf(allYears) > -1 || !monthlyData.length) return;
+			if (!monthlyData.length) return;
 
 			tooltipDiv.style("display", "block")
 				.html(null);
@@ -816,18 +824,22 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			if (index < topDonors) {
 				acc.push({
 					donor: curr.donor,
+					isoCode: curr.isoCode.toLowerCase(),
 					cerf: curr[`${selectedValue}${separator}cerf`],
-					cbpf: curr[`${selectedValue}${separator}cbpf`]
+					cbpf: curr[`${selectedValue}${separator}cbpf`],
+					totalValue: curr[`total${separator}cerf`] + curr[`total${separator}cbpf`]
 				});
 			} else if (index === topDonors) {
 				acc.push({
 					donor: "Others",
 					cerf: curr[`${selectedValue}${separator}cerf`],
-					cbpf: curr[`${selectedValue}${separator}cbpf`]
+					cbpf: curr[`${selectedValue}${separator}cbpf`],
+					totalValue: curr[`total${separator}cerf`] + curr[`total${separator}cbpf`]
 				});
 			} else {
 				acc[topDonors].cerf += curr[`${selectedValue}${separator}cerf`];
 				acc[topDonors].cbpf += curr[`${selectedValue}${separator}cbpf`];
+				acc[topDonors].totalValue += curr[`total${separator}cerf`] + curr[`total${separator}cbpf`];
 			};
 			return acc;
 		}, []);
@@ -837,7 +849,9 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				Math.min(svgColumnChartHeight - svgColumnPadding[2], maxColumnRectHeight * 2 * (columnData.length + 1))
 			]);
 
-		xScaleColumn.domain([0, d3.max(columnData, e => e.cbpf + e.cerf)]);
+		const minxScaleValue = d3.max(columnData, d => d.totalValue);
+
+		xScaleColumn.domain([0, d3.max(columnData, e => e.cbpf + e.cerf) || minxScaleValue]);
 
 		const stackedData = stack(columnData);
 
@@ -915,6 +929,32 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				return t => formatSIFloat(interpolator(t)).replace("G", "B");
 			});
 
+		let flagsColumn = svgColumnChart.selectAll("." + classPrefix + "flagsColumn")
+			.data(columnData.slice(0, topDonors), d => d.donor);
+
+		const flagsColumnExit = flagsColumn.exit()
+			.transition()
+			.duration(duration)
+			.style("opacity", 0)
+			.remove();
+
+		const flagsColumnEnter = flagsColumn.enter()
+			.append("image")
+			.attr("class", classPrefix + "flagsColumn")
+			.style("opacity", 0)
+			.attr("x", svgColumnPadding[3] - flagPadding - flagSize - yAxisColumn.tickSize())
+			.attr("y", d => yScaleColumn(d.donor))
+			.attr("width", flagSize)
+			.attr("height", flagSize)
+			.attr("href", d => flagUrl + d.isoCode + ".png");
+
+		flagsColumn = flagsColumnEnter.merge(flagsColumn);
+
+		flagsColumn.transition()
+			.duration(duration)
+			.style("opacity", 1)
+			.attr("y", d => yScaleColumn(d.donor));
+
 		xAxisColumn.tickSizeInner(-(yScaleColumn.range()[1] - yScaleColumn.range()[0]));
 
 		xAxisGroupColumn.transition()
@@ -941,6 +981,9 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				.attr("dy", "1.1em")
 				.attr("x", -(yAxisColumn.tickPadding() + yAxisColumn.tickSize()))
 				.text(d => d.split(" ")[1]);
+			sel.selectAll(".tick text")
+				.filter(d => d === "Others")
+				.attr("dx", flagSize + flagPadding);
 			if (sel !== group) group.selectAll(".tick text")
 				.filter(d => d.indexOf(" ") > -1)
 				.attrTween("x", null)
