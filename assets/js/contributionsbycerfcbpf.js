@@ -13,11 +13,16 @@ const classPrefix = "pfbicc",
 	allYears = "all",
 	svgPaddingsCerf = [38, 24, 20, 68],
 	svgPaddingsCbpf = [38, 24, 20, 68],
+	svgColumnPadding = [16, 26, 8, 60],
+	svgColumnChartWidth = 195,
+	maxColumnRectHeight = 16,
+	labelsColumnPadding = 2,
 	duration = 1000,
 	labelMargin = 22,
 	labelPadding = 8,
 	titlePadding = 6,
 	precision = 6,
+	topDonors = 10,
 	monthFormat = d3.timeFormat("%b"),
 	monthAbbrvParse = d3.timeParse("%b"),
 	monthParse = d3.timeParse("%m"),
@@ -25,6 +30,7 @@ const classPrefix = "pfbicc",
 	formatSIaxes = d3.format("~s"),
 	monthsArray = d3.range(1, 13, 1).map(d => monthFormat(monthParse(d))),
 	separator = "##",
+	stackKeys = ["cerf", "cbpf"],
 	valueTypes = ["total", "paid", "pledged"];
 
 //|variables
@@ -75,6 +81,16 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		.attr("width", svgWidthCbpf)
 		.attr("height", svgHeightCbpf);
 
+	const columnChartContainer = selections.byCerfCbpfChartContainer;
+
+	columnChartContainer.html(null);
+
+	const svgColumnChartHeight = columnChartContainer.node().getBoundingClientRect().height;
+
+	const svgColumnChart = columnChartContainer.append("svg")
+		.attr("width", svgColumnChartWidth)
+		.attr("height", svgColumnChartHeight);
+
 	yearsArray = d3.range(lists.yearsArrayContributions[0], currentYear, 1);
 
 	const xScaleCerf = d3.scaleBand()
@@ -92,6 +108,18 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 	const yScaleCbpf = d3.scaleLinear()
 		.range([svgHeightCbpf - svgPaddingsCbpf[2], svgPaddingsCbpf[0] + labelMargin]);
+
+	const xScaleColumn = d3.scaleLinear()
+		.range([svgColumnPadding[3], svgColumnChartWidth - svgColumnPadding[1]]);
+
+	const yScaleColumn = d3.scaleBand()
+		.range([svgColumnPadding[0], svgColumnChartHeight - svgColumnPadding[2]])
+		.paddingInner(0.5)
+		.paddingOuter(0.5);
+
+	const stack = d3.stack()
+		.keys(stackKeys)
+		.order(d3.stackOrderDescending);
 
 	const lineGeneratorCerf = d3.line()
 		.y(d => yScaleCerf(d[`${selectedValue}${separator}cerf`]))
@@ -147,6 +175,22 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		.attr("class", classPrefix + "yAxisGroupCbpf")
 		.attr("transform", "translate(" + svgPaddingsCbpf[3] + ",0)");
 
+	const xAxisColumn = d3.axisTop(xScaleColumn)
+		.tickSizeOuter(0)
+		.ticks(2)
+		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
+
+	const yAxisColumn = d3.axisLeft(yScaleColumn)
+		.tickSize(4);
+
+	const xAxisGroupColumn = svgColumnChart.append("g")
+		.attr("class", classPrefix + "xAxisGroupColumn")
+		.attr("transform", "translate(0," + svgColumnPadding[0] + ")");
+
+	const yAxisGroupColumn = svgColumnChart.append("g")
+		.attr("class", classPrefix + "yAxisGroupColumn")
+		.attr("transform", "translate(" + svgColumnPadding[3] + ",0)");
+
 	createYearButtons(yearButtonsDiv);
 
 	createPaidPledgedButtons(paidPledgedButtonsDiv);
@@ -159,6 +203,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		drawCerf(data);
 		drawCbpf(data);
 		createColumnTopValues(columnData);
+		createColumnChart(columnData);
 
 		const yearButtons = yearButtonsDiv.selectAll("button");
 
@@ -232,6 +277,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			drawCerf(data);
 			drawCbpf(data);
 			createColumnTopValues(columnData);
+			createColumnChart(columnData);
 
 			yearButtons.classed("active", d => selectedYear.indexOf(d) > -1);
 			selections.yearDropdown.select("#pfbihpdisabledOption")
@@ -244,6 +290,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			drawCerf(data);
 			drawCbpf(data);
 			createColumnTopValues(columnData);
+			createColumnChart(columnData);
 		});
 
 		//end of draw
@@ -552,6 +599,151 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		selections.byCerfCbpfDonorsText.html(numberOfDonors > 1 ? "Donors" : "Donor");
 
 		//end of createColumnTopValues
+	};
+
+	function createColumnChart(data) {
+
+		data.sort((a, b) => b[`${selectedValue}${separator}total`] - a[`${selectedValue}${separator}total`]);
+
+		const columnData = data.reduce((acc, curr, index) => {
+			if (index < topDonors) {
+				acc.push({
+					donor: curr.donor,
+					cerf: curr[`${selectedValue}${separator}cerf`],
+					cbpf: curr[`${selectedValue}${separator}cbpf`]
+				});
+			} else if (index === topDonors) {
+				acc.push({
+					donor: "Others",
+					cerf: curr[`${selectedValue}${separator}cerf`],
+					cbpf: curr[`${selectedValue}${separator}cbpf`]
+				});
+			} else {
+				acc[topDonors].cerf += curr[`${selectedValue}${separator}cerf`];
+				acc[topDonors].cbpf += curr[`${selectedValue}${separator}cbpf`];
+			};
+			return acc;
+		}, []);
+
+		console.log(columnData);
+
+		yScaleColumn.domain(columnData.map(e => e.donor))
+			.range([svgColumnPadding[0],
+				Math.min(svgColumnChartHeight - svgColumnPadding[2], maxColumnRectHeight * 2 * (columnData.length + 1))
+			]);
+
+		xScaleColumn.domain([0, d3.max(columnData, e => e.cbpf + e.cerf)]);
+
+		const stackedData = stack(columnData);
+
+		let barsGroupsColumn = svgColumnChart.selectAll("." + classPrefix + "barsGroupsColumn")
+			.data(stackedData, d => d.key);
+
+		const barsGroupsColumnExit = barsGroupsColumn.exit().remove();
+
+		const barsGroupsColumnEnter = barsGroupsColumn.enter()
+			.append("g")
+			.attr("class", classPrefix + "barsGroupsColumn")
+			.attr("pointer-events", "none");
+
+		barsGroupsColumn = barsGroupsColumnEnter.merge(barsGroupsColumn);
+
+		let barsColumn = barsGroupsColumn.selectAll("." + classPrefix + "barsColumn")
+			.data(d => d, d => d.data.donor);
+
+		const barsColumnExit = barsColumn.exit()
+			.transition()
+			.duration(duration)
+			.attr("width", 0)
+			.attr("x", svgColumnPadding[3])
+			.style("opacity", 0)
+			.remove();
+
+		const barsColumnEnter = barsColumn.enter()
+			.append("rect")
+			.attr("class", classPrefix + "barsColumn")
+			.attr("stroke", "#aaa")
+			.attr("stroke-width", 0.5)
+			.attr("height", yScaleColumn.bandwidth())
+			.attr("width", 0)
+			.style("fill", (d, i, n) => {
+				const thisKey = d3.select(n[i].parentNode).datum().key;
+				return d3.color(colors[thisKey]).brighter(0.25)
+			})
+			.attr("x", xScaleColumn(0))
+			.attr("y", d => yScaleColumn(d.data.donor))
+
+		barsColumn = barsColumnEnter.merge(barsColumn);
+
+		barsColumn.transition()
+			.duration(duration)
+			.attr("height", yScaleColumn.bandwidth())
+			.attr("y", d => yScaleColumn(d.data.donor))
+			.attr("x", d => d[0] === d[1] ? xScaleColumn(0) : xScaleColumn(d[0]))
+			.attr("width", d => xScaleColumn(d[1]) - xScaleColumn(d[0]));
+
+		let labelsColumn = svgColumnChart.selectAll("." + classPrefix + "labelsColumn")
+			.data(columnData, d => d.donor);
+
+		const labelsColumnExit = labelsColumn.exit()
+			.transition()
+			.duration(duration)
+			.style("opacity", 0)
+			.remove();
+
+		const labelsColumnEnter = labelsColumn.enter()
+			.append("text")
+			.attr("class", classPrefix + "labelsColumn")
+			.style("opacity", 0)
+			.attr("x", svgColumnPadding[3] + labelsColumnPadding)
+			.attr("y", d => yScaleColumn(d.donor) + yScaleColumn.bandwidth() / 2);
+
+		labelsColumn = labelsColumnEnter.merge(labelsColumn);
+
+		labelsColumn.transition()
+			.duration(duration)
+			.style("opacity", 1)
+			.attr("x", d => xScaleColumn(d.cerf + d.cbpf) + labelsColumnPadding)
+			.attr("y", d => yScaleColumn(d.donor) + yScaleColumn.bandwidth() / 2)
+			.textTween((d, i, n) => {
+				const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, d.cerf + d.cbpf);
+				return t => formatSIFloat(interpolator(t)).replace("G", "B");
+			});
+
+		xAxisColumn.tickSizeInner(-(yScaleColumn.range()[1] - yScaleColumn.range()[0]));
+
+		xAxisGroupColumn.transition()
+			.duration(duration)
+			.call(xAxisColumn);
+
+		xAxisGroupColumn.selectAll(".tick")
+			.filter(d => d === 0)
+			.remove();
+
+		yAxisGroupColumn.transition()
+			.duration(duration)
+			.call(customAxis);
+
+		function customAxis(group) {
+			const sel = group.selection ? group.selection() : group;
+			group.call(yAxisColumn);
+			sel.selectAll(".tick text")
+				.filter(d => d.indexOf(" ") > -1)
+				.text(d => d.split(" ")[0])
+				.attr("x", -(yAxisColumn.tickPadding() + yAxisColumn.tickSize()))
+				.attr("dy", "-0.3em")
+				.append("tspan")
+				.attr("dy", "1.1em")
+				.attr("x", -(yAxisColumn.tickPadding() + yAxisColumn.tickSize()))
+				.text(d => d.split(" ")[1]);
+			if (sel !== group) group.selectAll(".tick text")
+				.filter(d => d.indexOf(" ") > -1)
+				.attrTween("x", null)
+				.tween("text", null);
+		};
+
+
+		//end of createColumnChart
 	};
 
 	function filterData(originalData) {
