@@ -241,7 +241,7 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
   z-index: 1040;
   top: 56px;
   left: 0;
-  background-color: rgba(255, 255, 255);
+  background-color: #fff;
   overflow-x: hidden;
   transition: 0.3s;
   padding-top: 0;
