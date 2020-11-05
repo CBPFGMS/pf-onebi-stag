@@ -61,6 +61,9 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	firstBreadcrumb.append("span")
 		.html("contributions");
 
+	const middleBreadcrumb = breadcrumbDiv.append("div")
+		.attr("class", classPrefix + "middleBreadcrumb");
+
 	const secondBreadcrumb = breadcrumbDiv.append("div")
 		.attr("class", classPrefix + "secondBreadcrumb");
 
