@@ -6,7 +6,7 @@ import {
 
 //|constants
 const classPrefix = "pfbial",
-	mapPercentage = 0.7,
+	mapPercentage = 0.68,
 	barChartPercentage = 1 - mapPercentage,
 	mapAspectRatio = 2.225,
 	legendPanelHeight = 132,
@@ -45,6 +45,7 @@ const classPrefix = "pfbial",
 	svgColumnChartPaddingBySector = [16, 26, 4, 86],
 	svgColumnChartPaddingByType = [16, 26, 4, 66],
 	svgColumnChartTypeHeight = svgColumnChartPaddingByType[0] + svgColumnChartPaddingByType[2] + maxColumnRectHeight + 4 * maxColumnRectHeight,
+	VenezuelaRegionalRefugeeAbbr = "Venezuela Refugee...",
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	stackKeys = ["total", "cerf", "cbpf"],
 	clustersUrl = "./assets/img/clusters/cluster",
@@ -209,7 +210,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("transform", "translate(" + svgBarChartPadding[3] + "," + svgBarChartPadding[0] + ")"),
 		width: svgBarChartWidth - svgBarChartPadding[3] - svgBarChartPadding[1],
 		height: svgBarChartHeight - svgBarChartPadding[2] - svgBarChartPadding[0],
-		padding: [14, 0, 54, 32],
+		padding: [14, 0, 58, 32],
 		labelsPadding: 3
 	};
 
@@ -322,7 +323,8 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	const xAxis = d3.axisBottom(xScale)
 		.tickSize(3)
-		.tickFormat(d => lists.fundAbbreviatedNamesList[d]);
+		.tickFormat(d => lists.fundAbbreviatedNamesList[d] === "Venezuela Regional Refugee and Migration Crisis" ?
+			VenezuelaRegionalRefugeeAbbr : lists.fundAbbreviatedNamesList[d]);
 
 	const yAxis = d3.axisLeft(yScale)
 		.tickSizeOuter(0)
@@ -1747,8 +1749,6 @@ function createAllocations(selections, colors, mapData, lists) {
 
 				}, timeoutDuration);
 
-				selections.byCountryRegionsText.html(null);
-
 				highlightBars();
 
 			};
@@ -2008,8 +2008,6 @@ function createAllocations(selections, colors, mapData, lists) {
 
 				}, timeoutDuration);
 
-				selections.bySectorSectorsText.html(null);
-
 				highlightBars();
 
 			};
@@ -2248,8 +2246,6 @@ function createAllocations(selections, colors, mapData, lists) {
 
 				}, timeoutDuration);
 
-				selections.byTypeCerfText.html(null);
-
 				highlightBarsCerf();
 
 			};
@@ -2466,8 +2462,6 @@ function createAllocations(selections, colors, mapData, lists) {
 					drawBarChart(data, originalData);
 
 				}, timeoutDuration);
-
-				selections.byTypeCbpfText.html(null);
 
 				highlightBarsCbpf();
 
