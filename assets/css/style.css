@@ -978,6 +978,6 @@ footer{position: sticky; bottom: 0;}
 .pfbialmiddleBreadcrumb, .pfbiccmiddleBreadcrumb, .pfbicdmiddleBreadcrumb {
 	background-image: url("../img/breadcrumb-arrow-icon.png"); background-position: center center; width: 6px; height: 10px; margin: 0 7px;
 }
-.pfbialfirstBreadcrumb span{font-weight: 500;}
-.pfbiccfirstBreadcrumb span{font-weight: 500;}
+.pfbialfirstBreadcrumb span{font-weight: 600;}
+.pfbiccfirstBreadcrumb span{font-weight: 600;}
 
