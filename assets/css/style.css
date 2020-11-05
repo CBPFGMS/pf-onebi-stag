@@ -964,16 +964,17 @@ footer{position: sticky; bottom: 0;}
   display: flex;
   flex-direction: row;
   width: 100%;
-  min-height: 5vh;
+  min-height: 4vh;
   align-items: center;
   z-index: 1000;
+  border-bottom: 1px solid #3289c9;
 }
 
 .pfbialfirstBreadcrumb, .pfbialsecondBreadcrumb, .pfbiccfirstBreadcrumb, .pfbiccsecondBreadcrumb, .pfbicdfirstBreadcrumb, .pfbicdsecondBreadcrumb {
-  margin-left: 12px;
+  margin-left: 12px; text-transform: capitalize; font-size: 0.8em;
 } 
 
 .pfbialmiddleBreadcrumb, .pfbiccmiddleBreadcrumb, .pfbicdmiddleBreadcrumb {
-
+	background-image: url("../img/breadcrumb-arrow-icon.png"); background-position: center center; width: 6px; height: 10px; 
 }
 
