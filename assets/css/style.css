@@ -968,13 +968,15 @@ footer{position: sticky; bottom: 0;}
   align-items: center;
   z-index: 1000;
   border-bottom: 1px solid #3289c9;
+  padding: 0 15px;
 }
 
 .pfbialfirstBreadcrumb, .pfbialsecondBreadcrumb, .pfbiccfirstBreadcrumb, .pfbiccsecondBreadcrumb, .pfbicdfirstBreadcrumb, .pfbicdsecondBreadcrumb {
-  margin-left: 12px; text-transform: capitalize; font-size: 0.8em;
+  margin-left: 0; text-transform: capitalize; font-size: 0.8em;
 } 
 
 .pfbialmiddleBreadcrumb, .pfbiccmiddleBreadcrumb, .pfbicdmiddleBreadcrumb {
-	background-image: url("../img/breadcrumb-arrow-icon.png"); background-position: center center; width: 6px; height: 10px; 
+	background-image: url("../img/breadcrumb-arrow-icon.png"); background-position: center center; width: 6px; height: 10px; margin: 0 7px;
 }
+.pfbialfirstBreadcrumb span{font-weight: 500;}
 
