@@ -1722,8 +1722,6 @@ function createAllocations(selections, colors, mapData, lists) {
 				drawLegend(data);
 				drawBarChart(data, originalData);
 
-				selections.byCountryRegionsText.html(d.clicked ? " (click to deselect)" : " (click to select)");
-
 				highlightBars();
 
 			};
@@ -1779,8 +1777,6 @@ function createAllocations(selections, colors, mapData, lists) {
 				drawBarChart(data, originalData);
 
 				highlightBars();
-
-				selections.byCountryRegionsText.html(d.clicked ? " (click to deselect)" : " (click to select)");
 
 			};
 
@@ -1987,8 +1983,6 @@ function createAllocations(selections, colors, mapData, lists) {
 				drawLegend(data);
 				drawBarChart(data, originalData);
 
-				selections.bySectorSectorsText.html(d.clicked ? " (click to deselect)" : " (click to select)");
-
 				highlightBars();
 
 			};
@@ -2044,8 +2038,6 @@ function createAllocations(selections, colors, mapData, lists) {
 				drawBarChart(data, originalData);
 
 				highlightBars();
-
-				selections.bySectorSectorsText.html(d.clicked ? " (click to deselect)" : " (click to select)");
 
 			};
 
@@ -2231,8 +2223,6 @@ function createAllocations(selections, colors, mapData, lists) {
 				drawLegend(data);
 				drawBarChart(data, originalData);
 
-				selections.byTypeCerfText.html(d.clicked ? " (click to deselect)" : " (click to select)");
-
 				highlightBarsCerf();
 
 			};
@@ -2288,8 +2278,6 @@ function createAllocations(selections, colors, mapData, lists) {
 				drawBarChart(data, originalData);
 
 				highlightBarsCerf();
-
-				selections.byTypeCerfText.html(d.clicked ? " (click to deselect)" : " (click to select)");
 
 			};
 
@@ -2454,8 +2442,6 @@ function createAllocations(selections, colors, mapData, lists) {
 				drawLegend(data);
 				drawBarChart(data, originalData);
 
-				selections.byTypeCbpfText.html(d.clicked ? " (click to deselect)" : " (click to select)");
-
 				highlightBarsCbpf();
 
 			};
@@ -2511,8 +2497,6 @@ function createAllocations(selections, colors, mapData, lists) {
 				drawBarChart(data, originalData);
 
 				highlightBarsCbpf();
-
-				selections.byTypeCbpfText.html(d.clicked ? " (click to deselect)" : " (click to select)");
 
 			};
 
