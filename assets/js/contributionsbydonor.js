@@ -6,8 +6,7 @@ import {
 
 //|constants
 const classPrefix = "pfbicd",
-	memberStatePercentage = 0.82,
-	nonMemberStatePercentage = 1 - memberStatePercentage,
+	nonMemberStateHeight = 118,
 	svgWidth = 120,
 	svgHeight = 60,
 	donorNameDivHeight = 18,
@@ -42,12 +41,30 @@ const classPrefix = "pfbicd",
 
 function createContributionsByDonor(selections, colors, lists) {
 
-	const containerDiv = selections.chartContainerDiv.append("div")
+	const outerDiv = selections.chartContainerDiv.append("div")
+		.attr("class", classPrefix + "outerDiv");
+
+	const breadcrumbDiv = outerDiv.append("div")
+		.attr("class", classPrefix + "breadcrumbDiv");
+
+	const firstBreadcrumb = breadcrumbDiv.append("div")
+		.attr("class", classPrefix + "firstBreadcrumb");
+
+	firstBreadcrumb.append("span")
+		.html("contributions");
+
+	const secondBreadcrumb = breadcrumbDiv.append("div")
+		.attr("class", classPrefix + "secondBreadcrumb");
+
+	secondBreadcrumb.append("span")
+		.html("by donor");
+
+	const containerDiv = outerDiv.append("div")
 		.attr("class", classPrefix + "containerDiv");
 
 	const memberStatesContainerDiv = containerDiv.append("div")
 		.attr("class", classPrefix + "memberStatesContainerDiv")
-		.style("height", formatPercent(memberStatePercentage));
+		.style("height", (containerDiv.node().getBoundingClientRect().height - nonMemberStateHeight) + "px");
 
 	const memberStatesTopDiv = memberStatesContainerDiv.append("div")
 		.attr("class", classPrefix + "memberStatesTopDiv");
@@ -69,7 +86,7 @@ function createContributionsByDonor(selections, colors, lists) {
 
 	const nonMemberStatesContainerDiv = containerDiv.append("div")
 		.attr("class", classPrefix + "nonMemberStatesContainerDiv")
-		.style("height", formatPercent(nonMemberStatePercentage));
+		.style("height", nonMemberStateHeight + "px");
 
 	const nonMemberStatesTopDiv = nonMemberStatesContainerDiv.append("div")
 		.attr("class", classPrefix + "nonMemberStatesTopDiv");

@@ -77,7 +77,24 @@ const hardcodedAllocations = [{
 
 function createAllocations(selections, colors, mapData, lists) {
 
-	const containerDiv = selections.chartContainerDiv.append("div")
+	const outerDiv = selections.chartContainerDiv.append("div")
+		.attr("class", classPrefix + "outerDiv");
+
+	const breadcrumbDiv = outerDiv.append("div")
+		.attr("class", classPrefix + "breadcrumbDiv");
+
+	const firstBreadcrumb = breadcrumbDiv.append("div")
+		.attr("class", classPrefix + "firstBreadcrumb");
+
+	firstBreadcrumb.append("span")
+		.html("allocations");
+
+	const secondBreadcrumb = breadcrumbDiv.append("div")
+		.attr("class", classPrefix + "secondBreadcrumb");
+
+	const secondBreadcrumbSpan = secondBreadcrumb.append("span");
+
+	const containerDiv = outerDiv.append("div")
 		.attr("class", classPrefix + "containerDiv");
 
 	const mapDiv = containerDiv.append("div")
@@ -155,7 +172,8 @@ function createAllocations(selections, colors, mapData, lists) {
 		.attr("class", classPrefix + "mapInnerDiv");
 
 	const svgMap = mapInnerDiv.append("svg")
-		.attr("viewBox", "0 0 " + svgMapWidth + " " + svgMapHeight);
+		.attr("viewBox", "0 0 " + svgMapWidth + " " + svgMapHeight)
+		.style("overflow", "visible", "important");
 
 	//FIX THE ASPECT RATIO! The width should be CONSTANT
 
@@ -228,6 +246,10 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	const mapPath = d3.geoPath()
 		.projection(mapProjection);
+
+	const breadcrumbScale = d3.scaleOrdinal()
+		.domain(["allocationsByCountry", "allocationsBySector", "allocationsByType"])
+		.range(["by country", "by sector", "by allocation type"]);
 
 	const radiusScale = d3.scaleSqrt()
 		.range([minPieSize, maxPieSize]);
@@ -450,6 +472,8 @@ function createAllocations(selections, colors, mapData, lists) {
 	createMapButtons();
 
 	function draw(originalData) {
+
+		secondBreadcrumbSpan.html(breadcrumbScale(chartState.selectedChart));
 
 		verifyCentroids(originalData);
 

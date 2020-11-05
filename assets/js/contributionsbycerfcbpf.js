@@ -49,7 +49,25 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	selectedYear = [allYears];
 	selectedValue = "total";
 
-	const containerDiv = selections.chartContainerDiv.append("div")
+	const outerDiv = selections.chartContainerDiv.append("div")
+		.attr("class", classPrefix + "outerDiv");
+
+	const breadcrumbDiv = outerDiv.append("div")
+		.attr("class", classPrefix + "breadcrumbDiv");
+
+	const firstBreadcrumb = breadcrumbDiv.append("div")
+		.attr("class", classPrefix + "firstBreadcrumb");
+
+	firstBreadcrumb.append("span")
+		.html("contributions");
+
+	const secondBreadcrumb = breadcrumbDiv.append("div")
+		.attr("class", classPrefix + "secondBreadcrumb");
+
+	secondBreadcrumb.append("span")
+		.html("by CERF/CBPF");
+
+	const containerDiv = outerDiv.append("div")
 		.attr("class", classPrefix + "containerDiv");
 
 	const tooltipDiv = containerDiv.append("div")
