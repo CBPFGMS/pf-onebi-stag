@@ -6,11 +6,12 @@ import {
 
 //|constants
 const classPrefix = "pfbicd",
-	nonMemberStateHeight = 118,
-	svgWidth = 120,
-	svgHeight = 60,
+	nonMemberStateHeight = 130,
+	svgWidth = 140,
+	svgHeight = 68,
 	donorNameDivHeight = 18,
-	flagSize = 16,
+	flagSize = 22,
+	flagSizeColumn = 16,
 	flagPadding = 2,
 	maxColumnRectHeight = 16,
 	svgPadding = [10, 26, 14, 26],
@@ -27,7 +28,8 @@ const classPrefix = "pfbicd",
 	labelsColumnPadding = 2,
 	svgColumnChartWidth = 195,
 	topDonors = 10,
-	flagUrl = "./assets/img/flags16/",
+	flagUrl = "./assets/img/flags/",
+	flagUrlColumn = "./assets/img/flags16/",
 	formatPercent = d3.format("%"),
 	stackKeys = ["total", "cerf", "cbpf"],
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
@@ -140,7 +142,7 @@ function createContributionsByDonor(selections, colors, lists) {
 		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
 
 	const yAxisColumn = d3.axisLeft(yScaleColumn)
-		.tickPadding(flagSize + 2 * flagPadding)
+		.tickPadding(flagSizeColumn + 2 * flagPadding)
 		.tickSize(3);
 
 	const xAxisGroupColumn = svgColumnChart.append("g")
@@ -713,11 +715,11 @@ function createContributionsByDonor(selections, colors, lists) {
 			.append("image")
 			.attr("class", classPrefix + "flagsColumn")
 			.style("opacity", 0)
-			.attr("x", svgColumnPadding[3] - flagPadding - flagSize - yAxisColumn.tickSize())
+			.attr("x", svgColumnPadding[3] - flagPadding - flagSizeColumn - yAxisColumn.tickSize())
 			.attr("y", d => yScaleColumn(d.donor))
-			.attr("width", flagSize)
-			.attr("height", flagSize)
-			.attr("href", d => flagUrl + d.isoCode + ".png");
+			.attr("width", flagSizeColumn)
+			.attr("height", flagSizeColumn)
+			.attr("href", d => flagUrlColumn + d.isoCode + ".png");
 
 		flagsColumn = flagsColumnEnter.merge(flagsColumn);
 
@@ -754,7 +756,7 @@ function createContributionsByDonor(selections, colors, lists) {
 				.text(d => d.split(" ")[1]);
 			sel.selectAll(".tick text")
 				.filter(d => d === "Others")
-				.attr("dx", flagSize + flagPadding);
+				.attr("dx", flagSizeColumn + flagPadding);
 			if (sel !== group) group.selectAll(".tick text")
 				.filter(d => d.indexOf(" ") > -1)
 				.attrTween("x", null)
