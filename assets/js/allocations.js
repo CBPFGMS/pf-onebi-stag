@@ -32,6 +32,7 @@ const classPrefix = "pfbial",
 	fadeOpacity = 0.1,
 	maxLabelLength = 16,
 	labelsColumnPadding = 2,
+	zoomBoundingMargin = 6,
 	clusterIconSize = 18,
 	clusterIconPadding = 2,
 	localVariable = d3.local(),
@@ -1024,10 +1025,10 @@ function createAllocations(selections, colors, mapData, lists) {
 
 			const boundingBox = data.reduce((acc, curr) => {
 				if (centroids[curr.isoCode].x > acc.e) easternCountry = curr.country;
-				acc.n = Math.min(acc.n, centroids[curr.isoCode].y - radiusScale(chartState.selectedFund === "total" ? curr.total : curr.cbpf + curr.cerf));
-				acc.s = Math.max(acc.s, centroids[curr.isoCode].y + radiusScale(chartState.selectedFund === "total" ? curr.total : curr.cbpf + curr.cerf));
-				acc.e = Math.max(acc.e, centroids[curr.isoCode].x + radiusScale(chartState.selectedFund === "total" ? curr.total : curr.cbpf + curr.cerf));
-				acc.w = Math.min(acc.w, centroids[curr.isoCode].x - radiusScale(chartState.selectedFund === "total" ? curr.total : curr.cbpf + curr.cerf));
+				acc.n = Math.min(acc.n, centroids[curr.isoCode].y - zoomBoundingMargin - radiusScale(chartState.selectedFund === "total" ? curr.total : curr.cbpf + curr.cerf));
+				acc.s = Math.max(acc.s, centroids[curr.isoCode].y + zoomBoundingMargin + radiusScale(chartState.selectedFund === "total" ? curr.total : curr.cbpf + curr.cerf));
+				acc.e = Math.max(acc.e, centroids[curr.isoCode].x + zoomBoundingMargin + radiusScale(chartState.selectedFund === "total" ? curr.total : curr.cbpf + curr.cerf));
+				acc.w = Math.min(acc.w, centroids[curr.isoCode].x - zoomBoundingMargin - radiusScale(chartState.selectedFund === "total" ? curr.total : curr.cbpf + curr.cerf));
 				return acc;
 			}, {
 				n: Infinity,
