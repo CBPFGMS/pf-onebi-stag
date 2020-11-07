@@ -412,12 +412,12 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.text("CERF ")
 			.append("tspan")
 			.attr("class", classPrefix + "chartTitleSpanCerf")
-			.text("(" + capitalize(selectedValue) + ")");
+			.text("(" + selectedValue + " by " + (selectedYear.indexOf(allYears) > -1 ? "year" : "month") + ")");
 
 		chartTitleCerf = chartTitleEnterCerf.merge(chartTitleCerf);
 
 		chartTitleCerf.select("tspan")
-			.text("(" + capitalize(selectedValue) + ")");
+			.text("(" + selectedValue + " by " + (selectedYear.indexOf(allYears) > -1 ? "year" : "month") + ")");
 
 		let barsCerf = chartLayerCerf.selectAll("." + classPrefix + "barsCerf")
 			.data(data, d => d[xValue]);
@@ -664,12 +664,12 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.text("CBPF ")
 			.append("tspan")
 			.attr("class", classPrefix + "chartTitleSpanCbpf")
-			.text("(" + capitalize(selectedValue) + ")");
+			.text("(" + selectedValue + " by " + (selectedYear.indexOf(allYears) > -1 ? "year" : "month") + ")");
 
 		chartTitleCbpf = chartTitleEnterCbpf.merge(chartTitleCbpf);
 
 		chartTitleCbpf.select("tspan")
-			.text("(" + capitalize(selectedValue) + ")");
+			.text("(" + selectedValue + " by " + (selectedYear.indexOf(allYears) > -1 ? "year" : "month") + ")");
 
 		let barsCbpf = chartLayerCbpf.selectAll("." + classPrefix + "barsCbpf")
 			.data(data, d => d[xValue]);
