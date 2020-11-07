@@ -543,6 +543,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 			if (!monthlyData.length) return;
 
+			monthlyData.sort((a, b) => b.year - a.year);
+
 			tooltipDiv.style("display", "block")
 				.html(null);
 
@@ -794,6 +796,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			}, []);
 
 			if (!monthlyData.length) return;
+
+			monthlyData.sort((a, b) => b.year - a.year);
 
 			tooltipDiv.style("display", "block")
 				.html(null);
