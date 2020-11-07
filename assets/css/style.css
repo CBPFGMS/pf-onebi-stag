@@ -944,8 +944,9 @@ footer{position: sticky; bottom: 0;}
 
 .pfbiccchartTitleCerf, .pfbiccchartTitleCbpf {
   font-family: "Roboto", sans-serif;
-  font-size: 18px;
-  fill: #444;
+  font-size: 20px;
+  fill: #666;
+  font-weight: 300;
   text-anchor: middle;
   pointer-events: none;
 }
@@ -982,4 +983,11 @@ footer{position: sticky; bottom: 0;}
 .pfbialfirstBreadcrumb span{font-weight: 600;}
 .pfbiccfirstBreadcrumb span{font-weight: 600;}
 .pfbicdfirstBreadcrumb span{font-weight: 600;}
+
+.pfbicclegendGroupCerf text, .pfbicclegendGroupCbpf text {
+  font-family: "Roboto", sans-serif;
+  font-size: 12px;
+  dominant-baseline: middle;
+  fill: #777;
+}
 

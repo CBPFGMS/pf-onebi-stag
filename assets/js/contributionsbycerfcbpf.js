@@ -7,12 +7,12 @@ import {
 //|constants
 const classPrefix = "pfbicc",
 	currentDate = new Date(),
-	svgHeightRatio = 0.6,
+	svgHeightRatio = 0.75,
 	currentYear = currentDate.getFullYear(),
 	localVariable = d3.local(),
 	allYears = "all",
-	svgPaddingsCerf = [38, 24, 20, 68],
-	svgPaddingsCbpf = [38, 24, 20, 68],
+	svgPaddingsCerf = [38, 24, 80, 68],
+	svgPaddingsCbpf = [38, 24, 80, 68],
 	svgColumnPadding = [16, 26, 8, 80],
 	svgColumnChartWidth = 195,
 	maxColumnRectHeight = 16,
@@ -27,6 +27,9 @@ const classPrefix = "pfbicc",
 	precision = 6,
 	topDonors = 10,
 	tooltipPadding = 12,
+	legendPadding = 20,
+	legendRectSize = 16,
+	legendTextPadding = 4,
 	formatMoney0Decimals = d3.format(",.0f"),
 	monthFormat = d3.timeFormat("%b"),
 	monthFormatFull = d3.timeFormat("%B"),
@@ -118,7 +121,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		.attr("width", svgColumnChartWidth)
 		.attr("height", svgColumnChartHeight);
 
-	yearsArray = d3.range(lists.yearsArrayContributions[0], currentYear, 1);
+	yearsArray = d3.range(lists.yearsArrayContributions[0], currentYear + 1, 1);
 
 	const xScaleCerf = d3.scaleBand()
 		.range([svgPaddingsCerf[3], svgWidthCerf - svgPaddingsCerf[1]])
@@ -223,6 +226,38 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	const chartLayerCbpf = svgCbpf.append("g");
 	const tooltipRectLayerCerf = svgCerf.append("g");
 	const tooltipRectLayerCbpf = svgCbpf.append("g");
+
+	const defsCerf = svgCerf.append("defs")
+
+	const patternCerf = defsCerf.append("pattern")
+		.attr("id", classPrefix + "patternCerf")
+		.attr("width", 10)
+		.attr("height", 6)
+		.attr("patternUnits", "userSpaceOnUse")
+		.attr("patternTransform", "rotate(-45 0 0)")
+		.append("line")
+		.attr("x1", 0)
+		.attr("y1", 2)
+		.attr("x2", 10)
+		.attr("y2", 2)
+		.attr("stroke-width", 2)
+		.attr("stroke", colors.cerf);
+
+	const defsCbpf = svgCbpf.append("defs")
+
+	const patternCbpf = defsCbpf.append("pattern")
+		.attr("id", classPrefix + "patternCbpf")
+		.attr("width", 10)
+		.attr("height", 6)
+		.attr("patternUnits", "userSpaceOnUse")
+		.attr("patternTransform", "rotate(-45 0 0)")
+		.append("line")
+		.attr("x1", 0)
+		.attr("y1", 2)
+		.attr("x2", 10)
+		.attr("y2", 2)
+		.attr("stroke-width", 2)
+		.attr("stroke", colors.cbpf);
 
 	createYearButtons(yearButtonsDiv);
 
@@ -402,7 +437,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("width", xScaleCerf.bandwidth())
 			.attr("y", d => yScaleCerf(0))
 			.attr("height", 0)
-			.style("fill", colors.cerf)
+			.style("fill", d => selectedYear.indexOf(allYears) > -1 && d.year === currentYear ? `url(#${classPrefix}patternCerf)` : colors.cerf)
 			.attr("stroke", "#aaa")
 			.attr("stroke-width", 0.5)
 			.style("opacity", 0);
@@ -416,7 +451,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("height", d => svgHeightCerf - svgPaddingsCerf[2] - yScaleCerf(d[`${selectedValue}${separator}cerf`]));
 
 		let lineCerf = chartLayerCerf.selectAll("." + classPrefix + "lineCerf")
-			.data([data]);
+			.data([data.filter(e => selectedYear.indexOf(allYears) > -1 ? e.year < currentYear : true)]);
 
 		const lineCerfExit = lineCerf.exit()
 			.remove();
@@ -572,6 +607,39 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.duration(duration)
 			.call(yAxisCerf);
 
+		let legendGroupCerf = svgCerf.selectAll("." + classPrefix + "legendGroupCerf")
+			.data(selectedYear.indexOf(allYears) > -1 ? [true] : []);
+
+		const legendGroupExitCerf = legendGroupCerf.exit()
+			.transition()
+			.duration(duration)
+			.style("opacity", 0)
+			.remove();
+
+		const legendGroupEnterCerf = legendGroupCerf.enter()
+			.append("g")
+			.attr("class", classPrefix + "legendGroupCerf")
+			.attr("transform", "translate(" + svgPaddingsCerf[3] + "," + (svgHeightCerf - legendPadding) + ")")
+			.style("opacity", 0);
+
+		legendGroupEnterCerf.append("rect")
+			.attr("stroke", "#aaa")
+			.attr("stroke-width", 0.5)
+			.attr("width", legendRectSize)
+			.attr("height", legendRectSize)
+			.attr("fill", "url(#" + classPrefix + "patternCerf)");
+
+		legendGroupEnterCerf.append("text")
+			.attr("x", legendRectSize + legendTextPadding)
+			.attr("y", legendPadding / 2)
+			.text("Current year");
+
+		legendGroupCerf = legendGroupEnterCerf.merge(legendGroupCerf);
+
+		legendGroupCerf.transition()
+			.duration(duration)
+			.style("opacity", 1);
+
 		//end of drawCerf
 	};
 
@@ -586,7 +654,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		yScaleCbpf.domain([0, d3.max(data, d => d[`${selectedValue}${separator}cbpf`]) || minxScaleValue]);
 
 		let chartTitleCbpf = svgCbpf.selectAll("." + classPrefix + "chartTitleCbpf")
-			.data([true]);
+			.data([data.filter(e => selectedYear.indexOf(allYears) > -1 ? e.year < currentYear : true)])
 
 		const chartTitleEnterCbpf = chartTitleCbpf.enter()
 			.append("text")
@@ -621,7 +689,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("width", xScaleCbpf.bandwidth())
 			.attr("y", d => yScaleCbpf(0))
 			.attr("height", 0)
-			.style("fill", colors.cbpf)
+			.style("fill", d => selectedYear.indexOf(allYears) > -1 && d.year === currentYear ? `url(#${classPrefix}patternCbpf)` : colors.cbpf)
 			.attr("stroke", "#aaa")
 			.attr("stroke-width", 0.5)
 			.style("opacity", 0);
@@ -635,7 +703,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("height", d => svgHeightCbpf - svgPaddingsCbpf[2] - yScaleCbpf(d[`${selectedValue}${separator}cbpf`]));
 
 		let lineCbpf = chartLayerCbpf.selectAll("." + classPrefix + "lineCbpf")
-			.data([data]);
+			.data([data.filter(e => selectedYear.indexOf(allYears) > -1 ? e.year < currentYear : true)]);
 
 		const lineCbpfExit = lineCbpf.exit()
 			.remove();
@@ -790,6 +858,39 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		yAxisGroupCbpf.transition()
 			.duration(duration)
 			.call(yAxisCbpf);
+
+		let legendGroupCbpf = svgCbpf.selectAll("." + classPrefix + "legendGroupCbpf")
+			.data(selectedYear.indexOf(allYears) > -1 ? [true] : []);
+
+		const legendGroupExitCbpf = legendGroupCbpf.exit()
+			.transition()
+			.duration(duration)
+			.style("opacity", 0)
+			.remove();
+
+		const legendGroupEnterCbpf = legendGroupCbpf.enter()
+			.append("g")
+			.attr("class", classPrefix + "legendGroupCbpf")
+			.attr("transform", "translate(" + svgPaddingsCbpf[3] + "," + (svgHeightCbpf - legendPadding) + ")")
+			.style("opacity", 0);
+
+		legendGroupEnterCbpf.append("rect")
+			.attr("stroke", "#aaa")
+			.attr("stroke-width", 0.5)
+			.attr("width", legendRectSize)
+			.attr("height", legendRectSize)
+			.attr("fill", "url(#" + classPrefix + "patternCbpf)");
+
+		legendGroupEnterCbpf.append("text")
+			.attr("x", legendRectSize + legendTextPadding)
+			.attr("y", legendPadding / 2)
+			.text("Current year");
+
+		legendGroupCbpf = legendGroupEnterCbpf.merge(legendGroupCbpf);
+
+		legendGroupCbpf.transition()
+			.duration(duration)
+			.style("opacity", 1);
 
 		//end of drawCbpf
 	};
@@ -1021,7 +1122,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		originalData.forEach(row => {
 
-			if (selectedYear.indexOf(allYears) > -1 && row.FiscalYear < currentYear) {
+			if (selectedYear.indexOf(allYears) > -1 && row.FiscalYear <= currentYear) {
 
 				const foundYear = data.find(e => e.year === row.FiscalYear);
 
