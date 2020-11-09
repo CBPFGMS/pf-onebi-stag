@@ -127,8 +127,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	yearsArray = d3.range(lists.yearsArrayContributions[0], currentYear + 1, 1);
 
 	const divergingColor = d3.scaleLinear()
-		.domain([maxYearNumber, 0])
-		.range([-0.6, 0.4]);
+		.domain([maxYearNumber - 1, 0])
+		.range([-0.5, 0.4]);
 
 	const xScaleCerf = d3.scaleBand()
 		.range([svgPaddingsCerf[3], svgWidthCerf - svgPaddingsCerf[1]])
