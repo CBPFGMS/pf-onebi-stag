@@ -643,6 +643,22 @@ footer{position: sticky; bottom: 0;}
   stroke-dasharray: 2, 2;
 }
 
+.pfbiccxAxisGroupedGroupCerf line, .pfbiccxAxisGroupedGroupCbpf line {
+  stroke: #777;
+}
+
+.pfbiccxAxisGroupedGroupCerf path, .pfbiccxAxisGroupedGroupCbpf path {
+  stroke: none;
+}
+
+.pfbiccxAxisGroupedGroupCerf text, .pfbiccxAxisGroupedGroupCbpf text {
+  font-family: "Roboto", sans-serif;
+  font-size: 7px;
+  fill: #888;
+  pointer-events: none;
+  letter-spacing: -1px;
+}
+
 .pfbialpiesNoData {
   font-family: "Roboto", sans-serif;
   font-size: 22px;
@@ -987,7 +1003,17 @@ footer{position: sticky; bottom: 0;}
 .pfbicclegendGroupCerf text, .pfbicclegendGroupCbpf text {
   font-family: "Roboto", sans-serif;
   font-size: 12px;
-  dominant-baseline: middle;
+  dominant-baseline: central;
   fill: #777;
+}
+
+.pfbicclabelsGroupCerf, .pfbicclabelsGroupCbpf {
+  font-family: "Roboto", sans-serif;
+  font-size: 8px;
+  fill: #666;
+  font-weight: bold;
+  text-anchor: middle;
+  pointer-events: none;
+  letter-spacing: -0.5px;
 }
 
