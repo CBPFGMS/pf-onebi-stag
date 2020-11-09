@@ -660,7 +660,7 @@ function createContributionsByDonor(selections, colors, lists) {
 			.attr("width", 0)
 			.style("fill", (d, i, n) => {
 				const thisKey = d3.select(n[i].parentNode).datum().key;
-				return d3.color(colors[thisKey]).brighter(0.25)
+				return colors[thisKey]
 			})
 			.attr("x", xScaleColumn(0))
 			.attr("y", d => yScaleColumn(d.data.donor))
