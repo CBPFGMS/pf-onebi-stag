@@ -270,26 +270,29 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
 	line-height: normal;
 }
 .side-panel{padding:5px 10px; border-bottom:1px solid #ccc; margin: 0 15px;}
-.side-panel h6{margin-bottom:0; font-size:1rem; font-family: 'Roboto', sans-serif; font-weight: 600; line-height: normal; float: left;
-    margin-right: 5px;}
-.side-panel h4{font-weight: 400; font-size: 0.9rem; line-height: normal; color: #fff; padding: 5px !important; background-color: #7C6BB0; margin-top: 10px;}
+.side-panel h6{margin-bottom:0; font-size:0.9rem; font-family: 'Roboto', sans-serif; font-weight: 600; line-height: normal; float: left;
+    margin-right: 5px; background-color: #e5ecf4; border-radius: 15px; padding: 0 7px;}
+.side-panel h4{font-weight: 500; font-size: 0.9rem; line-height: normal; color: #333; padding: 5px !important; margin-top: 10px; text-align: center; border-bottom: 1px solid #3189c9;}
+.side-panel svg{display: flex; margin-top: -14px; align-items: center; justify-content: center; width: 100% !important; color: #3189c8;}
 .side-panel h4 span{white-space: normal !important;}
 .side-panel p{font-size: 0.85em; font-weight: 300; margin: 0;}
 .ss-content {padding: 0; right: 0;}
 .ss-wrapper{width:100%;}
 .ss-scroll{left:216px; right: -216px;}
-.sidenav-title{background-color: #d2e5f5; padding: 5px 10px 5px 8px; overflow: hidden; display: flex; align-items: center; justify-content: space-between; border-top:1px solid #b7d2e8;}
+.sidenav-title{background-color: #fff; padding: 5px 10px 5px 8px; overflow: hidden; display: flex; align-items: center; justify-content: space-between; border-top:1px solid #cfe4f5; border-left:5px solid #3189c9;}
 .sidenav-title .sb-nav-link-icon{font-weight: 300; font-size: 1.1rem;}
-.sidenav-title .sb-nav-link-icon i{color:#3289c9;}
+.sidenav-title .sb-nav-link-icon i{color:#3289c9; font-size: 1.3em; margin-right: 0.1em;}
 .main-high-level-fugure{display:block; padding: 0 1rem 1rem 1rem;}
 .main-high-level-fugure .panel{float:left; background-color: #D2E5F5; padding: 0.5rem; margin: 0.2rem; width: 46%; text-align: center;     border-radius: 15px 0;}
 .main-high-level-fugure .panel h3{font-size:1.2rem; font-weight:400; margin-bottom: 0;} 
 .main-high-level-fugure .panel p{font-size:0.8rem; font-weight:300; margin-bottom: 0;}
 .brdr-btm{border-bottom: 1px solid #ddd; padding: 0 1rem; display: block; margin-left: 1rem; margin-right: 1rem;}
-.cerf-link{color:#FBDE8A !important; border: 1px solid #FBDE8A; padding: 0.1rem 0.5rem; transition: all 0.2s linear; text-align: center;}
-.cerf-link:hover{color:#333 !important; background-color: #FBDE8A;}
-.cbpf-link{color: #F79C8F !important; border: 1px solid #F79C8F; padding: 0.1rem 0.5rem; margin-right: 10px; transition: all 0.2s linear; text-align: center;}
-.cbpf-link:hover{color:#333 !important; background-color: #F79C8F;}
+.cerf-link{border: 1px solid #e8c760; color: #fff !important; padding: 0 10px 0 0 !important; transition: all 0.2s linear; display: flex; align-items: center; border-radius:3px;}
+.cerf-link .icon-chart{background-color: #e8c760; padding: 4px 6px; display: inline-flex; margin-right: 10px; border-radius: 3px 0 0 3px; font-size: 1.3em; color: #333;}
+.cerf-link:hover{color:#333 !important; background-color: #fff; border-radius:3px;}
+.cbpf-link{border: 1px solid #df7164; color: #fff !important; padding: 0 10px 0 0 !important; margin-right: 10px; transition: all 0.2s linear; display: flex; align-items: center; border-radius:3px;}
+.cbpf-link .icon-chart{background-color: #e17166; padding: 4px 6px; display: inline-flex; margin-right: 10px; border-radius: 3px 0 0 3px; font-size: 1.3em; color: #fff;}
+.cbpf-link:hover{color:#333 !important; background-color: #fff; border-radius:3px;}
 .un-icon{font-family: 'humanitarian-icons-v02'; font-style: normal; font-weight: normal; speak: never; display: inline-block;       text-decoration: inherit; width: 1em; margin-right: .2em; text-align: center; font-variant: normal; text-transform: none; line-height: 1em; margin-left: .2em; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;}
 footer{position: sticky; bottom: 0;}
 
