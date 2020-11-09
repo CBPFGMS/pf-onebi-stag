@@ -931,7 +931,7 @@ footer{position: sticky; bottom: 0;}
 
 .pfbiccxAxisGroupCerf text, .pfbiccxAxisGroupCbpf text {
   font-family: "Roboto", sans-serif;
-  font-size: 10px;
+  font-size: 12px;
   fill: #666;
   pointer-events: none;
 }

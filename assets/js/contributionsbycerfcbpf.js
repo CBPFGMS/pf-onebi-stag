@@ -1086,7 +1086,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.append("g")
 			.attr("class", classPrefix + "xAxisGroupedGroupCbpf")
 			.attr("transform", "translate(0," + (svgHeightCbpf - svgPaddingsCbpf[2]) + ")")
-			.merge(xAxisGroupedGroupCbpf);
+			.merge(xAxisGroupedGroupCbpf)
+			.style("opacity", selectedYear.length > 1 ? 1 : 0);
 
 		xAxisGroupedGroupCbpf.transition()
 			.duration(duration)
@@ -1182,11 +1183,11 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				.style("display", "none");
 		};
 
-		xAxisCbpf.tickSizeInner(selectedYear[0] === allYears ? 6 : 0);
+		xAxisCbpf.tickSizeInner(selectedYear.length === 1 ? 6 : 0);
 
 		xAxisGroupCbpf.transition()
 			.duration(duration)
-			.attr("transform", "translate(0," + (selectedYear[0] === allYears ?
+			.attr("transform", "translate(0," + (selectedYear.length === 1 ?
 				svgHeightCbpf - svgPaddingsCbpf[2] : svgHeightCbpf - svgPaddingsCbpf[2] + xGroupExtraPadding) + ")")
 			.call(xAxisCbpf);
 
