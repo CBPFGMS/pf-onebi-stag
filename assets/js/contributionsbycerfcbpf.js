@@ -128,7 +128,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 	const divergingColor = d3.scaleLinear()
 		.domain([maxYearNumber, 0])
-		.range([-0.4, 0.4]);
+		.range([-0.6, 0.4]);
 
 	const xScaleCerf = d3.scaleBand()
 		.range([svgPaddingsCerf[3], svgWidthCerf - svgPaddingsCerf[1]])
@@ -1347,7 +1347,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("width", 0)
 			.style("fill", (d, i, n) => {
 				const thisKey = d3.select(n[i].parentNode).datum().key;
-				return d3.color(colors[thisKey]).brighter(0.25)
+				return colors[thisKey]
 			})
 			.attr("x", xScaleColumn(0))
 			.attr("y", d => yScaleColumn(d.data.donor))
