@@ -33,6 +33,7 @@ const classPrefix = "pfbicc",
 	legendRectSize = 16,
 	legendTextPadding = 4,
 	xGroupExtraPadding = 18,
+	lineOpacity = 0.5,
 	formatMoney0Decimals = d3.format(",.0f"),
 	monthFormat = d3.timeFormat("%b"),
 	monthFormatFull = d3.timeFormat("%B"),
@@ -443,14 +444,14 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			dataMonth.forEach(row => {
 				const monthlyData = row.monthValues.reduce((acc, curr) => {
 					if (curr.PooledFundId === lists.cerfPooledFundId) {
-						const foundYear = acc.find(e => e.year === curr.FiscalYear);
+						const foundYear = acc.find(e => e.year === +curr.PledgePaidDate.split("-")[1]);
 						if (foundYear) {
 							foundYear.total += curr.PaidAmt + curr.PledgeAmt;
 							foundYear.paid += curr.PaidAmt;
 							foundYear.pledged += curr.PledgeAmt;
 						} else {
 							acc.push({
-								year: curr.FiscalYear,
+								year: +curr.PledgePaidDate.split("-")[1],
 								total: curr.PaidAmt + curr.PledgeAmt,
 								paid: curr.PaidAmt,
 								pledged: curr.PledgeAmt
@@ -539,7 +540,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("class", classPrefix + "lineCerf")
 			.style("fill", "none")
 			.style("stroke-width", "2px")
-			.style("opacity", 0.5)
+			.style("opacity", lineOpacity)
 			.style("stroke", "#aaa")
 			.attr("d", lineGeneratorBaseCerf);
 
@@ -549,6 +550,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		lineCerf.transition()
 			.duration(duration)
+			.style("opacity", d => d.some(e => e[`${selectedValue}${separator}cerf`]) ? lineOpacity : 0)
 			.attrTween("d", (d, i, n) => pathTween(lineGeneratorCerf(d), precision, n[i])());
 
 		let labelsCerf = chartLayerCerf.selectAll("." + classPrefix + "labelsCerf")
@@ -638,7 +640,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("class", classPrefix + "lineGroupCerf")
 			.style("fill", "none")
 			.style("stroke-width", "2px")
-			.style("opacity", 0.5)
+			.style("opacity", lineOpacity)
 			.style("stroke", "#aaa")
 			.attr("d", lineGroupGeneratorBaseCerf);
 
@@ -648,6 +650,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		lineGroupCerf.transition()
 			.duration(duration)
+			.style("opacity", d => d.some(e => e[selectedValue]) ? lineOpacity : 0)
 			.attrTween("d", (d, i, n) => pathTween(lineGroupGeneratorCerf(d), precision, n[i])());
 
 		let labelsGroupCerf = groupCerf.selectAll("." + classPrefix + "labelsGroupCerf")
@@ -845,14 +848,14 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			dataMonth.forEach(row => {
 				const monthlyData = row.monthValues.reduce((acc, curr) => {
 					if (curr.PooledFundId !== lists.cerfPooledFundId) {
-						const foundYear = acc.find(e => e.year === curr.FiscalYear);
+						const foundYear = acc.find(e => e.year === +curr.PledgePaidDate.split("-")[1]);
 						if (foundYear) {
 							foundYear.total += curr.PaidAmt + curr.PledgeAmt;
 							foundYear.paid += curr.PaidAmt;
 							foundYear.pledged += curr.PledgeAmt;
 						} else {
 							acc.push({
-								year: curr.FiscalYear,
+								year: +curr.PledgePaidDate.split("-")[1],
 								total: curr.PaidAmt + curr.PledgeAmt,
 								paid: curr.PaidAmt,
 								pledged: curr.PledgeAmt
@@ -941,7 +944,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("class", classPrefix + "lineCbpf")
 			.style("fill", "none")
 			.style("stroke-width", "2px")
-			.style("opacity", 0.5)
+			.style("opacity", lineOpacity)
 			.style("stroke", "#aaa")
 			.attr("d", lineGeneratorBaseCbpf);
 
@@ -951,6 +954,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		lineCbpf.transition()
 			.duration(duration)
+			.style("opacity", d => d.some(e => e[`${selectedValue}${separator}cbpf`]) ? lineOpacity : 0)
 			.attrTween("d", (d, i, n) => pathTween(lineGeneratorCbpf(d), precision, n[i])());
 
 		let labelsCbpf = chartLayerCbpf.selectAll("." + classPrefix + "labelsCbpf")
@@ -1040,7 +1044,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("class", classPrefix + "lineGroupCbpf")
 			.style("fill", "none")
 			.style("stroke-width", "2px")
-			.style("opacity", 0.5)
+			.style("opacity", lineOpacity)
 			.style("stroke", "#aaa")
 			.attr("d", lineGroupGeneratorBaseCbpf);
 
@@ -1050,6 +1054,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		lineGroupCbpf.transition()
 			.duration(duration)
+			.style("opacity", d => d.some(e => e[selectedValue]) ? lineOpacity : 0)
 			.attrTween("d", (d, i, n) => pathTween(lineGroupGeneratorCbpf(d), precision, n[i])());
 
 		let labelsGroupCbpf = groupCbpf.selectAll("." + classPrefix + "labelsGroupCbpf")
@@ -1486,7 +1491,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				};
 
 			} else {
-				if (selectedYear.indexOf(row.FiscalYear) > -1) {
+				if (selectedYear.indexOf(+row.PledgePaidDate.split("-")[1]) > -1) {
 
 					const foundMonth = data.find(e => e.month === monthFormat(pledgeDateParse(row.PledgePaidDate)));
 
