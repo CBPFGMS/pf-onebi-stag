@@ -721,11 +721,6 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		const pieGroupExit = pieGroup.exit();
 
-		pieGroupExit.selectAll("text, tspan")
-			.transition()
-			.duration(duration * 0.9)
-			.style("opacity", 0);
-
 		pieGroupExit.each((_, i, n) => {
 			const thisGroup = d3.select(n[i]);
 			thisGroup.selectAll("." + classPrefix + "slice")
@@ -754,49 +749,9 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("transform", d => "translate(" + (centroids[d.isoCode].x * currentTransform.k + currentTransform.x) +
 				"," + (centroids[d.isoCode].y * currentTransform.k + currentTransform.y) + ")");
 
-		const groupName = pieGroupEnter.append("text")
-			.attr("class", classPrefix + "groupName")
-			.attr("x", d => radiusScale(chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf) + groupNamePadding)
-			.attr("y", d => d.labelText.length > 1 ? groupNamePadding * 2 - 5 : groupNamePadding * 2)
-			.style("opacity", 0)
-			.text(d => d.labelText.length > 2 ? d.labelText[0] + " " + d.labelText[1] : d.labelText[0])
-			.each((d, i, n) => {
-				if (d.labelText.length > 1) {
-					d3.select(n[i]).append("tspan")
-						.attr("x", radiusScale(chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf) + groupNamePadding)
-						.attr("dy", 12)
-						.text(d.labelText.length > 2 ? d.labelText.filter((_, i) => i > 1).join(" ") : d.labelText[1]);
-				};
-			});
-
-		if (!chartState.showNames) {
-			groupName.each((_, i, n) => d3.select(n[i]).style("display", null)).call(displayLabels);
-		};
-
 		pieGroup = pieGroupEnter.merge(pieGroup);
 
 		pieGroup.order();
-
-		const allTexts = pieGroup.selectAll("text");
-
-		pieGroup.select("text." + classPrefix + "groupName tspan")
-			.transition()
-			.duration(duration)
-			.style("opacity", 1)
-			.attr("x", d => radiusScale(chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf) + groupNamePadding);
-
-		pieGroup.select("text." + classPrefix + "groupName")
-			.transition()
-			.duration(duration)
-			.style("opacity", 1)
-			.attr("x", d => radiusScale(chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf) + groupNamePadding)
-			.end()
-			.then(() => {
-				clickableButtons = true;
-				if (chartState.showNames) return;
-				allTexts.each((_, i, n) => d3.select(n[i]).style("display", null)).call(displayLabels);
-			})
-			.catch(error => console.warn("Moved too fast"));
 
 		let slices = pieGroup.selectAll("." + classPrefix + "slice")
 			.data(d => pieGenerator([{
@@ -879,6 +834,71 @@ function createAllocations(selections, colors, mapData, lists) {
 			return t => arcGenerator(i(t));
 		};
 
+		///
+
+		let pieGroupTexts = piesContainer.selectAll("." + classPrefix + "pieGroupTexts")
+			.data(data, d => d.country);
+
+		const pieGroupTextsExit = pieGroupTexts.exit();
+
+		pieGroupTextsExit.selectAll("text, tspan")
+			.transition()
+			.duration(duration * 0.9)
+			.style("opacity", 0);
+
+		const pieGroupTextsEnter = pieGroupTexts.enter()
+			.append("g")
+			.attr("class", classPrefix + "pieGroupTexts")
+			.style("opacity", 1)
+			.attr("transform", d => "translate(" + (centroids[d.isoCode].x * currentTransform.k + currentTransform.x) +
+				"," + (centroids[d.isoCode].y * currentTransform.k + currentTransform.y) + ")");
+
+		const groupName = pieGroupTextsEnter.append("text")
+			.attr("class", classPrefix + "groupName")
+			.attr("x", d => radiusScale(chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf) + groupNamePadding)
+			.attr("y", d => d.labelText.length > 1 ? groupNamePadding * 2 - 5 : groupNamePadding * 2)
+			.style("opacity", 0)
+			.text(d => d.labelText.length > 2 ? d.labelText[0] + " " + d.labelText[1] : d.labelText[0])
+			.each((d, i, n) => {
+				if (d.labelText.length > 1) {
+					d3.select(n[i]).append("tspan")
+						.attr("x", radiusScale(chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf) + groupNamePadding)
+						.attr("dy", 12)
+						.text(d.labelText.length > 2 ? d.labelText.filter((_, i) => i > 1).join(" ") : d.labelText[1]);
+				};
+			});
+
+		if (!chartState.showNames) {
+			groupName.each((_, i, n) => d3.select(n[i]).style("display", null)).call(displayLabels);
+		};
+
+		pieGroupTexts = pieGroupTextsEnter.merge(pieGroupTexts);
+
+		pieGroupTexts.raise();
+
+		const allTexts = pieGroupTexts.selectAll("text");
+
+		pieGroupTexts.select("text." + classPrefix + "groupName tspan")
+			.transition()
+			.duration(duration)
+			.style("opacity", 1)
+			.attr("x", d => radiusScale(chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf) + groupNamePadding);
+
+		pieGroupTexts.select("text." + classPrefix + "groupName")
+			.transition()
+			.duration(duration)
+			.style("opacity", 1)
+			.attr("x", d => radiusScale(chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf) + groupNamePadding)
+			.end()
+			.then(() => {
+				clickableButtons = true;
+				if (chartState.showNames) return;
+				allTexts.each((_, i, n) => d3.select(n[i]).style("display", null)).call(displayLabels);
+			})
+			.catch(error => console.warn("Moved too fast"));
+
+		///
+
 		pieGroup.on("mouseover", pieGroupMouseover)
 			.on("mouseout", pieGroupMouseout);
 
@@ -893,6 +913,12 @@ function createAllocations(selections, colors, mapData, lists) {
 				"," + (centroids[d.isoCode].y * event.transform.k + event.transform.y) + ")");
 
 			pieGroupExit.attr("transform", d => "translate(" + (centroids[d.isoCode].x * event.transform.k + event.transform.x) +
+				"," + (centroids[d.isoCode].y * event.transform.k + event.transform.y) + ")");
+
+			pieGroupTexts.attr("transform", d => "translate(" + (centroids[d.isoCode].x * event.transform.k + event.transform.x) +
+				"," + (centroids[d.isoCode].y * event.transform.k + event.transform.y) + ")");
+
+			pieGroupTextsExit.attr("transform", d => "translate(" + (centroids[d.isoCode].x * event.transform.k + event.transform.x) +
 				"," + (centroids[d.isoCode].y * event.transform.k + event.transform.y) + ")");
 
 			if (!chartState.showNames) {
@@ -911,6 +937,8 @@ function createAllocations(selections, colors, mapData, lists) {
 		function pieGroupMouseover(event, datum) {
 
 			pieGroup.style("opacity", d => d.country === datum.country ? 1 : fadeOpacity);
+
+			pieGroupTexts.style("opacity", d => d.country === datum.country ? 1 : fadeOpacity);
 
 			barChartPanel.main.selectAll("." + classPrefix + "bars")
 				.style("opacity", d => d.data.country === datum.country ? 1 : fadeOpacity);
@@ -1004,6 +1032,8 @@ function createAllocations(selections, colors, mapData, lists) {
 		function pieGroupMouseout(event) {
 
 			pieGroup.style("opacity", 1);
+
+			pieGroupTexts.style("opacity", 1);
 
 			barChartPanel.main.selectAll("." + classPrefix + "bars")
 				.style("opacity", 1);
@@ -1349,14 +1379,17 @@ function createAllocations(selections, colors, mapData, lists) {
 			xAxisGroup.selectAll(".tick")
 				.style("opacity", e => e === d.country ? 1 : fadeOpacity);
 
-			piesContainer.selectAll("." + classPrefix + "pieGroup")
+			piesContainer.selectAll("." + classPrefix + "pieGroup, ." + classPrefix + "pieGroupTexts")
 				.style("opacity", fadeOpacity);
 
-			const thisPieGroup = piesContainer.selectAll("." + classPrefix + "pieGroup")
-				.filter(e => e.country === d.country);
+			piesContainer.selectAll("." + classPrefix + "pieGroup")
+				.filter(e => e.country === d.country)
+				.style("opacity", 1);
 
-			thisPieGroup.style("opacity", 1);
-			thisPieGroup.select("text")
+			piesContainer.selectAll("." + classPrefix + "pieGroupTexts")
+				.filter(e => e.country === d.country)
+				.style("opacity", 1)
+				.select("text")
 				.style("display", (_, i, n) => {
 					localVariable.set(n[i], d3.select(n[i]).style("display"));
 					return null;
@@ -1434,8 +1467,10 @@ function createAllocations(selections, colors, mapData, lists) {
 			xAxisGroup.selectAll(".tick")
 				.style("opacity", 1);
 
-			piesContainer.selectAll("." + classPrefix + "pieGroup")
-				.style("opacity", 1)
+			piesContainer.selectAll("." + classPrefix + "pieGroup, ." + classPrefix + "pieGroupTexts")
+				.style("opacity", 1);
+
+			piesContainer.selectAll("." + classPrefix + "pieGroupTexts")
 				.filter(e => e.country === d.country)
 				.select("text")
 				.style("display", (_, i, n) => localVariable.get(n[i]));
