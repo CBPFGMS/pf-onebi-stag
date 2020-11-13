@@ -593,6 +593,12 @@ footer{position: sticky; bottom: 0;}
   letter-spacing: -0.25px;
 }
 
+.pfbialcountryRanking {
+  font-weight: 700;
+  font-size: 10px;
+  text-anchor: middle;
+}
+
 .pfbialyAxisGroup text {
   font-family: "Roboto", sans-serif;
   font-size: 10px;

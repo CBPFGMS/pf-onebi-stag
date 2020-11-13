@@ -951,7 +951,22 @@ function createAllocations(selections, colors, mapData, lists) {
 				.style("opacity", d => d.country === datum.country ? 1 : fadeOpacity);
 
 			xAxisGroup.selectAll(".tick")
-				.style("opacity", d => d === datum.country ? 1 : fadeOpacity);
+				.style("opacity", d => d === datum.country ? 1 : fadeOpacity)
+				.each((d, i, n) => {
+					if (d === datum.country) {
+						const thisRank = i + 1;
+						const thisOrdinal = thisRank % 10 === 1 && thisRank !== 11 ?
+							"st" : thisRank % 10 === 2 && thisRank !== 12 ?
+							"nd" : thisRank % 10 === 3 && thisRank !== 13 ?
+							"rd" : "th";
+						d3.select(n[i]).select("text")
+							.append("tspan")
+							.attr("class", classPrefix + "countryRanking")
+							.attr("dy", "1.2em")
+							.attr("x", (_, j, m) => -(m[j].parentNode.getComputedTextLength() / 2))
+							.text("(" + thisRank + thisOrdinal + ")");
+					};
+				});
 
 			tooltipDivMap.style("display", "block")
 				.html(null);
@@ -1046,7 +1061,9 @@ function createAllocations(selections, colors, mapData, lists) {
 				.style("opacity", 1);
 
 			xAxisGroup.selectAll(".tick")
-				.style("opacity", 1);
+				.style("opacity", 1)
+				.selectAll("." + classPrefix + "countryRanking")
+				.remove();
 
 			tooltipDivMap.html(null)
 				.style("display", "none");
