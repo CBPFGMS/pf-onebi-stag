@@ -4,6 +4,10 @@ import {
 	chartState
 } from "./chartstate.js";
 
+import {
+	clustersIconsData
+} from "./clustersiconsdata.js";
+
 //|constants
 const classPrefix = "pfbial",
 	mapPercentage = 0.68,
@@ -47,9 +51,8 @@ const classPrefix = "pfbial",
 	svgColumnChartPaddingByType = [16, 26, 4, 66],
 	svgColumnChartTypeHeight = svgColumnChartPaddingByType[0] + svgColumnChartPaddingByType[2] + maxColumnRectHeight + 4 * maxColumnRectHeight,
 	VenezuelaRegionalRefugeeAbbr = "Venezuela Refugee...",
-	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
+	buttonsList = ["total", "cerf/cbpf", "cbpf", "cerf"],
 	stackKeys = ["total", "cerf", "cbpf"],
-	clustersUrl = "./assets/img/clusters/cluster",
 	cbpfAllocationTypes = ["1", "2"], //THIS SHOULD NOT BE HARDCODED
 	cerfAllocationTypes = ["3", "4"], //THIS SHOULD NOT BE HARDCODED
 	centroids = {};
@@ -116,7 +119,8 @@ function createAllocations(selections, colors, mapData, lists) {
 		.attr("class", classPrefix + "barChartDivTitle");
 
 	const barChartDivTitleText = barChartDivTitle.append("div")
-		.attr("class", classPrefix + "barChartDivTitleText");
+		.attr("class", classPrefix + "barChartDivTitleText")
+		.style("border-bottom", "2px solid " + (chartState.selectedFund === "cerf/cbpf" ? colors.cerf : colors[chartState.selectedFund]));
 
 	const barChartDiv = barChartDivOuter.append("div")
 		.attr("class", classPrefix + "barChartDiv");
@@ -1095,15 +1099,6 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		const sizeCirclesData = maxDataValue ? [0, maxDataValue / 4, maxDataValue / 2, maxDataValue] : [];
 
-		const legendTitle = legendPanel.main.selectAll("." + classPrefix + "legendTitle")
-			.data([true])
-			.enter()
-			.append("text")
-			.attr("class", classPrefix + "legendTitle")
-			.attr("x", legendPanel.padding[3])
-			.attr("y", legendPanel.padding[0] - 10)
-			.text("LEGEND");
-
 		let legendSizeGroups = legendPanel.main.selectAll("." + classPrefix + "legendSizeGroups")
 			.data([true]);
 
@@ -1249,9 +1244,11 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("class", classPrefix + "barTitleSpan")
 			.html("(" + barTitleSpanText + ")");
 
-		barChartDivTitleText.transition()
+		barChartDivTitleText.classed(classPrefix + "twoColorsBorder", chartState.selectedFund === "cerf/cbpf")
+			.transition()
 			.duration(duration)
-			.style("margin-left", ((svgBarChartWidth - dynamicWidth) / 2) + "px");
+			.style("margin-left", ((svgBarChartWidth - dynamicWidth) / 2) + "px")
+			.style("border-color", chartState.selectedFund === "cerf/cbpf" ? colors.cerf : colors[chartState.selectedFund]);
 
 		const stackedData = stack(data);
 
@@ -1994,7 +1991,7 @@ function createAllocations(selections, colors, mapData, lists) {
 				.attr("y", d => yScaleColumnBySector(d.cluster) - (clusterIconSize - yScaleColumnBySector.bandwidth()) / 2)
 				.attr("width", clusterIconSize)
 				.attr("height", clusterIconSize)
-				.attr("href", d => clustersUrl + d.clusterId + ".png");
+				.attr("href", d => clustersIconsData[d.clusterId]);
 
 			clusterIconsColumn = clusterIconsColumnEnter.merge(clusterIconsColumn);
 

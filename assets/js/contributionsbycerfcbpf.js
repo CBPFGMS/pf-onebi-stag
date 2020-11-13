@@ -4,6 +4,10 @@ import {
 	chartState
 } from "./chartstate.js";
 
+import {
+	donorsFlagsData
+} from "./donorsflagsdata.js";
+
 //|constants
 const classPrefix = "pfbicc",
 	currentDate = new Date(),
@@ -20,7 +24,6 @@ const classPrefix = "pfbicc",
 	maxYearNumber = 4,
 	flagSize = 16,
 	flagPadding = 2,
-	flagUrl = "./assets/img/flags16/",
 	duration = 1000,
 	labelMargin = 22,
 	labelPadding = 8,
@@ -1413,7 +1416,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("y", d => yScaleColumn(d.donor))
 			.attr("width", flagSize)
 			.attr("height", flagSize)
-			.attr("href", d => flagUrl + d.isoCode + ".png");
+			.attr("href", d => donorsFlagsData[d.isoCode]);
 
 		flagsColumn = flagsColumnEnter.merge(flagsColumn);
 

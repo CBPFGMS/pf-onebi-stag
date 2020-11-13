@@ -4,6 +4,10 @@ import {
 	chartState
 } from "./chartstate.js";
 
+import {
+	donorsFlagsData
+} from "./donorsflagsdata.js";
+
 //|constants
 const classPrefix = "pfbicd",
 	nonMemberStateHeight = 130,
@@ -28,8 +32,6 @@ const classPrefix = "pfbicd",
 	labelsColumnPadding = 2,
 	svgColumnChartWidth = 195,
 	topDonors = 10,
-	flagUrl = "./assets/img/flags/",
-	flagUrlColumn = "./assets/img/flags16/",
 	formatPercent = d3.format("%"),
 	stackKeys = ["total", "cerf", "cbpf"],
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
@@ -244,7 +246,7 @@ function createContributionsByDonor(selections, colors, lists) {
 		const donorFlag = donorNameDiv.append("img")
 			.attr("width", flagSize)
 			.attr("height", flagSize)
-			.attr("src", d => flagUrl + d.isoCode.toLowerCase() + ".png");
+			.attr("src", d => donorsFlagsData[d.isoCode.toLowerCase()]);
 
 		const donorName = donorNameDiv.append("span")
 			.html(d => d.donor);
@@ -719,7 +721,7 @@ function createContributionsByDonor(selections, colors, lists) {
 			.attr("y", d => yScaleColumn(d.donor))
 			.attr("width", flagSizeColumn)
 			.attr("height", flagSizeColumn)
-			.attr("href", d => flagUrlColumn + d.isoCode + ".png");
+			.attr("href", d => donorsFlagsData[d.isoCode]);
 
 		flagsColumn = flagsColumnEnter.merge(flagsColumn);
 
