@@ -57,7 +57,7 @@ let selectedYear,
 function createContributionsByCerfCbpf(selections, colors, lists) {
 
 	selectedYear = lists.queryStringValues.has("contributionYear") ? lists.queryStringValues.get("contributionYear").split("|").map(e => +e) : [allYears];
-	selectedValue = "total";
+	selectedValue = lists.queryStringValues.has("value") ? lists.queryStringValues.get("value") : "total";
 
 	const outerDiv = selections.chartContainerDiv.append("div")
 		.attr("class", classPrefix + "outerDiv");
@@ -420,6 +420,18 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			drawCbpf(data);
 			createColumnTopValues(columnData);
 			createColumnChart(columnData);
+
+			if (selectedValue !== "total") {
+				if (lists.queryStringValues.has("value")) {
+					lists.queryStringValues.set("value", selectedValue);
+				} else {
+					lists.queryStringValues.append("value", selectedValue);
+				};
+			} else {
+				lists.queryStringValues.delete("value");
+			};
+			const newURL = window.location.origin + window.location.pathname + "?" + lists.queryStringValues.toString();
+			window.history.replaceState(null, "", newURL);
 		});
 
 		//end of draw

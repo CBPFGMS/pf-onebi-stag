@@ -305,6 +305,7 @@ function controlCharts([worldMap,
 		drawAllocations(allocationsData);
 		highlightNavLinks();
 		queryStringValues.delete("contributionYear");
+		queryStringValues.delete("value");
 		setQueryString("chart", chartState.selectedChart);
 		if (chartState.selectedYear !== defaultValues.year) setQueryString("year", chartState.selectedYear);
 		if (chartState.selectedFund !== defaultValues.fund) setQueryString("fund", chartState.selectedFund);
@@ -325,6 +326,7 @@ function controlCharts([worldMap,
 		drawAllocations(allocationsData);
 		highlightNavLinks();
 		queryStringValues.delete("contributionYear");
+		queryStringValues.delete("value");
 		setQueryString("chart", chartState.selectedChart);
 		if (chartState.selectedYear !== defaultValues.year) setQueryString("year", chartState.selectedYear);
 		if (chartState.selectedFund !== defaultValues.fund) setQueryString("fund", chartState.selectedFund);
@@ -345,6 +347,7 @@ function controlCharts([worldMap,
 		drawAllocations(allocationsData);
 		highlightNavLinks();
 		queryStringValues.delete("contributionYear");
+		queryStringValues.delete("value");
 		setQueryString("chart", chartState.selectedChart);
 		if (chartState.selectedYear !== defaultValues.year) setQueryString("year", chartState.selectedYear);
 		if (chartState.selectedFund !== defaultValues.fund) setQueryString("fund", chartState.selectedFund);
@@ -373,6 +376,7 @@ function controlCharts([worldMap,
 		highlightNavLinks();
 		queryStringValues.delete("year");
 		queryStringValues.delete("contributionYear");
+		queryStringValues.delete("value");
 		setQueryString("chart", chartState.selectedChart);
 	});
 
