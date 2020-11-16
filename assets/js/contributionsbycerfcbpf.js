@@ -56,7 +56,7 @@ let selectedYear,
 
 function createContributionsByCerfCbpf(selections, colors, lists) {
 
-	selectedYear = [allYears];
+	selectedYear = lists.queryStringValues.has("contributionYear") ? lists.queryStringValues.get("contributionYear").split("|").map(e => +e) : [allYears];
 	selectedValue = "total";
 
 	const outerDiv = selections.chartContainerDiv.append("div")
@@ -397,6 +397,20 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			yearButtons.classed("active", d => selectedYear.indexOf(d) > -1);
 			selections.yearDropdown.select("#pfbihpdisabledOption")
 				.html(selectedYear.length > 1 ? "Multiple years" : selectedYear[0] === allYears ? "All" : selectedYear[0]);
+
+			if (selectedYear[0] !== allYears) {
+				const yearValues = selectedYear.join("|");
+				if (lists.queryStringValues.has("contributionYear")) {
+					lists.queryStringValues.set("contributionYear", yearValues);
+				} else {
+					lists.queryStringValues.append("contributionYear", yearValues);
+				};
+			} else {
+				lists.queryStringValues.delete("contributionYear");
+			};
+			const newURL = window.location.origin + window.location.pathname + "?" + lists.queryStringValues.toString();
+			window.history.replaceState(null, "", newURL);
+
 		};
 
 		valueButtons.on("click", (event, d) => {

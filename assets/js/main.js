@@ -304,9 +304,10 @@ function controlCharts([worldMap,
 		chartState.selectedType = [];
 		drawAllocations(allocationsData);
 		highlightNavLinks();
+		queryStringValues.delete("contributionYear");
 		setQueryString("chart", chartState.selectedChart);
 		if (chartState.selectedYear !== defaultValues.year) setQueryString("year", chartState.selectedYear);
-		if (chartState.selectedFund !== defaultValues.fund) setQueryString("year", chartState.selectedFund);
+		if (chartState.selectedFund !== defaultValues.fund) setQueryString("fund", chartState.selectedFund);
 	});
 
 	selections.navlinkAllocationsBySector.on("click", () => {
@@ -323,9 +324,10 @@ function controlCharts([worldMap,
 		chartState.selectedType = [];
 		drawAllocations(allocationsData);
 		highlightNavLinks();
+		queryStringValues.delete("contributionYear");
 		setQueryString("chart", chartState.selectedChart);
 		if (chartState.selectedYear !== defaultValues.year) setQueryString("year", chartState.selectedYear);
-		if (chartState.selectedFund !== defaultValues.fund) setQueryString("year", chartState.selectedFund);
+		if (chartState.selectedFund !== defaultValues.fund) setQueryString("fund", chartState.selectedFund);
 	});
 
 	selections.navlinkAllocationsByType.on("click", () => {
@@ -342,9 +344,10 @@ function controlCharts([worldMap,
 		chartState.selectedType = [];
 		drawAllocations(allocationsData);
 		highlightNavLinks();
+		queryStringValues.delete("contributionYear");
 		setQueryString("chart", chartState.selectedChart);
 		if (chartState.selectedYear !== defaultValues.year) setQueryString("year", chartState.selectedYear);
-		if (chartState.selectedFund !== defaultValues.fund) setQueryString("year", chartState.selectedFund);
+		if (chartState.selectedFund !== defaultValues.fund) setQueryString("fund", chartState.selectedFund);
 	});
 
 	selections.navlinkContributionsByCerfCbpf.on("click", () => {
@@ -369,6 +372,7 @@ function controlCharts([worldMap,
 		drawContributionsByDonor(contributionsDataByDonor);
 		highlightNavLinks();
 		queryStringValues.delete("year");
+		queryStringValues.delete("contributionYear");
 		setQueryString("chart", chartState.selectedChart);
 	});
 
