@@ -1388,7 +1388,19 @@ function createAllocations(selections, colors, mapData, lists) {
 			barsLabels.style("opacity", e => e.country === d.country ? 1 : fadeOpacity);
 
 			xAxisGroup.selectAll(".tick")
-				.style("opacity", e => e === d.country ? 1 : fadeOpacity);
+				.style("opacity", e => e === d.country ? 1 : fadeOpacity)
+				.each((datum, i, n) => {
+					if (datum === d.country) {
+						const thisRank = i + 1;
+						const thisOrdinal = makeOrdinal(thisRank);
+						d3.select(n[i]).select("text")
+							.append("tspan")
+							.attr("class", classPrefix + "countryRanking")
+							.attr("dy", "1.2em")
+							.attr("x", (_, j, m) => -(m[j].parentNode.getComputedTextLength() / 2))
+							.text("(" + thisRank + thisOrdinal + ")");
+					};
+				});
 
 			piesContainer.selectAll("." + classPrefix + "pieGroup, ." + classPrefix + "pieGroupTexts")
 				.style("opacity", fadeOpacity);
@@ -1476,7 +1488,9 @@ function createAllocations(selections, colors, mapData, lists) {
 			barsLabels.style("opacity", 1);
 
 			xAxisGroup.selectAll(".tick")
-				.style("opacity", 1);
+				.style("opacity", 1)
+				.selectAll("." + classPrefix + "countryRanking")
+				.remove();
 
 			piesContainer.selectAll("." + classPrefix + "pieGroup, ." + classPrefix + "pieGroupTexts")
 				.style("opacity", 1);
