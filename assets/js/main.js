@@ -3,7 +3,6 @@ const isTouchScreenOnly = (window.matchMedia("(pointer: coarse)").matches && !wi
 
 //|set constants
 const generalClassPrefix = "pfbihp",
-	defaultChart = "allocationsByCountry",
 	localStorageTime = 3600000,
 	currentDate = new Date(),
 	currentYear = currentDate.getFullYear(),
@@ -12,7 +11,6 @@ const generalClassPrefix = "pfbihp",
 	unBlue = "#65A8DC",
 	cerfColor = "#FBD45C",
 	cbpfColor = "#F37261",
-	defaultValuesUrl = "https://cbpfgms.github.io/pf-onebi-data/map/defaultvalues.json",
 	unworldmapUrl = "https://cbpfgms.github.io/pf-onebi-data/map/unworldmap.json",
 	masterFundsUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstCountry.json",
 	masterDonorsUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstDonor.json",
@@ -30,6 +28,13 @@ const generalClassPrefix = "pfbihp",
 		total: unBlue,
 		cerf: cerfColor,
 		cbpf: cbpfColor
+	},
+	queryStringValues = new URLSearchParams(location.search),
+	defaultValues = {
+		chart: "allocationsByCountry",
+		year: currentYear,
+		fund: "total",
+		shownames: false,
 	};
 
 //|constants populated with the data
@@ -138,6 +143,14 @@ const navLinks = [selections.navlinkAllocationsByCountry,
 
 createSpinner(selections.chartContainerDiv);
 
+//|gets query string values
+const queryStringObject = {
+	chart: queryStringValues.get("chart"),
+	year: queryStringValues.get("year"),
+	fund: queryStringValues.get("fund"),
+	shownames: queryStringValues.get("shownames")
+};
+
 //|import modules
 import {
 	createAllocations
@@ -156,9 +169,8 @@ import {
 } from "./chartstate.js";
 
 
-//|load master tables, default values and csv data
-Promise.all([fetchFile("defaultValues", defaultValuesUrl, "default values", "json"),
-		fetchFile("unworldmap", unworldmapUrl, "world map", "json"),
+//|load master tables, world map and csv data
+Promise.all([fetchFile("unworldmap", unworldmapUrl, "world map", "json"),
 		fetchFile("masterFunds", masterFundsUrl, "master table for funds", "json"),
 		fetchFile("masterDonors", masterDonorsUrl, "master table for donors", "json"),
 		fetchFile("masterAllocationTypes", masterAllocationTypesUrl, "master table for allocation types", "json"),
@@ -170,8 +182,7 @@ Promise.all([fetchFile("defaultValues", defaultValuesUrl, "default values", "jso
 	])
 	.then(rawData => controlCharts(rawData));
 
-function controlCharts([defaultValues,
-	worldMap,
+function controlCharts([worldMap,
 	masterFunds,
 	masterDonors,
 	masterAllocationTypes,
@@ -214,7 +225,7 @@ function controlCharts([defaultValues,
 
 	preProcessData(rawAllocationsData, rawContributionsData);
 
-	validateDefault(defaultValues);
+	validateDefault(queryStringObject);
 
 	resetTopValues(topValues);
 
@@ -292,6 +303,7 @@ function controlCharts([defaultValues,
 		chartState.selectedType = [];
 		drawAllocations(allocationsData);
 		highlightNavLinks();
+		setQueryString("chart", chartState.selectedChart);
 	});
 
 	selections.navlinkAllocationsBySector.on("click", () => {
@@ -308,6 +320,7 @@ function controlCharts([defaultValues,
 		chartState.selectedType = [];
 		drawAllocations(allocationsData);
 		highlightNavLinks();
+		setQueryString("chart", chartState.selectedChart);
 	});
 
 	selections.navlinkAllocationsByType.on("click", () => {
@@ -324,6 +337,7 @@ function controlCharts([defaultValues,
 		chartState.selectedType = [];
 		drawAllocations(allocationsData);
 		highlightNavLinks();
+		setQueryString("chart", chartState.selectedChart);
 	});
 
 	selections.navlinkContributionsByCerfCbpf.on("click", () => {
@@ -334,6 +348,7 @@ function controlCharts([defaultValues,
 		drawContributionsByCerfCbpf = createContributionsByCerfCbpf(selections, colorsObject, lists);
 		drawContributionsByCerfCbpf(rawContributionsData);
 		highlightNavLinks();
+		setQueryString("chart", chartState.selectedChart);
 	});
 
 	selections.navlinkContributionsByDonor.on("click", () => {
@@ -344,6 +359,7 @@ function controlCharts([defaultValues,
 		drawContributionsByDonor = createContributionsByDonor(selections, colorsObject, lists);
 		drawContributionsByDonor(contributionsDataByDonor);
 		highlightNavLinks();
+		setQueryString("chart", chartState.selectedChart);
 	});
 
 	//end of controlCharts
@@ -597,13 +613,13 @@ function populateYearDropdown(yearData, dropdownContainer) {
 
 function validateDefault(values) {
 	chartState.selectedChart = chartTypesAllocations.indexOf(values.chart) > -1 || chartTypesContributions.indexOf(values.chart) > -1 ?
-		values.chart : defaultChart;
+		values.chart : defaultValues.chart;
 	const yearArray = chartTypesAllocations.indexOf(chartState.selectedChart) > -1 ? yearsArrayAllocations : yearsArrayContributions;
 	chartState.selectedYear = +values.year === +values.year && yearArray.indexOf(+values.year) > -1 ?
-		+values.year : currentDate.getFullYear();
+		+values.year : defaultValues.year;
 	chartState.selectedFund = chartTypesAllocations.indexOf(chartState.selectedChart) > -1 && fundValues.indexOf(values.fund) > -1 ?
-		values.fund : fundValues[0];
-	chartState.showNames = (values.shownames === true);
+		values.fund : defaultValues.fund;
+	chartState.showNames = values.shownames ? values.shownames === "true" : defaultValues.shownames;
 };
 
 function createFundNamesList(fundsData) {
@@ -735,4 +751,17 @@ function highlightNavLinks() {
 
 function capitalize(str) {
 	return str[0].toUpperCase() + str.substring(1)
+};
+
+function setQueryString(key, value) {
+	if (queryStringValues.has(key)) {
+		queryStringValues.set(key, value);
+	} else {
+		queryStringValues.append(key, value);
+	};
+	console.log("hit")
+	const newURL = window.location.origin + window.location.pathname + "?" + queryStringValues.toString();
+	window.history.replaceState({
+		path: newURL
+	}, "", newURL);
 };
