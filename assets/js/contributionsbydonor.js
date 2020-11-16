@@ -187,6 +187,18 @@ function createContributionsByDonor(selections, colors, lists) {
 			drawMemberStates(data);
 
 			drawNonMemberStates(data);
+
+			if (chartState.selectedFund !== lists.defaultValues.fund) {
+				if (lists.queryStringValues.has("fund")) {
+					lists.queryStringValues.set("fund", chartState.selectedFund);
+				} else {
+					lists.queryStringValues.append("fund", chartState.selectedFund);
+				};
+			} else {
+				lists.queryStringValues.delete("fund");
+			};
+			const newURL = window.location.origin + window.location.pathname + "?" + lists.queryStringValues.toString();
+			window.history.replaceState(null, "", newURL);
 		});
 
 		//end of draw

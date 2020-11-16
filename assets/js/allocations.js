@@ -510,6 +510,19 @@ function createAllocations(selections, colors, mapData, lists) {
 			drawMap(data, originalData);
 			drawLegend(data);
 			drawBarChart(data, originalData);
+
+			if (chartState.selectedFund !== lists.defaultValues.fund) {
+				if (lists.queryStringValues.has("fund")) {
+					lists.queryStringValues.set("fund", chartState.selectedFund);
+				} else {
+					lists.queryStringValues.append("fund", chartState.selectedFund);
+				};
+			} else {
+				lists.queryStringValues.delete("fund");
+			};
+			const newURL = window.location.origin + window.location.pathname + "?" + lists.queryStringValues.toString();
+			window.history.replaceState(null, "", newURL);
+
 		});
 
 	};

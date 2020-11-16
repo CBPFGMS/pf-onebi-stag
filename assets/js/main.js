@@ -33,8 +33,7 @@ const generalClassPrefix = "pfbihp",
 	defaultValues = {
 		chart: "allocationsByCountry",
 		year: currentYear,
-		fund: "total",
-		shownames: false,
+		fund: "total"
 	};
 
 //|constants populated with the data
@@ -147,8 +146,7 @@ createSpinner(selections.chartContainerDiv);
 const queryStringObject = {
 	chart: queryStringValues.get("chart"),
 	year: queryStringValues.get("year"),
-	fund: queryStringValues.get("fund"),
-	shownames: queryStringValues.get("shownames")
+	fund: queryStringValues.get("fund")
 };
 
 //|import modules
@@ -220,7 +218,9 @@ function controlCharts([worldMap,
 		fundNamesListKeys: fundNamesListKeys,
 		donorNamesListKeys: donorNamesListKeys,
 		yearsArrayContributions: yearsArrayContributions,
-		cerfPooledFundId: cerfPooledFundId
+		cerfPooledFundId: cerfPooledFundId,
+		defaultValues: defaultValues,
+		queryStringValues: queryStringValues
 	};
 
 	preProcessData(rawAllocationsData, rawContributionsData);
@@ -287,6 +287,7 @@ function controlCharts([worldMap,
 		processContributionsYearData(rawContributionsData);
 		updateTopValues(topValues, selections);
 		drawAllocations(allocationsData);
+		setQueryString("year", chartState.selectedYear);
 	});
 
 	selections.navlinkAllocationsByCountry.on("click", () => {
@@ -304,6 +305,8 @@ function controlCharts([worldMap,
 		drawAllocations(allocationsData);
 		highlightNavLinks();
 		setQueryString("chart", chartState.selectedChart);
+		if (chartState.selectedYear !== defaultValues.year) setQueryString("year", chartState.selectedYear);
+		if (chartState.selectedFund !== defaultValues.fund) setQueryString("year", chartState.selectedFund);
 	});
 
 	selections.navlinkAllocationsBySector.on("click", () => {
@@ -321,6 +324,8 @@ function controlCharts([worldMap,
 		drawAllocations(allocationsData);
 		highlightNavLinks();
 		setQueryString("chart", chartState.selectedChart);
+		if (chartState.selectedYear !== defaultValues.year) setQueryString("year", chartState.selectedYear);
+		if (chartState.selectedFund !== defaultValues.fund) setQueryString("year", chartState.selectedFund);
 	});
 
 	selections.navlinkAllocationsByType.on("click", () => {
@@ -338,6 +343,8 @@ function controlCharts([worldMap,
 		drawAllocations(allocationsData);
 		highlightNavLinks();
 		setQueryString("chart", chartState.selectedChart);
+		if (chartState.selectedYear !== defaultValues.year) setQueryString("year", chartState.selectedYear);
+		if (chartState.selectedFund !== defaultValues.fund) setQueryString("year", chartState.selectedFund);
 	});
 
 	selections.navlinkContributionsByCerfCbpf.on("click", () => {
@@ -348,6 +355,8 @@ function controlCharts([worldMap,
 		drawContributionsByCerfCbpf = createContributionsByCerfCbpf(selections, colorsObject, lists);
 		drawContributionsByCerfCbpf(rawContributionsData);
 		highlightNavLinks();
+		queryStringValues.delete("year");
+		queryStringValues.delete("fund");
 		setQueryString("chart", chartState.selectedChart);
 	});
 
@@ -359,6 +368,7 @@ function controlCharts([worldMap,
 		drawContributionsByDonor = createContributionsByDonor(selections, colorsObject, lists);
 		drawContributionsByDonor(contributionsDataByDonor);
 		highlightNavLinks();
+		queryStringValues.delete("year");
 		setQueryString("chart", chartState.selectedChart);
 	});
 
@@ -619,7 +629,6 @@ function validateDefault(values) {
 		+values.year : defaultValues.year;
 	chartState.selectedFund = chartTypesAllocations.indexOf(chartState.selectedChart) > -1 && fundValues.indexOf(values.fund) > -1 ?
 		values.fund : defaultValues.fund;
-	chartState.showNames = values.shownames ? values.shownames === "true" : defaultValues.shownames;
 };
 
 function createFundNamesList(fundsData) {
@@ -759,9 +768,6 @@ function setQueryString(key, value) {
 	} else {
 		queryStringValues.append(key, value);
 	};
-	console.log("hit")
 	const newURL = window.location.origin + window.location.pathname + "?" + queryStringValues.toString();
-	window.history.replaceState({
-		path: newURL
-	}, "", newURL);
+	window.history.replaceState(null, "", newURL);
 };
