@@ -51,7 +51,7 @@ const classPrefix = "pfbial",
 	svgColumnChartPaddingByType = [16, 26, 4, 66],
 	svgColumnChartTypeHeight = svgColumnChartPaddingByType[0] + svgColumnChartPaddingByType[2] + maxColumnRectHeight + 4 * maxColumnRectHeight,
 	VenezuelaRegionalRefugeeAbbr = "Venezuela Refugee...",
-	buttonsList = ["total", "cerf/cbpf", "cbpf", "cerf"],
+	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	stackKeys = ["total", "cerf", "cbpf"],
 	cbpfAllocationTypes = ["1", "2"], //THIS SHOULD NOT BE HARDCODED
 	cerfAllocationTypes = ["3", "4"], //THIS SHOULD NOT BE HARDCODED
@@ -955,10 +955,7 @@ function createAllocations(selections, colors, mapData, lists) {
 				.each((d, i, n) => {
 					if (d === datum.country) {
 						const thisRank = i + 1;
-						const thisOrdinal = thisRank % 10 === 1 && thisRank !== 11 ?
-							"st" : thisRank % 10 === 2 && thisRank !== 12 ?
-							"nd" : thisRank % 10 === 3 && thisRank !== 13 ?
-							"rd" : "th";
+						const thisOrdinal = makeOrdinal(thisRank);
 						d3.select(n[i]).select("text")
 							.append("tspan")
 							.attr("class", classPrefix + "countryRanking")
@@ -2798,6 +2795,13 @@ function capitalize(str) {
 
 function textWithCommas(arr) {
 	return arr.reduce((acc, curr, index) => acc + (index >= arr.length - 2 ? index > arr.length - 2 ? curr : curr + " and " : curr + ", "), "");
+};
+
+function makeOrdinal(value) {
+	return value % 10 === 1 && value !== 11 ?
+		"st" : value % 10 === 2 && value !== 12 ?
+		"nd" : value % 10 === 3 && value !== 13 ?
+		"rd" : "th";
 };
 
 export {
