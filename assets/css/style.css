@@ -421,7 +421,7 @@ footer{position: sticky; bottom: 0;}
   position: relative;
 }
 
-#pfbialtooltipDivMap, #pfbialtooltipDivBarChart, #pfbicctooltipDiv {    
+#pfbialtooltipDivMap, #pfbialtooltipDivBarChart, #pfbicctooltipDiv, #pfbihptopTooltipDiv {    
   position: absolute;
   text-align: left;
   color: darkslategray;

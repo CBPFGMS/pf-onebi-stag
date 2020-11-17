@@ -11,6 +11,7 @@ const generalClassPrefix = "pfbihp",
 	unBlue = "#65A8DC",
 	cerfColor = "#FBD45C",
 	cbpfColor = "#F37261",
+	formatMoney0Decimals = d3.format(",.0f"),
 	unworldmapUrl = "https://cbpfgms.github.io/pf-onebi-data/map/unworldmap.json",
 	masterFundsUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstCountry.json",
 	masterDonorsUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstDonor.json",
@@ -77,9 +78,12 @@ const selections = {
 	chartContainerDiv: d3.select("#main-map-panel").append("div").attr("class", generalClassPrefix + "chartContainerDiv"),
 	allocationsTopFigure: d3.select("#high-level-fugure-allocations"),
 	contributionsTopFigure: d3.select("#high-level-fugure-contributions"),
+	allocationsTopFigurePanel: d3.select(".allocationsFigurePanel"),
+	contributionsTopFigurePanel: d3.select(".contributionsFigurePanel"),
 	donorsTopFigure: d3.select("#high-level-fugure-donors"),
 	projectsTopFigure: d3.select("#high-level-fugure-projects"),
 	yearDropdown: d3.select("#ddlDropdown"),
+	sideNavContainer: d3.select("#layoutSidenav"),
 	navlinkAllocationsByCountry: d3.select("#navAllocationsByCountry"),
 	navlinkAllocationsBySector: d3.select("#navAllocationsBySector"),
 	navlinkAllocationsByType: d3.select("#navAllocationsByType"),
@@ -148,6 +152,11 @@ const queryStringObject = {
 	year: queryStringValues.get("year"),
 	fund: queryStringValues.get("fund")
 };
+
+//|top values tooltip
+const topTooltipDiv = selections.sideNavContainer.append("div")
+	.attr("id", generalClassPrefix + "topTooltipDiv")
+	.style("display", "none");
 
 //|import modules
 import {
@@ -380,7 +389,52 @@ function controlCharts([worldMap,
 		setQueryString("chart", chartState.selectedChart);
 	});
 
+	selections.contributionsTopFigurePanel.on("mouseenter", (event, d) => mouseoverTopFigures(event, d, "contributions"))
+		.on("mouseleave", mouseoutTopFigures);
+
+	selections.allocationsTopFigurePanel.on("mouseenter", (event, d) => mouseoverTopFigures(event, d, "allocations"))
+		.on("mouseleave", mouseoutTopFigures);
+
 	//end of controlCharts
+};
+
+function mouseoverTopFigures(event, d, value) {
+
+	topTooltipDiv.style("display", "block")
+		.html(null);
+
+	const innerTooltipDiv = topTooltipDiv.append("div")
+		.style("max-width", "210px")
+		.attr("id", generalClassPrefix + "innerTooltipDiv");
+
+	innerTooltipDiv.append("div")
+		.style("margin-bottom", "8px")
+		.append("strong")
+		.html("Total " + capitalize(value));
+
+	innerTooltipDiv.append("div")
+		.style("float", "right")
+		.html("$" + formatMoney0Decimals(topValues[value]));
+
+
+	const thisBox = event.currentTarget.getBoundingClientRect();
+
+	const containerBox = selections.sideNavContainer.node().getBoundingClientRect();
+
+	const tooltipBox = topTooltipDiv.node().getBoundingClientRect();
+
+	const thisOffsetTop = (thisBox.bottom + thisBox.top) / 2 - containerBox.top - (tooltipBox.height / 2);
+
+	const thisOffsetLeft = thisBox.right - containerBox.left + 6;
+
+	topTooltipDiv.style("top", thisOffsetTop + "px")
+		.style("left", thisOffsetLeft + "px");
+
+};
+
+function mouseoutTopFigures() {
+	topTooltipDiv.html(null)
+		.style("display", "none");
 };
 
 function preProcessData(rawAllocationsData, rawContributionsData) {
