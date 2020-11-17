@@ -43,6 +43,7 @@ const classPrefix = "pfbial",
 	formatPercent = d3.format("%"),
 	formatSIaxes = d3.format("~s"),
 	formatMoney0Decimals = d3.format(",.0f"),
+	innerTooltipDivWidth = 290,
 	svgColumnChartWidth = 195,
 	svgMapPadding = [0, 10, 0, 10],
 	svgBarChartPadding = [4, 12, 4, 12],
@@ -469,6 +470,9 @@ function createAllocations(selections, colors, mapData, lists) {
 		.attr("in", "SourceGraphic");
 
 	mapZoomButtonPanel.main.style("filter", `url(#${classPrefix}dropshadow)`);
+
+	const cerfId = +Object.keys(lists.fundTypesList).find(e => lists.fundTypesList[e] === "cerf");
+	const cbpfId = +Object.keys(lists.fundTypesList).find(e => lists.fundTypesList[e] === "cbpf");
 
 	createMap(mapData);
 
@@ -953,6 +957,9 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		function pieGroupMouseover(event, datum) {
 
+			let thisRank,
+				thisOrdinal;
+
 			pieGroup.style("opacity", d => d.country === datum.country ? 1 : fadeOpacity);
 
 			pieGroupTexts.style("opacity", d => d.country === datum.country ? 1 : fadeOpacity);
@@ -967,8 +974,8 @@ function createAllocations(selections, colors, mapData, lists) {
 				.style("opacity", d => d === datum.country ? 1 : fadeOpacity)
 				.each((d, i, n) => {
 					if (d === datum.country) {
-						const thisRank = i + 1;
-						const thisOrdinal = makeOrdinal(thisRank);
+						thisRank = i + 1;
+						thisOrdinal = makeOrdinal(thisRank);
 						d3.select(n[i]).select("text")
 							.append("tspan")
 							.attr("class", classPrefix + "countryRanking")
@@ -981,73 +988,15 @@ function createAllocations(selections, colors, mapData, lists) {
 			tooltipDivMap.style("display", "block")
 				.html(null);
 
-			const innerTooltipDiv = tooltipDivMap.append("div")
-				.style("max-width", "210px")
-				.attr("id", classPrefix + "innerTooltipDiv");
-
-			innerTooltipDiv.append("div")
-				.style("margin-bottom", "8px")
-				.append("strong")
-				.html(datum.countryName);
-
-			const tooltipContainer = innerTooltipDiv.append("div")
-				.style("margin", "0px")
-				.style("display", "flex")
-				.style("flex-wrap", "wrap")
-				.style("white-space", "pre")
-				.style("line-height", 1.4)
-				.style("width", "100%");
-
-			const originalDatum = originalData.find(e => e.country === datum.country);
-
-			stackKeys.forEach(key => {
-
-				let keySum;
-
-				if (chartState.selectedChart === "allocationsByCountry" ||
-					(chartState.selectedChart === "allocationsBySector" && !chartState.selectedCluster.length) ||
-					(chartState.selectedChart === "allocationsByType" && !chartState.selectedType.length)) keySum = originalDatum[key];
-
-				if (chartState.selectedChart === "allocationsBySector" && chartState.selectedCluster.length) keySum = chartState.selectedCluster.reduce((acc, curr) => {
-					acc += originalDatum[`cluster##${curr}##${key}`];
-					return acc;
-				}, 0);
-
-				if (chartState.selectedChart === "allocationsByType" && chartState.selectedType.length) keySum = chartState.selectedType.reduce((acc, curr) => {
-					acc += originalDatum[`type##${curr}##${key}`];
-					return acc;
-				}, 0);
-
-				const rowDiv = tooltipContainer.append("div")
-					.style("display", "flex")
-					.style("align-items", "center")
-					.style("width", "100%");
-
-				rowDiv.append("span")
-					.attr("class", "fas fa-circle fa-xs")
-					.style("font-size", "8px")
-					.style("opacity", chartState.selectedFund === "cerf/cbpf" ? (key === "total" ? 0 : 1) : chartState.selectedFund === key ? 1 : 0)
-					.style("color", colors[key]);
-
-				rowDiv.append("span")
-					.attr("class", classPrefix + "tooltipKeys")
-					.html(" " + (key === "total" ? capitalize(key) : key.toUpperCase()));
-
-				rowDiv.append("span")
-					.attr("class", classPrefix + "tooltipLeader");
-
-				rowDiv.append("span")
-					.attr("class", classPrefix + "tooltipValues")
-					.html("$" + formatMoney0Decimals(keySum));
-			});
+			createTooltip(datum, thisRank, thisOrdinal, tooltipDivMap);
 
 			const thisBox = event.currentTarget.getBoundingClientRect();
 
-			const containerBox = mapDiv.node().getBoundingClientRect();
+			const containerBox = mapDiv.node().getBoundingClientRect();//use whole area???
 
 			const tooltipBox = tooltipDivMap.node().getBoundingClientRect();
 
-			const thisOffsetTop = (thisBox.bottom + thisBox.top) / 2 - containerBox.top - (tooltipBox.height / 2);
+			const thisOffsetTop = thisBox.top + (thisBox.height / 2) - containerBox.top < tooltipBox.height / 2 ? tooltipMargin : (thisBox.bottom + thisBox.top) / 2 - containerBox.top - (tooltipBox.height / 2);
 
 			const thisOffsetLeft = containerBox.right - thisBox.right > tooltipBox.width + (2 * tooltipMargin) ?
 				(thisBox.left + 2 * (radiusScale(chartState.selectedFund === "total" ? datum.total : datum.cbpf + datum.cerf) * (containerBox.width / svgMapWidth))) - containerBox.left + tooltipMargin :
@@ -1396,6 +1345,9 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		function mouseoverBarsTooltipRectangles(_, d) {
 
+			let thisRank,
+				thisOrdinal;
+
 			bars.style("opacity", e => e.data.country === d.country ? 1 : fadeOpacity);
 
 			barsLabels.style("opacity", e => e.country === d.country ? 1 : fadeOpacity);
@@ -1404,8 +1356,8 @@ function createAllocations(selections, colors, mapData, lists) {
 				.style("opacity", e => e === d.country ? 1 : fadeOpacity)
 				.each((datum, i, n) => {
 					if (datum === d.country) {
-						const thisRank = i + 1;
-						const thisOrdinal = makeOrdinal(thisRank);
+						thisRank = i + 1;
+						thisOrdinal = makeOrdinal(thisRank);
 						d3.select(n[i]).select("text")
 							.append("tspan")
 							.attr("class", classPrefix + "countryRanking")
@@ -1434,48 +1386,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			tooltipDivBarChart.style("display", "block")
 				.html(null);
 
-			const innerTooltipDiv = tooltipDivBarChart.append("div")
-				.style("max-width", "210px")
-				.attr("id", classPrefix + "innerTooltipDiv");
-
-			innerTooltipDiv.append("div")
-				.style("margin-bottom", "8px")
-				.append("strong")
-				.html(d.countryName);
-
-			const tooltipContainer = innerTooltipDiv.append("div")
-				.style("margin", "0px")
-				.style("display", "flex")
-				.style("flex-wrap", "wrap")
-				.style("white-space", "pre")
-				.style("line-height", 1.4)
-				.style("width", "100%");
-
-			const originalDatum = originalData.find(e => e.country === d.country);
-
-			stackKeys.forEach(key => {
-				const rowDiv = tooltipContainer.append("div")
-					.style("display", "flex")
-					.style("align-items", "center")
-					.style("width", "100%");
-
-				rowDiv.append("span")
-					.attr("class", "fas fa-circle fa-xs")
-					.style("font-size", "8px")
-					.style("opacity", chartState.selectedFund === "cerf/cbpf" ? (key === "total" ? 0 : 1) : chartState.selectedFund === key ? 1 : 0)
-					.style("color", colors[key]);
-
-				rowDiv.append("span")
-					.attr("class", classPrefix + "tooltipKeys")
-					.html(" " + (key === "total" ? capitalize(key) : key.toUpperCase()));
-
-				rowDiv.append("span")
-					.attr("class", classPrefix + "tooltipLeader");
-
-				rowDiv.append("span")
-					.attr("class", classPrefix + "tooltipValues")
-					.html("$" + formatMoney0Decimals(originalDatum[key]));
-			});
+			createTooltip(d, thisRank, thisOrdinal, tooltipDivBarChart);
 
 			const thisBox = event.currentTarget.getBoundingClientRect();
 
@@ -1518,6 +1429,232 @@ function createAllocations(selections, colors, mapData, lists) {
 		};
 
 		//end of drawBarChart
+	};
+
+	function createTooltip(datum, rank, ordinal, container) {
+
+		const projectsTotal = new Set(),
+			projectsCerf = new Set(),
+			projectsCbpf = new Set();
+
+		let tooltipTotal = 0,
+			tooltipCerf = 0,
+			tooltipCbpf = 0;
+
+		const typesData = {};
+
+		cerfAllocationTypes.forEach(e => typesData[e] = 0);
+		cbpfAllocationTypes.forEach(e => typesData[e] = 0);
+
+		datum.allocationsList.forEach(row => {
+			if (row.FundId === cerfId) {
+				row.ProjList.toString().split("##").forEach(e => {
+					projectsTotal.add(e);
+					projectsCerf.add(e);
+				});
+				tooltipTotal += row.ClusterBudget;
+				tooltipCerf += row.ClusterBudget;
+				typesData[row.AllocationSurceId] += row.ClusterBudget;
+			};
+			if (row.FundId === cbpfId) {
+				row.ProjList.toString().split("##").forEach(e => {
+					projectsTotal.add(e);
+					projectsCbpf.add(e);
+				});
+				tooltipTotal += row.ClusterBudget;
+				tooltipCbpf += row.ClusterBudget;
+				typesData[row.AllocationSurceId] += row.ClusterBudget;
+			};
+		});
+
+		const innerTooltipDiv = container.append("div")
+			.style("max-width", innerTooltipDivWidth + "px")
+			.attr("id", classPrefix + "innerTooltipDiv");
+
+		const titleDiv = innerTooltipDiv.append("div")
+			.style("margin-bottom", "18px");
+
+		titleDiv.append("strong")
+			.style("font-size", "16px")
+			.html(datum.countryName);
+
+		titleDiv.append("span")
+			.html(` (rank: ${rank}<sup>${ordinal}</sup>)`);
+
+		const innerDiv = innerTooltipDiv.append("div")
+			.style("display", "flex")
+			.style("flex-wrap", "wrap")
+			.style("white-space", "pre")
+			.style("width", "100%");
+
+		const rowDivTotal = innerDiv.append("div")
+			.style("display", "flex")
+			.style("align-items", "center")
+			.style("width", "100%")
+			.style("margin-bottom", "16px");
+
+		rowDivTotal.append("span")
+			.style("font-weight", 500)
+			.attr("class", classPrefix + "tooltipKeys")
+			.html("Total:");
+
+		rowDivTotal.append("span")
+			.attr("class", classPrefix + "tooltipLeader");
+
+		rowDivTotal.append("span")
+			.attr("class", classPrefix + "tooltipValues")
+			.html(`$${formatMoney0Decimals(tooltipTotal)} (${projectsTotal.size} Project${projectsTotal.size > 1 ? "s" : ""})`);
+
+		const rowDivCerf = innerDiv.append("div")
+			.style("display", "flex")
+			.style("align-items", "center")
+			.style("width", "100%")
+			.style("margin-bottom", "4px");
+
+		rowDivCerf.append("span")
+			.style("font-weight", 500)
+			.attr("class", classPrefix + "tooltipKeys")
+			.html("CERF:");
+
+		rowDivCerf.append("span")
+			.attr("class", classPrefix + "tooltipLeader");
+
+		rowDivCerf.append("span")
+			.attr("class", classPrefix + "tooltipValues")
+			.html(`$${formatMoney0Decimals(tooltipCerf)} (${projectsCerf.size} Project${projectsCerf.size > 1 ? "s" : ""})`);
+
+		const chartDivCerf = innerDiv.append("div")
+			.style("width", "100%");
+
+		const rowDivCbpf = innerDiv.append("div")
+			.style("display", "flex")
+			.style("align-items", "center")
+			.style("width", "100%")
+			.style("margin-bottom", "4px");
+
+		rowDivCbpf.append("span")
+			.style("font-weight", 500)
+			.attr("class", classPrefix + "tooltipKeys")
+			.html("CBPF:");
+
+		rowDivCbpf.append("span")
+			.attr("class", classPrefix + "tooltipLeader");
+
+		rowDivCbpf.append("span")
+			.attr("class", classPrefix + "tooltipValues")
+			.html(`$${formatMoney0Decimals(tooltipCbpf)} (${projectsCbpf.size} Project${projectsCbpf.size > 1 ? "s" : ""})`);
+
+		const chartDivCbpf = innerDiv.append("div")
+			.style("width", "100%");
+
+		if ((chartState.selectedChart === "allocationsByCountry" || chartState.selectedChart === "allocationsByType") && tooltipCerf) createSvgByCountry("cerf");
+
+		if ((chartState.selectedChart === "allocationsByCountry" || chartState.selectedChart === "allocationsByType") && tooltipCbpf) createSvgByCountry("cbpf");
+
+
+		function createSvgByCountry(fundType) {
+
+			const thisTypeArray = fundType === "cerf" ? cerfAllocationTypes : cbpfAllocationTypes;
+			const thisChartDiv = fundType === "cerf" ? chartDivCerf : chartDivCbpf;
+			const thisyScale = fundType === "cerf" ? yScaleColumnByTypeCerf : yScaleColumnByTypeCbpf;
+
+			chartDivCerf.style("margin-bottom", "16px");
+
+			const svgData = thisTypeArray.map(e => ({
+				type: lists.allocationTypesList[e],
+				value: typesData[e]
+			}));
+
+			const height = 72,
+				padding = [16, 28, 4, 66];
+
+			const svg = thisChartDiv.append("svg")
+				.attr("width", innerTooltipDivWidth)
+				.attr("height", height);
+
+			const xScale = xScaleColumnByType.copy()
+				.range([padding[3], innerTooltipDivWidth - padding[1]])
+				.domain([0, d3.max(svgData, d => d.value)]);
+
+			const yScale = thisyScale.copy()
+				.range([padding[0], height - padding[2]])
+				.paddingOuter(0.2);
+
+			const xAxis = d3.axisTop(xScale)
+				.tickSizeOuter(0)
+				.tickSizeInner(-(height - padding[2] - padding[0]))
+				.ticks(2)
+				.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
+
+			const yAxis = d3.axisLeft(yScale)
+				.tickSize(4);
+
+			svg.append("g")
+				.attr("class", classPrefix + "xAxisGroupColumnByType")
+				.attr("transform", "translate(0," + padding[0] + ")")
+				.call(xAxis)
+				.selectAll(".tick")
+				.filter(d => d === 0)
+				.remove();
+
+			svg.append("g")
+				.attr("class", classPrefix + "yAxisGroupColumnByTypeCerf")
+				.attr("transform", "translate(" + padding[3] + ",0)")
+				.call(customAxis);
+
+			function customAxis(group) {
+				const sel = group.selection ? group.selection() : group;
+				group.call(yAxis);
+				sel.selectAll(".tick text")
+					.filter(d => d.indexOf(" ") > -1)
+					.text(d => d.split(" ")[0])
+					.attr("x", -(yAxis.tickPadding() + yAxis.tickSize()))
+					.attr("dy", "-0.3em")
+					.append("tspan")
+					.attr("dy", "1.1em")
+					.attr("x", -(yAxis.tickPadding() + yAxis.tickSize()))
+					.text(d => d.split(" ")[1]);
+				if (sel !== group) group.selectAll(".tick text")
+					.filter(d => d.indexOf(" ") > -1)
+					.attrTween("x", null)
+					.tween("text", null);
+			};
+
+			svg.selectAll(null)
+				.data(svgData)
+				.enter()
+				.append("rect")
+				.attr("stroke", "#aaa")
+				.attr("stroke-width", 0.5)
+				.attr("height", yScale.bandwidth())
+				.attr("width", 0)
+				.style("fill", colors[fundType])
+				.attr("x", padding[3])
+				.attr("y", d => yScale(d.type))
+				.transition()
+				.duration(duration)
+				.attr("width", d => xScale(d.value) - padding[3]);
+
+
+			svg.selectAll(null)
+				.data(svgData)
+				.enter()
+				.append("text")
+				.attr("class", classPrefix + "labelsColumnByTypeCerf")
+				.attr("x", padding[3] + labelsColumnPadding)
+				.attr("y", d => yScale(d.type) + yScale.bandwidth() / 2)
+				.transition()
+				.duration(duration)
+				.attr("x", d => xScale(d.value) + labelsColumnPadding)
+				.textTween((d, i, n) => {
+					const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, d.value);
+					return t => d.value ? formatSIFloat(interpolator(t)).replace("G", "B") : 0;
+				});
+
+			//end of createSvgByCountry
+		};
+
+		//end of createTooltip
 	};
 
 	function createColumnTopValues(originalData) {

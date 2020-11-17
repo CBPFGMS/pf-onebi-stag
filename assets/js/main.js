@@ -418,18 +418,13 @@ function mouseoverTopFigures(event, d, value) {
 
 
 	const thisBox = event.currentTarget.getBoundingClientRect();
-
 	const containerBox = selections.sideNavContainer.node().getBoundingClientRect();
-
 	const tooltipBox = topTooltipDiv.node().getBoundingClientRect();
-
 	const thisOffsetTop = (thisBox.bottom + thisBox.top) / 2 - containerBox.top - (tooltipBox.height / 2);
-
 	const thisOffsetLeft = thisBox.right - containerBox.left + 6;
 
 	topTooltipDiv.style("top", thisOffsetTop + "px")
 		.style("left", thisOffsetLeft + "px");
-
 };
 
 function mouseoutTopFigures() {
