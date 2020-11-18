@@ -992,11 +992,13 @@ function createAllocations(selections, colors, mapData, lists) {
 
 			const thisBox = event.currentTarget.getBoundingClientRect();
 
-			const containerBox = mapDiv.node().getBoundingClientRect();//use whole area???
+			const containerBox = mapDiv.node().getBoundingClientRect();
 
 			const tooltipBox = tooltipDivMap.node().getBoundingClientRect();
 
-			const thisOffsetTop = thisBox.top + (thisBox.height / 2) - containerBox.top < tooltipBox.height / 2 ? tooltipMargin : (thisBox.bottom + thisBox.top) / 2 - containerBox.top - (tooltipBox.height / 2);
+			const thisOffsetTop = thisBox.top + (thisBox.height / 2) - containerBox.top < tooltipBox.height / 2 ?
+				tooltipMargin : containerBox.bottom - thisBox.bottom - (thisBox.height / 2) < tooltipBox.height / 2 ?
+				containerBox.height - tooltipBox.height - tooltipMargin : (thisBox.bottom + thisBox.top) / 2 - containerBox.top - (tooltipBox.height / 2);
 
 			const thisOffsetLeft = containerBox.right - thisBox.right > tooltipBox.width + (2 * tooltipMargin) ?
 				(thisBox.left + 2 * (radiusScale(chartState.selectedFund === "total" ? datum.total : datum.cbpf + datum.cerf) * (containerBox.width / svgMapWidth))) - containerBox.left + tooltipMargin :
@@ -1394,7 +1396,8 @@ function createAllocations(selections, colors, mapData, lists) {
 
 			const tooltipBox = tooltipDivBarChart.node().getBoundingClientRect();
 
-			const thisOffsetTop = (containerBox.height / 2) - (tooltipBox.height / 2);
+			const thisOffsetTop = containerBox.bottom - thisBox.bottom - (thisBox.height / 2) < tooltipBox.height / 2 ?
+				containerBox.height - tooltipBox.height - tooltipMargin : (containerBox.height / 2) - (tooltipBox.height / 2);
 
 			const thisOffsetLeft = containerBox.right - thisBox.right > tooltipBox.width + tooltipMargin ?
 				thisBox.left - containerBox.left + thisBox.width + tooltipMargin :
@@ -1583,7 +1586,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			const xAxis = d3.axisTop(xScale)
 				.tickSizeOuter(0)
 				.tickSizeInner(-(height - padding[2] - padding[0]))
-				.ticks(2)
+				.ticks(3)
 				.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
 
 			const yAxis = d3.axisLeft(yScale)
