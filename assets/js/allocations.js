@@ -1438,13 +1438,14 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		const projectsTotal = new Set(),
 			projectsCerf = new Set(),
-			projectsCbpf = new Set();
+			projectsCbpf = new Set(),
+			typesData = {},
+			clusterDataCerf = {},
+			clusterDataCbpf = {};
 
 		let tooltipTotal = 0,
 			tooltipCerf = 0,
 			tooltipCbpf = 0;
-
-		const typesData = {};
 
 		cerfAllocationTypes.forEach(e => typesData[e] = 0);
 		cbpfAllocationTypes.forEach(e => typesData[e] = 0);
@@ -1458,6 +1459,7 @@ function createAllocations(selections, colors, mapData, lists) {
 				tooltipTotal += row.ClusterBudget;
 				tooltipCerf += row.ClusterBudget;
 				typesData[row.AllocationSurceId] += row.ClusterBudget;
+				clusterDataCerf[row.ClusterId] = (clusterDataCerf[row.ClusterId] || 0) + row.ClusterBudget;
 			};
 			if (row.FundId === cbpfId) {
 				row.ProjList.toString().split("##").forEach(e => {
@@ -1467,6 +1469,7 @@ function createAllocations(selections, colors, mapData, lists) {
 				tooltipTotal += row.ClusterBudget;
 				tooltipCbpf += row.ClusterBudget;
 				typesData[row.AllocationSurceId] += row.ClusterBudget;
+				clusterDataCbpf[row.ClusterId] = (clusterDataCbpf[row.ClusterId] || 0) + row.ClusterBudget;
 			};
 		});
 
@@ -1527,7 +1530,8 @@ function createAllocations(selections, colors, mapData, lists) {
 			.html(`$${formatMoney0Decimals(tooltipCerf)} (${projectsCerf.size} Project${projectsCerf.size > 1 ? "s" : ""})`);
 
 		const chartDivCerf = innerDiv.append("div")
-			.style("width", "100%");
+			.style("width", "100%")
+			.style("margin-bottom", "16px");
 
 		const rowDivCbpf = innerDiv.append("div")
 			.style("display", "flex")
@@ -1551,17 +1555,16 @@ function createAllocations(selections, colors, mapData, lists) {
 			.style("width", "100%");
 
 		if ((chartState.selectedChart === "allocationsByCountry" || chartState.selectedChart === "allocationsByType") && tooltipCerf) createSvgByCountry("cerf");
-
 		if ((chartState.selectedChart === "allocationsByCountry" || chartState.selectedChart === "allocationsByType") && tooltipCbpf) createSvgByCountry("cbpf");
 
+		if (chartState.selectedChart === "allocationsBySector" && tooltipCerf) createSvgBySector("cerf");
+		if (chartState.selectedChart === "allocationsBySector" && tooltipCbpf) createSvgBySector("cbpf");
 
 		function createSvgByCountry(fundType) {
 
 			const thisTypeArray = fundType === "cerf" ? cerfAllocationTypes : cbpfAllocationTypes;
 			const thisChartDiv = fundType === "cerf" ? chartDivCerf : chartDivCbpf;
 			const thisyScale = fundType === "cerf" ? yScaleColumnByTypeCerf : yScaleColumnByTypeCbpf;
-
-			chartDivCerf.style("margin-bottom", "16px");
 
 			const svgData = thisTypeArray.map(e => ({
 				type: lists.allocationTypesList[e],
@@ -1656,6 +1659,116 @@ function createAllocations(selections, colors, mapData, lists) {
 
 			//end of createSvgByCountry
 		};
+
+		function createSvgBySector(fundType) {
+
+			const thisChartDiv = fundType === "cerf" ? chartDivCerf : chartDivCbpf;
+			const thisTypeObject = fundType === "cerf" ? clusterDataCerf : clusterDataCbpf;
+
+			const svgData = Object.entries(thisTypeObject).map(e => ({
+				cluster: lists.clustersList[e[0]],
+				clusterId: e[0],
+				value: e[1]
+			})).sort((a, b) => b.value - a.value);
+
+			const padding = [16, 26, 4, 86],
+				height = padding[0] + padding[2] + maxColumnRectHeight * 1.4 * svgData.length;
+
+			const svg = thisChartDiv.append("svg")
+				.attr("width", innerTooltipDivWidth)
+				.attr("height", height);
+
+			const yScale = yScaleColumnBySector.copy()
+				.domain(svgData.map(e => e.cluster))
+				.range([padding[0], height - padding[2]]);
+
+			const xScale = xScaleColumnBySector.copy()
+				.range([padding[3], innerTooltipDivWidth - padding[1]])
+				.domain([0, d3.max(svgData, e => e.value)]);
+
+			const xAxis = d3.axisTop(xScale)
+				.tickSizeOuter(0)
+				.tickSizeInner(-(height - padding[0] - padding[2]))
+				.ticks(3)
+				.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
+
+			const yAxis = d3.axisLeft(yScale)
+				.tickPadding(clusterIconSize + 2 * clusterIconPadding)
+				.tickSize(3);
+
+			svg.append("g")
+				.attr("class", classPrefix + "xAxisGroupColumnBySector")
+				.attr("transform", "translate(0," + padding[0] + ")")
+				.call(xAxis)
+				.selectAll(".tick")
+				.filter(d => d === 0)
+				.remove();
+
+			svg.append("g")
+				.attr("class", classPrefix + "yAxisGroupColumnBySector")
+				.attr("transform", "translate(" + padding[3] + ",0)")
+				.call(customAxis);
+
+			function customAxis(group) {
+				const sel = group.selection ? group.selection() : group;
+				group.call(yAxis);
+				sel.selectAll(".tick text")
+					.filter(d => d.indexOf(" ") > -1)
+					.text(d => clusterNamesScale(d).split(" ")[0])
+					.attr("x", -(yAxis.tickPadding() + yAxis.tickSize()))
+					.attr("dy", d => clusterNamesScale(d).indexOf(" ") > -1 ? "-0.3em" : "0.32em")
+					.append("tspan")
+					.attr("dy", "1.1em")
+					.attr("x", -(yAxis.tickPadding() + yAxis.tickSize()))
+					.text(d => clusterNamesScale(d).split(" ")[1]);
+				if (sel !== group) group.selectAll(".tick text")
+					.filter(d => d.indexOf(" ") > -1)
+					.attrTween("x", null)
+					.tween("text", null);
+			};
+
+			svg.selectAll(null)
+				.data(svgData)
+				.enter()
+				.append("rect")
+				.attr("stroke", "#aaa")
+				.attr("stroke-width", 0.5)
+				.attr("height", yScale.bandwidth())
+				.attr("width", 0)
+				.style("fill", colors[fundType])
+				.attr("x", xScale(0))
+				.attr("y", d => yScale(d.cluster))
+				.transition()
+				.duration(duration)
+				.attr("width", d => xScale(d.value) - padding[3]);
+
+			svg.selectAll(null)
+				.data(svgData)
+				.enter()
+				.append("text")
+				.attr("class", classPrefix + "labelsColumnBySector")
+				.attr("x", padding[3] + labelsColumnPadding)
+				.attr("y", d => yScale(d.cluster) + yScale.bandwidth() / 2)
+				.transition()
+				.duration(duration)
+				.attr("x", d => xScale(d.value) + labelsColumnPadding)
+				.textTween((d, i, n) => {
+					const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, d.value);
+					return t => d.value ? formatSIFloat(interpolator(t)).replace("G", "B") : 0;
+				});
+
+			svg.selectAll(null)
+				.data(svgData)
+				.enter()
+				.append("image")
+				.attr("x", padding[3] - clusterIconPadding - clusterIconSize - yAxis.tickSize())
+				.attr("y", d => yScale(d.cluster) - (clusterIconSize - yScale.bandwidth()) / 2)
+				.attr("width", clusterIconSize)
+				.attr("height", clusterIconSize)
+				.attr("href", d => clustersIconsData[d.clusterId]);
+
+			//end of createSvgBySector
+		}
 
 		//end of createTooltip
 	};
