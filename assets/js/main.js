@@ -6,12 +6,14 @@ const generalClassPrefix = "pfbihp",
 	localStorageTime = 3600000,
 	currentDate = new Date(),
 	currentYear = currentDate.getFullYear(),
+	formatLastModified = d3.timeFormat("%d/%m/%Y %H:%M:%S"),
 	localVariable = d3.local(),
 	duration = 1000,
 	unBlue = "#65A8DC",
 	cerfColor = "#FBD45C",
 	cbpfColor = "#F37261",
 	formatMoney0Decimals = d3.format(",.0f"),
+	lastModifiedUrl = "https://cbpfapi.unocha.org/vo2/odata/LastModified",
 	unworldmapUrl = "https://cbpfgms.github.io/pf-onebi-data/map/unworldmap.json",
 	masterFundsUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstCountry.json",
 	masterDonorsUrl = "https://cbpfgms.github.io/pf-onebi-data/mst/MstDonor.json",
@@ -84,6 +86,7 @@ const selections = {
 	projectsTopFigure: d3.select("#high-level-fugure-projects"),
 	yearDropdown: d3.select("#ddlDropdown"),
 	sideNavContainer: d3.select("#layoutSidenav"),
+	lastModifiedSpan: d3.select("#updatedOn"),
 	navlinkAllocationsByCountry: d3.select("#navAllocationsByCountry"),
 	navlinkAllocationsBySector: d3.select("#navAllocationsBySector"),
 	navlinkAllocationsByType: d3.select("#navAllocationsByType"),
@@ -185,7 +188,8 @@ Promise.all([fetchFile("unworldmap", unworldmapUrl, "world map", "json"),
 		fetchFile("masterPartnerTypes", masterPartnerTypesUrl, "master table for partner types", "json"),
 		fetchFile("masterClusterTypes", masterClusterTypesUrl, "master table for cluster types", "json"),
 		fetchFile("allocationsData", allocationsDataUrl, "allocations data", "csv"),
-		fetchFile("contributionsData", contributionsDataUrl, "contributions data", "csv")
+		fetchFile("contributionsData", contributionsDataUrl, "contributions data", "csv"),
+		fetchFile("lastModified", lastModifiedUrl, "last modified date", "json")
 	])
 	.then(rawData => controlCharts(rawData));
 
@@ -197,7 +201,8 @@ function controlCharts([worldMap,
 	masterPartnerTypes,
 	masterClusterTypes,
 	rawAllocationsData,
-	rawContributionsData
+	rawContributionsData,
+	lastModified
 ]) {
 
 	createFundNamesList(masterFunds);
@@ -231,6 +236,8 @@ function controlCharts([worldMap,
 		defaultValues: defaultValues,
 		queryStringValues: queryStringValues
 	};
+
+	populateLastModified(lastModified);
 
 	preProcessData(rawAllocationsData, rawContributionsData);
 
@@ -827,4 +834,9 @@ function setQueryString(key, value) {
 	};
 	const newURL = window.location.origin + window.location.pathname + "?" + queryStringValues.toString();
 	window.history.replaceState(null, "", newURL);
+};
+
+function populateLastModified(lastModifiedData) {
+	const lastModifiedDate = new Date(lastModifiedData.value[0].last_updated_date);
+	selections.lastModifiedSpan.html("Data updated on " + formatLastModified(lastModifiedDate) + " (EST)")
 };
