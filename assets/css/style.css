@@ -422,6 +422,8 @@ footer{position: sticky; bottom: 0;}
   position: relative;
 }
 
+/*tooltip stiles*/
+
 #pfbialtooltipDivMap, #pfbialtooltipDivBarChart, #pfbicctooltipDiv, #pfbihptopTooltipDiv {    
   position: absolute;
   text-align: left;
@@ -438,6 +440,49 @@ footer{position: sticky; bottom: 0;}
   cursor: none;
   z-index: 1500;
 }
+
+.pfbialtooltipTitleDiv, .pfbicctooltipTitleDiv, .pfbicdtooltipTitleDiv {
+
+}
+
+.pfbialtooltipRank {
+
+}
+
+.pfbialtooltipTotalValue, .pfbialtooltipCerfValue, .pfbialtooltipCbpfValue {
+
+} 
+
+.pfbialtooltipZeroValueCerf, .pfbialtooltipZeroValueCbpf {
+
+}
+
+.pfbialtooltipProjectsTotal, .pfbialtooltipProjectsCerf, .pfbialtooltipProjectsCbpf {
+
+}
+
+.pfbialtooltipValues, .pfbialtooltipKeys, .pfbicctooltipValues, .pfbicctooltipYears {
+  flex: 1 0 auto;
+}
+
+.pfbialtooltipLeader, .pfbicctooltipLeader {
+  flex: 0 1 auto;
+  overflow: hidden;
+  color: #ccc;
+}
+
+.pfbialtooltipLeader::before, .pfbicctooltipLeader::before {
+   display: block;
+   overflow: hidden;
+   text-overflow: clip;
+   content: 
+     ". . . . . . . . . . . . . . . . . . . . "
+     ". . . . . . . . . . . . . . . . . . . . "
+     ". . . . . . . . . . . . . . . . . . . . "
+     ". . . . . . . . . . . . . . . . . . . . "
+}
+
+/*end of tooltip styles*/
 
 #byCountryRegionsText, #bySectorSectorsText, #byTypeCerfText, #byTypeCbpfText {
   font-size: 0.7em;
@@ -669,27 +714,6 @@ footer{position: sticky; bottom: 0;}
   pointer-events: none;
   text-anchor: middle;
 }
-
-.pfbialtooltipValues, .pfbialtooltipKeys, .pfbicctooltipValues, .pfbicctooltipYears {
-   flex: 1 0 auto;
- }
-
- .pfbialtooltipLeader, .pfbicctooltipLeader {
-   flex: 0 1 auto;
-   overflow: hidden;
-   color: #ccc;
- }
-
- .pfbialtooltipLeader::before, .pfbicctooltipLeader::before {
-   display: block;
-   overflow: hidden;
-   text-overflow: clip;
-   content: 
-     ". . . . . . . . . . . . . . . . . . . . "
-     ". . . . . . . . . . . . . . . . . . . . "
-     ". . . . . . . . . . . . . . . . . . . . "
-     ". . . . . . . . . . . . . . . . . . . . "
- }
 
 .pfbialbuttonsDiv button, .pfbicdbuttonsDiv button {
   margin: 0px 0px 0px 8px;

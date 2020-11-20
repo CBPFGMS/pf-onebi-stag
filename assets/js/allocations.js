@@ -1478,6 +1478,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("id", classPrefix + "innerTooltipDiv");
 
 		const titleDiv = innerTooltipDiv.append("div")
+			.attr("class", classPrefix + "tooltipTitleDiv")
 			.style("margin-bottom", "18px");
 
 		titleDiv.append("strong")
@@ -1485,6 +1486,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			.html(datum.countryName);
 
 		titleDiv.append("span")
+			.attr("class", classPrefix + "tooltipRank")
 			.html(` (rank: ${rank}<sup>${ordinal}</sup>)`);
 
 		const innerDiv = innerTooltipDiv.append("div")
@@ -1494,6 +1496,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			.style("width", "100%");
 
 		const rowDivTotal = innerDiv.append("div")
+			.attr("class", classPrefix + "tooltipTotalValue")
 			.style("display", "flex")
 			.style("align-items", "center")
 			.style("width", "100%")
@@ -1509,9 +1512,14 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		rowDivTotal.append("span")
 			.attr("class", classPrefix + "tooltipValues")
-			.html(`$${formatMoney0Decimals(tooltipTotal)} (${projectsTotal.size} Project${projectsTotal.size > 1 ? "s" : ""})`);
+			.html(formatMoney0Decimals(tooltipTotal))
+			.append("span")
+			.attr("class", classPrefix + "tooltipProjectsTotal")
+			.html(` (${projectsTotal.size} Project${projectsTotal.size > 1 ? "s" : ""})`);
 
 		const rowDivCerf = innerDiv.append("div")
+			.attr("class", classPrefix + "tooltipCerfValue")
+			.classed(classPrefix + "tooltipZeroValueCbpf", !tooltipCerf)
 			.style("display", "flex")
 			.style("align-items", "center")
 			.style("width", "100%")
@@ -1527,13 +1535,18 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		rowDivCerf.append("span")
 			.attr("class", classPrefix + "tooltipValues")
-			.html(`$${formatMoney0Decimals(tooltipCerf)} (${projectsCerf.size} Project${projectsCerf.size > 1 ? "s" : ""})`);
+			.html(formatMoney0Decimals(tooltipCerf))
+			.append("span")
+			.attr("class", classPrefix + "tooltipProjectsCerf")
+			.html(` (${projectsCerf.size} Project${projectsCerf.size > 1 ? "s" : ""})`);
 
 		const chartDivCerf = innerDiv.append("div")
 			.style("width", "100%")
 			.style("margin-bottom", "16px");
 
 		const rowDivCbpf = innerDiv.append("div")
+			.attr("class", classPrefix + "tooltipCbpfValue")
+			.classed(classPrefix + "tooltipZeroValueCbpf", !tooltipCbpf)
 			.style("display", "flex")
 			.style("align-items", "center")
 			.style("width", "100%")
@@ -1549,7 +1562,10 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		rowDivCbpf.append("span")
 			.attr("class", classPrefix + "tooltipValues")
-			.html(`$${formatMoney0Decimals(tooltipCbpf)} (${projectsCbpf.size} Project${projectsCbpf.size > 1 ? "s" : ""})`);
+			.html(formatMoney0Decimals(tooltipCbpf))
+			.append("span")
+			.attr("class", classPrefix + "tooltipProjectsCbpf")
+			.html(` (${projectsCbpf.size} Project${projectsCbpf.size > 1 ? "s" : ""})`);
 
 		const chartDivCbpf = innerDiv.append("div")
 			.style("width", "100%");
