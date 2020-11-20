@@ -13,12 +13,12 @@ const classPrefix = "pfbicd",
 	nonMemberStateHeight = 130,
 	svgWidth = 140,
 	svgHeight = 68,
-	donorNameDivHeight = 18,
+	donorNameDivHeight = 24,
 	flagSize = 22,
 	flagSizeColumn = 16,
 	flagPadding = 2,
 	maxColumnRectHeight = 16,
-	svgPadding = [10, 26, 14, 26],
+	svgPadding = [10, 30, 14, 26],
 	svgColumnPadding = [16, 26, 8, 80],
 	yScaleRange = [svgHeight - svgPadding[2], svgPadding[0]],
 	localyScale = d3.local(),
@@ -32,6 +32,9 @@ const classPrefix = "pfbicd",
 	labelsColumnPadding = 2,
 	svgColumnChartWidth = 195,
 	topDonors = 10,
+	tooltipWidth = 440,
+	tooltipTopHeight = 26,
+	tooltipChartHeight = 280,
 	formatPercent = d3.format("%"),
 	stackKeys = ["total", "cerf", "cbpf"],
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
@@ -281,7 +284,7 @@ function createContributionsByDonor(selections, colors, lists) {
 		});
 
 		let barsGroups = donorSvg.selectAll("." + classPrefix + "barsGroups")
-			.data(d => stack(d.contributions), d => d.key);
+			.data(d => stack(d.contributions.filter(e => e.year < currentYear)), d => d.key);
 
 		const barGroupsExit = barsGroups.exit().remove();
 
@@ -321,7 +324,7 @@ function createContributionsByDonor(selections, colors, lists) {
 			.attr("height", (d, i, n) => localyScale.get(n[i])(d[0]) - localyScale.get(n[i])(d[1]));
 
 		let barLine = donorSvg.selectAll("." + classPrefix + "barLine")
-			.data(d => fillWithZeros(d.contributions));
+			.data(d => fillWithZeros(d.contributions.filter(e => e.year < currentYear)));
 
 		const barLineExit = barLine.exit()
 			.remove();
@@ -368,6 +371,10 @@ function createContributionsByDonor(selections, colors, lists) {
 				const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]);
 				return t => d3.formatPrefix(".0", interpolator(t))(interpolator(t)).replace("G", "B");
 			});
+
+		donorDiv.on("mouseover", donorDivMouseOver)
+			.on("mouseout", donorDivMouseOut)
+			.on("click", donorDivClick);
 
 		//end of drawMemberStates
 	};
@@ -470,7 +477,7 @@ function createContributionsByDonor(selections, colors, lists) {
 		});
 
 		let barsGroups = nonMemberDonorSvg.selectAll("." + classPrefix + "barsGroups")
-			.data(d => stack(d.contributions), d => d.key);
+			.data(d => stack(d.contributions.filter(e => e.year < currentYear)), d => d.key);
 
 		const barGroupsExit = barsGroups.exit().remove();
 
@@ -510,7 +517,7 @@ function createContributionsByDonor(selections, colors, lists) {
 			.attr("height", (d, i, n) => localyScale.get(n[i])(d[0]) - localyScale.get(n[i])(d[1]));
 
 		let barLine = nonMemberDonorSvg.selectAll("." + classPrefix + "barLine")
-			.data(d => fillWithZeros(d.contributions));
+			.data(d => fillWithZeros(d.contributions.filter(e => e.year < currentYear)));
 
 		const barLineExit = barLine.exit()
 			.remove();
@@ -559,6 +566,59 @@ function createContributionsByDonor(selections, colors, lists) {
 			});
 
 		//end of drawNonMemberStates
+	};
+
+	function donorDivMouseOver() {
+		d3.select(this).classed(classPrefix + "donorDivActive", true);
+		d3.select(this).append("div")
+			.attr("class", classPrefix + "donorExpandDiv")
+			.append("i")
+			.attr("class", "fas fa-expand-arrows-alt")
+	};
+
+	function donorDivMouseOut() {
+		d3.select(this).classed(classPrefix + "donorDivActive", false);
+		d3.select(this)
+			.select("." + classPrefix + "donorExpandDiv")
+			.remove();
+	};
+
+	function donorDivClick(_, datum) {
+		d3.select(this).classed(classPrefix + "donorDivActive", false);
+		d3.select(this)
+			.select("." + classPrefix + "donorExpandDiv")
+			.remove();
+
+		memberStatesChartAreaDiv.select("#" + classPrefix + "tooltipDiv")
+			.remove();
+
+		const tooltipDiv = memberStatesChartAreaDiv.append("div")
+			.attr("id", classPrefix + "tooltipDiv")
+			.style("left", "50%")
+			.style("top", "50%")
+			.style("transform", "translate(-50%,-50%)");
+
+		const innerTooltipDiv = tooltipDiv.append("div")
+			.style("width", tooltipWidth + "px")
+			.style("height", tooltipTopHeight + tooltipChartHeight + "px")
+			.style("cursor", "default")
+			.style("pointer-events", "all");
+
+		const tooltipTopDiv = innerTooltipDiv.append("div")
+			.style("width", "100%")
+			.style("height", tooltipTopHeight + "px")
+			.style("font-size", "25px")
+			.style("text-align", "right")
+			.on("click", () => tooltipDiv.remove());
+
+		const tooltipChartDiv = innerTooltipDiv.append("div")
+			.style("width", "100%")
+			.style("height", tooltipChartHeight + "px");
+
+		tooltipTopDiv.append("i")
+			.attr("class", "far fa-window-close")
+			.style("cursor", "pointer");
+
 	};
 
 	function createColumnTopValues(originalData) {

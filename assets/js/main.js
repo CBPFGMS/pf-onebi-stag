@@ -536,7 +536,7 @@ function processDataContributionsByDonor(rawContributionsData) {
 	const data = [];
 
 	rawContributionsData.forEach(row => {
-		if (row.FiscalYear < currentYear) {
+		if (row.FiscalYear <= currentYear) {
 
 			const foundDonor = data.find(e => e.donorId === row.DonorId);
 
