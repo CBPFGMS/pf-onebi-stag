@@ -422,7 +422,7 @@ footer{position: sticky; bottom: 0;}
   position: relative;
 }
 
-/*tooltip stiles*/
+/*tooltip styles*/
 
 #pfbialtooltipDivMap, #pfbialtooltipDivBarChart, #pfbicctooltipDiv, #pfbihptopTooltipDiv {    
   position: absolute;
