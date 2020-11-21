@@ -691,8 +691,7 @@ function validateDefault(values) {
 	const yearArray = chartTypesAllocations.indexOf(chartState.selectedChart) > -1 ? yearsArrayAllocations : yearsArrayContributions;
 	chartState.selectedYear = +values.year === +values.year && yearArray.indexOf(+values.year) > -1 ?
 		+values.year : defaultValues.year;
-	chartState.selectedFund = chartTypesAllocations.indexOf(chartState.selectedChart) > -1 && fundValues.indexOf(values.fund) > -1 ?
-		values.fund : defaultValues.fund;
+	chartState.selectedFund = fundValues.indexOf(values.fund) > -1 ? values.fund : defaultValues.fund;
 };
 
 function createFundNamesList(fundsData) {

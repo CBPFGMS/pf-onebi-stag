@@ -482,6 +482,23 @@ footer{position: sticky; bottom: 0;}
      ". . . . . . . . . . . . . . . . . . . . "
 }
 
+.pfbicdtooltipNameDiv {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-right: 4px;
+  padding-left: 4px;
+}
+
+.pfbicdtooltipNameDiv span {
+  font-size: 1.1rem;
+  padding-left: 0.5rem;
+  font-family: "Roboto", sans-serif;
+  color: #5f6969;
+  line-height: 1;
+}
+
 /*end of tooltip styles*/
 
 #byCountryRegionsText, #bySectorSectorsText, #byTypeCerfText, #byTypeCbpfText {
@@ -624,11 +641,11 @@ footer{position: sticky; bottom: 0;}
   fill: #666;
 }
 
-.pfbialxAxisGroup line, .pfbicdyAxisGroupColumn line, .pfbiccyAxisGroupColumn line, .pfbialyAxisGroupColumnByCountry line, .pfbialyAxisGroupColumnBySector line, .pfbialyAxisGroupColumnByTypeCerf line, .pfbialyAxisGroupColumnByTypeCbpf line {
+.pfbialxAxisGroup line, .pfbicdxAxisGroupTooltip line, .pfbicdyAxisGroupColumn line, .pfbiccyAxisGroupColumn line, .pfbialyAxisGroupColumnByCountry line, .pfbialyAxisGroupColumnBySector line, .pfbialyAxisGroupColumnByTypeCerf line, .pfbialyAxisGroupColumnByTypeCbpf line {
   stroke: darkslategray;
 }
 
-.pfbialxAxisGroup path, .pfbicdxAxisGroupColumn path, .pfbiccxAxisGroupColumn path, .pfbialxAxisGroupColumnByCountry path, .pfbialxAxisGroupColumnBySector path, .pfbialxAxisGroupColumnByType path, .pfbialyAxisGroup path, .pfbicdyAxisGroupColumn path, .pfbiccyAxisGroupColumn path, .pfbialyAxisGroupColumnByCountry path, .pfbialyAxisGroupColumnBySector path, .pfbialyAxisGroupColumnByTypeCerf path, .pfbialyAxisGroupColumnByTypeCbpf path {
+.pfbialxAxisGroup path, .pfbicdyAxisGroupTooltip path, .pfbicdxAxisGroupTooltip path, .pfbicdxAxisGroupColumn path, .pfbiccxAxisGroupColumn path, .pfbialxAxisGroupColumnByCountry path, .pfbialxAxisGroupColumnBySector path, .pfbialxAxisGroupColumnByType path, .pfbialyAxisGroup path, .pfbicdyAxisGroupColumn path, .pfbiccyAxisGroupColumn path, .pfbialyAxisGroupColumnByCountry path, .pfbialyAxisGroupColumnBySector path, .pfbialyAxisGroupColumnByTypeCerf path, .pfbialyAxisGroupColumnByTypeCbpf path {
   stroke: none;
 }
 
@@ -637,6 +654,11 @@ footer{position: sticky; bottom: 0;}
   font-size: 9px;
   text-anchor: end;
   letter-spacing: -0.25px;
+}
+
+.pfbicdxAxisGroupTooltip text {
+  font-family: "Roboto", sans-serif;
+  fill: #666;
 }
 
 .pfbialcountryRanking {
@@ -661,7 +683,7 @@ footer{position: sticky; bottom: 0;}
   dominant-baseline: central;
 } 
 
-.pfbicdxAxisGroupColumn text, .pfbiccxAxisGroupColumn text, .pfbialxAxisGroupColumnByCountry text, .pfbialxAxisGroupColumnBySector text, .pfbialxAxisGroupColumnByType text {
+.pfbicdxAxisGroupColumn text, .pfbicdyAxisGroupTooltip text, .pfbiccxAxisGroupColumn text, .pfbialxAxisGroupColumnByCountry text, .pfbialxAxisGroupColumnBySector text, .pfbialxAxisGroupColumnByType text {
   font-family: "Roboto", sans-serif;
   font-size: 10px;
   fill: #888;
@@ -681,7 +703,7 @@ footer{position: sticky; bottom: 0;}
   font-weight: 500;
 }
   
-.pfbicdxAxisGroupColumn line, .pfbiccxAxisGroupColumn line, .pfbialxAxisGroupColumnByCountry line, .pfbialxAxisGroupColumnBySector line, .pfbialxAxisGroupColumnByType line {
+.pfbicdxAxisGroupColumn line, .pfbicdyAxisGroupTooltip line, .pfbiccxAxisGroupColumn line, .pfbialxAxisGroupColumnByCountry line, .pfbialxAxisGroupColumnBySector line, .pfbialxAxisGroupColumnByType line {
   stroke: #ddd;
   stroke-dasharray: 2, 2;
 }
@@ -832,6 +854,11 @@ footer{position: sticky; bottom: 0;}
   margin-bottom: 12px;
 }
 
+.pfbicdnonMemberDonorDiv {
+  justify-self: center;
+  margin-bottom: 12px;
+}
+
 #layoutSidenav_content {
   height: calc(100vh - 56px);
 }
@@ -886,6 +913,18 @@ footer{position: sticky; bottom: 0;}
   pointer-events: none;
   dominant-baseline: middle;
   letter-spacing: -0.25px;
+}
+
+.pfbicdtooltipBarLabel, .pfbicdtooltipBarLabelCerfValue {
+  font-family: "Roboto", sans-serif;
+  font-size: 10px;
+  pointer-events: none;
+  dominant-baseline: middle;
+  text-anchor: middle;
+  letter-spacing: -0.4px;
+  stroke: white;
+  stroke-width: 2px;
+  paint-order: stroke;
 }
 
 .pfbicctopDiv {
