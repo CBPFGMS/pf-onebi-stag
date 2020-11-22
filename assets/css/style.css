@@ -641,7 +641,7 @@ footer{position: sticky; bottom: 0;}
   fill: #666;
 }
 
-.pfbialxAxisGroup line, .pfbicdxAxisGroupTooltip line, .pfbicdyAxisGroupColumn line, .pfbiccyAxisGroupColumn line, .pfbialyAxisGroupColumnByCountry line, .pfbialyAxisGroupColumnBySector line, .pfbialyAxisGroupColumnByTypeCerf line, .pfbialyAxisGroupColumnByTypeCbpf line {
+.pfbialxAxisGroup line, .pfbicdxAxisGroupTooltip line, .pfbicdcurrentYearTick, .pfbicdyAxisGroupColumn line, .pfbiccyAxisGroupColumn line, .pfbialyAxisGroupColumnByCountry line, .pfbialyAxisGroupColumnBySector line, .pfbialyAxisGroupColumnByTypeCerf line, .pfbialyAxisGroupColumnByTypeCbpf line {
   stroke: darkslategray;
 }
 
@@ -656,8 +656,9 @@ footer{position: sticky; bottom: 0;}
   letter-spacing: -0.25px;
 }
 
-.pfbicdxAxisGroupTooltip text {
+.pfbicdxAxisGroupTooltip text, .pfbicdcurrentYearText {
   font-family: "Roboto", sans-serif;
+  font-size: 10px;
   fill: #666;
 }
 
@@ -921,7 +922,6 @@ footer{position: sticky; bottom: 0;}
   pointer-events: none;
   dominant-baseline: middle;
   text-anchor: middle;
-  letter-spacing: -0.4px;
   stroke: white;
   stroke-width: 2px;
   paint-order: stroke;
