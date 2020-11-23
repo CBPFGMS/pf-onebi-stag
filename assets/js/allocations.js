@@ -45,6 +45,7 @@ const classPrefix = "pfbial",
 	formatMoney0Decimals = d3.format(",.0f"),
 	innerTooltipDivWidth = 290,
 	svgColumnChartWidth = 195,
+	svgColumnChartHeight = 380,
 	svgMapPadding = [0, 10, 0, 10],
 	svgBarChartPadding = [4, 12, 4, 12],
 	svgColumnChartPaddingByCountry = [16, 26, 4, 56],
@@ -143,22 +144,13 @@ function createAllocations(selections, colors, mapData, lists) {
 	columnChartContainerByTypeCerf.html(null);
 	columnChartContainerByTypeCbpf.html(null);
 
-	const columnChartContainerByCountrySize = columnChartContainerByCountry.node().getBoundingClientRect();
-	const columnChartContainerBySectorSize = columnChartContainerBySector.node().getBoundingClientRect();
-
-	let svgColumnChartByCountryHeight = columnChartContainerByCountrySize.height;
-	let svgColumnChartBySectorHeight = columnChartContainerBySectorSize.height;
-
-	svgColumnChartByCountryHeight = svgColumnChartBySectorHeight = Math.max(svgColumnChartByCountryHeight, svgColumnChartBySectorHeight);
-
-	//FIX: WHY ISN'T VIEWBOX WORKING?
 	const svgColumnChartByCountry = columnChartContainerByCountry.append("svg")
 		.attr("width", svgColumnChartWidth)
-		.attr("height", svgColumnChartByCountryHeight);
+		.attr("height", svgColumnChartHeight);
 
 	const svgColumnChartBySector = columnChartContainerBySector.append("svg")
 		.attr("width", svgColumnChartWidth)
-		.attr("height", svgColumnChartBySectorHeight);
+		.attr("height", svgColumnChartHeight);
 
 	const svgColumnChartByTypeCerf = columnChartContainerByTypeCerf.append("svg")
 		.attr("width", svgColumnChartWidth)
@@ -273,7 +265,7 @@ function createAllocations(selections, colors, mapData, lists) {
 		.range([svgColumnChartPaddingByCountry[3], svgColumnChartWidth - svgColumnChartPaddingByCountry[1]]);
 
 	const yScaleColumnByCountry = d3.scaleBand()
-		.range([svgColumnChartPaddingByCountry[0], svgColumnChartByCountryHeight - svgColumnChartPaddingByCountry[2]])
+		.range([svgColumnChartPaddingByCountry[0], svgColumnChartHeight - svgColumnChartPaddingByCountry[2]])
 		.paddingInner(0.5)
 		.paddingOuter(0.5);
 
@@ -281,7 +273,7 @@ function createAllocations(selections, colors, mapData, lists) {
 		.range([svgColumnChartPaddingBySector[3], svgColumnChartWidth - svgColumnChartPaddingBySector[1]]);
 
 	const yScaleColumnBySector = d3.scaleBand()
-		.range([svgColumnChartPaddingBySector[0], svgColumnChartBySectorHeight - svgColumnChartPaddingBySector[2]])
+		.range([svgColumnChartPaddingBySector[0], svgColumnChartHeight - svgColumnChartPaddingBySector[2]])
 		.paddingInner(0.5)
 		.paddingOuter(0.5);
 
@@ -1969,7 +1961,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 			yScaleColumnByCountry.domain(filteredData.map(e => e.region))
 				.range([svgColumnChartPaddingByCountry[0],
-					Math.min(svgColumnChartByCountryHeight - svgColumnChartPaddingByCountry[2], maxColumnRectHeight * 2 * (filteredData.length + 1))
+					Math.min(svgColumnChartHeight - svgColumnChartPaddingByCountry[2], maxColumnRectHeight * 2 * (filteredData.length + 1))
 				]);
 
 			xScaleColumnByCountry.domain([0, d3.max(filteredData, e => chartState.selectedFund === "total" ? e.total : e.cbpf + e.cerf)]);
@@ -2202,7 +2194,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 			yScaleColumnBySector.domain(filteredData.map(e => e.cluster))
 				.range([svgColumnChartPaddingBySector[0],
-					Math.min(svgColumnChartBySectorHeight - svgColumnChartPaddingBySector[2], maxColumnRectHeight * 2 * (filteredData.length + 1))
+					Math.min(svgColumnChartHeight - svgColumnChartPaddingBySector[2], maxColumnRectHeight * 2 * (filteredData.length + 1))
 				]);
 
 			xScaleColumnBySector.domain([0, d3.max(filteredData, e => chartState.selectedFund === "total" ? e.total : e.cbpf + e.cerf)]);

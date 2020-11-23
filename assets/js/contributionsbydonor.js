@@ -34,6 +34,7 @@ const classPrefix = "pfbicd",
 	labelMinPadding = 5,
 	labelsColumnPadding = 2,
 	svgColumnChartWidth = 195,
+	svgColumnChartHeight = 380,
 	topDonors = 10,
 	tooltipWidth = 520,
 	tooltipTopHeight = 26,
@@ -117,8 +118,6 @@ function createContributionsByDonor(selections, colors, lists) {
 	const columnChartContainer = selections.byDonorChartContainer;
 
 	columnChartContainer.html(null);
-
-	const svgColumnChartHeight = columnChartContainer.node().getBoundingClientRect().height;
 
 	const svgColumnChart = columnChartContainer.append("svg")
 		.attr("width", svgColumnChartWidth)

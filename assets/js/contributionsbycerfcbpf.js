@@ -20,6 +20,7 @@ const classPrefix = "pfbicc",
 	svgColumnPadding = [16, 26, 8, 80],
 	svgColumnChartWidth = 195,
 	maxColumnRectHeight = 16,
+	svgColumnChartHeight = 380,
 	labelsColumnPadding = 2,
 	maxYearNumber = 4,
 	flagSize = 16,
@@ -121,8 +122,6 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	const columnChartContainer = selections.byCerfCbpfChartContainer;
 
 	columnChartContainer.html(null);
-
-	const svgColumnChartHeight = columnChartContainer.node().getBoundingClientRect().height;
 
 	const svgColumnChart = columnChartContainer.append("svg")
 		.attr("width", svgColumnChartWidth)
@@ -1502,6 +1501,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 				if (foundYear) {
 					pushCbpfOrCerfContribution(foundYear, row);
+					foundYear.yearValues.push(row);
 				} else {
 					const yearObject = {
 						year: row.FiscalYear,
@@ -1513,7 +1513,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 						[`paid${separator}cbpf`]: 0,
 						[`pledged${separator}total`]: 0,
 						[`pledged${separator}cerf`]: 0,
-						[`pledged${separator}cbpf`]: 0
+						[`pledged${separator}cbpf`]: 0,
+						yearValues: [row]
 					};
 					pushCbpfOrCerfContribution(yearObject, row);
 					data.push(yearObject);
