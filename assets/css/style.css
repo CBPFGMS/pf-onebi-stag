@@ -276,8 +276,8 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
 .side-panel .fa-caret-down{display: flex; margin-top: -14px; align-items: center; justify-content: center; color: #3189c8; position: absolute; bottom: -10px; left:48%;}
 .side-panel h4 span{white-space: normal !important;}
 .side-panel p{font-size: 0.85em; font-weight: 300; margin: 0;}
-.ss-content {padding: 0; right: 0;}
-.ss-wrapper{width:100%;}
+.ss-content {padding: 0;}
+.ss-wrapper{width:108%; left: -18px;}
 .ss-scroll{left:216px; right: -216px;}
 .sidenav-title{background-color: #fff; padding: 5px 10px 5px 8px; overflow: hidden; display: flex; align-items: center; justify-content: space-between; border-top:1px solid #cfe4f5; border-left:5px solid #3189c9;}
 .sidenav-title .sb-nav-link-icon{font-weight: 300; font-size: 1.1rem;}
@@ -299,7 +299,7 @@ footer{position: sticky; bottom: 0;}
 .map-section{display: flex; justify-content: center; align-items: center; width: 100%; height: 100%;}
 .scroll-panel{width:100%; height: 100%; /*min-width: calc(100% + 225px);*/ margin-left:225px; transition: all 0.5s ease-in-out;}
 
-.second-nav-chart{display: flex; justify-content: center; width: 100%; min-height: calc(100% - 353px);}
+.second-nav-chart{display: flex; justify-content: center; width: 100%; min-height: calc(100% - 353px); height: 100%;}
 .data-update{text-align: center; font-size: 0.69rem; color: #777;}
 
 @media (max-width: 575.98px) { 
