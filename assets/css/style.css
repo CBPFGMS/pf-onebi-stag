@@ -235,7 +235,7 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
 .select-panel .form-control:disabled{border: 1px solid #ccc;}
 
 .link-sidenav {
-  height: 100%;
+  height: calc(100% - 130px);
   width: 0;
   position: fixed;
   z-index: 1040;
@@ -779,14 +779,6 @@ footer{position: sticky; bottom: 0;}
   font-family: "Roboto", sans-serif;
   font-size: 9px;
   fill: #888;
-}
-
-.pfbiccbarsLabels {
-  text-anchor: middle;
-  font-family: "Roboto", sans-serif;
-  font-size: 9px;
-  fill: #333;
-  letter-spacing: -0.25px;
 }
 
 .pfbicdmemberStatesContainerDiv {
