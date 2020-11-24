@@ -145,8 +145,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 	const svgBarChart = barChartRankingDiv.append("svg")
 		.attr("width", svgBarChartWidth)
-		.attr("height", svgBarChartHeight)
-		.style("background-color", "wheat");
+		.attr("height", svgBarChartHeight);
 
 	const columnChartContainer = selections.byCerfCbpfChartContainer;
 
