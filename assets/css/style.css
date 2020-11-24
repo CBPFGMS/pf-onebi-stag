@@ -781,6 +781,14 @@ footer{position: sticky; bottom: 0;}
   fill: #888;
 }
 
+.pfbiccbarsLabels {
+  text-anchor: middle;
+  font-family: "Roboto", sans-serif;
+  font-size: 9px;
+  fill: #333;
+  letter-spacing: -0.25px;
+}
+
 .pfbicdmemberStatesContainerDiv {
   position: relative;
   width: 100%;
