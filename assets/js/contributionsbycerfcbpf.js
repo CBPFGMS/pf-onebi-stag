@@ -20,7 +20,7 @@ const classPrefix = "pfbicc",
 	svgColumnPadding = [16, 26, 8, 80],
 	svgBarChartPaddings = [14, 14, 58, 46],
 	barWidth = 24,
-	maxBarChartDonorNumber = 65,
+	maxBarChartDonorNumber = 45,
 	svgColumnChartWidth = 195,
 	maxColumnRectHeight = 16,
 	svgColumnChartHeight = 380,
@@ -1480,7 +1480,11 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		barsTooltipRectangles.transition()
 			.duration(duration)
 			.attr("width", xScaleBarChart.step())
-			.attr("x", d => xScaleBarChart(d.donorId) - xScaleBarChart.bandwidth() / 2);
+			.attr("x", d => xScaleBarChart(d.donorId) - xScaleBarChart.bandwidth() / 2)
+			.each((_, i, n) => localVariable.set(n[i], i));
+
+		barsTooltipRectangles.on("mouseover", mouseoverBarsTooltipRectangles)
+			.on("mouseout", mouseoutBarsTooltipRectangles);
 
 		xAxisGroupBarChart.transition()
 			.duration(duration)
@@ -1518,6 +1522,15 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		yAxisGroupBarChart.selectAll(".tick")
 			.filter(d => d === 0)
 			.remove();
+
+		function mouseoverBarsTooltipRectangles(event, d) {
+			const thisIndex = localVariable.get(event.currentTarget);
+			console.log(thisIndex)
+		};
+
+		function mouseoutBarsTooltipRectangles(event, d) {
+
+		};
 
 		//end of drawBarChartRanking
 	};
