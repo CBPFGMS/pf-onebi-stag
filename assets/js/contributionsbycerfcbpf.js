@@ -19,8 +19,8 @@ const classPrefix = "pfbicc",
 	svgPaddingsCbpf = [38, 16, 80, 50],
 	svgColumnPadding = [16, 26, 8, 80],
 	svgBarChartPaddings = [14, 14, 58, 46],
-	barWidth = 18,
-	maxBarChartDonorNumber = 80,
+	barWidth = 24,
+	maxBarChartDonorNumber = 65,
 	svgColumnChartWidth = 195,
 	maxColumnRectHeight = 16,
 	svgColumnChartHeight = 380,
@@ -1383,8 +1383,104 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.duration(duration)
 			.style("margin-left", ((svgBarChartWidth - dynamicWidth) / 2) + "px");
 
+		const stackedData = stack(barData);
 
+		let barsGroups = svgBarChart.selectAll("." + classPrefix + "barsGroups")
+			.data(stackedData, d => d.key);
 
+		const barsGroupsExit = barsGroups.exit().remove();
+
+		const barsGroupsEnter = barsGroups.enter()
+			.append("g")
+			.attr("class", classPrefix + "barsGroups")
+			.attr("pointer-events", "none");
+
+		barsGroups = barsGroupsEnter.merge(barsGroups);
+
+		let bars = barsGroups.selectAll("." + classPrefix + "bars")
+			.data(d => d, d => d.data.donor);
+
+		const barsExit = bars.exit()
+			.transition()
+			.duration(duration)
+			.attr("height", 0)
+			.attr("y", svgBarChartHeight - svgBarChartPaddings[3])
+			.style("opacity", 0)
+			.remove();
+
+		const barsEnter = bars.enter()
+			.append("rect")
+			.attr("class", classPrefix + "bars")
+			.attr("stroke", "#aaa")
+			.attr("stroke-width", 0.5)
+			.attr("width", xScaleBarChart.bandwidth())
+			.attr("height", 0)
+			.style("fill", (d, i, n) => {
+				const thisKey = d3.select(n[i].parentNode).datum().key;
+				return colors[thisKey]
+			})
+			.attr("y", yScaleBarChart(0))
+			.attr("x", d => xScaleBarChart(d.data.donorId))
+
+		bars = barsEnter.merge(bars);
+
+		bars.transition()
+			.duration(duration)
+			.attr("width", xScaleBarChart.bandwidth())
+			.attr("x", d => xScaleBarChart(d.data.donorId))
+			.attr("y", d => d[0] === d[1] ? yScaleBarChart(0) : yScaleBarChart(d[1]))
+			.attr("height", d => yScaleBarChart(d[0]) - yScaleBarChart(d[1]));
+
+		let barsLabels = svgBarChart.selectAll("." + classPrefix + "barsLabels")
+			.data(barData, d => d.donorId);
+
+		const barsLabelsExit = barsLabels.exit()
+			.transition()
+			.duration(duration)
+			.style("opacity", 0)
+			.attr("y", svgBarChartHeight - svgBarChartPaddings[2])
+			.remove();
+
+		const barsLabelsEnter = barsLabels.enter()
+			.append("text")
+			.attr("class", classPrefix + "barsLabels")
+			.attr("x", d => xScaleBarChart(d.donorId) + xScaleBarChart.bandwidth() / 2)
+			.attr("y", svgBarChartHeight - svgBarChartPaddings[2])
+			.style("opacity", 0);
+
+		barsLabels = barsLabelsEnter.merge(barsLabels);
+
+		barsLabels.transition()
+			.duration(duration)
+			.style("opacity", 1)
+			.attr("x", d => xScaleBarChart(d.donorId) + xScaleBarChart.bandwidth() / 2)
+			.attr("y", d => yScaleBarChart(d.cerf + d.cbpf) - labelsColumnPadding)
+			.textTween((d, i, n) => {
+				const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, d.cerf + d.cbpf);
+				return t => d3.formatPrefix(".0", interpolator(t))(interpolator(t)).replace("G", "B");
+			});
+
+		let barsTooltipRectangles = svgBarChart.selectAll("." + classPrefix + "barsTooltipRectangles")
+			.data(barData, d => d.donorId);
+
+		const barsTooltipRectanglesExit = barsTooltipRectangles.exit().remove();
+
+		const barsTooltipRectanglesEnter = barsTooltipRectangles.enter()
+			.append("rect")
+			.attr("class", classPrefix + "barsTooltipRectangles")
+			.attr("pointer-events", "all")
+			.style("opacity", 0)
+			.attr("y", svgBarChartPaddings[0])
+			.attr("height", svgBarChartHeight - svgBarChartPaddings[0] - svgBarChartPaddings[2])
+			.attr("width", xScaleBarChart.step())
+			.attr("x", d => xScaleBarChart(d.donorId) - xScaleBarChart.bandwidth() / 2);
+
+		barsTooltipRectangles = barsTooltipRectanglesEnter.merge(barsTooltipRectangles);
+
+		barsTooltipRectangles.transition()
+			.duration(duration)
+			.attr("width", xScaleBarChart.step())
+			.attr("x", d => xScaleBarChart(d.donorId) - xScaleBarChart.bandwidth() / 2);
 
 		xAxisGroupBarChart.transition()
 			.duration(duration)
