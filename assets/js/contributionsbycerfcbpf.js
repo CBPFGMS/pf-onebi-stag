@@ -11,13 +11,16 @@ import {
 //|constants
 const classPrefix = "pfbicc",
 	currentDate = new Date(),
-	svgHeightRatio = 0.75,
+	barChartRankingPercentage = 0.35,
 	currentYear = currentDate.getFullYear(),
 	localVariable = d3.local(),
 	allYears = "all",
 	svgPaddingsCerf = [38, 16, 80, 50],
 	svgPaddingsCbpf = [38, 16, 80, 50],
 	svgColumnPadding = [16, 26, 8, 80],
+	svgBarChartPaddings = [14, 14, 58, 46],
+	barWidth = 18,
+	maxBarChartDonorNumber = 80,
 	svgColumnChartWidth = 195,
 	maxColumnRectHeight = 16,
 	svgColumnChartHeight = 380,
@@ -39,6 +42,7 @@ const classPrefix = "pfbicc",
 	xGroupExtraPadding = 18,
 	lineOpacity = 0.5,
 	formatMoney0Decimals = d3.format(",.0f"),
+	formatPercent = d3.format("%"),
 	monthFormat = d3.timeFormat("%b"),
 	monthFormatFull = d3.timeFormat("%B"),
 	monthAbbrvParse = d3.timeParse("%b"),
@@ -98,7 +102,21 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		.attr("class", classPrefix + "paidPledgedButtonsDiv");
 
 	const chartAreaDiv = containerDiv.append("div")
-		.attr("class", classPrefix + "chartAreaDiv");
+		.attr("class", classPrefix + "chartAreaDiv")
+		.style("height", formatPercent(1 - barChartRankingPercentage));
+
+	const barChartRankingDivOuter = containerDiv.append("div")
+		.attr("class", classPrefix + "barChartRankingDivOuter")
+		.style("height", formatPercent(barChartRankingPercentage));
+
+	const barChartRankingDivTitle = barChartRankingDivOuter.append("div")
+		.attr("class", classPrefix + "barChartRankingDivTitle");
+
+	const barChartRankingDivTitleText = barChartRankingDivTitle.append("div")
+		.attr("class", classPrefix + "barChartRankingDivTitleText");
+
+	const barChartRankingDiv = barChartRankingDivOuter.append("div")
+		.attr("class", classPrefix + "barChartRankingDiv");
 
 	const cerfContainerDiv = chartAreaDiv.append("div")
 		.attr("class", classPrefix + "cerfContainerDiv");
@@ -106,10 +124,16 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	const cbpfContainerDiv = chartAreaDiv.append("div")
 		.attr("class", classPrefix + "cbpfContainerDiv");
 
-	const svgWidthCerf = cerfContainerDiv.node().getBoundingClientRect().width;
-	const svgWidthCbpf = cbpfContainerDiv.node().getBoundingClientRect().width;
-	const svgHeightCerf = svgWidthCerf * svgHeightRatio;
-	const svgHeightCbpf = svgWidthCbpf * svgHeightRatio;
+	const cerfContainerDivSize = cerfContainerDiv.node().getBoundingClientRect();
+	const cbpfContainerDivSize = cbpfContainerDiv.node().getBoundingClientRect();
+	const barChartContainerSize = barChartRankingDiv.node().getBoundingClientRect();
+
+	const svgWidthCerf = cerfContainerDivSize.width;
+	const svgWidthCbpf = cbpfContainerDivSize.width;
+	const svgHeightCerf = cerfContainerDivSize.height;
+	const svgHeightCbpf = cbpfContainerDivSize.height;
+	const svgBarChartWidth = barChartContainerSize.width;
+	const svgBarChartHeight = barChartContainerSize.height;
 
 	const svgCerf = cerfContainerDiv.append("svg")
 		.attr("width", svgWidthCerf)
@@ -118,6 +142,11 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	const svgCbpf = cbpfContainerDiv.append("svg")
 		.attr("width", svgWidthCbpf)
 		.attr("height", svgHeightCbpf);
+
+	const svgBarChart = barChartRankingDiv.append("svg")
+		.attr("width", svgBarChartWidth)
+		.attr("height", svgBarChartHeight)
+		.style("background-color", "wheat");
 
 	const columnChartContainer = selections.byCerfCbpfChartContainer;
 
@@ -162,6 +191,13 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		.range([svgColumnPadding[0], svgColumnChartHeight - svgColumnPadding[2]])
 		.paddingInner(0.5)
 		.paddingOuter(0.5);
+
+	const xScaleBarChart = d3.scaleBand()
+		.paddingInner(0.5)
+		.paddingOuter(0.5);
+
+	const yScaleBarChart = d3.scaleLinear()
+		.range([svgBarChartHeight - svgBarChartPaddings[2], svgBarChartPaddings[0]]);
 
 	const stack = d3.stack()
 		.keys(stackKeys)
@@ -235,6 +271,15 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		.tickSizeInner(-(svgWidthCbpf - svgPaddingsCbpf[1] - svgPaddingsCbpf[3]))
 		.tickSizeOuter(0);
 
+	const xAxisBarChart = d3.axisBottom(xScaleBarChart)
+		.tickSize(3)
+		.tickPadding(flagSize - 4);
+
+	const yAxisBarChart = d3.axisLeft(yScaleBarChart)
+		.tickSizeOuter(0)
+		.ticks(3)
+		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
+
 	const xAxisGroupCerf = svgCerf.append("g")
 		.attr("class", classPrefix + "xAxisGroupCerf")
 		.attr("transform", "translate(0," + (svgHeightCerf - svgPaddingsCerf[2]) + ")");
@@ -267,6 +312,14 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	const yAxisGroupColumn = svgColumnChart.append("g")
 		.attr("class", classPrefix + "yAxisGroupColumn")
 		.attr("transform", "translate(" + svgColumnPadding[3] + ",0)");
+
+	const xAxisGroupBarChart = svgBarChart.append("g")
+		.attr("class", classPrefix + "xAxisGroupBarChart")
+		.attr("transform", "translate(0," + (svgBarChartHeight - svgBarChartPaddings[2]) + ")");
+
+	const yAxisGroupBarChart = svgBarChart.append("g")
+		.attr("class", classPrefix + "yAxisGroupBarChart")
+		.attr("transform", "translate(" + svgBarChartPaddings[3] + ",0)");
 
 	const chartLayerCerf = svgCerf.append("g");
 	const chartLayerCbpf = svgCbpf.append("g");
@@ -316,6 +369,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		drawCerf(data);
 		drawCbpf(data);
+		drawBarChartRanking(columnData);
 		createColumnTopValues(columnData);
 		createColumnChart(columnData);
 
@@ -390,6 +444,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 			drawCerf(data);
 			drawCbpf(data);
+			drawBarChartRanking(columnData);
 			createColumnTopValues(columnData);
 			createColumnChart(columnData);
 
@@ -417,6 +472,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			valueButtons.classed("active", e => e === selectedValue);
 			drawCerf(data);
 			drawCbpf(data);
+			drawBarChartRanking(columnData);
 			createColumnTopValues(columnData);
 			createColumnChart(columnData);
 
@@ -1268,6 +1324,109 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		//end of drawCbpf
 	};
 
+	function drawBarChartRanking(data) {
+
+		data.sort((a, b) => b[`${selectedValue}${separator}total`] - a[`${selectedValue}${separator}total`]);
+
+		const barData = data.reduce((acc, curr, index) => {
+			if (index < maxBarChartDonorNumber) {
+				acc.push({
+					donor: curr.donor,
+					isoCode: curr.isoCode.toLowerCase(),
+					donorId: curr.donorId,
+					cerf: curr[`${selectedValue}${separator}cerf`],
+					cbpf: curr[`${selectedValue}${separator}cbpf`],
+					totalValue: curr[`total${separator}cerf`] + curr[`total${separator}cbpf`]
+				});
+			} else if (index === maxBarChartDonorNumber) {
+				acc.push({
+					donor: "Others",
+					isoCode: null,
+					donorId: null,
+					cerf: curr[`${selectedValue}${separator}cerf`],
+					cbpf: curr[`${selectedValue}${separator}cbpf`],
+					totalValue: curr[`total${separator}cerf`] + curr[`total${separator}cbpf`]
+				});
+			} else {
+				acc[maxBarChartDonorNumber].cerf += curr[`${selectedValue}${separator}cerf`];
+				acc[maxBarChartDonorNumber].cbpf += curr[`${selectedValue}${separator}cbpf`];
+				acc[maxBarChartDonorNumber].totalValue += curr[`total${separator}cerf`] + curr[`total${separator}cbpf`];
+			};
+			return acc;
+		}, []);
+
+		const dynamicWidth = Math.min(svgBarChartWidth, svgBarChartPaddings[1] + svgBarChartPaddings[3] + barWidth + barData.length * barWidth);
+
+		svgBarChart.transition()
+			.duration(duration)
+			.attr("width", dynamicWidth);
+
+		xScaleBarChart.range([svgBarChartPaddings[3], dynamicWidth - svgBarChartPaddings[1]])
+			.domain(barData.map(d => d.donorId));
+
+		const minxScaleValue = d3.max(barData, d => d.totalValue);
+
+		yScaleBarChart.domain([0, d3.max(barData, e => e.cbpf + e.cerf) || minxScaleValue]);
+
+		let barTitle = barChartRankingDivTitleText.selectAll("." + classPrefix + "barTitle")
+			.data([true]);
+
+		barTitle = barTitle.enter()
+			.append("span")
+			.attr("class", classPrefix + "barTitle")
+			.merge(barTitle)
+			.html("Donors ranking, " + selectedValue + " values ")
+			.append("span")
+			.attr("class", classPrefix + "barTitleSpan")
+			.html("(" + (selectedYear[0] === allYears ? "all years" : makeList(selectedYear)) + ")");
+
+		barChartRankingDivTitleText.transition()
+			.duration(duration)
+			.style("margin-left", ((svgBarChartWidth - dynamicWidth) / 2) + "px");
+
+
+
+
+		xAxisGroupBarChart.transition()
+			.duration(duration)
+			.call(customAxisBarChart);
+
+		function customAxisBarChart(group) {
+			const sel = group.selection ? group.selection() : group;
+			group.call(xAxisBarChart);
+			sel.selectAll(".tick text")
+				.attr("transform", "rotate(-40, -19, -3)")
+				.attr("x", -(yAxisColumn.tickPadding() + yAxisColumn.tickSize()))
+				.text(d => d !== null ? lists.donorNamesList[d] : "Others");
+			sel.selectAll(".tick text")
+				.filter(d => !lists.donorIsoCodesList[d])
+				.attr("dx", flagSize + flagPadding - 4)
+				.attr("dy", 6)
+			sel.selectAll(".tick")
+				.filter(d => lists.donorIsoCodesList[d])
+				.append("image")
+				.attr("transform", "rotate(-40, 8, 19)")
+				.attr("width", flagSize - 4)
+				.attr("height", flagSize - 4)
+				.attr("href", d => donorsFlagsData[lists.donorIsoCodesList[d].toLowerCase()]);
+			if (sel !== group) group.selectAll(".tick text")
+				.attrTween("x", null)
+				.tween("text", null);
+		};
+
+		yAxisBarChart.tickSizeInner(-(xScaleBarChart.range()[1] - svgBarChartPaddings[3]));
+
+		yAxisGroupBarChart.transition()
+			.duration(duration)
+			.call(yAxisBarChart);
+
+		yAxisGroupBarChart.selectAll(".tick")
+			.filter(d => d === 0)
+			.remove();
+
+		//end of drawBarChartRanking
+	};
+
 	function createColumnTopValues(originalData) {
 
 		let totalContributions = 0,
@@ -1564,7 +1723,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		const data = [];
 
 		originalData.forEach(row => {
-			if (selectedYear.indexOf(allYears) > -1 && row.FiscalYear < currentYear) {
+			if (selectedYear.indexOf(allYears) > -1 && row.FiscalYear <= currentYear) {
 
 				const foundDonor = data.find(e => e.donorId === row.DonorId);
 
@@ -1712,7 +1871,12 @@ function pathTween(newPath, precision, self) {
 			}).join("L") : newPath;
 		};
 	};
-}
+};
+
+function makeList(arr) {
+	return arr.sort((a, b) => a - b)
+		.reduce((acc, curr, index) => acc + (index >= arr.length - 2 ? index > arr.length - 2 ? curr : curr + " and " : curr + ", "), "");
+};
 
 export {
 	createContributionsByCerfCbpf

@@ -529,14 +529,14 @@ footer{position: sticky; bottom: 0;}
   background-color: rgb(255,255,255,0.6);
 }
 
-.pfbialbarChartDivTitle {
+.pfbialbarChartDivTitle, .pfbiccbarChartRankingDivTitle {
   width:100%;
   display: flex;
   height: 26px;
   flex-direction: row;
 }
 
-.pfbialbarChartDivTitleText {
+.pfbialbarChartDivTitleText, .pfbiccbarChartRankingDivTitleText {
   flex-basis: auto;
   display: flex;
   justify-content: center;
@@ -547,7 +547,7 @@ footer{position: sticky; bottom: 0;}
   padding-top: 2px;
 }
 
-.pfbialbarChartDiv {
+.pfbialbarChartDiv, .pfbiccbarChartRankingDiv {
   width: 100%;
   height: 100%;
   display: flex;
@@ -629,27 +629,27 @@ footer{position: sticky; bottom: 0;}
   fill: darkslategray;
 }
 
-.pfbialbarTitle {
+.pfbialbarTitle, .pfbiccbarTitle {
   font-family: "Roboto", sans-serif;
   font-size: 16px;
   fill: #666;
 }
 
-.pfbialbarTitleSpan {
+.pfbialbarTitleSpan, .pfbiccbarTitleSpan {
   font-family: "Roboto", sans-serif;
   font-size: 14px;
   fill: #666;
 }
 
-.pfbialxAxisGroup line, .pfbicdxAxisGroupTooltip line, .pfbicdcurrentYearTick, .pfbicdyAxisGroupColumn line, .pfbiccyAxisGroupColumn line, .pfbialyAxisGroupColumnByCountry line, .pfbialyAxisGroupColumnBySector line, .pfbialyAxisGroupColumnByTypeCerf line, .pfbialyAxisGroupColumnByTypeCbpf line {
+.pfbialxAxisGroup line, .pfbiccxAxisGroupBarChart line, .pfbicdxAxisGroupTooltip line, .pfbicdcurrentYearTick, .pfbicdyAxisGroupColumn line, .pfbiccyAxisGroupColumn line, .pfbialyAxisGroupColumnByCountry line, .pfbialyAxisGroupColumnBySector line, .pfbialyAxisGroupColumnByTypeCerf line, .pfbialyAxisGroupColumnByTypeCbpf line {
   stroke: darkslategray;
 }
 
-.pfbialxAxisGroup path, .pfbicdyAxisGroupTooltip path, .pfbicdxAxisGroupTooltip path, .pfbicdxAxisGroupColumn path, .pfbiccxAxisGroupColumn path, .pfbialxAxisGroupColumnByCountry path, .pfbialxAxisGroupColumnBySector path, .pfbialxAxisGroupColumnByType path, .pfbialyAxisGroup path, .pfbicdyAxisGroupColumn path, .pfbiccyAxisGroupColumn path, .pfbialyAxisGroupColumnByCountry path, .pfbialyAxisGroupColumnBySector path, .pfbialyAxisGroupColumnByTypeCerf path, .pfbialyAxisGroupColumnByTypeCbpf path {
+.pfbialxAxisGroup path, .pfbiccxAxisGroupBarChart path, .pfbicdyAxisGroupTooltip path, .pfbicdxAxisGroupTooltip path, .pfbicdxAxisGroupColumn path, .pfbiccxAxisGroupColumn path, .pfbialxAxisGroupColumnByCountry path, .pfbialxAxisGroupColumnBySector path, .pfbialxAxisGroupColumnByType path, .pfbialyAxisGroup path, .pfbiccyAxisGroupBarChart path, .pfbicdyAxisGroupColumn path, .pfbiccyAxisGroupColumn path, .pfbialyAxisGroupColumnByCountry path, .pfbialyAxisGroupColumnBySector path, .pfbialyAxisGroupColumnByTypeCerf path, .pfbialyAxisGroupColumnByTypeCbpf path {
   stroke: none;
 }
 
-.pfbialxAxisGroup text {
+.pfbialxAxisGroup text, .pfbiccxAxisGroupBarChart text {
   font-family: "Roboto", sans-serif;
   font-size: 9px;
   text-anchor: end;
@@ -668,7 +668,7 @@ footer{position: sticky; bottom: 0;}
   text-anchor: middle;
 }
 
-.pfbialyAxisGroup text {
+.pfbialyAxisGroup text, .pfbiccyAxisGroupBarChart text {
   font-family: "Roboto", sans-serif;
   font-size: 10px;
   fill: #999;
@@ -709,7 +709,7 @@ footer{position: sticky; bottom: 0;}
   stroke-dasharray: 2, 2;
 }
 
-.pfbialyAxisGroup line {
+.pfbialyAxisGroup line, .pfbiccyAxisGroupBarChart line {
   stroke: #ddd;
   stroke-dasharray: 2, 2;
 }
@@ -954,9 +954,14 @@ footer{position: sticky; bottom: 0;}
 
 .pfbiccchartAreaDiv {
   width: 100%;
-  height: 100%;
   display: flex;
   flex-direction: row;
+}
+
+.pfbiccbarChartRankingDivOuter {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .pfbicccerfContainerDiv {
