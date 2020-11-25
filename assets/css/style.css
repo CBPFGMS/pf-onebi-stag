@@ -250,6 +250,18 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
 	transition-timing-function: cubic-bezier(0.0,0.0,0.2,1);
 }
 
+.link-sidenav::-webkit-scrollbar {
+  width: 12px;               /* width of the entire scrollbar */
+}
+.link-sidenav::-webkit-scrollbar-track {
+  background: transparent;        /* color of the tracking area */
+}
+.link-sidenav::-webkit-scrollbar-thumb {
+  background-color: #eee;    /* color of the scroll thumb */
+  border-radius: 20px;       /* roundness of the scroll thumb */
+  border: 3px solid #fff;  /* creates padding around scroll thumb */
+}
+
 .link-sidenav a {  
   text-decoration: none;
   font-size: 25px;
@@ -861,6 +873,7 @@ footer{position: sticky; bottom: 0;}
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(144px, 1fr));
   overflow-y: scroll;
+  padding-top: 4px;
 }
 
 .pfbicdnonMemberStatesChartAreaDiv {
@@ -873,6 +886,7 @@ footer{position: sticky; bottom: 0;}
 .pfbicddonorDiv {
   justify-self: center;
   margin-bottom: 12px;
+  transition:all 0.2s ease;
 }
 
 .pfbicdnonMemberDonorDiv {
@@ -1120,7 +1134,16 @@ footer{position: sticky; bottom: 0;}
   position: relative;
   cursor: pointer;
   border-radius: 4px;
-  box-shadow: 0px 10px 13px -7px #000000, 1px 2px 16px 16px rgba(0,0,0,0);
+  box-shadow: 0px 5px 10px 0px #aaa, 0px 2px 16px 16px rgba(0,0,0,0);  
+}
+
+.pfbicddonorDivActive .pfbicddonorNameDiv{
+	background-color: #3189c9;    
+    border-radius: 0 0 4px 4px;
+}
+
+.pfbicddonorDivActive .pfbicddonorNameDiv span{
+	color:#fff !important;
 }
 
 .pfbicddonorExpandDiv {
