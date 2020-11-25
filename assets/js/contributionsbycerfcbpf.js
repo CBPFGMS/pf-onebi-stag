@@ -11,14 +11,14 @@ import {
 //|constants
 const classPrefix = "pfbicc",
 	currentDate = new Date(),
-	barChartRankingPercentage = 0.35,
+	barChartRankingPercentage = 0.32,
 	currentYear = currentDate.getFullYear(),
 	localVariable = d3.local(),
 	allYears = "all",
 	svgPaddingsCerf = [38, 16, 80, 50],
 	svgPaddingsCbpf = [38, 16, 80, 50],
 	svgColumnPadding = [16, 26, 8, 80],
-	svgBarChartPaddings = [14, 14, 58, 46],
+	svgBarChartPaddings = [14, 14, 36, 46],
 	barWidth = 24,
 	maxBarChartDonorNumber = 45,
 	svgColumnChartWidth = 195,
@@ -52,7 +52,13 @@ const classPrefix = "pfbicc",
 	monthsArray = d3.range(1, 13, 1).map(d => monthFormat(monthParse(d))),
 	separator = "##",
 	stackKeys = ["cerf", "cbpf"],
-	valueTypes = ["total", "paid", "pledged"];
+	valueTypes = ["total", "paid", "pledged"],
+	barAxisTextObj = {
+		"Private": "P",
+		"Regional Local Authority": "RLA",
+		"Private Contributions through UNF": "UNF",
+		"Observer": "OB"
+	};
 
 //|variables
 let selectedYear,
@@ -271,8 +277,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		.tickSizeOuter(0);
 
 	const xAxisBarChart = d3.axisBottom(xScaleBarChart)
-		.tickSize(3)
-		.tickPadding(flagSize - 4);
+		.tickSize(3);
 
 	const yAxisBarChart = d3.axisLeft(yScaleBarChart)
 		.tickSizeOuter(0)
@@ -1374,7 +1379,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.append("span")
 			.attr("class", classPrefix + "barTitle")
 			.merge(barTitle)
-			.html("Donors ranking, " + selectedValue + " values ")
+			.html("Donors, " + selectedValue + " values ")
 			.append("span")
 			.attr("class", classPrefix + "barTitleSpan")
 			.html("(" + (selectedYear[0] === allYears ? "all years" : makeList(selectedYear)) + ")");
@@ -1494,19 +1499,14 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			const sel = group.selection ? group.selection() : group;
 			group.call(xAxisBarChart);
 			sel.selectAll(".tick text")
-				.attr("transform", "rotate(-40, -19, -3)")
-				.attr("x", -(yAxisColumn.tickPadding() + yAxisColumn.tickSize()))
-				.text(d => d !== null ? lists.donorNamesList[d] : "Others");
-			sel.selectAll(".tick text")
-				.filter(d => !lists.donorIsoCodesList[d])
-				.attr("dx", flagSize + flagPadding - 4)
-				.attr("dy", 6)
+				.text(d => d !== null ? (lists.donorTypesList[d] !== "Member State" ? barAxisTextObj[lists.donorTypesList[d]] : null) : "O");
 			sel.selectAll(".tick")
 				.filter(d => lists.donorIsoCodesList[d])
 				.append("image")
-				.attr("transform", "rotate(-40, 8, 19)")
-				.attr("width", flagSize - 4)
-				.attr("height", flagSize - 4)
+				.attr("width", flagSize)
+				.attr("height", flagSize)
+				.attr("y", 2)
+				.attr("x", -flagSize / 2)
 				.attr("href", d => donorsFlagsData[lists.donorIsoCodesList[d].toLowerCase()]);
 			if (sel !== group) group.selectAll(".tick text")
 				.attrTween("x", null)
@@ -1525,7 +1525,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		function mouseoverBarsTooltipRectangles(event, d) {
 			const thisIndex = localVariable.get(event.currentTarget);
-			console.log(thisIndex)
+			console.log(thisIndex)//IMPROVE HERE!
 		};
 
 		function mouseoutBarsTooltipRectangles(event, d) {

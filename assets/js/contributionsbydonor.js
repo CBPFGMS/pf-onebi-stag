@@ -113,7 +113,7 @@ function createContributionsByDonor(selections, colors, lists) {
 		.attr("class", classPrefix + "nonMemberStatesChartAreaDiv");
 
 	const nonMemberStatesTitle = nonMemberStatesTopDiv.append("span")
-		.html("non-Member States");
+		.html("others");
 
 	const columnChartContainer = selections.byDonorChartContainer;
 
