@@ -235,7 +235,7 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
 .select-panel .form-control:disabled{border: 1px solid #ccc;}
 
 .link-sidenav {
-  height: 100%;
+  height: calc(100% - 128px);
   width: 0;
   position: fixed;
   z-index: 1040;
