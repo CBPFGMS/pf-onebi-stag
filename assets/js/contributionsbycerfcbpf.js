@@ -20,6 +20,8 @@ const classPrefix = "pfbicc",
 	svgColumnPadding = [16, 26, 8, 80],
 	svgBarChartPaddings = [14, 14, 36, 46],
 	barWidth = 24,
+	tooltipMargin = 4,
+	innerTooltipDivWidth = 220,
 	maxBarChartDonorNumber = 45,
 	svgColumnChartWidth = 195,
 	maxColumnRectHeight = 16,
@@ -812,7 +814,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				.html(null);
 
 			const innerTooltipDiv = tooltipDiv.append("div")
-				.style("max-width", "210px")
+				.style("max-width", innerTooltipDivWidth + "px")
 				.attr("id", classPrefix + "innerTooltipDiv");
 
 			innerTooltipDiv.append("div")
@@ -1216,7 +1218,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				.html(null);
 
 			const innerTooltipDiv = tooltipDiv.append("div")
-				.style("max-width", "210px")
+				.style("max-width", innerTooltipDivWidth + "px")
 				.attr("id", classPrefix + "innerTooltipDiv");
 
 			innerTooltipDiv.append("div")
@@ -1525,11 +1527,54 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		function mouseoverBarsTooltipRectangles(event, d) {
 			const thisIndex = localVariable.get(event.currentTarget);
-			console.log(thisIndex)//IMPROVE HERE!
+			const ordinal = makeOrdinal(thisIndex + 1);
+
+			tooltipDiv.style("display", "block")
+				.html(null);
+
+			const innerTooltipDiv = tooltipDiv.append("div")
+				.style("max-width", innerTooltipDivWidth + "px")
+				.attr("id", classPrefix + "innerTooltipDiv");
+
+			const titleDiv = innerTooltipDiv.append("div")
+				.attr("class", classPrefix + "tooltipTitleDiv")
+				.style("margin-bottom", "18px");
+
+			if (d.isoCode) {
+				titleDiv.append("img")
+					.attr("width", flagSize)
+					.attr("height", flagSize)
+					.style("margin-right", "4px")
+					.style("margin-bottom", "2px")
+					.attr("src", donorsFlagsData[d.isoCode])
+			};
+
+			titleDiv.append("strong")
+				.style("font-size", "16px")
+				.html(d.donor)
+				.append("span")
+				.attr("class", classPrefix + "tooltipRank")
+				.html(` (rank: ${thisIndex + 1}<sup>${ordinal}</sup>)`);
+
+			const thisBox = event.currentTarget.getBoundingClientRect();
+
+			const containerBox = containerDiv.node().getBoundingClientRect();
+
+			const tooltipBox = tooltipDiv.node().getBoundingClientRect();
+
+			const thisOffsetTop = (thisBox.top + thisBox.height / 2 - tooltipBox.height / 2) - containerBox.top;
+
+			const thisOffsetLeft = containerBox.right - thisBox.right > tooltipBox.width + tooltipMargin ?
+				thisBox.left - containerBox.left + thisBox.width + tooltipMargin :
+				thisBox.left - containerBox.left - tooltipBox.width - tooltipMargin;
+
+			tooltipDiv.style("top", thisOffsetTop + "px")
+				.style("left", thisOffsetLeft + "px");
 		};
 
 		function mouseoutBarsTooltipRectangles(event, d) {
-
+			tooltipDiv.style("display", "none")
+				.html(null);
 		};
 
 		//end of drawBarChartRanking
@@ -1984,6 +2029,13 @@ function pathTween(newPath, precision, self) {
 function makeList(arr) {
 	return arr.sort((a, b) => a - b)
 		.reduce((acc, curr, index) => acc + (index >= arr.length - 2 ? index > arr.length - 2 ? curr : curr + " and " : curr + ", "), "");
+};
+
+function makeOrdinal(value) {
+	return value % 10 === 1 && value !== 11 ?
+		"st" : value % 10 === 2 && value !== 12 ?
+		"nd" : value % 10 === 3 && value !== 13 ?
+		"rd" : "th";
 };
 
 export {

@@ -453,12 +453,23 @@ footer{position: sticky; bottom: 0;}
   z-index: 1500;
 }
 
-.pfbialtooltipTitleDiv, .pfbicctooltipTitleDiv, .pfbicdtooltipTitleDiv {
+.pfbialtooltipTitleDiv, .pfbicdtooltipTitleDiv {
 
+}
+
+.pfbicctooltipTitleDiv {
+  display: flex;
+  align-items: center;
+  white-space: pre-wrap;
 }
 
 .pfbialtooltipRank {
 
+}
+
+.pfbicctooltipRank {
+  font-weight: 400;
+  font-size: 12px;
 }
 
 .pfbialtooltipTotalValue, .pfbialtooltipCerfValue, .pfbialtooltipCbpfValue {
