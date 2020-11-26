@@ -761,7 +761,7 @@ function createContributionsByDonor(selections, colors, lists) {
 			.data(d => {
 				d.forEach(e => e.key = d.key);
 				return d
-			})
+			}, d => d.data.year)
 			.enter()
 			.append("rect")
 			.attr("stroke", "#aaa")
@@ -793,7 +793,7 @@ function createContributionsByDonor(selections, colors, lists) {
 			.attr("d", lineGeneratorTooltip);
 
 		const tooltipLabel = tooltipSvg.selectAll(null)
-			.data(datum.contributions.filter(d => chartState.selectedFund === "cerf/cbpf" ? d.cbpf : d[chartState.selectedFund]))
+			.data(datum.contributions.filter(d => chartState.selectedFund === "cerf/cbpf" ? d.cbpf : d[chartState.selectedFund]), d => d.year)
 			.enter()
 			.append("text")
 			.attr("class", classPrefix + "tooltipBarLabel")
@@ -837,9 +837,58 @@ function createContributionsByDonor(selections, colors, lists) {
 
 		const originalDatum = localTooltip.get(tooltipSvg.node());
 
-		const thisDonor = data.find(d => d.donorId === originalDatum.donorId);
+		const thisDonor = originalDatum.donorId ? data.find(d => d.donorId === originalDatum.donorId) :
+			data.reduce((acc, originalRow) => {
 
-		yScaleTooltip.domain([0, d3.max(thisDonor.contributions, e => chartState.selectedFund === "cerf/cbpf" ? e.cerf + e.cbpf : e[chartState.selectedFund])]);
+				const row = JSON.parse(JSON.stringify(originalRow));
+
+				if (originalDatum.donor === lists.donorTypesList[row.donorId]) {
+
+					if (Object.keys(acc).length) {
+						acc.total += row.total;
+						acc.cerf += row.cerf;
+						acc.cbpf += row.cbpf;
+						acc["paid##total"] += row["paid##total"];
+						acc["paid##cerf"] += row["paid##cerf"];
+						acc["paid##cbpf"] += row["paid##cbpf"];
+						acc["pledged##total"] += row["pledged##total"];
+						acc["pledged##cerf"] += row["pledged##cerf"];
+						acc["pledged##cbpf"] += row["pledged##cbpf"];
+
+						row.contributions.forEach(yearRow => {
+							const foundYear = acc.contributions.find(e => e.year === yearRow.year);
+							if (foundYear) {
+								foundYear.total += yearRow.total;
+								foundYear.cerf += yearRow.cerf;
+								foundYear.cbpf += yearRow.cbpf;
+								foundYear["paid##total"] += yearRow["paid##total"];
+								foundYear["paid##cerf"] += yearRow["paid##cerf"];
+								foundYear["paid##cbpf"] += yearRow["paid##cbpf"];
+								foundYear["pledged##total"] += yearRow["pledged##total"];
+								foundYear["pledged##cerf"] += yearRow["pledged##cerf"];
+								foundYear["pledged##cbpf"] += yearRow["pledged##cbpf"];
+							} else {
+								acc.contributions.push(yearRow);
+							};
+						});
+
+					} else {
+						row.donor = lists.donorTypesList[row.donorId];
+						row.count = 1;
+						delete row.donorId;
+						Object.assign(acc, row);
+					};
+
+				};
+
+				return acc;
+			}, {});
+
+		if (!originalDatum.donorId) thisDonor.contributions.sort((a, b) => a.year - b.year);
+
+		const minScaleValue = 1e4;
+
+		yScaleTooltip.domain([0, d3.max(thisDonor.contributions, e => chartState.selectedFund === "cerf/cbpf" ? e.cerf + e.cbpf : e[chartState.selectedFund]) || minScaleValue]);
 
 		tooltipSvg.select("." + classPrefix + "yAxisGroupTooltip")
 			.transition()
@@ -858,7 +907,7 @@ function createContributionsByDonor(selections, colors, lists) {
 			.data(d => {
 				d.forEach(e => e.key = d.key);
 				return d
-			})
+			}, d => d.data.year)
 			.transition()
 			.duration(duration)
 			.attr("y", (d, i, n) => d[0] === d[1] ? tooltipSvgHeight - tooltipSvgPadding[2] : yScaleTooltip(d[1]))
@@ -872,7 +921,7 @@ function createContributionsByDonor(selections, colors, lists) {
 			.attr("d", lineGeneratorTooltip);
 
 		let tooltipLabel = tooltipSvg.selectAll("." + classPrefix + "tooltipBarLabel")
-			.data(thisDonor.contributions.filter(d => chartState.selectedFund === "cerf/cbpf" ? d.cbpf : d[chartState.selectedFund]));
+			.data(thisDonor.contributions.filter(d => chartState.selectedFund === "cerf/cbpf" ? d.cbpf : d[chartState.selectedFund]), d => d.year);
 
 		const tooltipLabelExit = tooltipLabel.exit()
 			.transition()
