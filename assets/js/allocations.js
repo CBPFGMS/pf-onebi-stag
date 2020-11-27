@@ -8,6 +8,10 @@ import {
 	clustersIconsData
 } from "./clustersiconsdata.js";
 
+import {
+	createButtons
+} from "./buttons.js";
+
 //|constants
 const classPrefix = "pfbial",
 	mapPercentage = 0.68,
@@ -89,19 +93,27 @@ function createAllocations(selections, colors, mapData, lists) {
 	const breadcrumbDiv = outerDiv.append("div")
 		.attr("class", classPrefix + "breadcrumbDiv");
 
-	const firstBreadcrumb = breadcrumbDiv.append("div")
+	const breadcrumbDivInner = breadcrumbDiv.append("div")
+		.attr("class", classPrefix + "breadcrumbDivInner");
+
+	const firstBreadcrumb = breadcrumbDivInner.append("div")
 		.attr("class", classPrefix + "firstBreadcrumb");
 
 	firstBreadcrumb.append("span")
 		.html("allocations");
 
-	const middleBreadcrumb = breadcrumbDiv.append("div")
+	const middleBreadcrumb = breadcrumbDivInner.append("div")
 		.attr("class", classPrefix + "middleBreadcrumb");
 
-	const secondBreadcrumb = breadcrumbDiv.append("div")
+	const secondBreadcrumb = breadcrumbDivInner.append("div")
 		.attr("class", classPrefix + "secondBreadcrumb");
 
 	const secondBreadcrumbSpan = secondBreadcrumb.append("span");
+
+	const topButtonsDiv = breadcrumbDiv.append("div")
+		.attr("class", classPrefix + "topButtonsDiv");
+
+	createButtons(topButtonsDiv, chartState, classPrefix);
 
 	const containerDiv = outerDiv.append("div")
 		.attr("class", classPrefix + "containerDiv");
