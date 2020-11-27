@@ -1556,6 +1556,40 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				.attr("class", classPrefix + "tooltipRank")
 				.html(` (rank: ${thisIndex + 1}<sup>${ordinal}</sup>)`);
 
+			const tooltipContainer = innerTooltipDiv.append("div")
+				.style("margin", "0px")
+				.style("display", "flex")
+				.style("flex-wrap", "wrap")
+				.style("white-space", "pre")
+				.style("line-height", 1.4)
+				.style("width", "100%");
+
+			stackKeys.forEach(key => {
+
+				const rowDiv = tooltipContainer.append("div")
+					.style("display", "flex")
+					.style("align-items", "center")
+					.style("margin-bottom", "4px")
+					.style("width", "100%");
+
+				rowDiv.append("span")
+					.attr("class", classPrefix + "tooltipKeys")
+					.html(key.toUpperCase());
+
+				rowDiv.append("span")
+					.attr("class", classPrefix + "tooltipLeader");
+
+				rowDiv.append("span")
+					.attr("class", classPrefix + "tooltipValues")
+					.html("$" + formatMoney0Decimals(d[key]));
+			});
+
+			if (!d.isoCode && lists.donorTypesList[d.donorId]) {
+				innerTooltipDiv.append("div")
+					.attr("class", classPrefix + "tooltipFooter")
+					.html("(" + lists.donorTypesList[d.donorId] + ")");
+			};
+
 			const thisBox = event.currentTarget.getBoundingClientRect();
 
 			const containerBox = containerDiv.node().getBoundingClientRect();
