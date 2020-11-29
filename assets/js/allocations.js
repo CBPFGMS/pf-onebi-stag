@@ -113,7 +113,7 @@ function createAllocations(selections, colors, mapData, lists) {
 	const topButtonsDiv = breadcrumbDiv.append("div")
 		.attr("class", classPrefix + "topButtonsDiv");
 
-	createButtons(topButtonsDiv, chartState);
+	//createButtons(topButtonsDiv, chartState);
 
 	const containerDiv = outerDiv.append("div")
 		.attr("class", classPrefix + "containerDiv");
