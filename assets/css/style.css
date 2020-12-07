@@ -42,7 +42,7 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
   left: 0;
   width: 100%;
   height: 100%;
-  background: #000;
+  /*background: #000;*/
   z-index: 1037;
   opacity: 0.5;
   transition: opacity 0.3s ease-in-out;
@@ -359,6 +359,7 @@ footer{position: sticky; bottom: 0;}
 	#sidebarToggle{display:block !important;}
 	.cbpf-link, .cerf-link{display:none;}
 	.link-sidenav{left: 0;}
+	.pfbialtopButtonsDiv svg, .pfbicctopButtonsDiv svg, .pfbicdtopButtonsDiv svg{display:none;}
 }
 @media (min-width: 576px) { 
 	.link-sidenav{left: 0;}
