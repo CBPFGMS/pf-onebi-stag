@@ -1185,9 +1185,9 @@ footer{position: sticky; bottom: 0;}
 .pfbialmiddleBreadcrumb, .pfbiccmiddleBreadcrumb, .pfbicdmiddleBreadcrumb {
   background-image: url("../img/breadcrumb-arrow-icon.png"); background-position: center center; width: 6px; height: 10px; margin: auto 7px auto 7px;
 }
-.pfbialfirstBreadcrumb span{font-weight: 600;}
-.pfbiccfirstBreadcrumb span{font-weight: 600;}
-.pfbicdfirstBreadcrumb span{font-weight: 600;}
+.pfbialfirstBreadcrumb span{font-weight: 400;}
+.pfbiccfirstBreadcrumb span{font-weight: 400;}
+.pfbicdfirstBreadcrumb span{font-weight: 400;}
 
 .pfbicclegendGroupCerf text, .pfbicclegendGroupCbpf text {
   font-family: "Roboto", sans-serif;
