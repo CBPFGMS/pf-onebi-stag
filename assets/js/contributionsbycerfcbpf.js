@@ -8,6 +8,10 @@ import {
 	donorsFlagsData
 } from "./donorsflagsdata.js";
 
+import {
+	createButtons
+} from "./buttons.js";
+
 //|constants
 const classPrefix = "pfbicc",
 	currentDate = new Date(),
@@ -79,20 +83,28 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	const breadcrumbDiv = outerDiv.append("div")
 		.attr("class", classPrefix + "breadcrumbDiv");
 
-	const firstBreadcrumb = breadcrumbDiv.append("div")
+	const breadcrumbDivInner = breadcrumbDiv.append("div")
+		.attr("class", classPrefix + "breadcrumbDivInner");
+
+	const firstBreadcrumb = breadcrumbDivInner.append("div")
 		.attr("class", classPrefix + "firstBreadcrumb");
 
 	firstBreadcrumb.append("span")
 		.html("contributions");
 
-	const middleBreadcrumb = breadcrumbDiv.append("div")
+	const middleBreadcrumb = breadcrumbDivInner.append("div")
 		.attr("class", classPrefix + "middleBreadcrumb");
 
-	const secondBreadcrumb = breadcrumbDiv.append("div")
+	const secondBreadcrumb = breadcrumbDivInner.append("div")
 		.attr("class", classPrefix + "secondBreadcrumb");
 
 	secondBreadcrumb.append("span")
 		.html("by CERF/CBPF");
+
+	const topButtonsDiv = breadcrumbDiv.append("div")
+		.attr("class", classPrefix + "topButtonsDiv");
+
+	createButtons(topButtonsDiv, chartState);
 
 	const containerDiv = outerDiv.append("div")
 		.attr("class", classPrefix + "containerDiv");
