@@ -77,6 +77,24 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
 .sb-nav-fixed #layoutSidenav #layoutSidenav_nav .sb-sidenav {
   padding-top: 56px;
 }
+
+.sb-nav-fixed #layoutSidenav #layoutSidenav_nav .sb-sidenav .sb-sidenav-menu {
+  scrollbar-width: thin;
+  scrollbar-color: lightgray white;
+}
+
+.sb-nav-fixed #layoutSidenav #layoutSidenav_nav .sb-sidenav .sb-sidenav-menu::-webkit-scrollbar {
+  width: 12px;               /* width of the entire scrollbar */
+}
+.sb-nav-fixed #layoutSidenav #layoutSidenav_nav .sb-sidenav .sb-sidenav-menu::-webkit-scrollbar-track {
+  background: transparent;        /* color of the tracking area */
+}
+.sb-nav-fixed #layoutSidenav #layoutSidenav_nav .sb-sidenav .sb-sidenav-menu::-webkit-scrollbar-thumb {
+  background-color: #eee;    /* color of the scroll thumb */
+  border-radius: 20px;       /* roundness of the scroll thumb */
+  border: 3px solid #fff;  /* creates padding around scroll thumb */
+}
+
 .sb-nav-fixed #layoutSidenav #layoutSidenav_nav .sb-sidenav .sb-sidenav-menu {
   overflow-y: auto; box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
@@ -250,6 +268,11 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
 	transition-timing-function: cubic-bezier(0.0,0.0,0.2,1);
 }
 
+.link-sidenav {
+  scrollbar-width: thin;
+  scrollbar-color: lightgray white;
+}
+
 .link-sidenav::-webkit-scrollbar {
   width: 12px;               /* width of the entire scrollbar */
 }
@@ -280,6 +303,11 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
   text-align: right;
   float:right;
 	line-height: normal;
+}
+
+.pfbiccyearButtonsDiv {
+  scrollbar-width: thin;
+  scrollbar-color: lightgray white;
 }
 
 .pfbiccyearButtonsDiv::-webkit-scrollbar {
@@ -1124,7 +1152,7 @@ footer{position: sticky; bottom: 0;}
   width: 100%;
   min-height: 5vh;
   align-items: center;
-  z-index: 2000;
+  z-index: 1036;
   border-bottom: 1px solid #3289c9;
   padding: 0 15px;
 }
