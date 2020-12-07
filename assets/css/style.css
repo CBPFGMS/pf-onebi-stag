@@ -281,6 +281,19 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#3387c6",endCo
   float:right;
 	line-height: normal;
 }
+
+.pfbiccyearButtonsDiv::-webkit-scrollbar {
+  height: 12px;               /* width of the entire scrollbar */
+}
+.pfbiccyearButtonsDiv::-webkit-scrollbar-track {
+  background: transparent;        /* color of the tracking area */
+}
+.pfbiccyearButtonsDiv::-webkit-scrollbar-thumb {
+  background-color: #eee;    /* color of the scroll thumb */
+  border-radius: 20px;       /* roundness of the scroll thumb */
+  border: 3px solid #fff;  /* creates padding around scroll thumb */
+}
+
 .side-panel{padding:5px 10px; border-bottom:1px solid #ccc; margin: 0 15px;}
 .side-panel h6{margin-bottom:0; font-size:0.9rem; font-family: 'Roboto', sans-serif; font-weight: 600; line-height: normal; float: left;
     margin-right: 5px; background-color: #e5ecf4; border-radius: 15px; padding: 0 7px;}
@@ -990,7 +1003,7 @@ footer{position: sticky; bottom: 0;}
 .pfbiccyearButtonsDiv {
   display: flex;
   align-items: center;
-  padding-left: 1rem;
+  margin-left: 1rem;
   flex: 0 80%;
   height: 100%;
   overflow-y: auto;
