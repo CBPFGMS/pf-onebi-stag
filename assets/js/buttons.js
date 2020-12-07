@@ -2,7 +2,7 @@ const generalClassPrefix = "pfbihp",
 	allocationsDataUrl = "https://cbpfgms.github.io/pf-onebi-data/download/pfmb_allocations.csv",
 	contributionsDataUrl = "https://cbpfgms.github.io/pf-onebi-data/download/pfmb_contributions.csv";
 
-function createButtons(containerSelection, chartState) {
+function createButtons(containerSelection, chartState, yearsArray) {
 
 	const helpIcon = containerSelection.append("button")
 		.attr("id", generalClassPrefix + "HelpButton");
@@ -55,6 +55,22 @@ function createButtons(containerSelection, chartState) {
 			window.open(allocationsDataUrl, "_blank");
 		};
 	});
+
+	if (chartState.selectedChart !== "contributionsByDonor") {
+		const playIcon = containerSelection.append("button")
+			.datum({
+				clicked: false
+			})
+			.attr("id", generalClassPrefix + "PlayButton");
+
+		playIcon.html("PLAY  ")
+			.append("span")
+			.attr("class", "fas fa-play");
+
+		playIcon.on("click", (_, d) => {
+
+		});
+	};
 
 	//end of createButtons
 };
