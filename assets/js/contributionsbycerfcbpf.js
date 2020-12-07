@@ -8,6 +8,10 @@ import {
 	donorsFlagsData
 } from "./donorsflagsdata.js";
 
+import {
+	createButtons
+} from "./buttons.js";
+
 //|constants
 const classPrefix = "pfbicc",
 	currentDate = new Date(),
@@ -43,6 +47,7 @@ const classPrefix = "pfbicc",
 	legendTextPadding = 4,
 	xGroupExtraPadding = 18,
 	lineOpacity = 0.5,
+	fadeOpacity = 0.1,
 	formatMoney0Decimals = d3.format(",.0f"),
 	formatPercent = d3.format("%"),
 	monthFormat = d3.timeFormat("%b"),
@@ -78,20 +83,28 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	const breadcrumbDiv = outerDiv.append("div")
 		.attr("class", classPrefix + "breadcrumbDiv");
 
-	const firstBreadcrumb = breadcrumbDiv.append("div")
+	const breadcrumbDivInner = breadcrumbDiv.append("div")
+		.attr("class", classPrefix + "breadcrumbDivInner");
+
+	const firstBreadcrumb = breadcrumbDivInner.append("div")
 		.attr("class", classPrefix + "firstBreadcrumb");
 
 	firstBreadcrumb.append("span")
 		.html("contributions");
 
-	const middleBreadcrumb = breadcrumbDiv.append("div")
+	const middleBreadcrumb = breadcrumbDivInner.append("div")
 		.attr("class", classPrefix + "middleBreadcrumb");
 
-	const secondBreadcrumb = breadcrumbDiv.append("div")
+	const secondBreadcrumb = breadcrumbDivInner.append("div")
 		.attr("class", classPrefix + "secondBreadcrumb");
 
 	secondBreadcrumb.append("span")
 		.html("by CERF/CBPF");
+
+	const topButtonsDiv = breadcrumbDiv.append("div")
+		.attr("class", classPrefix + "topButtonsDiv");
+
+	createButtons(topButtonsDiv, chartState);
 
 	const containerDiv = outerDiv.append("div")
 		.attr("class", classPrefix + "containerDiv");
@@ -1459,7 +1472,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		barsLabels.transition()
 			.duration(duration)
-			.style("opacity", 1)
+			.style("opacity", (_, i) => !(i % 4) ? 1 : 0)
 			.attr("x", d => xScaleBarChart(d.donorId) + xScaleBarChart.bandwidth() / 2)
 			.attr("y", d => yScaleBarChart(d.cerf + d.cbpf) - labelsColumnPadding)
 			.textTween((d, i, n) => {
@@ -1526,6 +1539,11 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.remove();
 
 		function mouseoverBarsTooltipRectangles(event, d) {
+			bars.style("opacity", e => e.data.donor === d.donor ? 1 : fadeOpacity);
+			barsLabels.style("opacity", (e, i) => e.donor === d.donor ? 1 : !(i % 4) ? fadeOpacity : 0);
+			xAxisGroupBarChart.selectAll(".tick")
+				.style("opacity", e => e === d.donorId ? 1 : fadeOpacity);
+
 			const thisIndex = localVariable.get(event.currentTarget);
 			const ordinal = makeOrdinal(thisIndex + 1);
 
@@ -1607,6 +1625,11 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		};
 
 		function mouseoutBarsTooltipRectangles(event, d) {
+			bars.style("opacity", 1);
+			barsLabels.style("opacity", (_, i) => !(i % 4) ? 1 : 0);
+			xAxisGroupBarChart.selectAll(".tick")
+				.style("opacity", 1);
+
 			tooltipDiv.style("display", "none")
 				.html(null);
 		};

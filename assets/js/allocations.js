@@ -113,7 +113,7 @@ function createAllocations(selections, colors, mapData, lists) {
 	const topButtonsDiv = breadcrumbDiv.append("div")
 		.attr("class", classPrefix + "topButtonsDiv");
 
-	//createButtons(topButtonsDiv, chartState);
+	createButtons(topButtonsDiv, chartState);
 
 	const containerDiv = outerDiv.append("div")
 		.attr("class", classPrefix + "containerDiv");
@@ -972,7 +972,7 @@ function createAllocations(selections, colors, mapData, lists) {
 				.style("opacity", d => d.data.country === datum.country ? 1 : fadeOpacity);
 
 			barChartPanel.main.selectAll("." + classPrefix + "barsLabels")
-				.style("opacity", d => d.country === datum.country ? 1 : fadeOpacity);
+				.style("opacity", (d, i) => d.country === datum.country ? 1 : !(i % 4) ? fadeOpacity : 0);
 
 			xAxisGroup.selectAll(".tick")
 				.style("opacity", d => d === datum.country ? 1 : fadeOpacity)
@@ -1023,7 +1023,7 @@ function createAllocations(selections, colors, mapData, lists) {
 				.style("opacity", 1);
 
 			barChartPanel.main.selectAll("." + classPrefix + "barsLabels")
-				.style("opacity", 1);
+				.style("opacity", (_, i) => !(i % 4) ? 1 : 0);
 
 			xAxisGroup.selectAll(".tick")
 				.style("opacity", 1)
@@ -1299,7 +1299,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		barsLabels.transition()
 			.duration(duration)
-			.style("opacity", 1)
+			.style("opacity", (_, i) => !(i % 4) ? 1 : 0)
 			.attr("x", d => xScale(d.country) + xScale.bandwidth() / 2)
 			.attr("y", d => yScale(chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]) - barChartPanel.labelsPadding)
 			.textTween((d, i, n) => {
@@ -1356,7 +1356,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 			bars.style("opacity", e => e.data.country === d.country ? 1 : fadeOpacity);
 
-			barsLabels.style("opacity", e => e.country === d.country ? 1 : fadeOpacity);
+			barsLabels.style("opacity", (e, i) => e.country === d.country ? 1 : !(i % 4) ? fadeOpacity : 0);
 
 			xAxisGroup.selectAll(".tick")
 				.style("opacity", e => e === d.country ? 1 : fadeOpacity)
@@ -1416,7 +1416,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 			bars.style("opacity", 1);
 
-			barsLabels.style("opacity", 1);
+			barsLabels.style("opacity", (_, i) => !(i % 4) ? 1 : 0);
 
 			xAxisGroup.selectAll(".tick")
 				.style("opacity", 1)

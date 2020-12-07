@@ -1,6 +1,8 @@
-const generalClassPrefix = "pfbihp";
+const generalClassPrefix = "pfbihp",
+	allocationsDataUrl = "https://cbpfgms.github.io/pf-onebi-data/download/pfmb_allocations.csv",
+	contributionsDataUrl = "https://cbpfgms.github.io/pf-onebi-data/download/pfmb_contributions.csv";
 
-function createButtons(containerSelection, chartState) {
+function createButtons(containerSelection, chartState, yearsArray) {
 
 	const helpIcon = containerSelection.append("button")
 		.attr("id", generalClassPrefix + "HelpButton");
@@ -43,11 +45,32 @@ function createButtons(containerSelection, chartState) {
 	// 	createSnapshot("png", false);
 	// });
 
-	snapshotDiv.on("mouseover", function() {
-		snapshotContent.style("display", "block")
-	}).on("mouseout", function() {
-		snapshotContent.style("display", "none")
+	snapshotDiv.on("mouseover", () => snapshotContent.style("display", "block"))
+		.on("mouseout", () => snapshotContent.style("display", "none"));
+
+	downloadIcon.on("click", () => {
+		if (chartState.selectedChart.includes("contributions")) {
+			window.open(contributionsDataUrl, "_blank");
+		} else {
+			window.open(allocationsDataUrl, "_blank");
+		};
 	});
+
+	if (chartState.selectedChart !== "contributionsByDonor") {
+		const playIcon = containerSelection.append("button")
+			.datum({
+				clicked: false
+			})
+			.attr("id", generalClassPrefix + "PlayButton");
+
+		playIcon.html("PLAY  ")
+			.append("span")
+			.attr("class", "fas fa-play");
+
+		playIcon.on("click", (_, d) => {
+
+		});
+	};
 
 	//end of createButtons
 };
