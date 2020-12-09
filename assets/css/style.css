@@ -97,8 +97,7 @@ body{font-family: 'Roboto', sans-serif; color:#333; background: #fff; padding: 0
   overflow-y: auto; 
 }
 .sb-nav-fixed #layoutSidenav #layoutSidenav_content {
-  padding-left: 225px;
-  top: 56px;
+  padding-left: 225px;  
 }
 .nav .nav-link .sb-nav-link-icon,
 .sb-sidenav-menu .nav-link .sb-nav-link-icon {
@@ -340,11 +339,11 @@ body{font-family: 'Roboto', sans-serif; color:#333; background: #fff; padding: 0
 .brdr-btm{border-bottom: 1px solid #ddd; padding: 0 1rem; display: block; margin-left: 1rem; margin-right: 1rem;}
 .cerf-link{border: 1px solid #e8c760; color: #333 !important; padding: 0 7px 0 0 !important; margin-right: 10px; transition: all 0.2s linear; display: flex; align-items: center; border-radius:3px; background-color: #fbd45c;}
 .cerf-link .icon-chart{background-color: #fff; padding: 3px 5px; display: inline-flex; margin-right: 7px; font-size: 1.3em; color: #333;}
-.cerf-link .icon-chart svg{opacity:0.7;}
+.cerf-link .icon-chart svg{opacity:0.6;}
 .cerf-link:hover{color:#333 !important; background-color: #fff; border-radius:3px;}
 .cbpf-link{border: 1px solid #f37261; color: #fff !important; padding: 0 7px 0 0 !important; transition: all 0.2s linear; display: flex; align-items: center; border-radius:3px; background-color:#f37261;}
-.cbpf-link .icon-chart{background-color: #e17166; padding: 3px 5px; display: inline-flex; margin-right: 7px; font-size: 1.3em; color: #fff;}
-.cbpf-link .icon-chart svg{opacity:0.7;}
+.cbpf-link .icon-chart{background-color: #fff; padding: 3px 5px; display: inline-flex; margin-right: 7px; font-size: 1.3em; color: #333;}
+.cbpf-link .icon-chart svg{opacity:0.6;}
 .cbpf-link:hover{color:#333 !important; background-color: #fff; border-radius:3px;}
 .un-icon{font-family: 'humanitarian-icons-v02'; font-style: normal; font-weight: normal; speak: never; display: inline-block;       text-decoration: inherit; width: 1em; margin-right: .2em; text-align: center; font-variant: normal; text-transform: none; line-height: 1em; margin-left: .2em; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;}
 footer{position: sticky; bottom: 0;}
