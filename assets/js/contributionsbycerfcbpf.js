@@ -12,6 +12,10 @@ import {
 	createButtons
 } from "./buttons.js";
 
+import {
+	createLinks
+} from "./links.js";
+
 //|constants
 const classPrefix = "pfbicc",
 	currentDate = new Date(),
@@ -104,7 +108,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	const topButtonsDiv = breadcrumbDiv.append("div")
 		.attr("class", classPrefix + "topButtonsDiv");
 
-	createButtons(topButtonsDiv, chartState);
+	createLinks(topButtonsDiv);
 
 	const containerDiv = outerDiv.append("div")
 		.attr("class", classPrefix + "containerDiv");

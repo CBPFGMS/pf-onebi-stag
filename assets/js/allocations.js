@@ -12,6 +12,10 @@ import {
 	createButtons
 } from "./buttons.js";
 
+import {
+	createLinks
+} from "./links.js";
+
 //|constants
 const classPrefix = "pfbial",
 	mapPercentage = 0.68,
@@ -113,7 +117,7 @@ function createAllocations(selections, colors, mapData, lists) {
 	const topButtonsDiv = breadcrumbDiv.append("div")
 		.attr("class", classPrefix + "topButtonsDiv");
 
-	createButtons(topButtonsDiv, chartState);
+	createLinks(topButtonsDiv);
 
 	const containerDiv = outerDiv.append("div")
 		.attr("class", classPrefix + "containerDiv");
