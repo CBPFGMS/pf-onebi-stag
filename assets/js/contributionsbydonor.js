@@ -50,6 +50,7 @@ const classPrefix = "pfbicd",
 	formatPercent = d3.format("%"),
 	stackKeys = ["total", "cerf", "cbpf"],
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
+	nonAggregatedNonMemberTypes = ["Regional Local Authority", "Observer"],
 	zeroObject = {
 		total: 0,
 		cerf: 0,
@@ -443,7 +444,9 @@ function createContributionsByDonor(selections, colors, lists) {
 
 			const row = JSON.parse(JSON.stringify(originalRow));
 
-			const foundDonor = acc.find(e => e.donor === lists.donorTypesList[row.donorId]);
+			const foundDonor = acc.find(e => nonAggregatedNonMemberTypes.includes(lists.donorTypesList[row.donorId]) ?
+				e.donor === row.donor :
+				e.donor === lists.donorTypesList[row.donorId]);
 
 			if (foundDonor) {
 				++foundDonor.count;
@@ -475,7 +478,7 @@ function createContributionsByDonor(selections, colors, lists) {
 				});
 
 			} else {
-				row.donor = lists.donorTypesList[row.donorId];
+				row.donor = nonAggregatedNonMemberTypes.includes(lists.donorTypesList[row.donorId]) ? row.donor : lists.donorTypesList[row.donorId];
 				row.count = 1;
 				delete row.donorId;
 				acc.push(row);

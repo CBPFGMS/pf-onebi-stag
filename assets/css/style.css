@@ -900,6 +900,11 @@ footer{position: sticky; bottom: 0;}
   height: 100%;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(144px, 1fr));
+  overflow-y: scroll;
+}
+
+.pfbicdnonMemberStatesChartAreaDiv > :last-child, .pfbicdmemberStatesChartAreaDiv > :last-child {
+    margin-bottom: 22px;
 }
 
 .pfbicddonorDiv {
