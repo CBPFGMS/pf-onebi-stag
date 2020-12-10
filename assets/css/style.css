@@ -24,7 +24,7 @@ body{font-family: 'Roboto', sans-serif; color:#333; background: #fff; padding: 0
   justify-content: space-between;
   min-width: 0;
   flex-grow: 1;
-  min-height: calc(100vh - 56px);
+  min-height: calc(100vh - 27px);
   margin-left: -225px;
 }
 
