@@ -962,7 +962,7 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 }
 
 #layoutSidenav_content {
-  height: calc(100vh - 56px);
+  height: calc(100vh - 27px);
 }
 
 .pfbicddonorNameDiv {
