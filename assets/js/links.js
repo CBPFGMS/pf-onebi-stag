@@ -26,7 +26,7 @@ function createLinks(containerSelection) {
 		.attr("class", "fas fa-chart-bar");
 
 	cerfLink.append("span")
-		.html("CBPF BI");
+		.html("CERF BI");
 
 };
 
