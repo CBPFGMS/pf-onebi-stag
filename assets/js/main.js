@@ -3,7 +3,7 @@ const isTouchScreenOnly = (window.matchMedia("(pointer: coarse)").matches && !wi
 
 //|set constants
 const generalClassPrefix = "pfbihp",
-	localStorageTime = 3600000,
+	localStorageTime = 1,
 	currentDate = new Date(),
 	currentYear = currentDate.getFullYear(),
 	formatLastModified = d3.timeFormat("%d/%m/%Y %H:%M:%S"),
