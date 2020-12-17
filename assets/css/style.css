@@ -360,7 +360,7 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 .options-btn-panel{position: fixed; right: -65px; top: 95px; transition-duration: 0.3s; z-index: 100;}
 .options-btn-panel:hover{right:0;}
 .options-btn-panel:hover .btn-panel{box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);}
-.options-btn-panel .hd-panel{background-color: #3289c9; padding: 3px 5px; border-radius: 5px 0 0 5px; cursor: pointer; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);}
+.options-btn-panel .hd-panel{background-color: #3289c9; padding: 3px 5px; border-radius: 5px 0 0 5px; cursor: pointer; box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);}
 .options-btn-panel .hd-panel .btn-icon{background: #3289c9 url(../img/info-icon.png) 0 0 no-repeat; width: 16px; height: 16px; display: inline-block; margin: 5px 20px 5px 5px; vertical-align: middle; line-height: normal;}
 .options-btn-panel .hd-panel .btn-title{font-size: 14px; font-weight: bold; color:#fff; display: inline-block; vertical-align: middle;
     line-height: normal;} 
