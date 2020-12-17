@@ -24,7 +24,7 @@ body{font-family: 'Roboto', sans-serif; color:#333; background: #fff; padding: 0
   justify-content: space-between;
   min-width: 0;
   flex-grow: 1;
-  min-height: calc(100vh - 56px);
+  min-height: calc(100vh - 27px);
   margin-left: -225px;
 }
 
@@ -250,7 +250,7 @@ body{font-family: 'Roboto', sans-serif; color:#333; background: #fff; padding: 0
 .select-panel .form-control:disabled{border: 1px solid #ccc;}
 
 .link-sidenav {
-  height: calc(100% - 120px);
+  height: calc(100% - 140px);
   width: 0;
   position: fixed;
   z-index: 1040;
@@ -352,10 +352,20 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 
 .map-section{display: flex; justify-content: center; align-items: center; width: 100%; height: 100%;}
 .scroll-panel{width:100%; height: 100%; /*min-width: calc(100% + 225px);*/ margin-left:225px; transition: all 0.5s ease-in-out;}
+.second-nav-title{position: sticky; width: 100%; background-color: #fff; top: 0; padding-bottom: 3px;}
 .second-nav-chart{display: flex; justify-content: center; width: 100%; min-height: calc(100% - 353px);}
 .data-update{text-align: center; font-size: 0.69rem; color: #777;}
 .mobile-menu{margin-left: 235px; position: absolute; background-color: #555; margin-top: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);    color: #fff;}
 .mobile-menu:focus, .mobile-menu:not(:disabled):not(.disabled){color:#fff;}
+.options-btn-panel{position: fixed; right: -65px; top: 95px; transition-duration: 0.3s;}
+.options-btn-panel:hover{right:0;}
+.options-btn-panel:hover .btn-panel{box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); }
+.options-btn-panel .hd-panel{background-color: #3289c9; padding: 3px 5px; border-radius: 5px 0 0 5px; cursor: pointer;}
+.options-btn-panel .hd-panel .btn-icon{background: #3289c9 url(../img/info-icon.png) 0 0 no-repeat; width: 16px; height: 16px; display: inline-block; margin: 5px 20px 5px 5px; vertical-align: middle; line-height: normal;}
+.options-btn-panel .hd-panel .btn-title{font-size: 14px; font-weight: bold; color:#fff; display: inline-block; vertical-align: middle;
+    line-height: normal;} 
+.options-btn-panel .btn-panel{background-color: #fff; padding: 12px; border-radius: 0 0 3px 3px; margin-left: 34px; transition-duration: 0.3s;}
+
 
 @media (max-width: 575.98px) { 
 	#sidebarToggle{display:block !important;}
