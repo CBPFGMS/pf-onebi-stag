@@ -497,7 +497,7 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
   color: darkslategray;
   font-family: "Roboto", sans-serif;
   white-space: normal;
-  padding: 8px;
+  padding: 0;
   line-height: 120%;
   font-size: 14px;
   background: #f2f4f4; 
@@ -509,10 +509,10 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
-#pfbialinnerTooltipDiv div:nth-child(2){padding:8px !important;}
+#pfbialinnerTooltipDiv > div:nth-child(2){padding:8px !important;}
 
 .pfbialtooltipTitleDiv, .pfbicdtooltipTitleDiv {
-	margin-bottom: 10px !important;
+	margin-bottom: 3px !important;
     background-color: #3189c9;
     padding: 8px 8px;
     color: #fff;
