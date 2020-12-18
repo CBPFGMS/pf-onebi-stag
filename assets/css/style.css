@@ -500,16 +500,36 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
   padding: 8px;
   line-height: 120%;
   font-size: 14px;
-  background: #f8f8f8; 
-  border: 1px solid #999; 
+  background: #f2f4f4; 
+  border: none; 
   border-radius: 4px;
   pointer-events: none;
   cursor: none;
   z-index: 1500;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
-.pfbialtooltipTitleDiv, .pfbicdtooltipTitleDiv {
+.pfbialinnerTooltipDiv div:nth-child(2){padding:8px;}
 
+.pfbialtooltipTitleDiv, .pfbicdtooltipTitleDiv {
+	margin-bottom: 10px;
+    background-color: #3189c9;
+    padding: 8px 8px;
+    color: #fff;
+    border-radius: 5px 5px 0 0;
+}
+
+.pfbialtooltipTitleDiv strong, .pfbicdtooltipTitleDiv strong{
+	font-size: 15px !important;
+}
+
+.pfbialtooltipTotalValue{
+	display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #999;
+    padding-bottom: 5px;
 }
 
 .pfbicctooltipTitleDiv {
@@ -535,20 +555,36 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
   font-style: italic;
 }
 
-.pfbialtooltipTotalValue, .pfbialtooltipCerfValue, .pfbialtooltipCbpfValue {
-
+.pfbialtooltipCerfValue .pfbialtooltipKeys {
+	font-weight: 600;
+    border-radius: 15px;
+    border: 2px solid #e8c760;
+    padding: 2px 10px;
+    font-size: 12px;
 } 
+
+.pfbialtooltipCbpfValue .pfbialtooltipKeys {
+	font-weight: 600;
+    border-radius: 15px;
+    border: 2px solid #e17165;
+    padding: 2px 10px;
+    font-size: 12px;
+}
 
 .pfbialtooltipZeroValueCerf, .pfbialtooltipZeroValueCbpf {
 
 }
 
 .pfbialtooltipProjectsTotal, .pfbialtooltipProjectsCerf, .pfbialtooltipProjectsCbpf {
-
+	font-weight: 600;
 }
 
 .pfbialtooltipValues, .pfbialtooltipKeys, .pfbicctooltipValues, .pfbicctooltipYears {
   flex: 1 0 auto;
+}
+
+.pfbialtooltipKeys{
+	font-weight: 600;
 }
 
 .pfbialtooltipLeader, .pfbicctooltipLeader {
