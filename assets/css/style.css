@@ -509,10 +509,10 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
-.pfbialinnerTooltipDiv div:nth-child(2){padding:8px;}
+.pfbialinnerTooltipDiv div:nth-child(1){padding:8px !important;}
 
 .pfbialtooltipTitleDiv, .pfbicdtooltipTitleDiv {
-	margin-bottom: 10px;
+	margin-bottom: 10px !important;
     background-color: #3189c9;
     padding: 8px 8px;
     color: #fff;
@@ -556,7 +556,7 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 }
 
 .pfbialtooltipCerfValue .pfbialtooltipKeys {
-	font-weight: 600;
+	font-weight: 600 !important;
     border-radius: 15px;
     border: 2px solid #e8c760;
     padding: 2px 10px;
@@ -564,7 +564,7 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 } 
 
 .pfbialtooltipCbpfValue .pfbialtooltipKeys {
-	font-weight: 600;
+	font-weight: 600 !important;
     border-radius: 15px;
     border: 2px solid #e17165;
     padding: 2px 10px;
