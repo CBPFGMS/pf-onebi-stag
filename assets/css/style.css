@@ -509,7 +509,7 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
-.pfbialinnerTooltipDiv div:nth-child(1){padding:8px !important;}
+#pfbialinnerTooltipDiv div:nth-child(2){padding:8px !important;}
 
 .pfbialtooltipTitleDiv, .pfbicdtooltipTitleDiv {
 	margin-bottom: 10px !important;
