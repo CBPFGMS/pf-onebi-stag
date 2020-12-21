@@ -624,8 +624,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("y", d => yScaleCerf(0))
 			.attr("height", 0)
 			.style("fill", d => selectedYear[0] === allYears && d.year === currentYear ? `url(#${classPrefix}patternCerf)` : colors.cerf)
-			.attr("stroke", "#aaa")
-			.attr("stroke-width", 0.5)
+			.attr("stroke", d => selectedYear[0] === allYears && d.year === currentYear ? "#aaa" : null)
+			.attr("stroke-width", d => selectedYear[0] === allYears && d.year === currentYear ? 0.5 : null)
 			.style("opacity", 0);
 
 		barsCerf = barsCerfEnter.merge(barsCerf);
@@ -720,8 +720,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("y", d => yScaleCerf(0))
 			.attr("height", 0)
 			.style("fill", d => d.year === currentYear ? `url(#${classPrefix}patternCerf)` : colors.cerf)
-			.attr("stroke", "#aaa")
-			.attr("stroke-width", 0.5)
+			.attr("stroke", d => d.year === currentYear ? "#aaa" : null)
+			.attr("stroke-width", d => d.year === currentYear ? 0.5 : null)
 			.style("opacity", 0);
 
 		barsGroupCerf = barsGroupEnterCerf.merge(barsGroupCerf);
@@ -1028,8 +1028,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("y", d => yScaleCbpf(0))
 			.attr("height", 0)
 			.style("fill", d => selectedYear[0] === allYears && d.year === currentYear ? `url(#${classPrefix}patternCbpf)` : colors.cbpf)
-			.attr("stroke", "#aaa")
-			.attr("stroke-width", 0.5)
+			.attr("stroke", d => selectedYear[0] === allYears && d.year === currentYear ? "#aaa" : null)
+			.attr("stroke-width", d => selectedYear[0] === allYears && d.year === currentYear ? 0.5 : null)
 			.style("opacity", 0);
 
 		barsCbpf = barsCbpfEnter.merge(barsCbpf);
@@ -1124,8 +1124,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("y", d => yScaleCbpf(0))
 			.attr("height", 0)
 			.style("fill", d => d.year === currentYear ? `url(#${classPrefix}patternCbpf)` : colors.cbpf)
-			.attr("stroke", "#aaa")
-			.attr("stroke-width", 0.5)
+			.attr("stroke", d => d.year === currentYear ? "#aaa" : null)
+			.attr("stroke-width", d => d.year === currentYear ? 0.5 : null)
 			.style("opacity", 0);
 
 		barsGroupCbpf = barsGroupEnterCbpf.merge(barsGroupCbpf);
@@ -1435,8 +1435,6 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		const barsEnter = bars.enter()
 			.append("rect")
 			.attr("class", classPrefix + "bars")
-			.attr("stroke", "#aaa")
-			.attr("stroke-width", 0.5)
 			.attr("width", xScaleBarChart.bandwidth())
 			.attr("height", 0)
 			.style("fill", (d, i, n) => {
@@ -1749,8 +1747,6 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		const barsColumnEnter = barsColumn.enter()
 			.append("rect")
 			.attr("class", classPrefix + "barsColumn")
-			.attr("stroke", "#aaa")
-			.attr("stroke-width", 0.5)
 			.attr("height", yScaleColumn.bandwidth())
 			.attr("width", 0)
 			.style("fill", (d, i, n) => {
