@@ -31,7 +31,7 @@ const classPrefix = "pfbial",
 	mapZoomButtonSize = 26,
 	maxPieSize = 26,
 	minPieSize = 1,
-	maxColumnRectHeight = 16,
+	maxColumnRectHeight = 14,
 	tooltipMargin = 4,
 	legendLineSize = 38,
 	showNamesMargin = 12,
@@ -45,7 +45,7 @@ const classPrefix = "pfbial",
 	maxLabelLength = 16,
 	labelsColumnPadding = 2,
 	zoomBoundingMargin = 6,
-	clusterIconSize = 18,
+	clusterIconSize = 24,
 	clusterIconPadding = 2,
 	localVariable = d3.local(),
 	formatPercent = d3.format("%"),
@@ -53,11 +53,11 @@ const classPrefix = "pfbial",
 	formatMoney0Decimals = d3.format(",.0f"),
 	innerTooltipDivWidth = 290,
 	svgColumnChartWidth = 195,
-	svgColumnChartHeight = 380,
+	svgColumnChartHeight = 500,
 	svgMapPadding = [0, 10, 0, 10],
 	svgBarChartPadding = [4, 12, 4, 12],
 	svgColumnChartPaddingByCountry = [16, 26, 4, 56],
-	svgColumnChartPaddingBySector = [16, 26, 4, 86],
+	svgColumnChartPaddingBySector = [16, 26, 4, 90],
 	svgColumnChartPaddingByType = [16, 26, 4, 66],
 	svgColumnChartTypeHeight = svgColumnChartPaddingByType[0] + svgColumnChartPaddingByType[2] + maxColumnRectHeight + 4 * maxColumnRectHeight,
 	VenezuelaRegionalRefugeeAbbr = "Venezuela Refugee...",
@@ -1691,8 +1691,8 @@ function createAllocations(selections, colors, mapData, lists) {
 				value: e[1]
 			})).sort((a, b) => b.value - a.value);
 
-			const padding = [16, 26, 4, 86],
-				height = padding[0] + padding[2] + maxColumnRectHeight * 1.4 * svgData.length;
+			const padding = [16, 26, 4, 90],
+				height = padding[0] + padding[2] + maxColumnRectHeight * 1.6 * svgData.length;
 
 			const svg = thisChartDiv.append("svg")
 				.attr("width", innerTooltipDivWidth)
@@ -1974,6 +1974,8 @@ function createAllocations(selections, colors, mapData, lists) {
 					Math.min(svgColumnChartHeight - svgColumnChartPaddingByCountry[2], maxColumnRectHeight * 2 * (filteredData.length + 1))
 				]);
 
+			svgColumnChartByCountry.attr("height", yScaleColumnByCountry.range()[1] + svgColumnChartPaddingByCountry[2]);
+
 			xScaleColumnByCountry.domain([0, d3.max(filteredData, e => chartState.selectedFund === "total" ? e.total : e.cbpf + e.cerf)]);
 
 			const stackedData = stack(filteredData);
@@ -2204,6 +2206,8 @@ function createAllocations(selections, colors, mapData, lists) {
 				.range([svgColumnChartPaddingBySector[0],
 					Math.min(svgColumnChartHeight - svgColumnChartPaddingBySector[2], maxColumnRectHeight * 2 * (filteredData.length + 1))
 				]);
+
+			svgColumnChartBySector.attr("height", yScaleColumnBySector.range()[1] + svgColumnChartPaddingBySector[2]);
 
 			xScaleColumnBySector.domain([0, d3.max(filteredData, e => chartState.selectedFund === "total" ? e.total : e.cbpf + e.cerf)]);
 
