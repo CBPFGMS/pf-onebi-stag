@@ -50,7 +50,7 @@ const classPrefix = "pfbicc",
 	legendRectSize = 16,
 	legendTextPadding = 4,
 	xGroupExtraPadding = 18,
-	lineOpacity = 0.5,
+	lineOpacity = 0.75,
 	fadeOpacity = 0.1,
 	formatMoney0Decimals = d3.format(",.0f"),
 	formatPercent = d3.format("%"),
@@ -636,30 +636,6 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("y", d => yScaleCerf(d[`${selectedValue}${separator}cerf`]))
 			.attr("height", d => svgHeightCerf - svgPaddingsCerf[2] - yScaleCerf(d[`${selectedValue}${separator}cerf`]));
 
-		let lineCerf = chartLayerCerf.selectAll("." + classPrefix + "lineCerf")
-			.data(dataYear.length ? [dataYear.filter(e => selectedYear[0] === allYears ? e.year < currentYear : true)] : []);
-
-		const lineCerfExit = lineCerf.exit()
-			.remove();
-
-		const lineCerfEnter = lineCerf.enter()
-			.append("path")
-			.attr("class", classPrefix + "lineCerf")
-			.style("fill", "none")
-			.style("stroke-width", "2px")
-			.style("opacity", lineOpacity)
-			.style("stroke", "#aaa")
-			.attr("d", lineGeneratorBaseCerf);
-
-		lineCerf = lineCerfEnter.merge(lineCerf);
-
-		lineCerf.raise();
-
-		lineCerf.transition()
-			.duration(duration)
-			.style("opacity", d => d.some(e => e[`${selectedValue}${separator}cerf`]) ? lineOpacity : 0)
-			.attrTween("d", (d, i, n) => pathTween(lineGeneratorCerf(d), precision, n[i])());
-
 		let labelsCerf = chartLayerCerf.selectAll("." + classPrefix + "labelsCerf")
 			.data(dataYear.filter(e => e[`${selectedValue}${separator}cerf`]), d => d.year);
 
@@ -1039,30 +1015,6 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.style("opacity", 1)
 			.attr("y", d => yScaleCbpf(d[`${selectedValue}${separator}cbpf`]))
 			.attr("height", d => svgHeightCbpf - svgPaddingsCbpf[2] - yScaleCbpf(d[`${selectedValue}${separator}cbpf`]));
-
-		let lineCbpf = chartLayerCbpf.selectAll("." + classPrefix + "lineCbpf")
-			.data(dataYear.length ? [dataYear.filter(e => selectedYear[0] === allYears ? e.year < currentYear : true)] : []);
-
-		const lineCbpfExit = lineCbpf.exit()
-			.remove();
-
-		const lineCbpfEnter = lineCbpf.enter()
-			.append("path")
-			.attr("class", classPrefix + "lineCbpf")
-			.style("fill", "none")
-			.style("stroke-width", "2px")
-			.style("opacity", lineOpacity)
-			.style("stroke", "#aaa")
-			.attr("d", lineGeneratorBaseCbpf);
-
-		lineCbpf = lineCbpfEnter.merge(lineCbpf);
-
-		lineCbpf.raise();
-
-		lineCbpf.transition()
-			.duration(duration)
-			.style("opacity", d => d.some(e => e[`${selectedValue}${separator}cbpf`]) ? lineOpacity : 0)
-			.attrTween("d", (d, i, n) => pathTween(lineGeneratorCbpf(d), precision, n[i])());
 
 		let labelsCbpf = chartLayerCbpf.selectAll("." + classPrefix + "labelsCbpf")
 			.data(dataYear.filter(e => e[`${selectedValue}${separator}cbpf`]), d => d.year);

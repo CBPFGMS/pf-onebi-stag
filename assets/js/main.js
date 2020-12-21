@@ -137,7 +137,8 @@ const selections = {
 	byCerfCbpfDonorsValue: d3.select("#byCerfCbpfDonorsValue"),
 	byCerfCbpfDonorsText: d3.select("#byCerfCbpfDonorsText"),
 	byDonorChartContainer: d3.select("#bydonor-bar-chart"),
-	byCerfCbpfChartContainer: d3.select("#bycerfcbpf-bar-chart")
+	byCerfCbpfChartContainer: d3.select("#bycerfcbpf-bar-chart"),
+	buttonsContainer: d3.select(".btn-panel")
 };
 
 const navLinks = [selections.navlinkAllocationsByCountry,
