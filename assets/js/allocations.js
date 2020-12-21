@@ -1686,10 +1686,11 @@ function createAllocations(selections, colors, mapData, lists) {
 			const thisTypeObject = fundType === "cerf" ? clusterDataCerf : clusterDataCbpf;
 
 			const svgData = Object.entries(thisTypeObject).map(e => ({
-				cluster: lists.clustersList[e[0]],
-				clusterId: e[0],
-				value: e[1]
-			})).sort((a, b) => b.value - a.value);
+					cluster: lists.clustersList[e[0]],
+					clusterId: e[0],
+					value: e[1]
+				})).filter(e => !chartState.selectedCluster.length || chartState.selectedCluster.indexOf(e.clusterId) > -1)
+				.sort((a, b) => b.value - a.value);
 
 			const padding = [16, 26, 4, 90],
 				height = padding[0] + padding[2] + maxColumnRectHeight * 1.6 * svgData.length;
@@ -1784,6 +1785,16 @@ function createAllocations(selections, colors, mapData, lists) {
 				.attr("width", clusterIconSize)
 				.attr("height", clusterIconSize)
 				.attr("href", d => clustersIconsData[d.clusterId]);
+
+			// function highlightBars() {
+			// 	barsColumn.style("fill", (e, i, n) => {
+			// 		const thisKey = d3.select(n[i].parentNode).datum().key;
+			// 		return chartState.selectedCluster.indexOf(e.data.clusterId) > -1 ? d3.color(colors[thisKey]).darker(0.5) : d3.color(colors[thisKey]).brighter(0.25);
+			// 	});
+
+			// 	yAxisGroupColumnBySector.selectAll(".tick text")
+			// 		.classed(classPrefix + "darkTick", e => chartState.selectedCluster.indexOf(Object.keys(lists.clustersList).find(f => lists.clustersList[f] === e)) > -1);
+			// };
 
 			//end of createSvgBySector
 		}
