@@ -1,15 +1,22 @@
+//|Options buttons
+
+import {
+	chartState
+} from "./chartstate.js";
+
 const generalClassPrefix = "pfbihp",
 	allocationsDataUrl = "https://cbpfgms.github.io/pf-onebi-data/download/pfmb_allocations.csv",
-	contributionsDataUrl = "https://cbpfgms.github.io/pf-onebi-data/download/pfmb_contributions.csv";
+	contributionsDataUrl = "https://cbpfgms.github.io/pf-onebi-data/download/pfmb_contributions.csv",
+	helpPortalUrl = "https://gms.unocha.org/content/business-intelligence";
 
-function createButtons(containerSelection, chartState, yearsArray) {
+function createButtons(containerSelection, yearsArrayAllocations, yearsArrayContributions) {
 
 	const helpIcon = containerSelection.append("button")
 		.attr("id", generalClassPrefix + "HelpButton");
 
 	helpIcon.html("HELP  ")
 		.append("span")
-		.attr("class", "fas fa-info")
+		.attr("class", "fas fa-info");
 
 	const downloadIcon = containerSelection.append("button")
 		.attr("id", generalClassPrefix + "DownloadButton");
@@ -47,6 +54,10 @@ function createButtons(containerSelection, chartState, yearsArray) {
 
 	snapshotDiv.on("mouseover", () => snapshotContent.style("display", "block"))
 		.on("mouseout", () => snapshotContent.style("display", "none"));
+
+	helpIcon.on("click", () => {
+		window.open(helpPortalUrl, "help_portal");
+	});
 
 	downloadIcon.on("click", () => {
 		if (chartState.selectedChart.includes("contributions")) {

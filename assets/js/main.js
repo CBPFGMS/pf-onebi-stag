@@ -179,6 +179,9 @@ import {
 	chartState
 } from "./chartstate.js";
 
+import {
+	createButtons
+} from "./buttons.js";
 
 //|load master tables, world map and csv data
 Promise.all([fetchFile("unworldmap", unworldmapUrl, "world map", "json"),
@@ -257,6 +260,8 @@ function controlCharts([worldMap,
 	updateTopValues(topValues, selections);
 
 	populateYearDropdown(yearsArrayAllocations, selections.yearDropdown);
+
+	createButtons(selections.buttonsContainer, yearsArrayAllocations, yearsArrayContributions);
 
 	//|Open the link and draws charts according to chartState
 	if (chartState.selectedChart === "allocationsByCountry") {

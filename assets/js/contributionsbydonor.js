@@ -9,10 +9,6 @@ import {
 } from "./donorsflagsdata.js";
 
 import {
-	createButtons
-} from "./buttons.js";
-
-import {
 	createLinks
 } from "./links.js";
 
