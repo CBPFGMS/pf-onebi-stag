@@ -357,11 +357,11 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 .data-update{text-align: center; font-size: 0.69rem; color: #777;}
 .mobile-menu{margin-left: 235px; position: absolute; background-color: #555; margin-top: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);    color: #fff;}
 .mobile-menu:focus, .mobile-menu:not(:disabled):not(.disabled){color:#fff;}
-.options-btn-panel{position: fixed; right: -65px; top: 95px; transition-duration: 0.3s; z-index: 100;}
+.options-btn-panel{position: fixed; right: -92px; top: 95px; transition-duration: 0.3s; z-index: 100;}
 .options-btn-panel:hover{right:0;}
 .options-btn-panel:hover .btn-panel{box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);}
 .options-btn-panel .hd-panel{background-color: #3289c9; padding: 3px 5px; border-radius: 5px 0 0 5px; cursor: pointer; box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);}
-.options-btn-panel .hd-panel .btn-icon{background: #3289c9 url(../img/info-icon.png) 0 0 no-repeat; width: 16px; height: 16px; display: inline-block; margin: 5px 20px 5px 5px; vertical-align: middle; line-height: normal;}
+.options-btn-panel .hd-panel .btn-icon{background: #3289c9 url(../img/info-button-icon.svg) 0 0 no-repeat; width: 16px; height: 16px; display: inline-block; margin: 5px 20px 5px 5px; vertical-align: middle; line-height: normal;}
 .options-btn-panel .hd-panel .btn-title{font-size: 14px; font-weight: bold; color:#fff; display: inline-block; vertical-align: middle;
     line-height: normal;} 
 .options-btn-panel .btn-panel{background-color: #fff; padding: 12px; border-radius: 0 0 3px 3px; margin-left: 34px; transition-duration: 0.3s;}
@@ -1249,6 +1249,7 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
   cursor: pointer;
   border-radius: 4px;
   overflow: hidden;
+  margin-top: -8px;
 }
 
 .pfbihpSnapshotContent #pfbihpSnapshotPdfText, .pfbihpSnapshotContent #pfbihpSnapshotPngText, .pfbihpSnapshotContent #pfbihpSnapshotTooltipPdfText, .pfbihpSnapshotContent #pfbihpSnapshotTooltipPngText {
@@ -1354,28 +1355,29 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 .btn-panel button {
   white-space: pre;
   font-size: 12px;
-  font-weight: 700;
-  color: white;
-  background-color: #418fde;
+  font-weight: normal;
+  color: #3289c9;
+  background-color: #fff;
   padding: 3px 8px 3px 8px;
-  border-radius: 6px;
-  -moz-border-radius: 6px;
-  -webkit-border-radius: 6px;
-  border: 1px solid rgba(0,0,0,0.3);
-  box-shadow: 2px 2px 2px rgba(0,0,0,0.4);
-  margin-right: 6px;
+  border-radius: 3px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border: 1px solid #3289c9;  
+  margin-bottom: 8px;
   line-height: normal !important;
   }
 
 .btn-panel button:hover {
-  background-color: #2e649b;
-  border-color: rgba(0,0,0,0.6);
+  background-color: #3289c9;
+  border-color: #3289c9;
   cursor: pointer;
+  color:#fff;
 }
 
 .btn-panel button:active {
-  background-color: #bbb;
-  border-color: rgba(0,0,0,1);
+  background-color: #3289c9;
+  border-color: #3289c9;
+  color:#fff;
 }
 
 .btn-panel button:focus {
