@@ -1372,7 +1372,7 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
   transition: all 0.2s linear;
   }
 
-.btn-panel button:last-child{margin-bottom: 0 !important;}
+.pfbihpSnapshotDiv button{margin-bottom: 0 !important;}
 
 .btn-panel button:hover {
   background-color: #3289c9;
