@@ -511,6 +511,7 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 }
 #pfbialinnerTooltipDiv {max-width: 308px !important;}
 #pfbialinnerTooltipDiv > div:nth-child(2){padding:8px !important;}
+.pfbialtooltipCerfValue > div:nth-child(1){margin-bottom: 10px !important; border-bottom: 1px dotted #999 !important; padding-bottom: 5px !important;}
 
 .pfbialtooltipTitleDiv, .pfbicdtooltipTitleDiv {
 	margin-bottom: 3px !important;
@@ -528,7 +529,7 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 	display: flex;
     align-items: center;
     width: 100%;
-    margin-bottom: 10px;
+    margin-bottom: 10px !important;
     border-bottom: 1px solid #999;
     padding-bottom: 5px;
 }
