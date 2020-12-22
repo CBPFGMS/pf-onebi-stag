@@ -540,7 +540,8 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 }
 
 .pfbialtooltipRank {
-
+	font-size: 12px;
+    color: #c1dff6;
 }
 
 .pfbicctooltipRank {
