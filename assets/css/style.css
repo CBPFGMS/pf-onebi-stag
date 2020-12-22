@@ -1369,6 +1369,7 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
   margin-bottom: 8px;
   line-height: normal !important;
   display:block;
+  transition: all 0.2s linear;
   }
 
 .btn-panel button:last-child{margin-bottom: 0 !important;}
