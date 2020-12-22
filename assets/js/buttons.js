@@ -9,82 +9,105 @@ const generalClassPrefix = "pfbihp",
 	contributionsDataUrl = "https://cbpfgms.github.io/pf-onebi-data/download/pfmb_contributions.csv",
 	helpPortalUrl = "https://gms.unocha.org/content/business-intelligence";
 
-function createButtons(containerSelection, yearsArrayAllocations, yearsArrayContributions) {
+const buttonsObject = {
+	timer: null,
+	createButtons(containerSelection, yearsArrayAllocations, yearsArrayContributions, duration) {
 
-	const helpIcon = containerSelection.append("button")
-		.attr("id", generalClassPrefix + "HelpButton");
+		const yearsArray = chartState.selectedChart !== "contributionsByCerfCbpf" ? JSON.parse(JSON.stringify(yearsArrayAllocations)) :
+			JSON.parse(JSON.stringify(yearsArrayContributions));
 
-	helpIcon.html("HELP  ")
-		.append("span")
-		.attr("class", "fas fa-info");
+		const helpIcon = containerSelection.append("button")
+			.attr("id", generalClassPrefix + "HelpButton");
 
-	const downloadIcon = containerSelection.append("button")
-		.attr("id", generalClassPrefix + "DownloadButton");
+		helpIcon.html("HELP  ")
+			.append("span")
+			.attr("class", "fas fa-info");
 
-	downloadIcon.html(".CSV  ")
-		.append("span")
-		.attr("class", "fas fa-download");
+		const downloadIcon = containerSelection.append("button")
+			.attr("id", generalClassPrefix + "DownloadButton");
 
-	const snapshotDiv = containerSelection.append("div")
-		.attr("class", generalClassPrefix + "SnapshotDiv");
+		downloadIcon.html(".CSV  ")
+			.append("span")
+			.attr("class", "fas fa-download");
 
-	const snapshotIcon = snapshotDiv.append("button")
-		.attr("id", generalClassPrefix + "SnapshotButton");
+		const playIcon = containerSelection.append("button")
+			.datum({
+				clicked: false
+			})
+			.attr("id", generalClassPrefix + "PlayButton");
 
-	snapshotIcon.html("IMAGE ")
-		.append("span")
-		.attr("class", "fas fa-camera");
+		const snapshotDiv = containerSelection.append("div")
+			.attr("class", generalClassPrefix + "SnapshotDiv");
 
-	const snapshotContent = snapshotDiv.append("div")
-		.attr("class", generalClassPrefix + "SnapshotContent");
+		const snapshotIcon = snapshotDiv.append("button")
+			.attr("id", generalClassPrefix + "SnapshotButton");
 
-	const pdfSpan = snapshotContent.append("p")
-		.attr("id", generalClassPrefix + "SnapshotPdfText")
-		.html("Download PDF")
-	// .on("click", function() {
-	// 	createSnapshot("pdf", false);
-	// });
+		snapshotIcon.html("IMAGE ")
+			.append("span")
+			.attr("class", "fas fa-camera");
 
-	const pngSpan = snapshotContent.append("p")
-		.attr("id", generalClassPrefix + "SnapshotPngText")
-		.html("Download Image (PNG)")
-	// .on("click", function() {
-	// 	createSnapshot("png", false);
-	// });
+		const snapshotContent = snapshotDiv.append("div")
+			.attr("class", generalClassPrefix + "SnapshotContent");
 
-	snapshotDiv.on("mouseover", () => snapshotContent.style("display", "block"))
-		.on("mouseout", () => snapshotContent.style("display", "none"));
+		const pdfSpan = snapshotContent.append("p")
+			.attr("id", generalClassPrefix + "SnapshotPdfText")
+			.html("Download PDF")
+		// .on("click", function() {
+		// 	createSnapshot("pdf", false);
+		// });
 
-	helpIcon.on("click", () => {
-		window.open(helpPortalUrl, "help_portal");
-	});
+		const pngSpan = snapshotContent.append("p")
+			.attr("id", generalClassPrefix + "SnapshotPngText")
+			.html("Download Image (PNG)")
+		// .on("click", function() {
+		// 	createSnapshot("png", false);
+		// });
 
-	downloadIcon.on("click", () => {
-		if (chartState.selectedChart.includes("contributions")) {
-			window.open(contributionsDataUrl, "_blank");
-		} else {
-			window.open(allocationsDataUrl, "_blank");
-		};
-	});
+		snapshotDiv.on("mouseover", () => snapshotContent.style("display", "block"))
+			.on("mouseout", () => snapshotContent.style("display", "none"));
 
-	const playIcon = containerSelection.append("button")
-		.datum({
-			clicked: false
-		})
-		.attr("id", generalClassPrefix + "PlayButton");
+		helpIcon.on("click", () => {
+			window.open(helpPortalUrl, "help_portal");
+		});
 
-	playIcon.html("PLAY  ")
-		.append("span")
-		.attr("class", "fas fa-play");
+		downloadIcon.on("click", () => {
+			if (chartState.selectedChart.includes("contributions")) {
+				window.open(contributionsDataUrl, "_blank");
+			} else {
+				window.open(allocationsDataUrl, "_blank");
+			};
+		});
 
-	playIcon.on("click", (_, d) => {
-		d.clicked = !d.clicked;
-		console.log(d);
-	});
+		playIcon.html("PLAY  ")
+			.append("span")
+			.attr("class", "fas fa-play");
 
-	//end of createButtons
+		playIcon.on("click", (_, d) => {
+			d.clicked = !d.clicked;
+			playIcon.html(d.clicked ? "PAUSE " : "PLAY  ")
+				.append("span")
+				.attr("class", d.clicked ? "fas fa-pause" : "fas fa-play");
+
+			if (d.clicked) {
+				loopYears();
+				this.timer = d3.interval(loopYears, 2 * duration);
+			} else {
+				this.timer.stop();
+			};
+
+			function loopYears() {
+				const index = yearsArray.indexOf(chartState.selectedYear);
+				console.log(index);
+				chartState.selectedYear = yearsArray[(index + 1) % yearsArray.length];
+				console.log(chartState.selectedYear);
+			};
+
+		});
+
+		//end of createButtons
+	}
 };
 
 export {
-	createButtons
+	buttonsObject
 };
