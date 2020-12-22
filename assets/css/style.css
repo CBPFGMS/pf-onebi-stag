@@ -1365,6 +1365,7 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
   border: 1px solid #3289c9;  
   margin-bottom: 8px;
   line-height: normal !important;
+  display:block;
   }
 
 .btn-panel button:hover {
@@ -1381,11 +1382,5 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 }
 
 .btn-panel button:focus {
-  outline: none;
-}
-
-.btn-panel button:disabled {
-  background-color: #bbb;
-  opacity: 0.8;
   outline: none;
 }
