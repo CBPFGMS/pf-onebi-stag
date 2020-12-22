@@ -358,7 +358,7 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 .data-update{text-align: center; font-size: 0.69rem; color: #777;}
 .mobile-menu{margin-left: 235px; position: absolute; background-color: #555; margin-top: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);    color: #fff;}
 .mobile-menu:focus, .mobile-menu:not(:disabled):not(.disabled){color:#fff;}
-.options-btn-panel{position: fixed; right: -95px; top: 95px; transition-duration: 0.3s; z-index: 100; min-width: 129px;}
+.options-btn-panel{position: fixed; right: -95px; top: 95px; transition-duration: 0.3s; z-index: 100; min-width: 128px;}
 .options-btn-panel:hover{right:0;}
 .options-btn-panel:hover .btn-panel{box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);}
 .options-btn-panel .hd-panel{background-color: #3289c9; padding: 3px 5px; border-radius: 5px 0 0 5px; cursor: pointer; box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);}
@@ -511,6 +511,7 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 }
 #pfbialinnerTooltipDiv {max-width: 308px !important;}
 #pfbialinnerTooltipDiv > div:nth-child(2){padding:8px !important;}
+.pfbialtooltipCerfValue > div:nth-child(1){margin-bottom: 10px !important; border-bottom: 1px dotted #999 !important; padding-bottom: 5px !important;}
 
 .pfbialtooltipTitleDiv, .pfbicdtooltipTitleDiv {
 	margin-bottom: 3px !important;
@@ -528,7 +529,7 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 	display: flex;
     align-items: center;
     width: 100%;
-    margin-bottom: 10px;
+    margin-bottom: 10px !important;
     border-bottom: 1px solid #999;
     padding-bottom: 5px;
 }
@@ -1368,6 +1369,7 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
   margin-bottom: 8px;
   line-height: normal !important;
   display:block;
+  transition: all 0.2s linear;
   }
 
 .btn-panel button:last-child{margin-bottom: 0 !important;}
