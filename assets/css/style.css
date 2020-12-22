@@ -1,7 +1,7 @@
 body{font-family: 'Roboto', sans-serif; color:#333; background: #fff; padding: 0; margin: 0; background-color: #fff;}
-.logo-panel{background: #3289c9; display:block; padding: 8px 16px; text-align: center; min-height: 78px; max-height: 78px;}
-.logo-panel .navbar-brand{display:block; padding: 0 0 10px 0; margin: 0 0 5px 0; line-height:normal; border-bottom:1px solid #98c0df;}
-.logo-panel .navbar-brand img{width: 120px;}
+.logo-panel{background: #3289c9; display:block; padding: 8px 16px; text-align: center; min-height: 74px; max-height: 74px;}
+.logo-panel .navbar-brand{display:block; padding: 0 0 8px 0; margin: 0 0 5px 0; line-height:normal; border-bottom:1px solid #98c0df;}
+.logo-panel .navbar-brand img{width: 115px;}
 .logo-panel span{color:#eee; font-size: 0.75rem; display:block; }
 .fixed-top, .sb-nav-fixed #layoutSidenav #layoutSidenav_nav, .sb-nav-fixed .sb-topnav {
   position: fixed;
