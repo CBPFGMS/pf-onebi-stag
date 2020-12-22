@@ -74,6 +74,9 @@ let selectedYear,
 
 function createContributionsByCerfCbpf(selections, colors, lists) {
 
+	d3.select("#pfbihpPlayButton")
+		.property("disabled", false);
+
 	selectedYear = lists.queryStringValues.has("contributionYear") ? lists.queryStringValues.get("contributionYear").split("|").map(e => +e) : [allYears];
 	selectedValue = lists.queryStringValues.has("value") ? lists.queryStringValues.get("value") : "total";
 

@@ -87,6 +87,9 @@ const hardcodedAllocations = [{
 
 function createAllocations(selections, colors, mapData, lists) {
 
+	d3.select("#pfbihpPlayButton")
+		.property("disabled", false);
+
 	const outerDiv = selections.chartContainerDiv.append("div")
 		.attr("class", classPrefix + "outerDiv");
 

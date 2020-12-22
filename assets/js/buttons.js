@@ -67,21 +67,20 @@ function createButtons(containerSelection, yearsArrayAllocations, yearsArrayCont
 		};
 	});
 
-	if (chartState.selectedChart !== "contributionsByDonor") {
-		const playIcon = containerSelection.append("button")
-			.datum({
-				clicked: false
-			})
-			.attr("id", generalClassPrefix + "PlayButton");
+	const playIcon = containerSelection.append("button")
+		.datum({
+			clicked: false
+		})
+		.attr("id", generalClassPrefix + "PlayButton");
 
-		playIcon.html("PLAY  ")
-			.append("span")
-			.attr("class", "fas fa-play");
+	playIcon.html("PLAY  ")
+		.append("span")
+		.attr("class", "fas fa-play");
 
-		playIcon.on("click", (_, d) => {
-
-		});
-	};
+	playIcon.on("click", (_, d) => {
+		d.clicked = !d.clicked;
+		console.log(d);
+	});
 
 	//end of createButtons
 };
