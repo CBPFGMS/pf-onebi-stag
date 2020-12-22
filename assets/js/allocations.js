@@ -1447,11 +1447,15 @@ function createAllocations(selections, colors, mapData, lists) {
 			projectsCbpf = new Set(),
 			typesData = {},
 			clusterDataCerf = {},
-			clusterDataCbpf = {};
+			clusterDataCbpf = {},
+			showCerfOnly = chartState.selectedFund === "cerf",
+			showCbpfOnly = chartState.selectedFund === "cbpf";
 
 		let tooltipTotal = 0,
 			tooltipCerf = 0,
-			tooltipCbpf = 0;
+			tooltipCbpf = 0,
+			chartDivCerf,
+			chartDivCbpf;
 
 		cerfAllocationTypes.forEach(e => typesData[e] = 0);
 		cbpfAllocationTypes.forEach(e => typesData[e] = 0);
@@ -1523,64 +1527,68 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("class", classPrefix + "tooltipProjectsTotal")
 			.html(` (${projectsTotal.size} Project${projectsTotal.size > 1 ? "s" : ""})`);
 
-		const rowDivCerf = innerDiv.append("div")
-			.attr("class", classPrefix + "tooltipCerfValue")
-			.classed(classPrefix + "tooltipZeroValueCbpf", !tooltipCerf)
-			.style("display", "flex")
-			.style("align-items", "center")
-			.style("width", "100%")
-			.style("margin-bottom", "4px");
+		if (!showCbpfOnly) {
+			const rowDivCerf = innerDiv.append("div")
+				.attr("class", classPrefix + "tooltipCerfValue")
+				.classed(classPrefix + "tooltipZeroValueCbpf", !tooltipCerf)
+				.style("display", "flex")
+				.style("align-items", "center")
+				.style("width", "100%")
+				.style("margin-bottom", "4px");
 
-		rowDivCerf.append("span")
-			.style("font-weight", 500)
-			.attr("class", classPrefix + "tooltipKeys")
-			.html("CERF:");
+			rowDivCerf.append("span")
+				.style("font-weight", 500)
+				.attr("class", classPrefix + "tooltipKeys")
+				.html("CERF:");
 
-		rowDivCerf.append("span")
-			.attr("class", classPrefix + "tooltipLeader");
+			rowDivCerf.append("span")
+				.attr("class", classPrefix + "tooltipLeader");
 
-		rowDivCerf.append("span")
-			.attr("class", classPrefix + "tooltipValues")
-			.html(formatMoney0Decimals(tooltipCerf))
-			.append("span")
-			.attr("class", classPrefix + "tooltipProjectsCerf")
-			.html(` (${projectsCerf.size} Project${projectsCerf.size > 1 ? "s" : ""})`);
+			rowDivCerf.append("span")
+				.attr("class", classPrefix + "tooltipValues")
+				.html(formatMoney0Decimals(tooltipCerf))
+				.append("span")
+				.attr("class", classPrefix + "tooltipProjectsCerf")
+				.html(` (${projectsCerf.size} Project${projectsCerf.size > 1 ? "s" : ""})`);
 
-		const chartDivCerf = innerDiv.append("div")
-			.style("width", "100%")
-			.style("margin-bottom", "16px");
+			chartDivCerf = innerDiv.append("div")
+				.style("width", "100%")
+				.style("margin-bottom", "16px");
+		};
 
-		const rowDivCbpf = innerDiv.append("div")
-			.attr("class", classPrefix + "tooltipCbpfValue")
-			.classed(classPrefix + "tooltipZeroValueCbpf", !tooltipCbpf)
-			.style("display", "flex")
-			.style("align-items", "center")
-			.style("width", "100%")
-			.style("margin-bottom", "4px");
+		if (!showCerfOnly) {
+			const rowDivCbpf = innerDiv.append("div")
+				.attr("class", classPrefix + "tooltipCbpfValue")
+				.classed(classPrefix + "tooltipZeroValueCbpf", !tooltipCbpf)
+				.style("display", "flex")
+				.style("align-items", "center")
+				.style("width", "100%")
+				.style("margin-bottom", "4px");
 
-		rowDivCbpf.append("span")
-			.style("font-weight", 500)
-			.attr("class", classPrefix + "tooltipKeys")
-			.html("CBPF:");
+			rowDivCbpf.append("span")
+				.style("font-weight", 500)
+				.attr("class", classPrefix + "tooltipKeys")
+				.html("CBPF:");
 
-		rowDivCbpf.append("span")
-			.attr("class", classPrefix + "tooltipLeader");
+			rowDivCbpf.append("span")
+				.attr("class", classPrefix + "tooltipLeader");
 
-		rowDivCbpf.append("span")
-			.attr("class", classPrefix + "tooltipValues")
-			.html(formatMoney0Decimals(tooltipCbpf))
-			.append("span")
-			.attr("class", classPrefix + "tooltipProjectsCbpf")
-			.html(` (${projectsCbpf.size} Project${projectsCbpf.size > 1 ? "s" : ""})`);
+			rowDivCbpf.append("span")
+				.attr("class", classPrefix + "tooltipValues")
+				.html(formatMoney0Decimals(tooltipCbpf))
+				.append("span")
+				.attr("class", classPrefix + "tooltipProjectsCbpf")
+				.html(` (${projectsCbpf.size} Project${projectsCbpf.size > 1 ? "s" : ""})`);
 
-		const chartDivCbpf = innerDiv.append("div")
-			.style("width", "100%");
+			chartDivCbpf = innerDiv.append("div")
+				.style("width", "100%");
+		};
 
-		if ((chartState.selectedChart === "allocationsByCountry" || chartState.selectedChart === "allocationsByType") && tooltipCerf) createSvgByCountry("cerf");
-		if ((chartState.selectedChart === "allocationsByCountry" || chartState.selectedChart === "allocationsByType") && tooltipCbpf) createSvgByCountry("cbpf");
+		if ((chartState.selectedChart === "allocationsByCountry" || chartState.selectedChart === "allocationsByType") && tooltipCerf && !showCbpfOnly) createSvgByCountry("cerf");
+		if ((chartState.selectedChart === "allocationsByCountry" || chartState.selectedChart === "allocationsByType") && tooltipCbpf && !showCerfOnly) createSvgByCountry("cbpf");
 
-		if (chartState.selectedChart === "allocationsBySector" && tooltipCerf) createSvgBySector("cerf");
-		if (chartState.selectedChart === "allocationsBySector" && tooltipCbpf) createSvgBySector("cbpf");
+		if (chartState.selectedChart === "allocationsBySector" && tooltipCerf && !showCbpfOnly) createSvgBySector("cerf");
+		if (chartState.selectedChart === "allocationsBySector" && tooltipCbpf && !showCerfOnly) createSvgBySector("cbpf");
 
 		function createSvgByCountry(fundType) {
 
@@ -1785,16 +1793,6 @@ function createAllocations(selections, colors, mapData, lists) {
 				.attr("width", clusterIconSize)
 				.attr("height", clusterIconSize)
 				.attr("href", d => clustersIconsData[d.clusterId]);
-
-			// function highlightBars() {
-			// 	barsColumn.style("fill", (e, i, n) => {
-			// 		const thisKey = d3.select(n[i].parentNode).datum().key;
-			// 		return chartState.selectedCluster.indexOf(e.data.clusterId) > -1 ? d3.color(colors[thisKey]).darker(0.5) : d3.color(colors[thisKey]).brighter(0.25);
-			// 	});
-
-			// 	yAxisGroupColumnBySector.selectAll(".tick text")
-			// 		.classed(classPrefix + "darkTick", e => chartState.selectedCluster.indexOf(Object.keys(lists.clustersList).find(f => lists.clustersList[f] === e)) > -1);
-			// };
 
 			//end of createSvgBySector
 		}
@@ -2021,7 +2019,7 @@ function createAllocations(selections, colors, mapData, lists) {
 				.attr("width", 0)
 				.style("fill", (d, i, n) => {
 					const thisKey = d3.select(n[i].parentNode).datum().key;
-					return d3.color(colors[thisKey]).brighter(0.25)
+					return colors[thisKey];
 				})
 				.attr("x", xScaleColumnByCountry(0))
 				.attr("y", d => yScaleColumnByCountry(d.data.region))
@@ -2165,7 +2163,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			function highlightBars() {
 				barsColumn.style("fill", (e, i, n) => {
 					const thisKey = d3.select(n[i].parentNode).datum().key;
-					return chartState.selectedRegion.indexOf(e.data.region) > -1 ? d3.color(colors[thisKey]).darker(0.5) : d3.color(colors[thisKey]).brighter(0.25);
+					return chartState.selectedRegion.indexOf(e.data.region) > -1 ? d3.color(colors[thisKey]).darker(0.5) : colors[thisKey];
 				});
 
 				yAxisGroupColumnByCountry.selectAll(".tick text")
@@ -2254,7 +2252,7 @@ function createAllocations(selections, colors, mapData, lists) {
 				.attr("width", 0)
 				.style("fill", (d, i, n) => {
 					const thisKey = d3.select(n[i].parentNode).datum().key;
-					return d3.color(colors[thisKey]).brighter(0.25)
+					return colors[thisKey]
 				})
 				.attr("x", xScaleColumnBySector(0))
 				.attr("y", d => yScaleColumnBySector(d.data.cluster))
@@ -2424,7 +2422,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			function highlightBars() {
 				barsColumn.style("fill", (e, i, n) => {
 					const thisKey = d3.select(n[i].parentNode).datum().key;
-					return chartState.selectedCluster.indexOf(e.data.clusterId) > -1 ? d3.color(colors[thisKey]).darker(0.5) : d3.color(colors[thisKey]).brighter(0.25);
+					return chartState.selectedCluster.indexOf(e.data.clusterId) > -1 ? d3.color(colors[thisKey]).darker(0.5) : colors[thisKey];
 				});
 
 				yAxisGroupColumnBySector.selectAll(".tick text")
@@ -2516,7 +2514,7 @@ function createAllocations(selections, colors, mapData, lists) {
 				.attr("width", 0)
 				.style("fill", (d, i, n) => {
 					const thisKey = d3.select(n[i].parentNode).datum().key;
-					return d3.color(colors[thisKey]).brighter(0.25)
+					return colors[thisKey]
 				})
 				.attr("x", xScaleColumnByType(0))
 				.attr("y", d => yScaleColumnByTypeCerf(d.data.allocationType))
@@ -2660,7 +2658,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			function highlightBarsCerf() {
 				barsColumnCerf.style("fill", (e, i, n) => {
 					const thisKey = d3.select(n[i].parentNode).datum().key;
-					return chartState.selectedType.indexOf(e.data.allocationTypeId) > -1 ? d3.color(colors[thisKey]).darker(0.5) : d3.color(colors[thisKey]).brighter(0.25);
+					return chartState.selectedType.indexOf(e.data.allocationTypeId) > -1 ? d3.color(colors[thisKey]).darker(0.5) : colors[thisKey];
 				});
 
 				yAxisGroupColumnByTypeCerf.selectAll(".tick text")
@@ -2731,7 +2729,7 @@ function createAllocations(selections, colors, mapData, lists) {
 				.attr("width", 0)
 				.style("fill", (d, i, n) => {
 					const thisKey = d3.select(n[i].parentNode).datum().key;
-					return d3.color(colors[thisKey]).brighter(0.25)
+					return colors[thisKey]
 				})
 				.attr("x", xScaleColumnByType(0))
 				.attr("y", d => yScaleColumnByTypeCbpf(d.data.allocationType))
@@ -2875,7 +2873,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			function highlightBarsCbpf() {
 				barsColumnCbpf.style("fill", (e, i, n) => {
 					const thisKey = d3.select(n[i].parentNode).datum().key;
-					return chartState.selectedType.indexOf(e.data.allocationTypeId) > -1 ? d3.color(colors[thisKey]).darker(0.5) : d3.color(colors[thisKey]).brighter(0.25);
+					return chartState.selectedType.indexOf(e.data.allocationTypeId) > -1 ? d3.color(colors[thisKey]).darker(0.5) : colors[thisKey];
 				});
 
 				yAxisGroupColumnByTypeCbpf.selectAll(".tick text")
