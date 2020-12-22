@@ -1381,3 +1381,9 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 .btn-panel button:focus {
   outline: none;
 }
+
+.btn-panel button:disabled {
+  background-color: #bbb;
+  opacity: 0.8;
+  outline: none;
+}

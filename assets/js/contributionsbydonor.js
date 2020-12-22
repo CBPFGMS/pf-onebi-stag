@@ -63,6 +63,9 @@ const classPrefix = "pfbicd",
 
 function createContributionsByDonor(selections, colors, lists) {
 
+	d3.select("#pfbihpPlayButton")
+		.property("disabled", true);
+
 	const outerDiv = selections.chartContainerDiv.append("div")
 		.attr("class", classPrefix + "outerDiv");
 
