@@ -548,6 +548,7 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 .pfbicctooltipRank {
   font-weight: 400;
   font-size: 12px;
+  color: #c1dff6;
 }
 
 .pfbicctooltipFooter {
@@ -1417,6 +1418,8 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
     line-height: normal;
 	margin: 0 !important;
 } 
+
+#pfbiccinnerTooltipDiv > div:nth-child(1) strong{font-size: 15px !important;}
 
 #pfbiccinnerTooltipDiv > div:nth-child(2){
 	padding:8px !important;
