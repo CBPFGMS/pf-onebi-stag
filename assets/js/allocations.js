@@ -188,7 +188,9 @@ function createAllocations(selections, colors, mapData, lists) {
 		.attr("class", classPrefix + "mapInnerDiv");
 
 	const svgMap = mapInnerDiv.append("svg")
-		.attr("viewBox", "0 0 " + svgMapWidth + " " + svgMapHeight);
+		.attr("width", svgMapWidth)
+		.attr("height", svgMapHeight);
+	//.attr("viewBox", "0 0 " + svgMapWidth + " " + svgMapHeight);
 
 	//FIX THE ASPECT RATIO! The width should be CONSTANT
 
