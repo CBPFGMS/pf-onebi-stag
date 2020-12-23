@@ -1482,6 +1482,9 @@ function createAllocations(selections, colors, mapData, lists) {
 			};
 		});
 
+		const totalSubtext = chartState.selectedFund === "cerf" || chartState.selectedFund === "cbpf" ?
+			"  (CERF + CBPF)" : "";
+
 		const innerTooltipDiv = container.append("div")
 			.style("max-width", innerTooltipDivWidth + "px")
 			.attr("id", classPrefix + "innerTooltipDiv");
@@ -1514,7 +1517,10 @@ function createAllocations(selections, colors, mapData, lists) {
 		rowDivTotal.append("span")
 			.style("font-weight", 500)
 			.attr("class", classPrefix + "tooltipKeys")
-			.html("Total:");
+			.html(`Total<span id='${classPrefix}totalSubtext' style='font-size:0.7em;font-weight:400'></span>:`);
+
+		rowDivTotal.select("#" + classPrefix + "totalSubtext")
+			.html(totalSubtext);
 
 		rowDivTotal.append("span")
 			.attr("class", classPrefix + "tooltipLeader");
