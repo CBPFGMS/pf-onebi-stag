@@ -1403,3 +1403,25 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
   border-color: #bbb;
   cursor: default;
 }
+
+#pfbiccinnerTooltipDiv{
+  background-color: #f2f4f4;
+  border-radius: 4px;
+}
+
+#pfbiccinnerTooltipDiv > div:nth-child(1){
+	padding:8px !important;
+	background-color: #3189c9;
+	color: #fff;
+	border-radius: 4px 4px 0 0;
+    line-height: normal;
+	margin: 0 !important;
+} 
+
+#pfbiccinnerTooltipDiv > div:nth-child(2){
+	padding:8px !important;
+}
+
+#pfbiccinnerTooltipDiv > div:nth-child(2) .pfbicctooltipYears, .pfbicctooltipValues{
+	font-weight: 600;
+}
