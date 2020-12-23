@@ -569,13 +569,13 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 					return acc;
 				}, []);
 				monthlyData.sort((a, b) => b.year - a.year);
-				row.monthlyData = monthlyData;
+				row.cerfMonthlyData = monthlyData;
 			});
 		};
 
 		const minxScaleValue = d3.max(data, d => d[`total${separator}cerf`]);
 
-		const minxScaleInnerValue = d3.max(dataMonth, d => d3.max(d.monthlyData, e => e.total));
+		const minxScaleInnerValue = d3.max(dataMonth, d => d3.max(d.cerfMonthlyData, e => e.total));
 
 		xScaleCerf.domain(selectedYear[0] === allYears ? yearsArray : monthsArray);
 
@@ -583,7 +583,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		yScaleCerf.domain([0, (selectedYear[0] === allYears ?
 			d3.max(data, d => d[`${selectedValue}${separator}cerf`]) || minxScaleValue :
-			d3.max(dataMonth, d => d3.max(d.monthlyData, e => e[selectedValue])) || minxScaleInnerValue)]);
+			d3.max(dataMonth, d => d3.max(d.cerfMonthlyData, e => e[selectedValue])) || minxScaleInnerValue)]);
 
 		xScaleCerfInner.domain(selectedYear[0] === allYears ? [] : selectedYear.slice().sort((a, b) => a - b))
 			.range([0, xScaleCerf.bandwidth()]);
@@ -679,7 +679,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		groupCerf.attr("transform", d => "translate(" + xScaleCerf(d.month) + ",0)");
 
 		let barsGroupCerf = groupCerf.selectAll("." + classPrefix + "barsGroupCerf")
-			.data(d => d.monthlyData, d => d.year);
+			.data(d => d.cerfMonthlyData, d => d.year);
 
 		const barsGroupExitCerf = barsGroupCerf.exit()
 			.transition()
@@ -714,7 +714,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("height", d => svgHeightCerf - svgPaddingsCerf[2] - yScaleCerf(d[selectedValue]));
 
 		let lineGroupCerf = groupCerf.selectAll("." + classPrefix + "lineGroupCerf")
-			.data(d => d.monthlyData.filter(e => e.year !== currentYear).length > 1 ? [d.monthlyData.filter(e => e.year !== currentYear)] : []);
+			.data(d => d.cerfMonthlyData.filter(e => e.year !== currentYear).length > 1 ? [d.cerfMonthlyData.filter(e => e.year !== currentYear)] : []);
 
 		const lineGroupCerfExit = lineGroupCerf.exit()
 			.remove();
@@ -738,7 +738,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attrTween("d", (d, i, n) => pathTween(lineGroupGeneratorCerf(d), precision, n[i])());
 
 		let labelsGroupCerf = groupCerf.selectAll("." + classPrefix + "labelsGroupCerf")
-			.data(d => d.monthlyData.filter(e => e[selectedValue]), d => d.year);
+			.data(d => d.cerfMonthlyData.filter(e => e[selectedValue]), d => d.year);
 
 		const labelsGroupCerfExit = labelsGroupCerf.exit()
 			.transition()
@@ -830,7 +830,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 					total: d[`total${separator}cerf`],
 					paid: d[`paid${separator}cerf`],
 					pledged: d[`pledged${separator}cerf`]
-				}] : d.monthlyData;
+				}] : d.cerfMonthlyData;
 
 			tooltipData.forEach(row => {
 				const rowDiv = tooltipContainer.append("div")
@@ -949,13 +949,13 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 					return acc;
 				}, []);
 				monthlyData.sort((a, b) => b.year - a.year);
-				row.monthlyData = monthlyData;
+				row.cbpfMonthlyData = monthlyData;
 			});
 		};
 
 		const minxScaleValue = d3.max(data, d => d[`total${separator}cbpf`]);
 
-		const minxScaleInnerValue = d3.max(dataMonth, d => d3.max(d.monthlyData, e => e.total));
+		const minxScaleInnerValue = d3.max(dataMonth, d => d3.max(d.cbpfMonthlyData, e => e.total));
 
 		xScaleCbpf.domain(selectedYear[0] === allYears ? yearsArray : monthsArray);
 
@@ -963,7 +963,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		yScaleCbpf.domain([0, (selectedYear[0] === allYears ?
 			d3.max(data, d => d[`${selectedValue}${separator}cbpf`]) || minxScaleValue :
-			d3.max(dataMonth, d => d3.max(d.monthlyData, e => e[selectedValue])) || minxScaleInnerValue)]);
+			d3.max(dataMonth, d => d3.max(d.cbpfMonthlyData, e => e[selectedValue])) || minxScaleInnerValue)]);
 
 		xScaleCbpfInner.domain(selectedYear[0] === allYears ? [] : selectedYear.slice().sort((a, b) => a - b))
 			.range([0, xScaleCbpf.bandwidth()]);
@@ -1059,7 +1059,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		groupCbpf.attr("transform", d => "translate(" + xScaleCbpf(d.month) + ",0)");
 
 		let barsGroupCbpf = groupCbpf.selectAll("." + classPrefix + "barsGroupCbpf")
-			.data(d => d.monthlyData, d => d.year);
+			.data(d => d.cbpfMonthlyData, d => d.year);
 
 		const barsGroupExitCbpf = barsGroupCbpf.exit()
 			.transition()
@@ -1094,7 +1094,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("height", d => svgHeightCbpf - svgPaddingsCbpf[2] - yScaleCbpf(d[selectedValue]));
 
 		let lineGroupCbpf = groupCbpf.selectAll("." + classPrefix + "lineGroupCbpf")
-			.data(d => d.monthlyData.filter(e => e.year !== currentYear).length > 1 ? [d.monthlyData.filter(e => e.year !== currentYear)] : []);
+			.data(d => d.cbpfMonthlyData.filter(e => e.year !== currentYear).length > 1 ? [d.cbpfMonthlyData.filter(e => e.year !== currentYear)] : []);
 
 		const lineGroupCbpfExit = lineGroupCbpf.exit()
 			.remove();
@@ -1118,7 +1118,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attrTween("d", (d, i, n) => pathTween(lineGroupGeneratorCbpf(d), precision, n[i])());
 
 		let labelsGroupCbpf = groupCbpf.selectAll("." + classPrefix + "labelsGroupCbpf")
-			.data(d => d.monthlyData.filter(e => e[selectedValue]), d => d.year);
+			.data(d => d.cbpfMonthlyData.filter(e => e[selectedValue]), d => d.year);
 
 		const labelsGroupCbpfExit = labelsGroupCbpf.exit()
 			.transition()
@@ -1210,7 +1210,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 					total: d[`total${separator}cbpf`],
 					paid: d[`paid${separator}cbpf`],
 					pledged: d[`pledged${separator}cbpf`]
-				}] : d.monthlyData;
+				}] : d.cbpfMonthlyData;
 
 			tooltipData.forEach(row => {
 				const rowDiv = tooltipContainer.append("div")
