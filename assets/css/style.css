@@ -1389,3 +1389,17 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 .btn-panel button:focus {
   outline: none;
 }
+
+.btn-panel button:disabled {
+  color: #bbb;
+  border-color: #bbb;
+  opacity: 0.75;
+  outline: none;
+}
+
+.btn-panel button:disabled:hover {
+  background-color: #fff;
+  color: #bbb;
+  border-color: #bbb;
+  cursor: default;
+}
