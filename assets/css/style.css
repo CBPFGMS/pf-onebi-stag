@@ -1419,7 +1419,7 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 	margin: 0 !important;
 } 
 
-#pfbiccinnerTooltipDiv > div:nth-child(1) strong{font-size: 15px !important;}
+#pfbiccinnerTooltipDiv > div:nth-child(1) strong{font-size: 14px !important;}
 
 #pfbiccinnerTooltipDiv > div:nth-child(2){
 	padding:8px !important;
@@ -1428,3 +1428,22 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 #pfbiccinnerTooltipDiv > div:nth-child(2) .pfbicctooltipYears, .pfbicctooltipValues{
 	font-weight: 600;
 }
+
+#pfbihpinnerTooltipDiv div:nth-child(1) {
+	background-color: #3189c9;
+    padding: 6px 8px;
+    border-radius: 4px 4px 0 0;
+    color: #fff;
+	margin-bottom: 0 !important;
+}
+
+#pfbihpinnerTooltipDiv div:nth-child(1) strong{
+	font-size: 13px;
+    font-weight: normal;
+}
+
+#pfbihpinnerTooltipDiv div:nth-child(2) {
+	padding: 8px;
+    font-weight: 600;
+}
+	
