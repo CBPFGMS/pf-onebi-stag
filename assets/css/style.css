@@ -1428,3 +1428,19 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 #pfbiccinnerTooltipDiv > div:nth-child(2) .pfbicctooltipYears, .pfbicctooltipValues{
 	font-weight: 600;
 }
+
+#pfbihpDownloadingDiv {
+  padding: 0px;
+  background: #fcfcfc; 
+  border: 1px solid #666; 
+  border-radius: 8px;
+  pointer-events: none;
+  cursor: none;
+  width: 200px;
+  height: 100px;
+  z-index: 1500;
+}
+
+.pfbihpd3chartwheelGroup {
+  fill: #3289c9;
+}
