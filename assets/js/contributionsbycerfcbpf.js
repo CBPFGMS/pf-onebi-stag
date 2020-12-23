@@ -447,6 +447,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		function clickyearButtons(d, singleSelection) {
 			if (singleSelection || d === allYears || selectedYear[0] === allYears) {
 				selectedYear = [d];
+				chartState.selectedYear = d;
 			} else {
 				const index = selectedYear.indexOf(d);
 				if (index > -1) {
@@ -458,6 +459,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				} else {
 					selectedYear.push(d);
 					if (selectedYear.length > maxYearNumber) selectedYear.shift();
+					chartState.selectedYear = d;
 				};
 			};
 

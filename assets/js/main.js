@@ -261,7 +261,7 @@ function controlCharts([worldMap,
 
 	populateYearDropdown(yearsArrayAllocations, selections.yearDropdown);
 
-	buttonsObject.createButtons(selections.buttonsContainer, yearsArrayAllocations, yearsArrayContributions, duration);
+	buttonsObject.createButtons(selections.buttonsContainer, yearsArrayAllocations, yearsArrayContributions, duration, selections);
 
 	//|Open the link and draws charts according to chartState
 	if (chartState.selectedChart === "allocationsByCountry") {
@@ -303,7 +303,6 @@ function controlCharts([worldMap,
 
 	//|event listeners
 	selections.yearDropdown.on("change", event => {
-		if (buttonsObject.timer) stopTimer();
 		chartState.selectedYear = +event.target.value;
 		resetTopValues(topValues);
 		allocationsData = processDataAllocations(rawAllocationsData);
@@ -314,7 +313,7 @@ function controlCharts([worldMap,
 	});
 
 	selections.navlinkAllocationsByCountry.on("click", () => {
-		if (buttonsObject.timer) stopTimer();
+		if (buttonsObject.playing) stopTimer();
 		if (chartState.selectedChart === "allocationsByCountry") return;
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
 			clearDisabledOption(selections.yearDropdown);
@@ -336,7 +335,7 @@ function controlCharts([worldMap,
 	});
 
 	selections.navlinkAllocationsBySector.on("click", () => {
-		if (buttonsObject.timer) stopTimer();
+		if (buttonsObject.playing) stopTimer();
 		if (chartState.selectedChart === "allocationsBySector") return;
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
 			clearDisabledOption(selections.yearDropdown);
@@ -358,7 +357,7 @@ function controlCharts([worldMap,
 	});
 
 	selections.navlinkAllocationsByType.on("click", () => {
-		if (buttonsObject.timer) stopTimer();
+		if (buttonsObject.playing) stopTimer();
 		if (chartState.selectedChart === "allocationsByType") return;
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
 			clearDisabledOption(selections.yearDropdown);
@@ -380,7 +379,7 @@ function controlCharts([worldMap,
 	});
 
 	selections.navlinkContributionsByCerfCbpf.on("click", () => {
-		if (buttonsObject.timer) stopTimer();
+		if (buttonsObject.playing) stopTimer();
 		if (chartState.selectedChart === "contributionsByCerfCbpf") return;
 		chartState.selectedChart = "contributionsByCerfCbpf";
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
@@ -394,7 +393,7 @@ function controlCharts([worldMap,
 	});
 
 	selections.navlinkContributionsByDonor.on("click", () => {
-		if (buttonsObject.timer) stopTimer();
+		if (buttonsObject.playing) stopTimer();
 		if (chartState.selectedChart === "contributionsByDonor") return;
 		chartState.selectedChart = "contributionsByDonor";
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
@@ -853,6 +852,7 @@ function populateLastModified(lastModifiedData) {
 };
 
 function stopTimer() {
+	buttonsObject.playing = false;
 	buttonsObject.timer.stop();
 	d3.select("#" + generalClassPrefix + "PlayButton")
 		.datum({

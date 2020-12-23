@@ -11,7 +11,8 @@ const generalClassPrefix = "pfbihp",
 
 const buttonsObject = {
 	timer: null,
-	createButtons(containerSelection, yearsArrayAllocations, yearsArrayContributions, duration) {
+	playing: false,
+	createButtons(containerSelection, yearsArrayAllocations, yearsArrayContributions, duration, selections) {
 
 		const yearsArray = chartState.selectedChart !== "contributionsByCerfCbpf" ? JSON.parse(JSON.stringify(yearsArrayAllocations)) :
 			JSON.parse(JSON.stringify(yearsArrayContributions));
@@ -90,16 +91,28 @@ const buttonsObject = {
 
 			if (d.clicked) {
 				loopYears();
+				this.playing = true;
 				this.timer = d3.interval(loopYears, 2 * duration);
 			} else {
+				this.playing = false;
 				this.timer.stop();
 			};
 
 			function loopYears() {
 				const index = yearsArray.indexOf(chartState.selectedYear);
-				console.log(index);
 				chartState.selectedYear = yearsArray[(index + 1) % yearsArray.length];
-				console.log(chartState.selectedYear);
+				if (chartState.selectedChart !== "contributionsByCerfCbpf") {
+					selections.yearDropdown.selectAll("option")
+						.property("selected", d => chartState.selectedYear === d);
+					selections.yearDropdown.dispatch("change");
+				} else {
+					const yearButton = d3.select(".pfbiccyearButtonsDiv")
+						.selectAll("button")
+						.filter(d => d === chartState.selectedYear);
+
+					yearButton.dispatch("click");
+					yearButton.dispatch("click");
+				};
 			};
 
 		});
