@@ -339,12 +339,12 @@ body{font-family: 'Roboto', sans-serif; color:#333; background: #fff; padding: 0
 .main-high-level-fugure .panel p{font-size:0.8rem; font-weight:300; margin-bottom: 0;}
 .brdr-btm{border-bottom: 1px solid #ddd; padding: 0 1rem; display: block; margin-left: 1rem; margin-right: 1rem;}
 .cerf-link{border: 1px solid #e8c760; color: #333 !important; padding: 0 7px 0 0 !important; margin-right: 10px; transition: all 0.2s linear; display: flex; align-items: center; border-radius:3px; background-color: #fbd45c;}
-.cerf-link .icon-chart{background-color: #fff; padding: 3px 5px; display: inline-flex; margin-right: 7px; font-size: 1.3em; color: #333;}
+.cerf-link .icon-chart{background-color: #fff; padding: 3px 5px; display: inline-flex; margin-right: 7px; font-size: 1.3em; border-radius: 2px 0px 0px 2px; color: #333;}
 .cerf-link:hover .icon-chart{background-color: #fbd45c;}
 .cerf-link .icon-chart svg{opacity:0.6;}
 .cerf-link:hover{color:#333 !important; background-color: #fff; border-radius:3px;}
 .cbpf-link{border: 1px solid #f37261; color: #fff !important; padding: 0 7px 0 0 !important; transition: all 0.2s linear; display: flex; align-items: center; border-radius:3px; background-color:#f37261;}
-.cbpf-link .icon-chart{background-color: #fff; padding: 3px 5px; display: inline-flex; margin-right: 7px; font-size: 1.3em; color: #333;}
+.cbpf-link .icon-chart{background-color: #fff; padding: 3px 5px; display: inline-flex; margin-right: 7px; font-size: 1.3em; border-radius: 2px 0px 0px 2px; color: #333;}
 .cbpf-link:hover .icon-chart{background-color: #f37261;}
 .cbpf-link .icon-chart svg{opacity:0.6;}
 .cbpf-link:hover{color:#333 !important; background-color: #fff; border-radius:3px;}
@@ -1429,6 +1429,7 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 	font-weight: 600;
 }
 
+<<<<<<< HEAD
 #pfbihpinnerTooltipDiv div:nth-child(1) {
 	background-color: #3189c9;
     padding: 6px 8px;
@@ -1447,3 +1448,20 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
     font-weight: 600;
 }
 	
+=======
+#pfbihpDownloadingDiv {
+  padding: 0px;
+  background: #fcfcfc; 
+  border: 1px solid #666; 
+  border-radius: 8px;
+  pointer-events: none;
+  cursor: none;
+  width: 200px;
+  height: 100px;
+  z-index: 1500;
+}
+
+.pfbihpd3chartwheelGroup {
+  fill: #3289c9;
+}
+>>>>>>> 5c08687b3e2d906ec20b57b7f8a8ab856cf10e2d
