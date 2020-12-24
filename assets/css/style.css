@@ -1452,11 +1452,16 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
     height: 335px !important;
 }
 
+#pfbicdtooltipDiv > div:nth-child(1) > div:nth-child(2) {
+	padding: 8px !important;
+}
+
 #pfbicdtooltipDiv .pfbicdtooltipTopDiv {
 	height: 35px !important;
     background-color: #3289c9;
     padding: 8px;
     border-radius: 4px 4px 0 0;
+	margin-bottom: 0 !important;
 }
 
 #pfbicdtooltipDiv .pfbicdtooltipTopDiv .pfbicdtooltipTopDivMain .pfbicdtooltipNameDiv{
@@ -1478,8 +1483,4 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 	color: #b2d3ed !important;
     font-weight: normal !important;
     width: 20px !important;
-}
-
-#pfbicdtooltipDiv > div:nth-child(1) .pfbicdtooltipTopDiv > div:nth-child(1) {
-	padding: 8px !important;
 }
