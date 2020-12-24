@@ -1446,3 +1446,7 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 	padding: 8px;
     font-weight: 600;
 }
+
+#pfbicdtooltipDiv{
+	padding:8px !important;
+}
