@@ -1447,6 +1447,39 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
     font-weight: 600;
 }
 
-#pfbicdtooltipDiv{
-	padding:8px !important;
+#pfbicdtooltipDiv > div:nth-child(1){
+	width: 525px !important;
+    height: 335px !important;
+}
+
+#pfbicdtooltipDiv .pfbicdtooltipTopDiv {
+	height: 35px !important;
+    background-color: #3289c9;
+    padding: 8px;
+    border-radius: 4px 4px 0 0;
+}
+
+#pfbicdtooltipDiv .pfbicdtooltipTopDiv .pfbicdtooltipTopDivMain .pfbicdtooltipNameDiv{
+	padding-left:0 !important;
+	padding-right: 0 !important;
+}
+
+#pfbicdtooltipDiv .pfbicdtooltipTopDiv .pfbicdtooltipTopDivMain .pfbicdtooltipNameDiv img{
+	width:25px !important;
+	height: 25px !important;
+}
+
+#pfbicdtooltipDiv .pfbicdtooltipTopDiv .pfbicdtooltipTopDivMain .pfbicdtooltipNameDiv span{
+	font-size: 1rem !important;
+	color: #fff !important;
+}
+
+#pfbicdtooltipDiv .pfbicdtooltipTopDiv .pfbicdtooltipTopDivClose svg{
+	color: #b2d3ed !important;
+    font-weight: normal !important;
+    width: 20px !important;
+}
+
+#pfbicdtooltipDiv > div:nth-child(1) .pfbicdtooltipTopDiv > div:nth-child(1) {
+	padding: 8px !important;
 }
