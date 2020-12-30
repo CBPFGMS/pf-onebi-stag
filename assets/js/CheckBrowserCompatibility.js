@@ -1,11 +1,14 @@
-window.onload = function () {
+/*window.onload = function () {
     if (!IsBrowserCompatible()) {
         location.href = 'browser-notification.html';
     }
 	else {
         document.getElementById('mainBody').style.display = 'block';
     }
-};
+};*/
+if (!IsBrowserCompatible()) {
+    location.href = 'browser-notification.html';
+}
 
 var SupportedBrowserVersions =
 {
