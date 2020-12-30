@@ -6,10 +6,6 @@
         document.getElementById('mainBody').style.display = 'block';
     }
 };*/
-if (!IsBrowserCompatible()) {
-    location.href = 'browser-notification.html';
-}
-
 var SupportedBrowserVersions =
 {
     InternetExplorer: 11,
@@ -18,6 +14,12 @@ var SupportedBrowserVersions =
     MicrosoftEdge: 81,
     Opera: 54,
     Safari: 11
+};
+
+window.onload = function () {
+    if (!IsBrowserCompatible()) {
+        location.href = 'browser-notification.html';
+    }
 };
 
 function IsBrowserCompatible() {
