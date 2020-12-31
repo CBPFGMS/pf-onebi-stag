@@ -5,8 +5,8 @@ import {
 } from "./chartstate.js";
 
 const generalClassPrefix = "pfbihp",
-	allocationsDataUrl = "https://cbpfgms.github.io/pf-onebi-data/download/pfmb_allocations.csv",
-	contributionsDataUrl = "https://cbpfgms.github.io/pf-onebi-data/download/pfmb_contributions.csv",
+	allocationsDataUrl = "https://cbpfgms.github.io/pfbi-data/download/pfmb_allocations.csv",
+	contributionsDataUrl = "https://cbpfgms.github.io/pfbi-data/download/pfmb_contributions.csv",
 	helpPortalUrl = "https://gms.unocha.org/content/business-intelligence",
 	dateFormat = d3.utcFormat("_%Y%m%d_%H%M%S_UTC");
 
