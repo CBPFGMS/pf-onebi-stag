@@ -431,6 +431,24 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 	display: block;
 }
 
+.url-notofication .modal-body h4{font-weight: 400; margin-top: -13px;}
+.url-notofication .modal-body p{font-weight: 300; font-size: 0.9em; width: 97%; margin: 0 auto; margin-bottom: 2em;}
+.url-notofication .modal-body p b{font-weight: 600;}
+.url-notofication .modal-body .btn-custom {background-color: #3289c9; text-align: center; padding: 4px 30px; color:#fff; font-size: 1em; border-radius: 3px; text-decoration: none; margin-bottom: 1em; display: inline-block; box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);}
+.url-notofication .modal-body .btn-custom:hover{background-color: #2777b2; transition: all 0.2s linear;}
+.rotate {
+  animation: rotation 8s infinite linear;
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
+
 @media (max-width: 575.98px) { 
 	#sidebarToggle{display:block !important;}
 	.cbpf-link, .cerf-link{display:none;}
