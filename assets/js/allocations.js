@@ -1099,7 +1099,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		const legendSizeGroupExit = legendSizeGroup.exit()
 			.transition()
-			.duration(duration)
+			.duration(duration / 2)
 			.style("opacity", 0)
 			.remove();
 
@@ -1137,7 +1137,7 @@ function createAllocations(selections, colors, mapData, lists) {
 		legendSizeGroup = legendSizeGroup.merge(legendSizeGroupEnter);
 
 		legendSizeGroup.transition("groupTransition")
-			.duration(duration)
+			.duration(duration / 2)
 			.style("opacity", 1);
 
 		legendSizeGroup.select("." + classPrefix + "legendCirclesText")
@@ -1148,15 +1148,20 @@ function createAllocations(selections, colors, mapData, lists) {
 				return t => d3.formatPrefix(".0", interpolator(t))(interpolator(t)).replace("G", "B");
 			});
 
-		const legendData = chartState.selectedFund.split("/");
+		const legendData = sizeCirclesData.length ? chartState.selectedFund.split("/") : [];
 
 		let legendColors = legendPanel.main.selectAll("." + classPrefix + "legendColors")
 			.data(legendData);
 
-		const legendColorsExit = legendColors.exit().remove();
+		const legendColorsExit = legendColors.exit()
+			.transition()
+			.duration(duration / 2)
+			.style("opacity", 0)
+			.remove();
 
 		const legendColorsEnter = legendColors.enter()
 			.append("g")
+			.style("opacity", 0)
 			.attr("class", classPrefix + "legendColors");
 
 		const legendRects = legendColorsEnter.append("rect")
@@ -1173,13 +1178,17 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		legendColors = legendColorsEnter.merge(legendColors);
 
+		legendColors.transition()
+			.duration(duration / 2)
+			.style("opacity", 1);
+
 		legendColors.attr("transform", (_, i) => "translate(" + legendPanel.padding[3] + "," + (legendPanel.height - legendPanel.padding[2] - legendTextPadding + (+i * legendTextPadding)) + ")");
 
 		legendColors.select("rect")
 			.style("fill", d => colors[d]);
 
 		legendColors.select("text")
-			.text(d => d.toUpperCase() + " allocations");
+			.text(d => (chartState.selectedFund === "total" ? capitalize(d) : d.toUpperCase()) + " allocations");
 
 		//end of drawLegend
 	};
