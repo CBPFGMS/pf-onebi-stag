@@ -1179,7 +1179,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			.style("fill", d => colors[d]);
 
 		legendColors.select("text")
-			.text(d => capitalize(d) + " allocations");
+			.text(d => d.toUpperCase() + " allocations");
 
 		//end of drawLegend
 	};
