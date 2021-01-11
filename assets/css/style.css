@@ -640,10 +640,11 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 
 .pfbicctooltipFooter {
   width: 100%;
-  margin-top: 12px;
+  margin-top: 4px;
   font-weight: 300;
   font-size: 12px;
   font-style: italic;
+  padding: 8px;
 }
 
 .pfbialtooltipCerfValue .pfbialtooltipKeys {
