@@ -306,6 +306,8 @@ body{font-family: 'Roboto', sans-serif; color:#333; background: #fff; padding: 0
 .pfbiccyearButtonsDiv {
   scrollbar-width: thin;
   scrollbar-color: lightgray white;
+  display: flex;
+  flex-direction: row-reverse;
 }
 
 .pfbiccyearButtonsDiv::-webkit-scrollbar {

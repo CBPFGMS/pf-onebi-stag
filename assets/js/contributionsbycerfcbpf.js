@@ -519,7 +519,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 	function createYearButtons(container) {
 
-		const yearsData = yearsArray.concat([allYears]);
+		const yearsData = yearsArray.concat([allYears]).reverse();
 
 		const yearsButtons = container.selectAll(null)
 			.data(yearsData)
