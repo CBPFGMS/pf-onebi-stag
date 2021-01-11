@@ -105,6 +105,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		.html("by CERF/CBPF");
 
 	const topButtonsDiv = breadcrumbDiv.append("div")
+		.attr("data-html2canvas-ignore", "true")
 		.attr("class", classPrefix + "topButtonsDiv");
 
 	createLinks(topButtonsDiv);

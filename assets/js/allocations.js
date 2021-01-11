@@ -115,6 +115,7 @@ function createAllocations(selections, colors, mapData, lists) {
 	const secondBreadcrumbSpan = secondBreadcrumb.append("span");
 
 	const topButtonsDiv = breadcrumbDiv.append("div")
+		.attr("data-html2canvas-ignore", "true")
 		.attr("class", classPrefix + "topButtonsDiv");
 
 	createLinks(topButtonsDiv);

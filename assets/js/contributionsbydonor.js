@@ -92,6 +92,7 @@ function createContributionsByDonor(selections, colors, lists) {
 		.html("by donor");
 
 	const topButtonsDiv = breadcrumbDiv.append("div")
+		.attr("data-html2canvas-ignore", "true")
 		.attr("class", classPrefix + "topButtonsDiv");
 
 	createLinks(topButtonsDiv);

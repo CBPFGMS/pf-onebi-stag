@@ -1565,3 +1565,20 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
     font-weight: normal !important;
     width: 20px !important;
 }
+
+#pfbihpDownloadingDiv {
+  position: absolute;
+  padding: 8px;
+  background: #fcfcfc; 
+  border: 1px solid #999; 
+  border-radius: 8px;
+  pointer-events: none;
+  cursor: none;
+  min-width: 200px;
+  min-height: 100px;
+  z-index: 1500;
+}
+
+.pfbihpDownloadingDivSvg {
+  fill: #3289c9;
+}
