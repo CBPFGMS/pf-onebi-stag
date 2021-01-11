@@ -69,7 +69,7 @@
 			<div class="second-nav-title">
         	<div class="sidenav-title">
 				<div class="sb-nav-link-icon"><i class="un-icon icon-Multi-cluster-sector">&#xe9ae;</i> By Sector</div> 
-            	<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+            	<a href="javascript:void(0)" class="closebtn" onclick="closeNav()" data-toggle="tooltip" title="Close">&times;</a>
 			</div>
             <div class="side-panel mt-2">
                 <h6 id="bySectorAllocationsValue">$0</h6>
@@ -96,7 +96,7 @@
 		<div id="byAllocationType" class="link-sidenav">
         	<div class="sidenav-title">
 				<div class="sb-nav-link-icon"><i class="un-icon icon-Response">&#xe9e2;</i> By Allocation Type</div> 
-            	<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+            	<a href="javascript:void(0)" class="closebtn" onclick="closeNav()" data-toggle="tooltip" title="Close">&times;</a>
 			</div>
             <div class="side-panel mt-2">
                 <h6 id="byTypeAllocationsValue">$0</h6>
@@ -127,7 +127,7 @@
 			<div class="second-nav-title">
         	<div class="sidenav-title">
 				<div class="sb-nav-link-icon"><i class="un-icon icon-Fund">&#xe96a;</i> By CERF/CBPF</div> 
-            	<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+            	<a href="javascript:void(0)" class="closebtn" onclick="closeNav()" data-toggle="tooltip" title="Close">&times;</a>
 			</div>
             <div class="side-panel mt-2">
                 <h6 id="byCerfCbpfContributionsValue">$0M</h6>
@@ -157,7 +157,7 @@
 			<div class="second-nav-title">
         	<div class="sidenav-title">
 				<div class="sb-nav-link-icon"><i class="un-icon icon-Partnership">&#xe9bc;</i> By Donor</div> 
-            	<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+            	<a href="javascript:void(0)" class="closebtn" onclick="closeNav()" data-toggle="tooltip" title="Close">&times;</a>
 			</div>
             <div class="side-panel mt-2">
                 <h6 id="byDonorContributionsValue">$0M</h6>
@@ -342,7 +342,11 @@
     $(document).ready(function(){
         $("#myModal").modal('show');
     });
-</script>
+		
+	$('[data-toggle="tooltip"]').tooltip({
+    trigger : 'hover'
+	}) 
+	</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.2.0/d3.min.js" integrity="sha512-C2RveGuPIWqkaLAluvoxyiaN1XYNe5ss11urhZWZYBUA9Ydgj+hfGKPcxCzTwut1/fmjEZR7Ac35f2aycT8Ogw==" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/topojson@3"></script>
 	<script src="assets/js/scripts.js"></script>

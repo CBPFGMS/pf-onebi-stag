@@ -443,6 +443,9 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
   animation: rotation 8s infinite linear;
 }
 
+.tooltip-inner {background-color:rgba(0, 0, 0, 0.5);}
+.bs-tooltip-auto[x-placement^=bottom] .arrow::before, .bs-tooltip-bottom .arrow::before {border-bottom-color:rgba(0, 0, 0, 0.5);}
+
 @keyframes rotation {
   from {
     transform: rotate(0deg);
