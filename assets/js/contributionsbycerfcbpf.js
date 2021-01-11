@@ -574,9 +574,9 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			});
 		};
 
-		const minxScaleValue = d3.max(data, d => d[`total${separator}cerf`]) || 0;
+		const minxScaleValue = d3.max(data, d => d[`total${separator}cerf`]) || 1e3;
 
-		const minxScaleInnerValue = d3.max(dataMonth, d => d3.max(d.cerfMonthlyData, e => e.total)) || 0;
+		const minxScaleInnerValue = d3.max(dataMonth, d => d3.max(d.cerfMonthlyData, e => e.total)) || 1e3;
 
 		xScaleCerf.domain(selectedYear[0] === allYears ? yearsArray : monthsArray);
 
@@ -954,9 +954,9 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			});
 		};
 
-		const minxScaleValue = d3.max(data, d => d[`total${separator}cbpf`]) || 0;
+		const minxScaleValue = d3.max(data, d => d[`total${separator}cbpf`]) || 1e3;
 
-		const minxScaleInnerValue = d3.max(dataMonth, d => d3.max(d.cbpfMonthlyData, e => e.total)) || 0;
+		const minxScaleInnerValue = d3.max(dataMonth, d => d3.max(d.cbpfMonthlyData, e => e.total)) || 1e3;
 
 		xScaleCbpf.domain(selectedYear[0] === allYears ? yearsArray : monthsArray);
 
