@@ -431,6 +431,7 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 	display: block;
 }
 
+.url-notofication .modal-header .close{color:#aaa !important;}
 .url-notofication .modal-body h4{font-weight: 400; margin-top: -13px;}
 .url-notofication .modal-body p{font-weight: 300; font-size: 0.9em; width: 97%; margin: 0 auto; margin-bottom: 2em;}
 .url-notofication .modal-body p b{font-weight: 600;}
