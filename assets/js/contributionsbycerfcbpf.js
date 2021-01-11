@@ -519,7 +519,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 	function createYearButtons(container) {
 
-		const yearsData = yearsArray.concat([allYears]);
+		const yearsData = yearsArray.concat([allYears]).reverse();
 
 		const yearsButtons = container.selectAll(null)
 			.data(yearsData)
@@ -574,9 +574,9 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			});
 		};
 
-		const minxScaleValue = d3.max(data, d => d[`total${separator}cerf`]);
+		const minxScaleValue = d3.max(data, d => d[`total${separator}cerf`]) || 0;
 
-		const minxScaleInnerValue = d3.max(dataMonth, d => d3.max(d.cerfMonthlyData, e => e.total));
+		const minxScaleInnerValue = d3.max(dataMonth, d => d3.max(d.cerfMonthlyData, e => e.total)) || 0;
 
 		xScaleCerf.domain(selectedYear[0] === allYears ? yearsArray : monthsArray);
 
@@ -954,9 +954,9 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			});
 		};
 
-		const minxScaleValue = d3.max(data, d => d[`total${separator}cbpf`]);
+		const minxScaleValue = d3.max(data, d => d[`total${separator}cbpf`]) || 0;
 
-		const minxScaleInnerValue = d3.max(dataMonth, d => d3.max(d.cbpfMonthlyData, e => e.total));
+		const minxScaleInnerValue = d3.max(dataMonth, d => d3.max(d.cbpfMonthlyData, e => e.total)) || 0;
 
 		xScaleCbpf.domain(selectedYear[0] === allYears ? yearsArray : monthsArray);
 

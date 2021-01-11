@@ -159,6 +159,9 @@ function createSnapshot(type, fromContextMenu, selections) {
 
 	html2canvas(imageDiv).then(function(canvas) {
 
+		removeProgressWheel();
+		d3.select("#" + generalClassPrefix + "DownloadingDiv").remove();
+
 		if (type === "png") {
 			downloadSnapshotPng(canvas);
 		} else {
@@ -205,10 +208,6 @@ function downloadSnapshotPng(source) {
 			window.location.href = url;
 		};
 	});
-
-	removeProgressWheel();
-
-	d3.select("#" + generalClassPrefix + "DownloadingDiv").remove();
 
 };
 
@@ -283,10 +282,6 @@ function downloadSnapshotPdf(source, selections) {
 	const currentDate = new Date();
 
 	pdf.save("AllocationFlow_" + dateFormat(currentDate) + ".pdf");
-
-	removeProgressWheel();
-
-	d3.select("#" + generalClassPrefix + "DownloadingDiv").remove();
 
 	function createLetterhead() {
 

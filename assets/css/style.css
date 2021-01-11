@@ -306,6 +306,8 @@ body{font-family: 'Roboto', sans-serif; color:#333; background: #fff; padding: 0
 .pfbiccyearButtonsDiv {
   scrollbar-width: thin;
   scrollbar-color: lightgray white;
+  display: flex;
+  flex-direction: row-reverse;
 }
 
 .pfbiccyearButtonsDiv::-webkit-scrollbar {
@@ -1237,7 +1239,7 @@ footer{position: fixed; bottom: 0; width: calc(100% - 225px);}
 
 .pfbiccxAxisGroupCerf text, .pfbiccxAxisGroupCbpf text {
   font-family: "Roboto", sans-serif;
-  font-size: 12px;
+  font-size: 11px;
   fill: #666;
   pointer-events: none;
 }
