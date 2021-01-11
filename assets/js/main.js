@@ -477,7 +477,7 @@ function processDataAllocations(rawAllocationsData) {
 	rawAllocationsData.forEach(row => {
 		if (row.AllocationYear === chartState.selectedYear) {
 			topValues.allocations += row.ClusterBudget;
-			row.ProjList.toString().split("##").forEach(e => topValues.projects.add(e));
+			row.ProjList.toString().split(separator).forEach(e => topValues.projects.add(e));
 
 			const foundFund = data.find(d => d.country === row.PooledFundId);
 

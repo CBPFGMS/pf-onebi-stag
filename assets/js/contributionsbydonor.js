@@ -53,6 +53,7 @@ const classPrefix = "pfbicd",
 	stackKeys = ["total", "cerf", "cbpf"],
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	nonAggregatedNonMemberTypes = ["Regional Local Authority", "Observer"],
+	separator = "##",
 	zeroObject = {
 		total: 0,
 		cerf: 0,
@@ -458,12 +459,12 @@ function createContributionsByDonor(selections, colors, lists) {
 				foundDonor.total += row.total;
 				foundDonor.cerf += row.cerf;
 				foundDonor.cbpf += row.cbpf;
-				foundDonor["paid##total"] += row["paid##total"];
-				foundDonor["paid##cerf"] += row["paid##cerf"];
-				foundDonor["paid##cbpf"] += row["paid##cbpf"];
-				foundDonor["pledged##total"] += row["pledged##total"];
-				foundDonor["pledged##cerf"] += row["pledged##cerf"];
-				foundDonor["pledged##cbpf"] += row["pledged##cbpf"];
+				foundDonor[`paid${separator}total`] += row[`paid${separator}total`];
+				foundDonor[`paid${separator}cerf`] += row[`paid${separator}cerf`];
+				foundDonor[`paid${separator}cbpf`] += row[`paid${separator}cbpf`];
+				foundDonor[`pledged${separator}total`] += row[`pledged${separator}total`];
+				foundDonor[`pledged${separator}cerf`] += row[`pledged${separator}cerf`];
+				foundDonor[`pledged${separator}cbpf`] += row[`pledged${separator}cbpf`];
 
 				row.contributions.forEach(yearRow => {
 					const foundYear = foundDonor.contributions.find(e => e.year === yearRow.year);
@@ -471,12 +472,12 @@ function createContributionsByDonor(selections, colors, lists) {
 						foundYear.total += yearRow.total;
 						foundYear.cerf += yearRow.cerf;
 						foundYear.cbpf += yearRow.cbpf;
-						foundYear["paid##total"] += yearRow["paid##total"];
-						foundYear["paid##cerf"] += yearRow["paid##cerf"];
-						foundYear["paid##cbpf"] += yearRow["paid##cbpf"];
-						foundYear["pledged##total"] += yearRow["pledged##total"];
-						foundYear["pledged##cerf"] += yearRow["pledged##cerf"];
-						foundYear["pledged##cbpf"] += yearRow["pledged##cbpf"];
+						foundYear[`paid${separator}total`] += yearRow[`paid${separator}total`];
+						foundYear[`paid${separator}cerf`] += yearRow[`paid${separator}cerf`];
+						foundYear[`paid${separator}cbpf`] += yearRow[`paid${separator}cbpf`];
+						foundYear[`pledged${separator}total`] += yearRow[`pledged${separator}total`];
+						foundYear[`pledged${separator}cerf`] += yearRow[`pledged${separator}cerf`];
+						foundYear[`pledged${separator}cbpf`] += yearRow[`pledged${separator}cbpf`];
 					} else {
 						foundDonor.contributions.push(yearRow);
 					};
@@ -844,12 +845,12 @@ function createContributionsByDonor(selections, colors, lists) {
 						acc.total += row.total;
 						acc.cerf += row.cerf;
 						acc.cbpf += row.cbpf;
-						acc["paid##total"] += row["paid##total"];
-						acc["paid##cerf"] += row["paid##cerf"];
-						acc["paid##cbpf"] += row["paid##cbpf"];
-						acc["pledged##total"] += row["pledged##total"];
-						acc["pledged##cerf"] += row["pledged##cerf"];
-						acc["pledged##cbpf"] += row["pledged##cbpf"];
+						acc[`paid${separator}total`] += row[`paid${separator}total`];
+						acc[`paid${separator}cerf`] += row[`paid${separator}cerf`];
+						acc[`paid${separator}cbpf`] += row[`paid${separator}cbpf`];
+						acc[`pledged${separator}total`] += row[`pledged${separator}total`];
+						acc[`pledged${separator}cerf`] += row[`pledged${separator}cerf`];
+						acc[`pledged${separator}cbpf`] += row[`pledged${separator}cbpf`];
 
 						row.contributions.forEach(yearRow => {
 							const foundYear = acc.contributions.find(e => e.year === yearRow.year);
@@ -857,12 +858,12 @@ function createContributionsByDonor(selections, colors, lists) {
 								foundYear.total += yearRow.total;
 								foundYear.cerf += yearRow.cerf;
 								foundYear.cbpf += yearRow.cbpf;
-								foundYear["paid##total"] += yearRow["paid##total"];
-								foundYear["paid##cerf"] += yearRow["paid##cerf"];
-								foundYear["paid##cbpf"] += yearRow["paid##cbpf"];
-								foundYear["pledged##total"] += yearRow["pledged##total"];
-								foundYear["pledged##cerf"] += yearRow["pledged##cerf"];
-								foundYear["pledged##cbpf"] += yearRow["pledged##cbpf"];
+								foundYear[`paid${separator}total`] += yearRow[`paid${separator}total`];
+								foundYear[`paid${separator}cerf`] += yearRow[`paid${separator}cerf`];
+								foundYear[`paid${separator}cbpf`] += yearRow[`paid${separator}cbpf`];
+								foundYear[`pledged${separator}total`] += yearRow[`pledged${separator}total`];
+								foundYear[`pledged${separator}cerf`] += yearRow[`pledged${separator}cerf`];
+								foundYear[`pledged${separator}cbpf`] += yearRow[`pledged${separator}cbpf`];
 							} else {
 								acc.contributions.push(yearRow);
 							};
@@ -998,8 +999,8 @@ function createContributionsByDonor(selections, colors, lists) {
 
 		originalData.forEach(row => {
 			totalContributions += chartState.selectedFund === "cerf/cbpf" ? row.cerf + row.cbpf : row[chartState.selectedFund];
-			totalPaid += chartState.selectedFund === "cerf/cbpf" ? row["paid##cerf"] + row["paid##cbpf"] : row[`paid##${chartState.selectedFund}`];
-			totalPledged += chartState.selectedFund === "cerf/cbpf" ? row["pledged##cerf"] + row["pledged##cbpf"] : row[`pledged##${chartState.selectedFund}`];
+			totalPaid += chartState.selectedFund === "cerf/cbpf" ? row[`paid${separator}cerf`] + row[`paid${separator}cbpf`] : row[`paid${separator}${chartState.selectedFund}`];
+			totalPledged += chartState.selectedFund === "cerf/cbpf" ? row[`pledged${separator}cerf`] + row[`pledged${separator}cbpf`] : row[`pledged${separator}${chartState.selectedFund}`];
 		});
 
 		const updateTransition = d3.transition()
@@ -1257,12 +1258,12 @@ function createContributionsByDonor(selections, colors, lists) {
 					total: 0,
 					cerf: 0,
 					cbpf: 0,
-					"paid##total": 0,
-					"paid##cerf": 0,
-					"paid##cbpf": 0,
-					"pledged##total": 0,
-					"pledged##cerf": 0,
-					"pledged##cbpf": 0
+					["paid" + separator + "total"]: 0,
+					["paid" + separator + "cerf"]: 0,
+					["paid" + separator + "cbpf"]: 0,
+					["pledged" + separator + "total"]: 0,
+					["pledged" + separator + "cerf"]: 0,
+					["pledged" + separator + "cbpf"]: 0
 				})
 			};
 		});
