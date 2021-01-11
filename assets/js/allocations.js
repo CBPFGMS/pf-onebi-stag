@@ -57,6 +57,7 @@ const classPrefix = "pfbial",
 	svgColumnChartPaddingByType = [16, 26, 4, 66],
 	svgColumnChartTypeHeight = svgColumnChartPaddingByType[0] + svgColumnChartPaddingByType[2] + maxColumnRectHeight + 4 * maxColumnRectHeight,
 	VenezuelaRegionalRefugeeAbbr = "Venezuela Refugee...",
+	separator = "##",
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	stackKeys = ["total", "cerf", "cbpf"],
 	cbpfAllocationTypes = ["1", "2"], //THIS SHOULD NOT BE HARDCODED
@@ -1472,7 +1473,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		datum.allocationsList.forEach(row => {
 			if (row.FundId === cerfId) {
-				row.ProjList.toString().split("##").forEach(e => {
+				row.ProjList.toString().split(separator).forEach(e => {
 					projectsTotal.add(e);
 					projectsCerf.add(e);
 				});
@@ -1482,7 +1483,7 @@ function createAllocations(selections, colors, mapData, lists) {
 				clusterDataCerf[row.ClusterId] = (clusterDataCerf[row.ClusterId] || 0) + row.ClusterBudget;
 			};
 			if (row.FundId === cbpfId) {
-				row.ProjList.toString().split("##").forEach(e => {
+				row.ProjList.toString().split(separator).forEach(e => {
 					projectsTotal.add(e);
 					projectsCbpf.add(e);
 				});
@@ -1820,8 +1821,8 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		const filteredData = originalData.filter(row => {
 			const filterRegion = !chartState.selectedRegion.length ? true : chartState.selectedRegion.indexOf(row.region) > -1;
-			const filterCluster = !chartState.selectedCluster.length ? true : chartState.selectedCluster.some(e => row[`cluster##${e}##total`]);
-			const filterType = !chartState.selectedType.length ? true : chartState.selectedType.some(e => row[`type##${e}##total`]);
+			const filterCluster = !chartState.selectedCluster.length ? true : chartState.selectedCluster.some(e => row[`cluster${separator}${e}${separator}total`]);
+			const filterType = !chartState.selectedType.length ? true : chartState.selectedType.some(e => row[`type${separator}${e}${separator}total`]);
 
 			return filterRegion && filterCluster && filterType;
 		});
@@ -1843,7 +1844,7 @@ function createAllocations(selections, colors, mapData, lists) {
 				} else {
 					let rowSum = 0;
 					chartState.selectedCluster.forEach(e => {
-						rowSum += row[`cluster##${e}##${rowFund}`];
+						rowSum += row[`cluster${separator}${e}${separator}${rowFund}`];
 					});
 					return rowSum;
 				};
@@ -1854,7 +1855,7 @@ function createAllocations(selections, colors, mapData, lists) {
 				} else {
 					let rowSum = 0;
 					chartState.selectedType.forEach(e => {
-						rowSum += row[`type##${e}##${rowFund}`];
+						rowSum += row[`type${separator}${e}${separator}${rowFund}`];
 					});
 					return rowSum;
 				};
@@ -1871,8 +1872,8 @@ function createAllocations(selections, colors, mapData, lists) {
 						(chartState.selectedChart === "allocationsByType" && !chartState.selectedType.length) ||
 						(chartState.selectedChart === "allocationsBySector" && chartState.selectedCluster.indexOf(allocation.ClusterId + "") > -1) ||
 						(chartState.selectedChart === "allocationsByType" && chartState.selectedType.indexOf(allocation.AllocationSurceId + "") > -1)) {
-						allocation.ProjList.toString().split("##").forEach(e => numberOfProjects.add(e));
-						allocation.OrgList.toString().split("##").forEach(e => numberOfPartners.add(e));
+						allocation.ProjList.toString().split(separator).forEach(e => numberOfProjects.add(e));
+						allocation.OrgList.toString().split(separator).forEach(e => numberOfPartners.add(e));
 					};
 				};
 			});
@@ -1944,16 +1945,16 @@ function createAllocations(selections, colors, mapData, lists) {
 				for (const key in lists.clustersList) {
 					const foundCluster = acc.find(e => e.cluster === lists.clustersList[key]);
 					if (foundCluster) {
-						foundCluster.total += chartState.selectedFund === "total" ? curr[`cluster##${key}##total`] : 0;
-						foundCluster.cerf += chartState.selectedFund === "cerf" || chartState.selectedFund === "cerf/cbpf" ? curr[`cluster##${key}##cerf`] : 0;
-						foundCluster.cbpf += chartState.selectedFund === "cbpf" || chartState.selectedFund === "cerf/cbpf" ? curr[`cluster##${key}##cbpf`] : 0;
+						foundCluster.total += chartState.selectedFund === "total" ? curr[`cluster${separator}${key}${separator}total`] : 0;
+						foundCluster.cerf += chartState.selectedFund === "cerf" || chartState.selectedFund === "cerf/cbpf" ? curr[`cluster${separator}${key}${separator}cerf`] : 0;
+						foundCluster.cbpf += chartState.selectedFund === "cbpf" || chartState.selectedFund === "cerf/cbpf" ? curr[`cluster${separator}${key}${separator}cbpf`] : 0;
 					} else {
 						acc.push({
 							cluster: lists.clustersList[key],
 							clusterId: key,
-							total: chartState.selectedFund === "total" ? curr[`cluster##${key}##total`] : 0,
-							cerf: chartState.selectedFund === "cerf" || chartState.selectedFund === "cerf/cbpf" ? curr[`cluster##${key}##cerf`] : 0,
-							cbpf: chartState.selectedFund === "cbpf" || chartState.selectedFund === "cerf/cbpf" ? curr[`cluster##${key}##cbpf`] : 0,
+							total: chartState.selectedFund === "total" ? curr[`cluster${separator}${key}${separator}total`] : 0,
+							cerf: chartState.selectedFund === "cerf" || chartState.selectedFund === "cerf/cbpf" ? curr[`cluster${separator}${key}${separator}cerf`] : 0,
+							cbpf: chartState.selectedFund === "cbpf" || chartState.selectedFund === "cerf/cbpf" ? curr[`cluster${separator}${key}${separator}cbpf`] : 0,
 						});
 					};
 				};
@@ -1969,16 +1970,16 @@ function createAllocations(selections, colors, mapData, lists) {
 				for (const key in lists.allocationTypesList) {
 					const foundCluster = acc.find(e => e.allocationType === lists.allocationTypesList[key]);
 					if (foundCluster) {
-						foundCluster.total += chartState.selectedFund === "total" ? curr[`type##${key}##total`] : 0;
-						foundCluster.cerf += chartState.selectedFund === "cerf" || chartState.selectedFund === "cerf/cbpf" ? curr[`type##${key}##cerf`] : 0;
-						foundCluster.cbpf += chartState.selectedFund === "cbpf" || chartState.selectedFund === "cerf/cbpf" ? curr[`type##${key}##cbpf`] : 0;
+						foundCluster.total += chartState.selectedFund === "total" ? curr[`type${separator}${key}${separator}total`] : 0;
+						foundCluster.cerf += chartState.selectedFund === "cerf" || chartState.selectedFund === "cerf/cbpf" ? curr[`type${separator}${key}${separator}cerf`] : 0;
+						foundCluster.cbpf += chartState.selectedFund === "cbpf" || chartState.selectedFund === "cerf/cbpf" ? curr[`type${separator}${key}${separator}cbpf`] : 0;
 					} else {
 						acc.push({
 							allocationType: lists.allocationTypesList[key],
 							allocationTypeId: key,
-							total: chartState.selectedFund === "total" ? curr[`type##${key}##total`] : 0,
-							cerf: chartState.selectedFund === "cerf" || chartState.selectedFund === "cerf/cbpf" ? curr[`type##${key}##cerf`] : 0,
-							cbpf: chartState.selectedFund === "cbpf" || chartState.selectedFund === "cerf/cbpf" ? curr[`type##${key}##cbpf`] : 0,
+							total: chartState.selectedFund === "total" ? curr[`type${separator}${key}${separator}total`] : 0,
+							cerf: chartState.selectedFund === "cerf" || chartState.selectedFund === "cerf/cbpf" ? curr[`type${separator}${key}${separator}cerf`] : 0,
+							cbpf: chartState.selectedFund === "cbpf" || chartState.selectedFund === "cerf/cbpf" ? curr[`type${separator}${key}${separator}cbpf`] : 0,
 						});
 					};
 				};
@@ -2970,17 +2971,17 @@ function createAllocations(selections, colors, mapData, lists) {
 				for (const key in lists.clustersList) {
 					if (chartState.selectedCluster.length === 0 || chartState.selectedCluster.indexOf(key) > -1) {
 						if (chartState.selectedFund === "total") {
-							copiedRow.total += copiedRow[`cluster##${key}##total`];
+							copiedRow.total += copiedRow[`cluster${separator}${key}${separator}total`];
 						};
 						if (chartState.selectedFund === "cerf/cbpf") {
-							copiedRow.cerf += copiedRow[`cluster##${key}##cerf`];
-							copiedRow.cbpf += copiedRow[`cluster##${key}##cbpf`];
+							copiedRow.cerf += copiedRow[`cluster${separator}${key}${separator}cerf`];
+							copiedRow.cbpf += copiedRow[`cluster${separator}${key}${separator}cbpf`];
 						};
 						if (chartState.selectedFund === "cerf") {
-							copiedRow.cerf += copiedRow[`cluster##${key}##cerf`];
+							copiedRow.cerf += copiedRow[`cluster${separator}${key}${separator}cerf`];
 						};
 						if (chartState.selectedFund === "cbpf") {
-							copiedRow.cbpf += copiedRow[`cluster##${key}##cbpf`];
+							copiedRow.cbpf += copiedRow[`cluster${separator}${key}${separator}cbpf`];
 						};
 					};
 				};
@@ -2995,17 +2996,17 @@ function createAllocations(selections, colors, mapData, lists) {
 				for (const key in lists.allocationTypesList) {
 					if (chartState.selectedType.length === 0 || chartState.selectedType.indexOf(key) > -1) {
 						if (chartState.selectedFund === "total") {
-							copiedRow.total += copiedRow[`type##${key}##total`];
+							copiedRow.total += copiedRow[`type${separator}${key}${separator}total`];
 						};
 						if (chartState.selectedFund === "cerf/cbpf") {
-							copiedRow.cerf += copiedRow[`type##${key}##cerf`];
-							copiedRow.cbpf += copiedRow[`type##${key}##cbpf`];
+							copiedRow.cerf += copiedRow[`type${separator}${key}${separator}cerf`];
+							copiedRow.cbpf += copiedRow[`type${separator}${key}${separator}cbpf`];
 						};
 						if (chartState.selectedFund === "cerf") {
-							copiedRow.cerf += copiedRow[`type##${key}##cerf`];
+							copiedRow.cerf += copiedRow[`type${separator}${key}${separator}cerf`];
 						};
 						if (chartState.selectedFund === "cbpf") {
-							copiedRow.cbpf += copiedRow[`type##${key}##cbpf`];
+							copiedRow.cbpf += copiedRow[`type${separator}${key}${separator}cbpf`];
 						};
 					};
 				};
