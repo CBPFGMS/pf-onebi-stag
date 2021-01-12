@@ -2,6 +2,7 @@ function createLinks(containerSelection) {
 
 	const cbpfLink = containerSelection.append("a")
 		.attr("class", "nav-link small cbpf-link")
+		.attr("data-toggle", "tooltip")
 		.attr("href", "https://pfbi.unocha.org")
 		.attr("title", "CBPF BI")
 		.attr("target", "_blank");
