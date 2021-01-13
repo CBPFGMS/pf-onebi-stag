@@ -19,7 +19,7 @@ function createLinks(containerSelection) {
 		.attr("class", "nav-link small cerf-link")
 		.attr("data-toggle", "tooltip")
 		.attr("href", "https://cbpfgms.github.io/cerf-bi-stag/")
-		.attr("title", "CBPF BI")
+		.attr("title", "CERF BI")
 		.attr("target", "_blank");
 
 	cerfLink.append("span")
