@@ -1595,3 +1595,8 @@ a.video-tutorial{color:#333;}
 .pfbihpDownloadingDivSvg {
   fill: #3289c9;
 }
+
+#pfbihpSnapshotTooltip {
+  z-index: 1600;
+  right: initial;
+}

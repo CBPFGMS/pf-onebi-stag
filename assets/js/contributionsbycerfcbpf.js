@@ -149,6 +149,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	const cbpfContainerDiv = chartAreaDiv.append("div")
 		.attr("class", classPrefix + "cbpfContainerDiv");
 
+	chartState.currentTooltip = tooltipDiv;
+
 	const cerfContainerDivSize = cerfContainerDiv.node().getBoundingClientRect();
 	const cbpfContainerDivSize = cbpfContainerDiv.node().getBoundingClientRect();
 	const barChartContainerSize = barChartRankingDiv.node().getBoundingClientRect();
@@ -805,6 +807,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		function mouseoverTooltipCerf(event, d) {
 
+			chartState.currentHoveredElement = event.currentTarget;
+
 			tooltipDiv.style("display", "block")
 				.html(null);
 
@@ -864,7 +868,10 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		};
 
-		function mouseoutTooltipCerf(event, d) {
+		function mouseoutTooltipCerf() {
+			if (chartState.isSnapshotTooltipVisible) return;
+			chartState.currentHoveredElement = null;
+
 			tooltipDiv.html(null)
 				.style("display", "none");
 		};
@@ -1185,6 +1192,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		function mouseoverTooltipCbpf(event, d) {
 
+			chartState.currentHoveredElement = event.currentTarget;
+
 			tooltipDiv.style("display", "block")
 				.html(null);
 
@@ -1244,7 +1253,10 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		};
 
-		function mouseoutTooltipCbpf(event, d) {
+		function mouseoutTooltipCbpf() {
+			if (chartState.isSnapshotTooltipVisible) return;
+			chartState.currentHoveredElement = null;
+
 			tooltipDiv.html(null)
 				.style("display", "none");
 		};
@@ -1495,6 +1507,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.remove();
 
 		function mouseoverBarsTooltipRectangles(event, d) {
+			chartState.currentHoveredElement = event.currentTarget;
+
 			bars.style("opacity", e => e.data.donor === d.donor ? 1 : fadeOpacity);
 			barsLabels.style("opacity", (e, i) => e.donor === d.donor ? 1 : !(i % 4) ? fadeOpacity : 0);
 			xAxisGroupBarChart.selectAll(".tick")
@@ -1580,7 +1594,10 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				.style("left", thisOffsetLeft + "px");
 		};
 
-		function mouseoutBarsTooltipRectangles(event, d) {
+		function mouseoutBarsTooltipRectangles() {
+			if (chartState.isSnapshotTooltipVisible) return;
+			chartState.currentHoveredElement = null;
+
 			bars.style("opacity", 1);
 			barsLabels.style("opacity", (_, i) => !(i % 4) ? 1 : 0);
 			xAxisGroupBarChart.selectAll(".tick")

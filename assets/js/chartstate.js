@@ -7,6 +7,9 @@ const chartState = {
 	selectedClusterValue: [],
 	selectedTypeValue: [],
 	showNamesValue: false,
+	currentTooltipValue: null,
+	currentHoveredElementValue: null,
+	isSnapshotTooltipVisibleValue: false,
 	get selectedYear() {
 		return this.selectedYearValue;
 	},
@@ -48,6 +51,24 @@ const chartState = {
 	},
 	set showNames(value) {
 		this.showNamesValue = value;
+	},
+	get currentTooltip() {
+		return this.currentTooltipValue;
+	},
+	set currentTooltip(value) {
+		this.currentTooltipValue = value;
+	},
+	get currentHoveredElement() {
+		return this.currentHoveredElementValue;
+	},
+	set currentHoveredElement(value) {
+		this.currentHoveredElementValue = value;
+	},
+	get isSnapshotTooltipVisible() {
+		return this.isSnapshotTooltipVisibleValue;
+	},
+	set isSnapshotTooltipVisible(value) {
+		this.isSnapshotTooltipVisibleValue = value;
 	}
 };
 

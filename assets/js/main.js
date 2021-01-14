@@ -317,7 +317,7 @@ function controlCharts([worldMap,
 		if (chartState.selectedChart === "allocationsByCountry") return;
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
 			clearDisabledOption(selections.yearDropdown);
-			selections.chartContainerDiv.selectChildren().remove();
+			selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
 			chartState.selectedChart = "allocationsByCountry";
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
@@ -339,7 +339,7 @@ function controlCharts([worldMap,
 		if (chartState.selectedChart === "allocationsBySector") return;
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
 			clearDisabledOption(selections.yearDropdown);
-			selections.chartContainerDiv.selectChildren().remove();
+			selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
 			chartState.selectedChart = "allocationsBySector";
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
@@ -361,7 +361,7 @@ function controlCharts([worldMap,
 		if (chartState.selectedChart === "allocationsByType") return;
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
 			clearDisabledOption(selections.yearDropdown);
-			selections.chartContainerDiv.selectChildren().remove();
+			selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
 			chartState.selectedChart = "allocationsByType";
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
@@ -383,7 +383,7 @@ function controlCharts([worldMap,
 		if (chartState.selectedChart === "contributionsByCerfCbpf") return;
 		chartState.selectedChart = "contributionsByCerfCbpf";
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
-		selections.chartContainerDiv.selectChildren().remove();
+		selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
 		drawContributionsByCerfCbpf = createContributionsByCerfCbpf(selections, colorsObject, lists);
 		drawContributionsByCerfCbpf(rawContributionsData);
 		highlightNavLinks();
@@ -397,7 +397,7 @@ function controlCharts([worldMap,
 		if (chartState.selectedChart === "contributionsByDonor") return;
 		chartState.selectedChart = "contributionsByDonor";
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
-		selections.chartContainerDiv.selectChildren().remove();
+		selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
 		drawContributionsByDonor = createContributionsByDonor(selections, colorsObject, lists);
 		drawContributionsByDonor(contributionsDataByDonor);
 		highlightNavLinks();
