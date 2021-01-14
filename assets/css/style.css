@@ -590,7 +590,7 @@ a.video-tutorial{color:#333;}
   color: darkslategray;
   font-family: "Roboto", sans-serif;
   white-space: normal;
-  padding: 8px;
+  padding: 0;
   line-height: 120%;
   font-size: 14px;
   background: #f2f4f4; 
@@ -600,6 +600,9 @@ a.video-tutorial{color:#333;}
   cursor: none;
   z-index: 1500;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+#pfbicctooltipDiv{
+	padding: 8px !important;
 }
 #pfbialinnerTooltipDiv {max-width: 308px !important;}
 #pfbialinnerTooltipDiv > div:nth-child(2){padding:8px !important;}
