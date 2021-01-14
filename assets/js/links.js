@@ -30,6 +30,13 @@ function createLinks(containerSelection) {
 	cerfLink.append("span")
 		.html("CERF BI");
 
+	$(cbpfLink.node()).tooltip({
+		trigger: 'hover'
+	});
+	$(cerfLink.node()).tooltip({
+		trigger: 'hover'
+	});
+
 };
 
 export {
