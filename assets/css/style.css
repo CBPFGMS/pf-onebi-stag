@@ -447,6 +447,7 @@ footer a:hover{color:#2270aa;}
 
 .tooltip-inner {background-color:rgba(0, 0, 0, 0.6);}
 .bs-tooltip-auto[x-placement^=bottom] .arrow::before, .bs-tooltip-bottom .arrow::before {border-bottom-color:rgba(0, 0, 0, 0.6);}
+a.video-tutorial{color:#333;}
 .video-tutorial {background-image: url("../img/video-tutorial-icon.svg"); background-repeat: no-repeat; background-position: left center;}
 .video-tutorial small{margin-left: 21px;}
 
@@ -599,6 +600,9 @@ footer a:hover{color:#2270aa;}
   cursor: none;
   z-index: 1500;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+#pfbicctooltipDiv{
+	padding: 8px !important;
 }
 #pfbialinnerTooltipDiv {max-width: 308px !important;}
 #pfbialinnerTooltipDiv > div:nth-child(2){padding:8px !important;}
@@ -1508,14 +1512,12 @@ footer a:hover{color:#2270aa;}
 	color: #fff;
 	border-radius: 4px 4px 0 0;
     line-height: normal;
-	margin: 0 !important;
+	margin-top: -8px;
+    margin-left: -8px;
+    margin-right: -8px;
 } 
 
 #pfbiccinnerTooltipDiv > div:nth-child(1) strong{font-size: 14px !important;}
-
-#pfbiccinnerTooltipDiv > div:nth-child(2){
-	padding:8px !important;
-}
 
 #pfbiccinnerTooltipDiv > div:nth-child(2) .pfbicctooltipYears, .pfbicctooltipValues{
 	font-weight: 600;
