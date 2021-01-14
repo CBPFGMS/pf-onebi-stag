@@ -1372,7 +1372,9 @@ function createAllocations(selections, colors, mapData, lists) {
 		barsTooltipRectangles.on("mouseover", mouseoverBarsTooltipRectangles)
 			.on("mouseout", mouseoutBarsTooltipRectangles);
 
-		function mouseoverBarsTooltipRectangles(_, d) {
+		function mouseoverBarsTooltipRectangles(event, d) {
+
+			chartState.currentHoveredElement = event.currentTarget;
 
 			let thisRank,
 				thisOrdinal;
@@ -1438,6 +1440,9 @@ function createAllocations(selections, colors, mapData, lists) {
 		};
 
 		function mouseoutBarsTooltipRectangles(_, d) {
+
+			if (chartState.isSnapshotTooltipVisible) return;
+			chartState.currentHoveredElement = null;
 
 			bars.style("opacity", 1);
 
