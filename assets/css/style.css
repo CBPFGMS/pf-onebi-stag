@@ -1593,3 +1593,8 @@ footer a:hover{color:#2270aa;}
 .pfbihpDownloadingDivSvg {
   fill: #3289c9;
 }
+
+#pfbihpSnapshotTooltip {
+  z-index: 1600;
+  right: initial;
+}

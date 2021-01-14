@@ -151,6 +151,8 @@ function createAllocations(selections, colors, mapData, lists) {
 	const buttonsDiv = mapDiv.append("div")
 		.attr("class", classPrefix + "buttonsDiv");
 
+	chartState.currentTooltip = tooltipDivMap;
+
 	const columnChartContainerByCountry = selections.byCountryChartContainer;
 	const columnChartContainerBySector = selections.bySectorChartContainer;
 	const columnChartContainerByTypeCerf = selections.byTypeCerfChartContainer;
@@ -968,8 +970,12 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		function pieGroupMouseover(event, datum) {
 
+			chartState.currentHoveredElement = event.currentTarget;
+
 			let thisRank,
 				thisOrdinal;
+
+			chartState.currentTooltip = tooltipDivMap;
 
 			pieGroup.style("opacity", d => d.country === datum.country ? 1 : fadeOpacity);
 
@@ -1021,6 +1027,9 @@ function createAllocations(selections, colors, mapData, lists) {
 		};
 
 		function pieGroupMouseout(event) {
+
+			if (chartState.isSnapshotTooltipVisible) return;
+			chartState.currentHoveredElement = null;
 
 			pieGroup.style("opacity", 1);
 
@@ -1367,6 +1376,8 @@ function createAllocations(selections, colors, mapData, lists) {
 
 			let thisRank,
 				thisOrdinal;
+
+			chartState.currentTooltip = tooltipDivBarChart;
 
 			bars.style("opacity", e => e.data.country === d.country ? 1 : fadeOpacity);
 

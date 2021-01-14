@@ -669,6 +669,8 @@ function createContributionsByDonor(selections, colors, lists) {
 			.style("top", "50%")
 			.style("transform", "translate(-50%,-50%)");
 
+		chartState.currentTooltip = null;
+
 		const innerTooltipDiv = tooltipDiv.append("div")
 			.style("width", tooltipWidth + "px")
 			.style("height", tooltipDonorNameHeight + tooltipSvgHeight + "px")
