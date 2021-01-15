@@ -8,8 +8,7 @@ const generalClassPrefix = "pfbihp",
 	allocationsDataUrl = "https://cbpfgms.github.io/pfbi-data/download/pfmb_allocations.csv",
 	contributionsDataUrl = "https://cbpfgms.github.io/pfbi-data/download/pfmb_contributions.csv",
 	helpPortalUrl = "https://gms.unocha.org/content/business-intelligence",
-	dateFormat = d3.utcFormat("_%Y%m%d_%H%M%S_UTC"),
-	sidenavWidth = document.getElementById("layoutSidenav_nav").offsetWidth;
+	dateFormat = d3.utcFormat("_%Y%m%d_%H%M%S_UTC");
 
 const buttonsObject = {
 	timer: null,
@@ -30,44 +29,6 @@ const buttonsObject = {
 				clicked: false
 			})
 			.attr("id", generalClassPrefix + "PlayButton");
-
-		const snapshotTooltip = selections.chartContainerDiv.append("div")
-			.attr("id", generalClassPrefix + "SnapshotTooltip")
-			.attr("class", generalClassPrefix + "SnapshotContent")
-			.style("display", "none")
-			.on("mouseleave", () => {
-				chartState.isSnapshotTooltipVisible = false;
-				snapshotTooltip.style("display", "none");
-				if (chartState.currentTooltip) chartState.currentTooltip.style("display", "none");
-				if (chartState.currentHoveredElement) d3.select(chartState.currentHoveredElement).dispatch("mouseout");
-			});
-
-		snapshotTooltip.append("p")
-			.attr("id", generalClassPrefix + "SnapshotTooltipPdfText")
-			.html("Download PDF")
-			.on("click", () => {
-				chartState.isSnapshotTooltipVisible = false;
-				snapshotTooltip.style("display", "none");
-				createSnapshot("pdf", true, selections);
-			});
-
-		snapshotTooltip.append("p")
-			.attr("id", generalClassPrefix + "SnapshotTooltipPngText")
-			.html("Download Image (PNG)")
-			.on("click", () => {
-				chartState.isSnapshotTooltipVisible = false;
-				snapshotTooltip.style("display", "none");
-				createSnapshot("png", true, selections);
-			});
-
-		selections.chartContainerDiv.on("contextmenu", event => {
-			event.preventDefault();
-			const thisMouse = d3.pointer(event);
-			chartState.isSnapshotTooltipVisible = true;
-			snapshotTooltip.style("display", "block")
-				.style("top", thisMouse[1] - 4 + "px")
-				.style("left", thisMouse[0] + sidenavWidth - 4 + "px");
-		});
 
 		const snapshotDiv = containerSelection.append("div")
 			.attr("class", generalClassPrefix + "SnapshotDiv");
@@ -126,10 +87,12 @@ const buttonsObject = {
 				.attr("class", d.clicked ? "fas fa-pause" : "fas fa-play");
 
 			if (d.clicked) {
+				$("#btnOptionDiv").removeClass('options-btn-panel').addClass('options-btn-panel-fix');
 				loopYears(yearsArray, selections);
 				this.playing = true;
 				this.timer = d3.interval(() => loopYears(yearsArray, selections), 2 * duration);
 			} else {
+				$("#btnOptionDiv").removeClass('options-btn-panel-fix').addClass('options-btn-panel');
 				this.playing = false;
 				this.timer.stop();
 			};
@@ -206,8 +169,6 @@ function createSnapshot(type, fromContextMenu, selections) {
 		} else {
 			downloadSnapshotPdf(canvas, selections);
 		};
-
-		if (fromContextMenu && chartState.currentHoveredElement) d3.select(chartState.currentHoveredElement).dispatch("mouseout");
 
 	});
 
