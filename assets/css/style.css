@@ -126,7 +126,7 @@ body{font-family: 'Roboto', sans-serif; color:#333; background: #fff; padding: 0
 .sb-sidenav {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: calc(100% - 75px);
   flex-wrap: nowrap;
 }
 .sb-sidenav .sb-sidenav-menu {
