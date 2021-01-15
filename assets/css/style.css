@@ -379,7 +379,7 @@ footer a:hover{color:#2270aa;}
 .options-btn-panel-fix .hd-panel .btn-icon{background: #3289c9 url(../img/info-button-icon.svg) 0 0 no-repeat; width: 16px; height: 16px; display: inline-block; margin: 5px 20px 5px 5px; vertical-align: middle; line-height: normal;}
 .options-btn-panel-fix .hd-panel .btn-title{font-size: 14px; font-weight: bold; color:#fff; display: inline-block; vertical-align: middle;
     line-height: normal;} 
-.options-btn-panel-fix .btn-panel{background-color: #fff; padding: 12px; border-radius: 0 0 3px 3px; transition-duration: 0.3s; left: 34px; position: absolute;}
+.options-btn-panel-fix .btn-panel{background-color: #fff; padding: 12px; border-radius: 0 0 3px 3px; transition-duration: 0.3s; left: 34px; position: absolute; box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);}
 /*DS: End*/
 
 .browser-notification{
