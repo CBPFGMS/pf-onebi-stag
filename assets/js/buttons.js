@@ -39,6 +39,7 @@ const buttonsObject = {
 				chartState.isSnapshotTooltipVisible = false;
 				snapshotTooltip.style("display", "none");
 				if (chartState.currentTooltip) chartState.currentTooltip.style("display", "none");
+				if (chartState.currentHoveredElement) d3.select(chartState.currentHoveredElement).dispatch("mouseout");
 			});
 
 		snapshotTooltip.append("p")
