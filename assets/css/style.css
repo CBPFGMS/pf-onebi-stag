@@ -448,8 +448,8 @@ footer a:hover{color:#2270aa;}
 .tooltip-inner {background-color:rgba(0, 0, 0, 0.7);}
 .bs-tooltip-auto[x-placement^=bottom] .arrow::before, .bs-tooltip-bottom .arrow::before {border-bottom-color:rgba(0, 0, 0, 0.7);}
 a.video-tutorial{color:#333;}
-.video-tutorial {background-image: url("../img/video-tutorial-icon.svg"); background-repeat: no-repeat; background-position: left center;}
-.video-tutorial small{margin-left: 21px;}
+/*.video-tutorial {background-image: url("../img/video-tutorial-icon.svg"); background-repeat: no-repeat; background-position: left center;}*/
+.video-tutorial small{margin-left: 5px;}
 
 @keyframes rotation {
   from {
