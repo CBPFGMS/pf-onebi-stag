@@ -2508,6 +2508,30 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		function createAllocationsByTypeColumnChart(columnDataType) {
 
+			if (chartState.selectedFund === "cbpf") {
+				columnChartContainerByTypeCerf.transition()
+					.duration(duration)
+					.style("height", "0px");
+			} else {
+				if (!parseFloat(columnChartContainerByTypeCerf.style("height"))) {
+					columnChartContainerByTypeCerf.transition()
+						.duration(duration)
+						.style("height", null);
+				};
+			};
+
+			if (chartState.selectedFund === "cerf") {
+				columnChartContainerByTypeCbpf.transition()
+					.duration(duration)
+					.style("height", "0px");
+			} else {
+				if (!parseFloat(columnChartContainerByTypeCbpf.style("height"))) {
+					columnChartContainerByTypeCbpf.transition()
+						.duration(duration)
+						.style("height", null);
+				};
+			};
+
 			const cerfData = columnDataType.filter(d => cerfAllocationTypes.indexOf(d.allocationTypeId) > -1);
 			const cbpfData = columnDataType.filter(d => cbpfAllocationTypes.indexOf(d.allocationTypeId) > -1);
 

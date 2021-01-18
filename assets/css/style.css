@@ -1621,3 +1621,7 @@ a.video-tutorial{color:#333;}
   text-anchor: middle;
   dominant-baseline: middle;
 }
+
+#bycerf-bar-chart, #bycbpf-bar-chart {
+  overflow-y: hidden;
+}
