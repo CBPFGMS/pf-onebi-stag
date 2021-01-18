@@ -304,7 +304,7 @@
             <footer class="py-1 bg-light mt-auto">
                 <div class="container-fluid">
                     <div class="d-flex align-items-center justify-content-between small">
-                        <div class="text-muted"><small>Copyright &copy; OCHA 2020</small></div>
+                        <div class="text-muted"><small>Copyright &copy; OCHA <span id="copyrightYear"></span></small></div>
 						<div class="data-update"><span id="updatedOn"></span></div>
                         <div>
 							<a href="#" data-toggle="modal" data-target="#videoModal" class="video-tutorial"><img src="assets/img/video-tutorial-icon.svg" width="16" height="16px;"><small>First time to PFBI ?</small></a>
@@ -379,7 +379,9 @@
 
         $('[data-toggle="tooltip"]').tooltip({
             trigger: 'hover'
-        })
+        });
+
+        $("#copyrightYear").text(new Date().getFullYear());
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.2.0/d3.min.js" integrity="sha512-C2RveGuPIWqkaLAluvoxyiaN1XYNe5ss11urhZWZYBUA9Ydgj+hfGKPcxCzTwut1/fmjEZR7Ac35f2aycT8Ogw==" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/topojson@3"></script>
