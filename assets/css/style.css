@@ -1612,3 +1612,12 @@ a.video-tutorial{color:#333;}
   z-index: 1600;
   right: initial;
 }
+
+#pfbialyearNumberText {
+  fill: #dadcdf;
+  font-size: 20em;
+  font-weight: 500;
+  font-family: "Roboto", sans-serif;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}

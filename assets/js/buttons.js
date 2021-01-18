@@ -90,9 +90,10 @@ const buttonsObject = {
 				$("#btnOptionDiv").removeClass('options-btn-panel').addClass('options-btn-panel-fix');
 				loopYears(yearsArray, selections);
 				this.playing = true;
-				this.timer = d3.interval(() => loopYears(yearsArray, selections), 2 * duration);
+				this.timer = d3.interval(() => loopYears(yearsArray, selections), 3 * duration);
 			} else {
 				$("#btnOptionDiv").removeClass('options-btn-panel-fix').addClass('options-btn-panel');
+				if (chartState.selectedChart !== "contributionsByCerfCbpf") d3.select("#pfbialyearNumberText").text("");
 				this.playing = false;
 				this.timer.stop();
 			};
@@ -106,6 +107,7 @@ function loopYears(yearsArray, selections) {
 	const index = yearsArray.indexOf(chartState.selectedYear);
 	chartState.selectedYear = yearsArray[(index + 1) % yearsArray.length];
 	if (chartState.selectedChart !== "contributionsByCerfCbpf") {
+		d3.select("#pfbialyearNumberText").text(chartState.selectedYear);
 		selections.yearDropdown.selectAll("option")
 			.property("selected", d => chartState.selectedYear === d);
 		selections.yearDropdown.dispatch("change");

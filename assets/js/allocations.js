@@ -260,6 +260,12 @@ function createAllocations(selections, colors, mapData, lists) {
 		.attr("width", svgMapWidth)
 		.attr("height", svgMapHeight);
 
+	const yearNumberText = mapPanel.main.append("g")
+		.attr("class", classPrefix + "yearNumberContainer")
+		.append("text")
+		.attr("transform", "translate(" + (svgMapWidth / 2) + "," + (svgMapHeight / 2) + ")")
+		.attr("id", classPrefix + "yearNumberText");
+
 	const piesContainer = mapPanel.main.append("g")
 		.attr("class", classPrefix + "piesContainer");
 
