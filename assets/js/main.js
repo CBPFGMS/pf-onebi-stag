@@ -6,7 +6,7 @@ const generalClassPrefix = "pfbihp",
 	localStorageTime = 3600000,
 	currentDate = new Date(),
 	currentYear = currentDate.getFullYear(),
-	formatLastModified = d3.timeFormat("%d/%m/%Y %H:%M:%S"),
+	formatLastModified = d3.utcFormat("%d/%m/%Y %H:%M:%S"),
 	localVariable = d3.local(),
 	duration = 1000,
 	unBlue = "#65A8DC",
@@ -847,8 +847,8 @@ function setQueryString(key, value) {
 };
 
 function populateLastModified(lastModifiedData) {
-	const lastModifiedDate = new Date(lastModifiedData.value[0].last_updated_date);
-	selections.lastModifiedSpan.html("Data updated on " + formatLastModified(lastModifiedDate) + " (EST)")
+	const lastModifiedDate = new Date(lastModifiedData.value[0].last_updated_date + "-05:00");//Date is in US EST time zone
+	selections.lastModifiedSpan.html("Data updated on " + formatLastModified(lastModifiedDate) + " (GMT)")
 };
 
 function stopTimer() {
