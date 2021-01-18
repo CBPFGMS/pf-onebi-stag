@@ -3040,6 +3040,9 @@ function createAllocations(selections, colors, mapData, lists) {
 				copiedRow.cerf = 0;
 				copiedRow.cbpf = 0;
 
+				if ((chartState.selectedFund === "cerf" && !d3.disjoint(cbpfAllocationTypes, chartState.selectedType)) ||
+					(chartState.selectedFund === "cbpf" && !d3.disjoint(cerfAllocationTypes, chartState.selectedType))) chartState.selectedType.length = 0;
+
 				for (const key in lists.allocationTypesList) {
 					if (chartState.selectedType.length === 0 || chartState.selectedType.indexOf(key) > -1) {
 						if (chartState.selectedFund === "total") {
