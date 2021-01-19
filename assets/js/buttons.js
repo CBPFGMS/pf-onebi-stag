@@ -126,12 +126,14 @@ const buttonsObject = {
 				.attr("class", d.clicked ? "fas fa-pause" : "fas fa-play");
 
 			if (d.clicked) {
-				$("#btnOptionDiv").removeClass('options-btn-panel').addClass('options-btn-panel-fix');
+				selections.buttonsOuterContainer.classed("options-btn-panel-fix", true)
+					.classed("options-btn-panel", false);
 				loopYears(yearsArray, selections);
 				this.playing = true;
 				this.timer = d3.interval(() => loopYears(yearsArray, selections), 3 * duration);
 			} else {
-				$("#btnOptionDiv").removeClass('options-btn-panel-fix').addClass('options-btn-panel');
+				selections.buttonsOuterContainer.classed("options-btn-panel-fix", false)
+					.classed("options-btn-panel", true);
 				if (chartState.selectedChart !== "contributionsByCerfCbpf") d3.select("#pfbialyearNumberText").text("");
 				this.playing = false;
 				this.timer.stop();

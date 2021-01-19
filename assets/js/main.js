@@ -138,7 +138,8 @@ const selections = {
 	byCerfCbpfDonorsText: d3.select("#byCerfCbpfDonorsText"),
 	byDonorChartContainer: d3.select("#bydonor-bar-chart"),
 	byCerfCbpfChartContainer: d3.select("#bycerfcbpf-bar-chart"),
-	buttonsContainer: d3.select(".btn-panel")
+	buttonsContainer: d3.select(".btn-panel"),
+	buttonsOuterContainer: d3.select("#btnOptionDiv")
 };
 
 const navLinks = [selections.navlinkAllocationsByCountry,
@@ -847,7 +848,7 @@ function setQueryString(key, value) {
 };
 
 function populateLastModified(lastModifiedData) {
-	const lastModifiedDate = new Date(lastModifiedData.value[0].last_updated_date + "-05:00");//Date is in US EST time zone
+	const lastModifiedDate = new Date(lastModifiedData.value[0].last_updated_date + "-05:00"); //Date is in US EST time zone
 	selections.lastModifiedSpan.html("Data updated on " + formatLastModified(lastModifiedDate) + " (GMT)")
 };
 
