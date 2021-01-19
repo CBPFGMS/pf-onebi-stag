@@ -457,7 +457,7 @@ footer a:hover{color:#2270aa;}
   animation: rotation 8s infinite linear;
 }
 
-.tooltip-inner {background-color:rgba(0, 0, 0, 0.7);}
+.tooltip-inner {background-color:rgba(0, 0, 0, 0.7); font-size: 0.8rem;}
 .bs-tooltip-auto[x-placement^=bottom] .arrow::before, .bs-tooltip-bottom .arrow::before {border-bottom-color:rgba(0, 0, 0, 0.7);}
 a.video-tutorial{color:#333;}
 /*.video-tutorial {background-image: url("../img/video-tutorial-icon.svg"); background-repeat: no-repeat; background-position: left center;}*/
