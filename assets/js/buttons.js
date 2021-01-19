@@ -7,7 +7,7 @@ import {
 const generalClassPrefix = "pfbihp",
 	allocationsDataUrl = "https://cbpfgms.github.io/pfbi-data/download/pfmb_allocations.csv",
 	contributionsDataUrl = "https://cbpfgms.github.io/pfbi-data/download/pfmb_contributions.csv",
-	helpPortalUrl = "https://gms.unocha.org/content/business-intelligence",
+	helpPortalUrl = "https://gms.unocha.org/content/pooled-funds-business-intelligence",
 	dateFormat = d3.utcFormat("_%Y%m%d_%H%M%S_UTC"),
 	sidenavWidth = document.getElementById("layoutSidenav_nav").offsetWidth;
 
