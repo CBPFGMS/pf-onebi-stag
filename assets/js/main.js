@@ -474,14 +474,14 @@ function mouseoverTopFigures(event, d, value) {
 			})))
 			.enter()
 			.append("td")
-			.html((d, i) => !i ? capitalize(d.name) : topValues[d.value]);
+			.html((d, i) => !i ? capitalize(d.name) : "$" + formatSIFloat(topValues[d.value]));
 	} else {
 		tooltipTable.append("tr")
 			.selectAll(null)
 			.data([" ", "cerf", "cbpf"])
 			.enter()
 			.append("td")
-			.html((d, i) => !i ? "Allocated" : topValues[`${d}${separator}allocated`] || 0);
+			.html((d, i) => !i ? "Allocated" : "$" + formatSIFloat(topValues[`${d}${separator}allocated`]) || "$0");
 	};
 
 	const thisBox = event.currentTarget.getBoundingClientRect();
