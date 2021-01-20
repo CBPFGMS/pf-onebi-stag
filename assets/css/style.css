@@ -1634,6 +1634,17 @@ a.video-tutorial{color:#333;}
   
 }
 
+.pfbihptooltipTable, .pfbihptooltipTable{
+	margin: 5px;
+    font-size: 0.8em;
+    width: calc(100% - 10px);
+}
+
+.pfbihptooltipTable th, .pfbihptooltipTable th {
+  background-color: #ddd;
+}
+
 .pfbihptooltipTable td, .pfbihptooltipTable th {
   border: 1px solid #ccc;
+	padding: 2px;
 }
