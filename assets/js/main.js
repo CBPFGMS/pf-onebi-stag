@@ -26,6 +26,7 @@ const generalClassPrefix = "pfbihp",
 	chartTypesAllocations = ["allocationsByCountry", "allocationsBySector", "allocationsByType"],
 	chartTypesContributions = ["contributionsByCerfCbpf", "contributionsByDonor"],
 	fundValues = ["total", "cerf/cbpf", "cerf", "cbpf"],
+	contributionTypes = ["pledged", "paid", "total"],
 	separator = "##",
 	colorsObject = {
 		total: unBlue,
@@ -254,8 +255,6 @@ function controlCharts([worldMap,
 
 	contributionsDataByDonor = processDataContributionsByDonor(rawContributionsData);
 
-	processContributionsYearData(rawContributionsData);
-
 	spinnerContainer.remove();
 
 	updateTopValues(topValues, selections);
@@ -423,18 +422,67 @@ function mouseoverTopFigures(event, d, value) {
 		.html(null);
 
 	const innerTooltipDiv = topTooltipDiv.append("div")
-		.style("max-width", "210px")
+		.classed((value === "contributions" ? generalClassPrefix + "innerTooltipDivContributions" : generalClassPrefix + "innerTooltipDivAllocations"), true)
 		.attr("id", generalClassPrefix + "innerTooltipDiv");
 
 	innerTooltipDiv.append("div")
 		.style("margin-bottom", "8px")
 		.append("strong")
-		.html("Total " + capitalize(value));
+		.html(capitalize(value) + " in " + chartState.selectedYear);
 
-	innerTooltipDiv.append("div")
-		.style("float", "right")
+	const tooltipRow = innerTooltipDiv.append("div")
+		.style("margin", "0px")
+		.style("display", "flex")
+		.style("flex-wrap", "wrap")
+		.style("white-space", "pre")
+		.style("line-height", 1.4)
+		.style("width", "100%");
+
+	tooltipRow.append("div")
+		.style("display", "flex")
+		.style("flex", "0 40%")
+		.html("Total:");
+
+	tooltipRow.append("div")
+		.style("display", "flex")
+		.style("flex", "0 60%")
+		.style("justify-content", "flex-end")
+		.style("align-items", "flex-end")
 		.html("$" + formatMoney0Decimals(topValues[value]));
 
+	const tooltipTable = innerTooltipDiv.append("table")
+		.attr("class", generalClassPrefix + "tooltipTable");
+
+	const topRow = tooltipTable.append("tr");
+
+	topRow.selectAll(null)
+		.data([" ", "CERF", "CBPF"])
+		.enter()
+		.append("th")
+		.html(d => d);
+
+	if (value === "contributions") {
+		const tableRows = tooltipTable.selectAll(null)
+			.data(contributionTypes)
+			.enter()
+			.append("tr");
+
+		const tableCells = tableRows.selectAll(null)
+			.data(d => [" ", "cerf", "cbpf"].map(e => ({
+				value: `${e}${separator}${d}`,
+				name: d
+			})))
+			.enter()
+			.append("td")
+			.html((d, i) => !i ? capitalize(d.name) : topValues[d.value]);
+	} else {
+		tooltipTable.append("tr")
+			.selectAll(null)
+			.data([" ", "cerf", "cbpf"])
+			.enter()
+			.append("td")
+			.html((d, i) => !i ? "Allocated" : topValues[`${d}${separator}allocated`] || 0);
+	};
 
 	const thisBox = event.currentTarget.getBoundingClientRect();
 	const containerBox = selections.sideNavContainer.node().getBoundingClientRect();
@@ -479,6 +527,8 @@ function processDataAllocations(rawAllocationsData) {
 		if (row.AllocationYear === chartState.selectedYear) {
 			topValues.allocations += row.ClusterBudget;
 			row.ProjList.toString().split(separator).forEach(e => topValues.projects.add(e));
+			if (fundTypesList[row.FundId] === "cerf") topValues[`cerf${separator}allocated`] = (topValues[`cerf${separator}allocated`] || 0) + row.ClusterBudget;
+			if (fundTypesList[row.FundId] === "cbpf") topValues[`cbpf${separator}allocated`] = (topValues[`cbpf${separator}allocated`] || 0) + row.ClusterBudget;
 
 			const foundFund = data.find(d => d.country === row.PooledFundId);
 
@@ -536,11 +586,22 @@ function pushCbpfOrCerf(obj, row) {
 
 function processContributionsYearData(rawContributionsData) {
 	rawContributionsData.forEach(row => {
-		if (row.FiscalYear === chartState.selectedYear) {
-			topValues.contributions += +row.PaidAmt;
-			topValues.donors.add(row.DonorId);
-		};
+		if (row.FiscalYear === chartState.selectedYear) populateContributionsTopValues(row);
 	});
+};
+
+function populateContributionsTopValues(row) {
+	topValues.contributions += (+row.PaidAmt) + (+row.PledgeAmt);
+	topValues.donors.add(row.DonorId);
+	if (row.PooledFundId === cerfPooledFundId) {
+		topValues[`cerf${separator}paid`] = (topValues[`cerf${separator}paid`] || 0) + (+row.PaidAmt);
+		topValues[`cerf${separator}pledged`] = (topValues[`cerf${separator}pledged`] || 0) + (+row.PledgeAmt);
+		topValues[`cerf${separator}total`] = (topValues[`cerf${separator}total`] || 0) + ((+row.PaidAmt) + (+row.PledgeAmt));
+	} else {
+		topValues[`cbpf${separator}paid`] = (topValues[`cbpf${separator}paid`] || 0) + (+row.PaidAmt);
+		topValues[`cbpf${separator}pledged`] = (topValues[`cbpf${separator}pledged`] || 0) + (+row.PledgeAmt);
+		topValues[`cbpf${separator}total`] = (topValues[`cbpf${separator}total`] || 0) + ((+row.PaidAmt) + (+row.PledgeAmt));
+	};
 };
 
 function processDataContributionsByDonor(rawContributionsData) {
@@ -548,6 +609,8 @@ function processDataContributionsByDonor(rawContributionsData) {
 	const data = [];
 
 	rawContributionsData.forEach(row => {
+		if (row.FiscalYear === chartState.selectedYear) populateContributionsTopValues(row);
+
 		if (row.FiscalYear <= currentYear) {
 
 			const foundDonor = data.find(e => e.donorId === row.DonorId);

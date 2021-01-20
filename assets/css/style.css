@@ -1625,3 +1625,15 @@ a.video-tutorial{color:#333;}
 #bycerf-bar-chart, #bycbpf-bar-chart {
   overflow-y: hidden;
 }
+
+.pfbihpinnerTooltipDivContributions {
+  
+}
+
+.pfbihpinnerTooltipDivAllocations {
+  
+}
+
+.pfbihptooltipTable td, .pfbihptooltipTable th {
+  border: 1px solid #ccc;
+}
