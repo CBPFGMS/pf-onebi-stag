@@ -4,7 +4,7 @@ function createLinks(containerSelection) {
 		.attr("class", "nav-link small cbpf-link")
 		.attr("data-toggle", "tooltip")
 		.attr("href", "https://pfbi.unocha.org")
-		.attr("title", "CBPF BI")
+		.attr("title", "Click here to navigate to CBPF Business Intelligence (BI) Platform")
 		.attr("target", "_blank");
 
 	cbpfLink.append("span")
@@ -19,7 +19,7 @@ function createLinks(containerSelection) {
 		.attr("class", "nav-link small cerf-link")
 		.attr("data-toggle", "tooltip")
 		.attr("href", "https://cbpfgms.github.io/cerf-bi-stag/")
-		.attr("title", "CERF BI")
+		.attr("title", "Click here to navigate to CERF Business Intelligence (BI) Platform")
 		.attr("target", "_blank");
 
 	cerfLink.append("span")
