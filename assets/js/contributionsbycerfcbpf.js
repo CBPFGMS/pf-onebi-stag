@@ -479,6 +479,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			selections.yearDropdown.select("#pfbihpdisabledOption")
 				.html(selectedYear.length > 1 ? "Multiple years" : selectedYear[0] === allYears ? "All" : selectedYear[0]);
 
+			selections.yearDropdown.dispatch("change");
+
 			if (selectedYear[0] !== allYears) {
 				const yearValues = selectedYear.join("|");
 				if (lists.queryStringValues.has("contributionYear")) {

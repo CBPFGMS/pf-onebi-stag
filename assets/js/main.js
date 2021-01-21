@@ -303,12 +303,12 @@ function controlCharts([worldMap,
 
 	//|event listeners
 	selections.yearDropdown.on("change", event => {
-		chartState.selectedYear = +event.target.value;
+		if (chartTypesAllocations.includes(chartState.selectedChart)) chartState.selectedYear = +event.target.value;
 		resetTopValues(topValues);
 		allocationsData = processDataAllocations(rawAllocationsData);
 		processContributionsYearData(rawContributionsData);
 		updateTopValues(topValues, selections);
-		drawAllocations(allocationsData);
+		if (chartTypesAllocations.includes(chartState.selectedChart)) drawAllocations(allocationsData);
 		setQueryString("year", chartState.selectedYear);
 	});
 
