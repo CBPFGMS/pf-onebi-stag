@@ -265,7 +265,7 @@
                 </div>
             </main>
 
-            <!--<div class="modal fade url-notofication" id="myModal">
+            <div class="modal fade url-notofication" id="myModal">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         
@@ -277,14 +277,15 @@
                             <h4 class="modal-title text-center">“CBPF BI” site moved to new address!</h4>
                             <div class="text-center">
                                 <img src="assets/img/url-update-icon.png" alt="" class="mt-4 mb-4 rotate">
-                                <p>CBPF BI has been moved to <a href="https://cbpfbi.unocha.org/" target="_blank"><b>cbpfbi.unocha.org</b></a> and pfbi.unocha.org will be the home for Pooled Funds BI website. If you are looking for CBPF BI, <a href="https://cbpfbi.unocha.org/" target="_blank">click here</a> to navigate to new CBPF BI site and do not forget to update your bookmarks.</p>
-                                <a href="" data-dismiss="modal" class="btn-custom text-uppercase">Okay</a>
+                                <p class="mb-3">CBPF BI has been re-branded to "CBPF Data Hub" and it has been moved to <a href="https://cbpf.data.unocha.org/"><b>cbpf.data.unocha.org</b></a>.</p>
+								<p>Please <a href="https://cbpf.data.unocha.org/">click here</a> to visit new CBPF Data Hub website and do not forget to update your bookmark.</p>
+                                <a href="https://cbpf.data.unocha.org/" class="btn-custom text-uppercase">Go to CBPF Data Hub</a>
                             </div>
 
                         </div>
                     </div>
                 </div>
-            </div>-->
+            </div>
             <!-- The Modal -->
             <div class="modal fade" id="videoModal">
                 <div class="modal-dialog modal-lg">
@@ -359,10 +360,27 @@
     </script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    
+    <script src="assets/js/CookieHelper.js"></script>
     <script>
-        $(document).ready(function () {            
+        $(document).ready(function () {  
+			
+			var cbpfBIMaxMessageCount = 3;
+			var cName = 'CBPFBISiteMovedMessageCount';
+			var cValue = GetCookie(cName);
+			var newCValue = 0;
+            if (cValue == "") {
+                newCValue = 1;
+                cValue = "0";
+            }
+            else {
+                newCValue = parseInt(cValue) + 1;
+            }
 
+            if (parseInt(cValue) < cbpfBIMaxMessageCount) {
+                $("#myModal").modal('show');
+                SetCookie(cName, newCValue, 730);
+            }
+			
             $('#aShowVideoTutorial').on("click", function (e) {
                 var iframe = document.createElement("iframe");
                 iframe.setAttribute("frameborder", "0");
