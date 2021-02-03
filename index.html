@@ -265,7 +265,7 @@
                 </div>
             </main>
 
-            <!--<div class="modal fade url-notofication" id="myModal">
+            <div class="modal fade url-notofication" id="myModal">
                 <div class="modal-dialog">
                     <div class="modal-content">                        
                         <div class="modal-header border-0" style="padding-bottom:0;">                            
@@ -285,7 +285,7 @@
                         </div>
                     </div>
                 </div>
-            </div>-->
+            </div>
             <!-- The Modal -->
             <div class="modal fade" id="videoModal">
                 <div class="modal-dialog modal-lg">
@@ -362,7 +362,24 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script>
         $(document).ready(function () {  
-			
+			var redirectSeconds = 15;
+            var redirectHostName = 'pfdata.unocha.org';
+            var redirectUrl = 'https://pfdata.unocha.org/';
+            if (window.location.hostname != redirectHostName) {
+                $("#myModal").modal('show');
+                ShowTimer(redirectSeconds);
+            }            
+            function ShowTimer(seconds) {
+                $("#spanTimer").text(seconds)
+                if (seconds == 0) {
+                    location.href = redirectUrl;
+                }
+                else {
+                    setTimeout(function () {
+                        ShowTimer(seconds - 1);
+                    }, 1000);
+                }
+            }
 			
 			
             $('#aShowVideoTutorial').on("click", function (e) {
