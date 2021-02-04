@@ -60,7 +60,7 @@ const classPrefix = "pfbicc",
 	monthsArray = d3.range(1, 13, 1).map(d => monthFormat(monthParse(d))),
 	separator = "##",
 	stackKeys = ["cerf", "cbpf"],
-	valueTypes = ["total", "paid", "pledged"],
+	valueTypes = ["pledged", "paid", "total"],
 	barAxisTextObj = {
 		"Private": "P",
 		"Regional Local Authority": "RLA",
