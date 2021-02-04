@@ -494,7 +494,7 @@ a.video-tutorial{color:#333;}
 }
 @media (max-width: 767.98px) { 
 	#sidebarToggle{display:block !important;}
-	.pfbialbreadcrumbDiv, .pfbiccbreadcrumbDiv, .pfbicdbreadcrumbDiv{padding: 0 15px 0 60px !important;}
+	.pfbialbreadcrumbDiv, .pfbiccbreadcrumbDiv, .pfbicdbreadcrumbDiv{padding: 0 15px 0 60px !important; min-height: 9vh;} 
 	footer{width: 100% !important;}
 }
 @media (max-width: 991.98px) {
