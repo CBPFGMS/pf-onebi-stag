@@ -500,10 +500,14 @@ a.video-tutorial{color:#333;}
 	.pfbialbreadcrumbDiv, .pfbiccbreadcrumbDiv, .pfbicdbreadcrumbDiv{padding: 0 15px 0 60px !important; min-height: 50px !important;} 
 	footer{width: 100% !important;}
 	.mobile-menu{margin-top:7px !important;}
+	
 }
 @media (max-width: 991.98px) {
 	#sidebarToggle{display:block !important;}
 	.link-sidenav{z-index: 1050; }
+	.pfbialbreadcrumbDiv, .pfbiccbreadcrumbDiv, .pfbicdbreadcrumbDiv{padding: 0 15px 0 60px !important; min-height: 50px !important;}
+	footer{width: 100% !important;}
+	.mobile-menu{margin-top:7px !important;}
 }
 
 .loader  {
