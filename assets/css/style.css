@@ -1347,6 +1347,7 @@ a.video-tutorial{color:#333;}
 .pfbialbreadcrumbDivInner, .pfbiccbreadcrumbDivInner, .pfbicdbreadcrumbDivInner {
   display: flex;
   flex:0 50%;
+  align-items: center;
 }
 
 .pfbialtopButtonsDiv, .pfbicctopButtonsDiv, .pfbicdtopButtonsDiv {
