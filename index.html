@@ -386,7 +386,11 @@
     <script>
         if(/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
             // true for mobile device
-            document.location.href = '/mobile/index.html';
+            if (document.location.hostname.search("pfdata.unocha.org") !== -1) {
+                window.location.href = 'https://pfdata.unocha.org/mobile/index.html'; 
+            } else{
+                window.location.href = 'https://cbpfgms.github.io/pf-onebi-stag/mobile/index.html'; 
+            }
         }
     </script>
 </body>
