@@ -665,7 +665,7 @@ function processContributionsYearData(rawContributionsData) {
 		if (chartState.selectedChart === "contributionsByDonor") {
 			if (row.FiscalYear < currentYear) populateContributionsTopValues(row);
 		} else {
-			if (row.FiscalYear === chartState.selectedYear || chartState.selectedYear === allYears) populateContributionsTopValues(row);
+			if (row.FiscalYear === chartState.selectedYear || (chartState.selectedYear === allYears && row.FiscalYear <= currentYear)) populateContributionsTopValues(row);
 		};
 	});
 };
@@ -695,7 +695,7 @@ function processDataContributionsByDonor(rawContributionsData) {
 			const foundDonor = data.find(e => e.donorId === row.DonorId);
 
 			if (foundDonor) {
-				pushCbpfOrCerfContribution(foundDonor, row);
+				if (row.FiscalYear < currentYear) pushCbpfOrCerfContribution(foundDonor, row);
 				const foundYear = foundDonor.contributions.find(e => e.year === row.FiscalYear);
 				if (foundYear) {
 					pushCbpfOrCerfContribution(foundYear, row);
@@ -743,7 +743,7 @@ function processDataContributionsByDonor(rawContributionsData) {
 					[`pledged${separator}cerf`]: 0,
 					[`pledged${separator}cbpf`]: 0
 				};
-				pushCbpfOrCerfContribution(donorObject, row);
+				if (row.FiscalYear < currentYear) pushCbpfOrCerfContribution(donorObject, row);
 				pushCbpfOrCerfContribution(yearObject, row);
 				donorObject.contributions.push(yearObject);
 				data.push(donorObject);
