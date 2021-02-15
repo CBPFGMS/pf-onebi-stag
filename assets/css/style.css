@@ -1552,8 +1552,13 @@ a.video-tutorial{color:#333;}
 
 #pfbiccinnerTooltipDiv > div:nth-child(1) strong{font-size: 14px !important;}
 
-#pfbiccinnerTooltipDiv > div:nth-child(2) .pfbicctooltipYears, .pfbicctooltipValues{
+.pfbicctooltipValues{
 	font-weight: 600;
+}
+
+.pfbicctooltipYears{
+  font-weight: 400;
+  font-size: 12px;
 }
 
 #pfbihpinnerTooltipDiv > div:nth-child(1) {
