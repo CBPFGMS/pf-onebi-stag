@@ -910,7 +910,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				.style("line-height", 1.4)
 				.style("width", "100%");
 
-			const valuesArray = tooltipType === "yearTooltip" ? d.yearValues : d.parentData.monthValues;
+			const valuesArray = tooltipType === "yearTooltip" ? d.yearValues : d.parentData.monthValues.filter(e => e.FiscalYear === d.year);
 
 			let tooltipData = valuesArray.reduce((acc, curr) => {
 				if (curr.PooledFundId === lists.cerfPooledFundId) {
@@ -1428,7 +1428,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				.style("line-height", 1.4)
 				.style("width", "100%");
 
-			const valuesArray = tooltipType === "yearTooltip" ? d.yearValues : d.parentData.monthValues;
+			const valuesArray = tooltipType === "yearTooltip" ? d.yearValues : d.parentData.monthValues.filter(e => e.FiscalYear === d.year);
 
 			let tooltipData = valuesArray.reduce((acc, curr) => {
 				if (curr.PooledFundId !== lists.cerfPooledFundId) {
