@@ -862,7 +862,7 @@ function createFundNamesList(fundsData) {
 		fundNamesList[row.id + ""] = row.PooledFundName;
 		fundAbbreviatedNamesList[row.id + ""] = row.PooledFundNameAbbrv;
 		fundNamesListKeys.push(row.id + "");
-		fundRegionsList[row.id + ""] = row.RegionName;
+		fundRegionsList[row.id + ""] = row.RegionNameArr;
 		fundIsoCodesList[row.id + ""] = row.ISO2Code;
 		fundIsoCodes3List[row.id + ""] = row.CountryCode;
 		fundLatLongList[row.ISO2Code] = [row.latitude, row.longitude];
