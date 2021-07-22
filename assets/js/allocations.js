@@ -68,6 +68,7 @@ const classPrefix = "pfbial",
 let svgMapWidth,
 	svgMapHeight,
 	allocationsProperty,
+	showCovidDisclaimer = true,
 	clickableButtons = true,
 	mouseoverBarsColumnTimeout;
 
@@ -150,6 +151,35 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	const buttonsDiv = mapDiv.append("div")
 		.attr("class", classPrefix + "buttonsDiv");
+
+	const covidDisclaimer = mapDiv.append("div")
+		.attr("class", classPrefix + "covidDisclaimer")
+		.style("display", "none");
+
+	const covidDisclaimerTopDiv = covidDisclaimer.append("div")
+		.attr("class", classPrefix + "covidDisclaimerTopDiv")
+		.style("width", "100%");
+
+	const covidDisclaimerTopDivMain = covidDisclaimerTopDiv.append("div")
+		.attr("class", classPrefix + "covidDisclaimerTopDivMain")
+		.append("b")
+		.html("Disclaimer:")
+
+	const covidDisclaimerTopDivClose = covidDisclaimerTopDiv.append("div")
+		.attr("class", classPrefix + "covidDisclaimerTopDivClose")
+		.on("click", () => {
+			showCovidDisclaimer = false;
+			covidDisclaimer.remove()
+		});
+
+	covidDisclaimerTopDivClose.append("i")
+		.attr("class", "far fa-window-close")
+		.style("cursor", "pointer");
+
+	const covidDisclaimerDivMain = covidDisclaimer.append("div")
+		.attr("class", classPrefix + "covidDisclaimerDivMain")
+		.append("p")
+		.html("A temporary COVID-19 cluster was established in four countries while the Global HRP to COVID-19 was being released. Funding and people targeted within the temporary COVID-19 cluster do not include the whole CBPF response to COVID-19. Comprehensive data and information on CBPFs response to COVID-19 can be found here <a href='https://pfdata.unocha.org/COVID19/' target='_blank'>https://pfdata.unocha.org/COVID19/</a><br>");
 
 	chartState.currentTooltip = tooltipDivMap;
 
@@ -1961,6 +1991,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			columnData.sort((a, b) => chartState.selectedFund === "cerf/cbpf" ? ((b.cerf + b.cbpf) - (a.cerf + a.cbpf)) :
 				b[chartState.selectedFund] - a[chartState.selectedFund]);
 			columnData.forEach(row => row.clicked = chartState.selectedRegion.indexOf(row.region) > -1);
+			covidDisclaimer.style("display", "none");
 			createAllocationsByCountryColumnChart(columnData)
 		};
 		if (chartState.selectedChart === "allocationsBySector") {
@@ -1986,6 +2017,11 @@ function createAllocations(selections, colors, mapData, lists) {
 			columnData.sort((a, b) => chartState.selectedFund === "cerf/cbpf" ? ((b.cerf + b.cbpf) - (a.cerf + a.cbpf)) :
 				b[chartState.selectedFund] - a[chartState.selectedFund]);
 			columnData.forEach(row => row.clicked = chartState.selectedCluster.indexOf(row.clusterId) > -1);
+			if (columnData.some(e => e.clusterId === "16" && e.total)) {
+				if (showCovidDisclaimer) covidDisclaimer.style("display", "block");
+			} else {
+				covidDisclaimer.style("display", "none");
+			};
 			createAllocationsBySectorColumnChart(columnData)
 		};
 		if (chartState.selectedChart === "allocationsByType") {
@@ -2011,6 +2047,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			columnData.sort((a, b) => chartState.selectedFund === "cerf/cbpf" ? ((b.cerf + b.cbpf) - (a.cerf + a.cbpf)) :
 				b[chartState.selectedFund] - a[chartState.selectedFund]);
 			columnData.forEach(row => row.clicked = chartState.selectedType.indexOf(row.allocationTypeId) > -1);
+			covidDisclaimer.style("display", "none");
 			createAllocationsByTypeColumnChart(columnData)
 		};
 
