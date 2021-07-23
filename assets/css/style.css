@@ -1703,8 +1703,8 @@ a.video-tutorial{color:#333;}
 
 .pfbialcovidDisclaimer {
   position: absolute;
-  top: 115px;
-  right: 1%;
+  top: 5%;
+  left: 1%;
   width:  240px;
   text-align: left;
   color: darkslategray;
@@ -1725,10 +1725,10 @@ a.video-tutorial{color:#333;}
   display: flex;
   margin-bottom: 6px;
   align-items: center;
-    height: 35px !important;
-    background-color: #3289c9;
-    padding: 8px;
-    border-radius: 4px 4px 0 0;
+  height: 35px !important;
+  background-color: #3289c9;
+  padding: 8px;
+  border-radius: 4px 4px 0 0;
   margin-bottom: 0 !important;
   height: 30px;
 }
