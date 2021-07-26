@@ -426,7 +426,6 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	const yAxisColumnBySector = d3.axisLeft(yScaleColumnBySector)
 		.tickPadding(clusterIconSize + 2 * clusterIconPadding)
-		.tickFormat(d => d === "COVID-19" ? d + " \u24d8" : d)
 		.tickSize(3);
 
 	const xAxisColumnByType = d3.axisTop(xScaleColumnByType)
@@ -1243,8 +1242,6 @@ function createAllocations(selections, colors, mapData, lists) {
 	};
 
 	function drawBarChart(unfilteredData, originalData) {
-
-		console.log(covid19InCluster);
 
 		if (covid19InCluster && showCovidDisclaimer) {
 			covidDisclaimer.style("display", "block");
@@ -2537,6 +2534,15 @@ function createAllocations(selections, colors, mapData, lists) {
 					.attr("dy", "1.1em")
 					.attr("x", -(yAxisColumnBySector.tickPadding() + yAxisColumnBySector.tickSize()))
 					.text(d => clusterNamesScale(d).split(" ")[1]);
+				sel.selectAll(".tick")
+					.filter(d => d === "COVID-19")
+					.append("text")
+					.attr("width", 14)
+					.attr("height", 14)
+					.attr("x", -88)
+					.attr("y", -8)
+					.attr("class", "fas fa-info-circle")
+					.style("color", "#666");
 				if (sel !== group) group.selectAll(".tick text")
 					.filter(d => d.indexOf(" ") > -1)
 					.attrTween("x", null)
