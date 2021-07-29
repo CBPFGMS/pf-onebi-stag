@@ -180,6 +180,7 @@ function createContributionsByDonor(selections, colors, lists) {
 		.tickPadding(2);
 
 	const xAxisTooltip = d3.axisBottom(xScaleTooltip)
+		.tickFormat((d, i) => i % 2 ? d : null)
 		.tickSizeOuter(4)
 		.tickSizeInner(4)
 		.tickPadding(3);
