@@ -145,16 +145,24 @@ function createContributionsByDonor(selections, colors, lists) {
 
 	const xScale = d3.scaleBand()
 		.range([svgPadding[3], svgWidth - svgPadding[1]])
-		.domain(d3.range(lists.yearsArrayContributions[0], currentYear, 1))
+		.domain(d3.range((chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? lists.yearsArrayContributions[0] :
+			chartState.selectedFund === "cbpf" ? lists.yearsArrayContributionsCbpf[0] : lists.yearsArrayContributionsCerf[0]), currentYear, 1))
 		.paddingInner(0.4)
 		.paddingOuter(0);
 
 	const allYearsTooltipArray = d3.range(lists.yearsArrayContributions[0], currentYear + 1, 1);
 	allYearsTooltipArray.splice(-1, 0, null);
 
+	const allYearsTooltipArrayCbpf = d3.range(lists.yearsArrayContributionsCbpf[0], currentYear + 1, 1);
+	allYearsTooltipArrayCbpf.splice(-1, 0, null);
+
+	const allYearsTooltipArrayCerf = d3.range(lists.yearsArrayContributionsCerf[0], currentYear + 1, 1);
+	allYearsTooltipArrayCerf.splice(-1, 0, null);
+
 	const xScaleTooltip = d3.scaleBand()
 		.range([tooltipSvgPadding[3], tooltipWidth - tooltipSvgPadding[1]])
-		.domain(allYearsTooltipArray)
+		.domain(chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? allYearsTooltipArray :
+			chartState.selectedFund === "cbpf" ? allYearsTooltipArrayCbpf : allYearsTooltipArrayCerf)
 		.paddingInner(0.4)
 		.paddingOuter(0.2);
 
@@ -180,7 +188,7 @@ function createContributionsByDonor(selections, colors, lists) {
 		.tickPadding(2);
 
 	const xAxisTooltip = d3.axisBottom(xScaleTooltip)
-		.tickFormat((d, i) => i % 2 ? d : null)
+		.tickFormat((d, i) => xScaleTooltip.domain()[0] % 2 ? (i % 2 ? d : null) : (i % 2 ? null : d))
 		.tickSizeOuter(4)
 		.tickSizeInner(4)
 		.tickPadding(3);
@@ -238,6 +246,14 @@ function createContributionsByDonor(selections, colors, lists) {
 			chartState.selectedFund = d;
 
 			buttons.classed("active", d => chartState.selectedFund === d);
+
+			xScale.domain(d3.range((chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? lists.yearsArrayContributions[0] :
+				chartState.selectedFund === "cbpf" ? lists.yearsArrayContributionsCbpf[0] : lists.yearsArrayContributionsCerf[0]), currentYear, 1));
+
+			xScaleTooltip.domain(chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? allYearsTooltipArray :
+				chartState.selectedFund === "cbpf" ? allYearsTooltipArrayCbpf : allYearsTooltipArrayCerf)
+
+			xAxis.tickValues(d3.extent(xScale.domain()));
 
 			const data = filterData(originalData);
 
@@ -337,6 +353,11 @@ function createContributionsByDonor(selections, colors, lists) {
 
 		const donorSvg = donorDiv.select("svg");
 
+		donorSvg.select("." + classPrefix + "xAxisGroup")
+			.transition()
+			.duration(duration)
+			.call(xAxis);
+
 		donorSvg.each((d, i, n) => {
 			const yScale = localyScale.set(n[i], d3.scaleLinear()
 				.range(yScaleRange)
@@ -349,7 +370,7 @@ function createContributionsByDonor(selections, colors, lists) {
 		});
 
 		let barsGroups = donorSvg.selectAll("." + classPrefix + "barsGroups")
-			.data(d => stack(d.contributions.filter(e => e.year < currentYear)), d => d.key);
+			.data(d => stack(d.contributions.filter(e => e.year < currentYear && e.year >= xScale.domain()[0])), d => d.key);
 
 		const barGroupsExit = barsGroups.exit().remove();
 
@@ -384,11 +405,13 @@ function createContributionsByDonor(selections, colors, lists) {
 
 		bars.transition()
 			.duration(duration)
+			.attr("x", d => xScale(d.data.year))
+			.attr("width", xScale.bandwidth())
 			.attr("y", (d, i, n) => d[0] === d[1] ? svgHeight - svgPadding[2] : localyScale.get(n[i])(d[1]))
 			.attr("height", (d, i, n) => localyScale.get(n[i])(d[0]) - localyScale.get(n[i])(d[1]));
 
 		let barLine = donorSvg.selectAll("." + classPrefix + "barLine")
-			.data(d => fillWithZeros(d.contributions.filter(e => e.year < currentYear)));
+			.data(d => fillWithZeros(d.contributions.filter(e => e.year < currentYear && e.year >= xScale.domain()[0])));
 
 		const barLineExit = barLine.exit()
 			.remove();
@@ -531,6 +554,11 @@ function createContributionsByDonor(selections, colors, lists) {
 
 		const nonMemberDonorSvg = nonMemberDonorDiv.select("svg");
 
+		nonMemberDonorSvg.select("." + classPrefix + "xAxisGroup")
+			.transition()
+			.duration(duration)
+			.call(xAxis);
+
 		nonMemberDonorSvg.each((d, i, n) => {
 			const yScale = localyScale.set(n[i], d3.scaleLinear()
 				.range(yScaleRange)
@@ -543,7 +571,7 @@ function createContributionsByDonor(selections, colors, lists) {
 		});
 
 		let barsGroups = nonMemberDonorSvg.selectAll("." + classPrefix + "barsGroups")
-			.data(d => stack(d.contributions.filter(e => e.year < currentYear)), d => d.key);
+			.data(d => stack(d.contributions.filter(e => e.year < currentYear && e.year >= xScale.domain()[0])), d => d.key);
 
 		const barGroupsExit = barsGroups.exit().remove();
 
@@ -578,11 +606,13 @@ function createContributionsByDonor(selections, colors, lists) {
 
 		bars.transition()
 			.duration(duration)
+			.attr("x", d => xScale(d.data.year))
+			.attr("width", xScale.bandwidth())
 			.attr("y", (d, i, n) => d[0] === d[1] ? svgHeight - svgPadding[2] : localyScale.get(n[i])(d[1]))
 			.attr("height", (d, i, n) => localyScale.get(n[i])(d[0]) - localyScale.get(n[i])(d[1]));
 
 		let barLine = nonMemberDonorSvg.selectAll("." + classPrefix + "barLine")
-			.data(d => fillWithZeros(d.contributions.filter(e => e.year < currentYear)));
+			.data(d => fillWithZeros(d.contributions.filter(e => e.year < currentYear && e.year >= xScale.domain()[0])));
 
 		const barLineExit = barLine.exit()
 			.remove();

@@ -44,6 +44,8 @@ const generalClassPrefix = "pfbihp",
 //|constants populated with the data
 const yearsArrayAllocations = [],
 	yearsArrayContributions = [],
+	yearsArrayContributionsCbpf = [],
+	yearsArrayContributionsCerf = [],
 	donorsInSelectedYear = [],
 	fundsInSelectedYear = [],
 	fundNamesList = {},
@@ -240,6 +242,8 @@ function controlCharts([worldMap,
 		fundNamesListKeys: fundNamesListKeys,
 		donorNamesListKeys: donorNamesListKeys,
 		yearsArrayContributions: yearsArrayContributions,
+		yearsArrayContributionsCbpf: yearsArrayContributionsCbpf,
+		yearsArrayContributionsCerf: yearsArrayContributionsCerf,
 		cerfPooledFundId: cerfPooledFundId,
 		defaultValues: defaultValues,
 		queryStringValues: queryStringValues
@@ -570,6 +574,8 @@ function preProcessData(rawAllocationsData, rawContributionsData) {
 
 	const yearsSetAllocations = new Set();
 	const yearsSetContributions = new Set();
+	const yearsSetContributionsCbpf = new Set();
+	const yearsSetContributionsCerf = new Set();
 
 	rawAllocationsData.forEach(row => {
 		yearsSetAllocations.add(+row.AllocationYear);
@@ -577,12 +583,21 @@ function preProcessData(rawAllocationsData, rawContributionsData) {
 
 	rawContributionsData.forEach(row => {
 		yearsSetContributions.add(+row.FiscalYear);
+		if (row.PooledFundId === cerfPooledFundId) {
+			yearsSetContributionsCerf.add(+row.FiscalYear);
+		} else {
+			yearsSetContributionsCbpf.add(+row.FiscalYear);
+		};
 	});
 
 	yearsArrayAllocations.push(...yearsSetAllocations);
 	yearsArrayAllocations.sort((a, b) => a - b);
 	yearsArrayContributions.push(...yearsSetContributions);
 	yearsArrayContributions.sort((a, b) => a - b);
+	yearsArrayContributionsCbpf.push(...yearsSetContributionsCbpf);
+	yearsArrayContributionsCbpf.sort((a, b) => a - b);
+	yearsArrayContributionsCerf.push(...yearsSetContributionsCerf);
+	yearsArrayContributionsCerf.sort((a, b) => a - b);
 
 };
 
