@@ -44,7 +44,7 @@ const classPrefix = "pfbicd",
 	svgColumnChartWidth = 195,
 	svgColumnChartHeight = 380,
 	topDonors = 10,
-	tooltipWidth = 520,
+	tooltipWidth = 590,
 	tooltipSvgHeight = 280,
 	tooltipDonorNameHeight = 30,
 	tooltipLabelCerfPadding = 10,
@@ -762,7 +762,7 @@ function createContributionsByDonor(selections, colors, lists) {
 			.filter(d => d === 0)
 			.remove();
 
-		const stackedData = stack(datum.contributions);
+		const stackedData = stack(datum.contributions.filter(e => e.year >= xScaleTooltip.domain()[0]));
 
 		localTooltip.set(tooltipSvg.node(), datum);
 
@@ -793,7 +793,7 @@ function createContributionsByDonor(selections, colors, lists) {
 			.attr("height", (d, i, n) => yScaleTooltip(d[0]) - yScaleTooltip(d[1]));
 
 		const tooltipLine = tooltipSvg.selectAll(null)
-			.data(fillWithZeros(datum.contributions.filter(e => e.year < currentYear)))
+			.data(fillWithZeros(datum.contributions.filter(e => e.year < currentYear && e.year >= xScaleTooltip.domain()[0])))
 			.enter()
 			.append("path")
 			.attr("class", classPrefix + "tooltipBarLine")
@@ -808,7 +808,7 @@ function createContributionsByDonor(selections, colors, lists) {
 			.attr("d", lineGeneratorTooltip);
 
 		const tooltipCircles = tooltipSvg.selectAll(null)
-			.data(datum.contributions.filter(e => e.year < currentYear))
+			.data(datum.contributions.filter(e => e.year < currentYear && e.year >= xScaleTooltip.domain()[0]), d => d.year)
 			.enter()
 			.append("circle")
 			.attr("class", classPrefix + "tooltipBarCircles")
@@ -929,7 +929,12 @@ function createContributionsByDonor(selections, colors, lists) {
 			.filter(d => d === 0)
 			.remove();
 
-		const stackedData = stack(thisDonor.contributions);
+		tooltipSvg.select("." + classPrefix + "xAxisGroupTooltip")
+			.transition()
+			.duration(duration)
+			.call(xAxisTooltip);
+
+		const stackedData = stack(thisDonor.contributions.filter(e => e.year >= xScaleTooltip.domain()[0]));
 
 		const tooltipBarsGroups = tooltipSvg.selectAll("." + classPrefix + "tooltipBarsGroups")
 			.data(stackedData, d => d.key);
@@ -943,11 +948,13 @@ function createContributionsByDonor(selections, colors, lists) {
 			}, d => d.data.year)
 			.transition()
 			.duration(duration)
+			.attr("width", xScaleTooltip.bandwidth())
+			.attr("x", d => xScaleTooltip(d.data.year))
 			.attr("y", (d, i, n) => d[0] === d[1] ? tooltipSvgHeight - tooltipSvgPadding[2] : yScaleTooltip(d[1]))
 			.attr("height", (d, i, n) => yScaleTooltip(d[0]) - yScaleTooltip(d[1]));
 
 		const tooltipLine = tooltipSvg.selectAll("." + classPrefix + "tooltipBarLine")
-			.data(fillWithZeros(thisDonor.contributions.filter(e => e.year < currentYear)))
+			.data(fillWithZeros(thisDonor.contributions.filter(e => e.year < currentYear && e.year >= xScaleTooltip.domain()[0])))
 			.transition()
 			.duration(duration)
 			.style("opacity", chartState.selectedFund !== "cerf/cbpf" ? 1 : 0)
@@ -955,7 +962,7 @@ function createContributionsByDonor(selections, colors, lists) {
 			.attr("d", lineGeneratorTooltip);
 
 		const tooltipCircles = tooltipSvg.selectAll("." + classPrefix + "tooltipBarCircles")
-			.data(thisDonor.contributions.filter(e => e.year < currentYear))
+			.data(thisDonor.contributions.filter(e => e.year < currentYear && e.year >= xScaleTooltip.domain()[0]), d => d.year)
 			.transition()
 			.duration(duration)
 			.style("fill", chartState.selectedFund !== "cerf/cbpf" ? colors[chartState.selectedFund] : null)
@@ -986,6 +993,7 @@ function createContributionsByDonor(selections, colors, lists) {
 			.duration(duration)
 			.style("opacity", 1)
 			.style("fill", chartState.selectedFund === "cerf/cbpf" ? d3.color(colors.cbpf).darker(0.3) : "#444")
+			.attr("x", d => xScaleTooltip(d.year) + xScaleTooltip.bandwidth() / 2)
 			.attr("y", d => yScaleTooltip(chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]) - tooltipBarLabelPadding)
 			.textTween((d, i, n) => {
 				const interpolator = d3.interpolate(0, chartState.selectedFund === "cerf/cbpf" ? d.cbpf : d[chartState.selectedFund]);
@@ -993,7 +1001,7 @@ function createContributionsByDonor(selections, colors, lists) {
 			});
 
 		let tooltipLabelCerfValue = tooltipSvg.selectAll("." + classPrefix + "tooltipBarLabelCerfValue")
-			.data(chartState.selectedFund === "cerf/cbpf" ? thisDonor.contributions.filter(d => d.cerf) : []);
+			.data(chartState.selectedFund === "cerf/cbpf" ? thisDonor.contributions.filter(d => d.cerf) : [], d => d.year);
 
 		const tooltipLabelCerfValueExit = tooltipLabelCerfValue.exit()
 			.transition()
@@ -1014,6 +1022,7 @@ function createContributionsByDonor(selections, colors, lists) {
 		tooltipLabelCerfValue.transition()
 			.duration(duration)
 			.style("opacity", 1)
+			.attr("x", d => xScaleTooltip(d.year) + xScaleTooltip.bandwidth() / 2)
 			.attr("y", d => yScaleTooltip(d.cerf + d.cbpf) - tooltipBarLabelPadding - (d.cbpf ? tooltipLabelCerfPadding : 0))
 			.textTween((d, i, n) => {
 				const interpolator = d3.interpolate(0, d.cerf);

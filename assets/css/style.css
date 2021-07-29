@@ -1207,7 +1207,7 @@ a.video-tutorial{color:#333;}
 
 .pfbicdtooltipBarLabel, .pfbicdtooltipBarLabelCerfValue {
   font-family: "Roboto", sans-serif;
-  font-size: 10px;
+  font-size: 9px;
   pointer-events: none;
   dominant-baseline: middle;
   text-anchor: middle;
@@ -1588,7 +1588,7 @@ a.video-tutorial{color:#333;}
 }
 
 #pfbicdtooltipDiv > div:nth-child(1){
-	width: 525px !important;
+	width: 595px !important;
     height: 335px !important;
 }
 
