@@ -572,10 +572,10 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			yearButtonsContainerSize;
 
 		setTimeout(function() {
-			yearButtonsSize = yearButtonsContainer.node().scrollWidth;
-			yearButtonsContainerSize = yearButtonsContainerDiv.node().getBoundingClientRect().width;
+			yearButtonsSize = ~~yearButtonsContainer.node().scrollWidth;
+			yearButtonsContainerSize = ~~yearButtonsContainerDiv.node().getBoundingClientRect().width;
 
-			yearButtonsContainer.style("left", Math.floor(-1 * (yearButtonsSize - yearButtonsContainerSize), 10) + "px");
+			yearButtonsContainer.style("left", -1 * (yearButtonsSize - yearButtonsContainerSize) + "px");
 		}, duration / 10);
 
 		yearLeftArrow.on("click", () => {
@@ -599,15 +599,16 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				.style("cursor", "pointer");
 			yearButtonsContainer.transition()
 				.duration(duration)
-				.style("left", Math.max(thisLeft - yearButtonsContainerSize, Math.floor(-1 * (yearButtonsSize - yearButtonsContainerSize), 10)) + "px")
+				.style("left", Math.max(thisLeft - yearButtonsContainerSize, -1 * (yearButtonsSize - yearButtonsContainerSize)) + "px")
 				.on("end", () => {
-					if (parseInt(yearButtonsContainer.style("left"), 10) === Math.floor(-1 * (yearButtonsSize - yearButtonsContainerSize), 10)) {
+					if (parseInt(yearButtonsContainer.style("left"), 10) === -1 * (yearButtonsSize - yearButtonsContainerSize)) {
 						yearRightArrow.style("opacity", fadeOpacity)
 							.style("cursor", "default");
 					};
 				});
 		});
 
+		//end of createYearButtons
 	};
 
 	function createPaidPledgedButtons(container) {
