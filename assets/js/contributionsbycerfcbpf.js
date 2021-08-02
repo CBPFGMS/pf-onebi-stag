@@ -39,6 +39,7 @@ const classPrefix = "pfbicc",
 	flagSizeTooltip = 20,
 	flagPadding = 2,
 	duration = 1000,
+	shortDuration = 250,
 	labelMargin = 22,
 	labelPadding = 8,
 	labelPaddingInner = 4,
@@ -405,7 +406,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		drawCerf(data);
 		drawCbpf(data);
-		drawBarChartRanking(columnData);
+		//drawBarChartRanking(columnData);
 		createColumnTopValues(columnData);
 		createColumnChart(columnData);
 
@@ -485,7 +486,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 			drawCerf(data);
 			drawCbpf(data);
-			drawBarChartRanking(columnData);
+			//drawBarChartRanking(columnData);
 			createColumnTopValues(columnData);
 			createColumnChart(columnData);
 
@@ -515,7 +516,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			valueButtons.classed("active", e => e === selectedValue);
 			drawCerf(data);
 			drawCbpf(data);
-			drawBarChartRanking(columnData);
+			//drawBarChartRanking(columnData);
 			createColumnTopValues(columnData);
 			createColumnChart(columnData);
 
@@ -537,14 +538,75 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 	function createYearButtons(container) {
 
-		const yearsData = yearsArray.concat([allYears]).reverse();
+		const yearsData = yearsArray.concat([allYears]);
 
-		const yearsButtons = container.selectAll(null)
+		const yearLeftArrow = container.append("div")
+			.attr("class", classPrefix + "yearLeftArrow")
+			.style("cursor", "pointer");
+
+		const yearButtonsContainerDiv = container.append("div")
+			.attr("class", classPrefix + "yearButtonsContainerDiv");
+
+		const yearButtonsContainer = yearButtonsContainerDiv.append("div")
+			.attr("class", classPrefix + "yearButtonsContainer");
+
+		const yearRightArrow = container.append("div")
+			.attr("class", classPrefix + "yearRightArrow")
+			.style("opacity", fadeOpacity)
+			.style("cursor", "default");
+
+		yearLeftArrow.append("i")
+			.attr("class", "fas fa-angle-left");
+
+		yearRightArrow.append("i")
+			.attr("class", "fas fa-angle-right");
+
+		const yearsButtons = yearButtonsContainer.selectAll(null)
 			.data(yearsData)
 			.enter()
 			.append("button")
 			.classed("active", d => selectedYear.indexOf(d) > -1)
 			.html(d => d === allYears ? capitalize(allYears) : d);
+
+		let yearButtonsSize,
+			yearButtonsContainerSize;
+
+		setTimeout(function() {
+			yearButtonsSize = yearButtonsContainer.node().scrollWidth;
+			yearButtonsContainerSize = yearButtonsContainerDiv.node().getBoundingClientRect().width;
+
+			yearButtonsContainer.style("left", Math.floor(-1 * (yearButtonsSize - yearButtonsContainerSize), 10) + "px");
+		}, duration / 10);
+
+		yearLeftArrow.on("click", () => {
+			const thisLeft = parseInt(yearButtonsContainer.style("left"), 10);
+			yearRightArrow.style("opacity", 1)
+				.style("cursor", "pointer");
+			yearButtonsContainer.transition()
+				.duration(duration)
+				.style("left", Math.min(thisLeft + yearButtonsContainerSize, 0) + "px")
+				.on("end", () => {
+					if (parseInt(yearButtonsContainer.style("left"), 10) === 0) {
+						yearLeftArrow.style("opacity", fadeOpacity)
+							.style("cursor", "default");
+					};
+				});
+		});
+
+		yearRightArrow.on("click", () => {
+			const thisLeft = parseInt(yearButtonsContainer.style("left"), 10);
+			yearLeftArrow.style("opacity", 1)
+				.style("cursor", "pointer");
+			yearButtonsContainer.transition()
+				.duration(duration)
+				.style("left", Math.max(thisLeft - yearButtonsContainerSize, Math.floor(-1 * (yearButtonsSize - yearButtonsContainerSize), 10)) + "px")
+				.on("end", () => {
+					if (parseInt(yearButtonsContainer.style("left"), 10) === Math.floor(-1 * (yearButtonsSize - yearButtonsContainerSize), 10)) {
+						yearRightArrow.style("opacity", fadeOpacity)
+							.style("cursor", "default");
+					};
+				});
+		});
 
 	};
 

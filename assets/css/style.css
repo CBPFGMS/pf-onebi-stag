@@ -303,25 +303,6 @@ body{font-family: 'Roboto', sans-serif; color:#333; background: #fff; padding: 0
 	line-height: normal;
 }
 
-.pfbiccyearButtonsDiv {
-  scrollbar-width: thin;
-  scrollbar-color: lightgray white;
-  display: flex;
-  flex-direction: row-reverse;
-}
-
-.pfbiccyearButtonsDiv::-webkit-scrollbar {
-  height: 12px;               /* width of the entire scrollbar */
-}
-.pfbiccyearButtonsDiv::-webkit-scrollbar-track {
-  background: transparent;        /* color of the tracking area */
-}
-.pfbiccyearButtonsDiv::-webkit-scrollbar-thumb {
-  background-color: #eee;    /* color of the scroll thumb */
-  border-radius: 20px;       /* roundness of the scroll thumb */
-  border: 3px solid #fff;  /* creates padding around scroll thumb */
-}
-
 .side-panel{padding:5px 10px; border-bottom:1px solid #ccc; margin: 0 15px;}
 .side-panel h6{margin-bottom:0; font-size:0.9rem; font-family: 'Roboto', sans-serif; font-weight: 600; line-height: normal; float: left;
     margin-right: 5px; background-color: #e5ecf4; border-radius: 15px; padding: 0 7px;}
@@ -1231,6 +1212,34 @@ a.video-tutorial{color:#333;}
   height: 100%;
   overflow-y: auto;
 }
+
+.pfbiccyearButtonsContainerDiv {
+  overflow-y: hidden;
+}
+
+.pfbiccyearButtonsContainer {
+  position: relative;
+  flex-wrap: nowrap;
+  display: flex;
+}
+
+.pfbiccyearLeftArrow, .pfbiccyearRightArrow {
+  display: flex;
+  padding: 0 0.8rem 0 0.8rem;
+  font-size: 1.4rem;
+}
+
+/*.pfbiccyearButtonsDiv::-webkit-scrollbar {
+  height: 12px;                width of the entire scrollbar 
+}
+.pfbiccyearButtonsDiv::-webkit-scrollbar-track {
+  background: transparent;         color of the tracking area 
+}
+.pfbiccyearButtonsDiv::-webkit-scrollbar-thumb {
+  background-color: #eee;     color of the scroll thumb 
+  border-radius: 20px;        roundness of the scroll thumb 
+  border: 3px solid #fff;   creates padding around scroll thumb 
+}*/
 
 .pfbiccpaidPledgedButtonsDiv {
   flex: 0 30%;

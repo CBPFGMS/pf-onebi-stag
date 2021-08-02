@@ -36,9 +36,7 @@ const generalClassPrefix = "pfbihp",
 	},
 	queryStringValues = new URLSearchParams(location.search),
 	defaultValues = {
-		chart: "allocationsByCountry",
-		year: currentYear,
-		fund: "total"
+		year: currentYear
 	};
 
 //|constants populated with the data
@@ -188,6 +186,15 @@ import {
 import {
 	buttonsObject
 } from "./buttons.js";
+
+import {
+	parameters
+} from "./parameters.js";
+
+//|populate 'default' values
+for (const key in parameters) {
+	defaultValues[key] = parameters[key];
+};
 
 //|load master tables, world map and csv data
 Promise.all([fetchFile("unworldmap", unworldmapUrl, "world map", "json"),
@@ -573,7 +580,6 @@ function mouseoutTopFigures() {
 function preProcessData(rawAllocationsData, rawContributionsData) {
 
 	const yearsSetAllocations = new Set();
-	const yearsSetContributions = new Set();
 	const yearsSetContributionsCbpf = new Set();
 	const yearsSetContributionsCerf = new Set();
 
@@ -582,22 +588,31 @@ function preProcessData(rawAllocationsData, rawContributionsData) {
 	});
 
 	rawContributionsData.forEach(row => {
-		yearsSetContributions.add(+row.FiscalYear);
 		if (row.PooledFundId === cerfPooledFundId) {
-			yearsSetContributionsCerf.add(+row.FiscalYear);
+			if (defaultValues.cerfFirstYear) {
+				if (+row.FiscalYear >= defaultValues.cerfFirstYear) yearsSetContributionsCerf.add(+row.FiscalYear);
+			} else {
+				yearsSetContributionsCerf.add(+row.FiscalYear);
+			};
 		} else {
-			yearsSetContributionsCbpf.add(+row.FiscalYear);
+			if (defaultValues.cbpfFirstYear) {
+				if (+row.FiscalYear >= defaultValues.cbpfFirstYear) yearsSetContributionsCbpf.add(+row.FiscalYear);
+			} else {
+				yearsSetContributionsCbpf.add(+row.FiscalYear);
+			};
 		};
 	});
 
 	yearsArrayAllocations.push(...yearsSetAllocations);
 	yearsArrayAllocations.sort((a, b) => a - b);
-	yearsArrayContributions.push(...yearsSetContributions);
-	yearsArrayContributions.sort((a, b) => a - b);
 	yearsArrayContributionsCbpf.push(...yearsSetContributionsCbpf);
 	yearsArrayContributionsCbpf.sort((a, b) => a - b);
 	yearsArrayContributionsCerf.push(...yearsSetContributionsCerf);
 	yearsArrayContributionsCerf.sort((a, b) => a - b);
+
+	const yearsSetContributions = new Set([...yearsSetContributionsCerf, ...yearsSetContributionsCbpf]);
+	yearsArrayContributions.push(...yearsSetContributions);
+	yearsArrayContributions.sort((a, b) => a - b);
 
 };
 
