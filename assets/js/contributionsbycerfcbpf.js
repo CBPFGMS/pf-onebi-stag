@@ -654,7 +654,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		chartTitleEnterCerf.append("tspan")
 			.attr("class", classPrefix + "chartTitleSpanCerf")
-			.text(noCerfValues ? "(There were no CERF contributions prior to " + yearsArrayCerf[0] + ")" :
+			.text(noCerfValues ? "(There were no CERF contributions prior to its creation in " + yearsArrayCerf[0] + ")" :
 				"(" + selectedValue + " by " + (selectedYear[0] === allYears ? "year" : "month") + ")");
 
 		chartTitleCerf = chartTitleEnterCerf.merge(chartTitleCerf);
@@ -664,7 +664,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		chartTitleCerf.node().childNodes[0].textContent = noCerfValues ? "" : "CERF ";
 
 		chartTitleCerf.select("tspan")
-			.text(noCerfValues ? "(There were no CERF contributions prior to " + yearsArrayCerf[0] + ")" :
+			.text(noCerfValues ? "(There were no CERF contributions prior to its creation in " + yearsArrayCerf[0] + ")" :
 				"(" + selectedValue + " by " + (selectedYear[0] === allYears ? "year" : "month") + ")");
 
 		let barsCerf = chartLayerCerf.selectAll("." + classPrefix + "barsCerf")
