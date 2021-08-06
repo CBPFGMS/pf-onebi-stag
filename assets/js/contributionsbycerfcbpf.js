@@ -649,20 +649,22 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.append("text")
 			.attr("class", classPrefix + "chartTitleCerf")
 			.attr("x", svgPaddingsCerf[3] + (svgWidthCerf - svgPaddingsCerf[1] - svgPaddingsCerf[3]) / 2)
-			.attr("y", svgPaddingsCerf[0] - titlePadding)
+			.attr("y", noCerfValues ? d3.mean(yScaleCerf.range()) : svgPaddingsCerf[0] - titlePadding)
 			.text(noCerfValues ? "" : "CERF ");
 
 		chartTitleEnterCerf.append("tspan")
 			.attr("class", classPrefix + "chartTitleSpanCerf")
-			.text(noCerfValues ? "(There are no CERF values prior to " + yearsArrayCerf[0] + ")" :
+			.text(noCerfValues ? "(There were no CERF contributions prior to " + yearsArrayCerf[0] + ")" :
 				"(" + selectedValue + " by " + (selectedYear[0] === allYears ? "year" : "month") + ")");
 
 		chartTitleCerf = chartTitleEnterCerf.merge(chartTitleCerf);
 
+		chartTitleCerf.attr("y", noCerfValues ? d3.mean(yScaleCerf.range()) : svgPaddingsCerf[0] - titlePadding);
+
 		chartTitleCerf.node().childNodes[0].textContent = noCerfValues ? "" : "CERF ";
 
 		chartTitleCerf.select("tspan")
-			.text(noCerfValues ? "(There are no CERF values prior to " + yearsArrayCerf[0] + ")" :
+			.text(noCerfValues ? "(There were no CERF contributions prior to " + yearsArrayCerf[0] + ")" :
 				"(" + selectedValue + " by " + (selectedYear[0] === allYears ? "year" : "month") + ")");
 
 		let barsCerf = chartLayerCerf.selectAll("." + classPrefix + "barsCerf")
@@ -1040,12 +1042,14 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		xAxisGroupCerf.transition()
 			.duration(duration)
+			.style("opacity", noCerfValues ? 0 : 1)
 			.attr("transform", "translate(0," + (selectedYear.length === 1 ?
 				yScaleCerf(0) : yScaleCerf(0) + xGroupExtraPadding) + ")")
 			.call(xAxisCerf);
 
 		yAxisGroupCerf.transition()
 			.duration(duration)
+			.style("opacity", noCerfValues ? 0 : 1)
 			.call(yAxisCerf);
 
 		yAxisGroupCerf.selectAll(".tick")
