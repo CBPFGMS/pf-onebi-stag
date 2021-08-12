@@ -1332,6 +1332,9 @@ a.video-tutorial{color:#333;}
   fill: #555;
   text-anchor: middle;
   pointer-events: none;
+  stroke: white;
+  stroke-width: 2px;
+  paint-order: stroke;
 } 
 
 .pfbicclabelsCerf, .pfbicclabelsCbpf {
