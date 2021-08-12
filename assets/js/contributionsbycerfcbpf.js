@@ -631,11 +631,13 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				.attr("transform", "translate(0,0)");
 		};
 
+		const noCerfValues = selectedYear.every(e => e < yearsArrayCerf[0]);
+
 		const xValue = selectedYear[0] === allYears ? "year" : "month";
 
 		const dataYear = selectedYear[0] === allYears ? data.filter(e => yearsArrayCerf.includes(e.year)) : [];
 
-		const dataMonth = selectedYear[0] === allYears ? [] : data;
+		const dataMonth = selectedYear[0] === allYears || noCerfValues ? [] : data;
 
 		if (dataMonth.length) {
 			dataMonth.forEach(row => {
@@ -684,7 +686,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			return acc;
 		}, []);
 
-		const dataCumulative = selectedYear[0] === allYears ?
+		const dataCumulative = noCerfValues ? [] :
+			selectedYear[0] === allYears ?
 			dataYear.reduce((acc, curr, index) => {
 				acc[0].values.push({
 					year: curr.year,
@@ -735,8 +738,6 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		xScaleCerfInner.domain(selectedYear[0] === allYears ? [] : selectedYear.slice().sort((a, b) => a - b))
 			.range([0, xScaleCerf.bandwidth()]);
 
-		const noCerfValues = selectedYear.every(e => e < yearsArrayCerf[0]);
-
 		let chartTitleCerf = svgCerf.selectAll("." + classPrefix + "chartTitleCerf")
 			.data([true]);
 
@@ -749,7 +750,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		chartTitleEnterCerf.append("tspan")
 			.attr("class", classPrefix + "chartTitleSpanCerf")
-			.text(noCerfValues ? "(There were no CERF contributions prior to its creation in " + yearsArrayCerf[0] + ")" :
+			.text(noCerfValues ? "CERF started operations in " + yearsArrayCerf[0] :
 				"(" + selectedValue + " by " + (selectedYear[0] === allYears ? "year" : "month") + ")");
 
 		chartTitleCerf = chartTitleEnterCerf.merge(chartTitleCerf);
@@ -759,7 +760,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		chartTitleCerf.node().childNodes[0].textContent = noCerfValues ? "" : "CERF ";
 
 		chartTitleCerf.select("tspan")
-			.text(noCerfValues ? "(There were no CERF contributions prior to its creation in " + yearsArrayCerf[0] + ")" :
+			.text(noCerfValues ? "CERF started operations in " + yearsArrayCerf[0] :
 				"(" + selectedValue + " by " + (selectedYear[0] === allYears ? "year" : "month") + ")");
 
 		let barsCerf = chartLayerCerf.selectAll("." + classPrefix + "barsCerf")
@@ -1777,10 +1778,10 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		tooltipGroupCbpf = tooltipGroupEnterCbpf.merge(tooltipGroupCbpf);
 
 		tooltipGroupCbpf.attr("transform", d => "translate(" + xScaleCbpf(d.month) + ",0)")
-			.each(d => d.cerfMonthlyData.forEach(e => e.parentData = d));
+			.each(d => d.cbpfMonthlyData.forEach(e => e.parentData = d));
 
 		let tooltipRectGroupCbpf = tooltipGroupCbpf.selectAll("." + classPrefix + "tooltipRectGroupCbpf")
-			.data(d => d.cerfMonthlyData, d => d.year);
+			.data(d => d.cbpfMonthlyData, d => d.year);
 
 		const tooltipRectGroupExitCbpf = tooltipRectGroupCbpf.exit()
 			.remove();
