@@ -22,8 +22,8 @@ const classPrefix = "pfbicc",
 	svgPaddingsCerf = [38, 58, 20, 70],
 	svgPaddingsCbpf = [38, 58, 20, 70],
 	svgColumnPadding = [16, 26, 8, 80],
-	svgCumulativeChartPaddingsCerf = [38, 16, 10, 50],
-	svgCumulativeChartPaddingsCbpf = [38, 16, 10, 50],
+	svgCumulativePaddingsCerf = [28, 58, 46, 70],
+	svgCumulativePaddingsCbpf = [28, 58, 46, 70],
 	arrowPaddingLeft = 22,
 	arrowPaddingRight = 22,
 	arrowCircleRadius = 15,
@@ -52,9 +52,15 @@ const classPrefix = "pfbicc",
 	xGroupExtraPadding = 18,
 	lineOpacity = 0.75,
 	fadeOpacity = 0.1,
-	legendPledgedPadding = 160,
+	legendPledgedPadding = 180,
+	cumulativeTitlePadding = 20,
+	cumulativeStrokeWidth = 2,
+	cumulativeLabelPadding = 6,
 	maxNumberOfBars = 12,
 	tickMove = 6,
+	tickSize = 6,
+	secondTickSize = 6,
+	secondTickPadding = 14,
 	unBlue = "#1F69B3",
 	arrowFadeColor = "#f1f1f1",
 	blankImg = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
@@ -205,13 +211,9 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	yearsArrayCerf = d3.range(lists.yearsArrayContributionsCerf[0], currentYear + 1, 1);
 	yearsArrayCbpf = d3.range(lists.yearsArrayContributionsCbpf[0], currentYear + 1, 1);
 
-	const divergingColor = d3.scaleLinear()
-		.domain([maxYearNumber - 1, 0])
-		.range([-0.5, 0.4]);
-
 	const xScaleCerf = d3.scaleBand()
 		.range([svgPaddingsCerf[3], svgWidthCerf - svgPaddingsCerf[1]])
-		.paddingOuter(0.1);
+		.paddingOuter(0.2);
 
 	const xScaleCerfInner = d3.scaleBand()
 		.paddingInner(0.35)
@@ -219,7 +221,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 	const xScaleCbpf = d3.scaleBand()
 		.range([svgPaddingsCbpf[3], svgWidthCbpf - svgPaddingsCbpf[1]])
-		.paddingOuter(0.1);
+		.paddingOuter(0.2);
 
 	const xScaleCbpfInner = d3.scaleBand()
 		.paddingInner(0.35)
@@ -230,6 +232,12 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 	const yScaleCbpf = d3.scaleLinear()
 		.range([(svgHeightCbpf * (1 - cumulativeChartHeightPercentage)) - svgPaddingsCbpf[2], svgPaddingsCbpf[0] + labelMargin]);
+
+	const yScaleCumulativeCerf = d3.scaleLinear()
+		.range([svgHeightCerf - svgPaddingsCerf[2] - svgCumulativePaddingsCerf[2], (svgHeightCerf * (1 - cumulativeChartHeightPercentage)) + svgCumulativePaddingsCerf[0]]);
+
+	const yScaleCumulativeCbpf = d3.scaleLinear()
+		.range([svgHeightCbpf - svgPaddingsCbpf[2] - svgCumulativePaddingsCbpf[2], (svgHeightCbpf * (1 - cumulativeChartHeightPercentage)) + svgCumulativePaddingsCbpf[0]]);
 
 	const xScaleColumn = d3.scaleLinear()
 		.range([svgColumnPadding[3], svgColumnChartWidth - svgColumnPadding[1]]);
@@ -263,6 +271,16 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		.x(d => xScaleCbpfInner(d.year) + xScaleCbpfInner.bandwidth() / 2)
 		.curve(d3.curveMonotoneX);
 
+	const cumulativeLineGeneratorCerf = d3.line()
+		.y(d => yScaleCumulativeCerf(d.total))
+		.x(d => xScaleCerf(selectedYear[0] === allYears ? d.year : d.month) + xScaleCerf.bandwidth() / 2)
+		.curve(d3.curveMonotoneX);
+
+	const cumulativeLineGeneratorCbpf = d3.line()
+		.y(d => yScaleCumulativeCbpf(d.total))
+		.x(d => xScaleCbpf(selectedYear[0] === allYears ? d.year : d.month) + xScaleCbpf.bandwidth() / 2)
+		.curve(d3.curveMonotoneX);
+
 	const xAxisCerf = d3.axisBottom(xScaleCerf)
 		.tickSizeOuter(0);
 
@@ -291,6 +309,18 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		.tickSizeInner(-(svgWidthCbpf - svgPaddingsCbpf[1] - svgPaddingsCbpf[3]))
 		.tickSizeOuter(0);
 
+	const yAxisCumulativeCerf = d3.axisLeft(yScaleCumulativeCerf)
+		.ticks(3)
+		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"))
+		.tickSizeInner(-(svgWidthCerf - svgPaddingsCerf[1] - svgPaddingsCerf[3]))
+		.tickSizeOuter(0);
+
+	const yAxisCumulativeCbpf = d3.axisLeft(yScaleCumulativeCbpf)
+		.ticks(3)
+		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"))
+		.tickSizeInner(-(svgWidthCbpf - svgPaddingsCbpf[1] - svgPaddingsCbpf[3]))
+		.tickSizeOuter(0);
+
 	const xAxisGroupCerf = chartAreaCerf.append("g")
 		.attr("class", classPrefix + "xAxisGroupCerf")
 		.attr("transform", "translate(0," + ((svgHeightCerf * (1 - cumulativeChartHeightPercentage)) - svgPaddingsCerf[2]) + ")");
@@ -306,6 +336,14 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	const yAxisGroupCbpf = svgCbpf.append("g")
 		.attr("class", classPrefix + "yAxisGroupCbpf")
 		.attr("transform", "translate(" + svgPaddingsCbpf[3] + ",0)");
+
+	const yAxisGroupCumulativeCerf = svgCerf.append("g")
+		.attr("class", classPrefix + "yAxisGroupCumulativeCerf")
+		.attr("transform", "translate(" + svgCumulativePaddingsCerf[3] + ",0)");
+
+	const yAxisGroupCumulativeCbpf = svgCbpf.append("g")
+		.attr("class", classPrefix + "yAxisGroupCumulativeCbpf")
+		.attr("transform", "translate(" + svgCumulativePaddingsCbpf[3] + ",0)");
 
 	const xAxisColumn = d3.axisTop(xScaleColumn)
 		.tickSizeOuter(0)
@@ -595,7 +633,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		const xValue = selectedYear[0] === allYears ? "year" : "month";
 
-		const dataYear = selectedYear[0] === allYears ? data : [];
+		const dataYear = selectedYear[0] === allYears ? data.filter(e => yearsArrayCerf.includes(e.year)) : [];
 
 		const dataMonth = selectedYear[0] === allYears ? [] : data;
 
@@ -624,6 +662,59 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			});
 		};
 
+		const dataMonthWithZeros = monthsArray.reduce((acc, curr) => {
+			const foundMonth = dataMonth.find(e => e.month === curr);
+			if (foundMonth) {
+				acc.push(foundMonth)
+			} else {
+				const obj = {
+					month: curr,
+					cerfMonthlyData: []
+				};
+				selectedYear.forEach(year => {
+					obj.cerfMonthlyData.push({
+						year: year,
+						total: 0,
+						paid: 0,
+						pledged: 0
+					});
+				})
+				acc.push(obj);
+			};
+			return acc;
+		}, []);
+
+		const dataCumulative = selectedYear[0] === allYears ?
+			dataYear.reduce((acc, curr, index) => {
+				acc[0].values.push({
+					year: curr.year,
+					total: curr[`${selectedValue}${separator}cerf`] + (acc[0].values[index - 1] ? acc[0].values[index - 1].total : 0)
+				});
+				return acc;
+			}, [{
+				year: allYears,
+				values: []
+			}]) : dataMonthWithZeros.reduce((acc, curr, index) => {
+				curr.cerfMonthlyData.forEach(d => {
+					const foundYear = acc.find(e => e.year === d.year);
+					if (foundYear) {
+						foundYear.values.push({
+							month: curr.month,
+							total: d[selectedValue] + (foundYear.values[index - 1] ? foundYear.values[index - 1].total : 0)
+						});
+					} else {
+						acc.push({
+							year: d.year,
+							values: [{
+								month: curr.month,
+								total: d[selectedValue]
+							}]
+						});
+					};
+				});
+				return acc;
+			}, []);
+
 		const minxScaleValue = d3.max(data, d => d[`total${separator}cerf`]) || 1e3;
 
 		const minxScaleInnerValue = d3.max(dataMonth, d => d3.max(d.cerfMonthlyData, e => e.total)) || 1e3;
@@ -636,6 +727,10 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		yScaleCerf.domain([0, (selectedYear[0] === allYears ?
 			d3.max(data, d => d[`${selectedValue}${separator}cerf`]) || minxScaleValue :
 			d3.max(dataMonth, d => d3.max(d.cerfMonthlyData, e => e[selectedValue])) || minxScaleInnerValue)]);
+
+		yScaleCumulativeCerf.domain([0, (selectedYear[0] === allYears ?
+			dataCumulative[0].values[dataCumulative[0].values.length - 1].total || minxScaleValue :
+			d3.max(dataCumulative, d => d.values[d.values.length - 1].total) || minxScaleInnerValue)]);
 
 		xScaleCerfInner.domain(selectedYear[0] === allYears ? [] : selectedYear.slice().sort((a, b) => a - b))
 			.range([0, xScaleCerf.bandwidth()]);
@@ -775,7 +870,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.duration(duration)
 			.style("opacity", 1)
 			.style("fill", (d, i, n) => d.year === currentYear ? `url(#${classPrefix}patternCerf)` :
-				n.length > 1 ? d3.color(colors.cerf).darker(divergingColor(i)) : colors.cerf)
+				n.length > 1 ? colors.cerfAnalogous[i] : colors.cerf)
 			.attr("x", d => xScaleCerfInner(d.year))
 			.attr("width", xScaleCerfInner.bandwidth())
 			.attr("y", d => yScaleCerf(d[selectedValue]))
@@ -1038,7 +1133,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				.style("display", "none");
 		};
 
-		xAxisCerf.tickSizeInner(selectedYear.length === 1 ? 6 : 0);
+		xAxisCerf.tickSizeInner(selectedYear.length === 1 ? tickSize : 0);
 
 		xAxisGroupCerf.transition()
 			.duration(duration)
@@ -1046,6 +1141,18 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("transform", "translate(0," + (selectedYear.length === 1 ?
 				yScaleCerf(0) : yScaleCerf(0) + xGroupExtraPadding) + ")")
 			.call(xAxisCerf);
+
+		let secondTick = xAxisGroupCerf.selectAll(".tick")
+			.selectAll("." + classPrefix + "secondTick")
+			.data([true]);
+
+		secondTick = secondTick.enter()
+			.append("line")
+			.attr("class", classPrefix + "secondTick")
+			.attr("stroke", "currentColor")
+			.merge(secondTick)
+			.attr("y1", secondTickPadding + xAxisCerf.tickSizeInner())
+			.attr("y2", secondTickPadding + xAxisCerf.tickSizeInner() + secondTickSize);
 
 		yAxisGroupCerf.transition()
 			.duration(duration)
@@ -1055,6 +1162,14 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		yAxisGroupCerf.selectAll(".tick")
 			.filter(d => d === 0)
 			.remove();
+
+		yAxisGroupCumulativeCerf.transition()
+			.duration(duration)
+			.style("opacity", noCerfValues ? 0 : 1)
+			.call(yAxisCumulativeCerf)
+			.selectAll("line")
+			.style("stroke-dasharray", d => !d ? "none" : null)
+			.style("stroke", d => !d ? "#bbb" : null);
 
 		let legendGroupCerf = svgCerf.selectAll("." + classPrefix + "legendGroupCerf")
 			.data(selectedYear[0] === allYears || selectedYear.indexOf(currentYear) > -1 ? [true] : []);
@@ -1109,7 +1224,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		legendPledgedEnterCerf.append("tspan")
 			.style("fill", "#777")
-			.text(": Pledged Values");
+			.text(": Pledged values");
 
 		legendPledgedCerf = legendPledgedEnterCerf.merge(legendPledgedCerf);
 
@@ -1117,6 +1232,76 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.duration(duration)
 			.attr("x", legendGroupCerf.size() ? legendPledgedPadding : svgPaddingsCerf[3] + xScaleCerf.paddingOuter() * xScaleCerf.step())
 			.style("opacity", 1);
+
+		//cumulative chart CERF
+
+		let cumulativeTitleCerf = svgCerf.selectAll("." + classPrefix + "cumulativeTitleCerf")
+			.data([true]);
+
+		const cumulativeTitleEnterCerf = cumulativeTitleCerf.enter()
+			.append("text")
+			.attr("class", classPrefix + "cumulativeTitleCerf")
+			.attr("x", svgPaddingsCerf[3] + (svgWidthCerf - svgPaddingsCerf[1] - svgPaddingsCerf[3]) / 2)
+			.attr("y", yScaleCumulativeCerf(0) + cumulativeTitlePadding)
+			.style("opacity", noCerfValues ? 0 : 1)
+			.text("Cumulative total");
+
+		cumulativeTitleCerf = cumulativeTitleEnterCerf.merge(cumulativeTitleCerf);
+
+		cumulativeTitleCerf.transition()
+			.duration(duration)
+			.style("opacity", noCerfValues ? 0 : 1);
+
+		let cumulativeLinesCerf = chartLayerCerf.selectAll("." + classPrefix + "cumulativeLinesCerf")
+			.data(dataCumulative);
+
+		const cumulativeLinesExitCerf = cumulativeLinesCerf.exit()
+			.transition()
+			.duration(duration)
+			.style("opacity", 0)
+			.remove();
+
+		const cumulativeLinesEnterCerf = cumulativeLinesCerf.enter()
+			.append("path")
+			.attr("class", classPrefix + "cumulativeLinesCerf")
+			.style("stroke", colors.cerf)
+			.style("fill", "none")
+			.style("stroke-width", cumulativeStrokeWidth)
+			.attr("d", d => cumulativeLineGeneratorCerf(d.values));
+
+		cumulativeLinesCerf = cumulativeLinesEnterCerf.merge(cumulativeLinesCerf);
+
+		cumulativeLinesCerf.transition()
+			.duration(duration)
+			.style("stroke", (_, i) => colors.cerfAnalogous[i])
+			.attr("d", d => cumulativeLineGeneratorCerf(d.values));
+
+		let cumulativeLabelsCerf = chartLayerCerf.selectAll("." + classPrefix + "cumulativeLabelsCerf")
+			.data(dataCumulative.length === 1 ? dataCumulative[0].values : []);
+
+		const cumulativeLabelsExitCerf = cumulativeLabelsCerf.exit()
+			.transition()
+			.duration(duration)
+			.style("opacity", 0)
+			.remove();
+
+		const cumulativeLabelsEnterCerf = cumulativeLabelsCerf.enter()
+			.append("text")
+			.attr("class", classPrefix + "cumulativeLabelsCerf")
+			.attr("x", d => xScaleCerf(d[selectedYear[0] === allYears ? "year" : "month"]) + xScaleCerf.bandwidth() / 2)
+			.attr("y", d => yScaleCumulativeCerf(d.total) - cumulativeLabelPadding)
+			.text(d => "$" + formatSIFloat(d.total));
+
+		cumulativeLabelsCerf = cumulativeLabelsEnterCerf.merge(cumulativeLabelsCerf);
+
+		cumulativeLabelsCerf.transition()
+			.duration(duration)
+			.attr("x", d => xScaleCerf(d[selectedYear[0] === allYears ? "year" : "month"]) + xScaleCerf.bandwidth() / 2)
+			.attr("y", d => yScaleCumulativeCerf(d.total) - cumulativeLabelPadding)
+			.textTween((d, i, n) => {
+				const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, d.total);
+				return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
+			});
 
 		//arrows and listeners CERF
 
@@ -1280,6 +1465,59 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			});
 		};
 
+		const dataMonthWithZeros = monthsArray.reduce((acc, curr) => {
+			const foundMonth = dataMonth.find(e => e.month === curr);
+			if (foundMonth) {
+				acc.push(foundMonth)
+			} else {
+				const obj = {
+					month: curr,
+					cbpfMonthlyData: []
+				};
+				selectedYear.forEach(year => {
+					obj.cbpfMonthlyData.push({
+						year: year,
+						total: 0,
+						paid: 0,
+						pledged: 0
+					});
+				})
+				acc.push(obj);
+			};
+			return acc;
+		}, []);
+
+		const dataCumulative = selectedYear[0] === allYears ?
+			dataYear.reduce((acc, curr, index) => {
+				acc[0].values.push({
+					year: curr.year,
+					total: curr[`${selectedValue}${separator}cbpf`] + (acc[0].values[index - 1] ? acc[0].values[index - 1].total : 0)
+				});
+				return acc;
+			}, [{
+				year: allYears,
+				values: []
+			}]) : dataMonthWithZeros.reduce((acc, curr, index) => {
+				curr.cbpfMonthlyData.forEach(d => {
+					const foundYear = acc.find(e => e.year === d.year);
+					if (foundYear) {
+						foundYear.values.push({
+							month: curr.month,
+							total: d[selectedValue] + (foundYear.values[index - 1] ? foundYear.values[index - 1].total : 0)
+						});
+					} else {
+						acc.push({
+							year: d.year,
+							values: [{
+								month: curr.month,
+								total: d[selectedValue]
+							}]
+						});
+					};
+				});
+				return acc;
+			}, []);
+
 		const minxScaleValue = d3.max(data, d => d[`total${separator}cbpf`]) || 1e3;
 
 		const minxScaleInnerValue = d3.max(dataMonth, d => d3.max(d.cbpfMonthlyData, e => e.total)) || 1e3;
@@ -1292,6 +1530,10 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		yScaleCbpf.domain([0, (selectedYear[0] === allYears ?
 			d3.max(data, d => d[`${selectedValue}${separator}cbpf`]) || minxScaleValue :
 			d3.max(dataMonth, d => d3.max(d.cbpfMonthlyData, e => e[selectedValue])) || minxScaleInnerValue)]);
+
+		yScaleCumulativeCbpf.domain([0, (selectedYear[0] === allYears ?
+			dataCumulative[0].values[dataCumulative[0].values.length - 1].total || minxScaleValue :
+			d3.max(dataCumulative, d => d.values[d.values.length - 1].total) || minxScaleInnerValue)]);
 
 		xScaleCbpfInner.domain(selectedYear[0] === allYears ? [] : selectedYear.slice().sort((a, b) => a - b))
 			.range([0, xScaleCbpf.bandwidth()]);
@@ -1422,7 +1664,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.duration(duration)
 			.style("opacity", 1)
 			.style("fill", (d, i, n) => d.year === currentYear ? `url(#${classPrefix}patternCbpf)` :
-				n.length > 1 ? d3.color(colors.cbpf).darker(divergingColor(i)) : colors.cbpf)
+				n.length > 1 ? colors.cbpfAnalogous[i] : colors.cbpf)
 			.attr("x", d => xScaleCbpfInner(d.year))
 			.attr("width", xScaleCbpfInner.bandwidth())
 			.attr("y", d => yScaleCbpf(d[selectedValue]))
@@ -1693,6 +1935,18 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				yScaleCbpf(0) : yScaleCbpf(0) + xGroupExtraPadding) + ")")
 			.call(xAxisCbpf);
 
+		let secondTick = xAxisGroupCbpf.selectAll(".tick")
+			.selectAll("." + classPrefix + "secondTick")
+			.data([true]);
+
+		secondTick = secondTick.enter()
+			.append("line")
+			.attr("class", classPrefix + "secondTick")
+			.attr("stroke", "currentColor")
+			.merge(secondTick)
+			.attr("y1", secondTickPadding + xAxisCbpf.tickSizeInner())
+			.attr("y2", secondTickPadding + xAxisCbpf.tickSizeInner() + secondTickSize);
+
 		yAxisGroupCbpf.transition()
 			.duration(duration)
 			.call(yAxisCbpf);
@@ -1700,6 +1954,13 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		yAxisGroupCbpf.selectAll(".tick")
 			.filter(d => d === 0)
 			.remove();
+
+		yAxisGroupCumulativeCbpf.transition()
+			.duration(duration)
+			.call(yAxisCumulativeCbpf)
+			.selectAll("line")
+			.style("stroke-dasharray", d => !d ? "none" : null)
+			.style("stroke", d => !d ? "#bbb" : null);
 
 		let legendGroupCbpf = svgCbpf.selectAll("." + classPrefix + "legendGroupCbpf")
 			.data(selectedYear[0] === allYears || selectedYear.indexOf(currentYear) > -1 ? [true] : []);
@@ -1754,7 +2015,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		legendPledgedEnterCbpf.append("tspan")
 			.style("fill", "#777")
-			.text(": Pledged Values");
+			.text(": Pledged values");
 
 		legendPledgedCbpf = legendPledgedEnterCbpf.merge(legendPledgedCbpf);
 
@@ -1763,7 +2024,69 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("x", legendGroupCbpf.size() ? legendPledgedPadding : svgPaddingsCbpf[3] + xScaleCbpf.paddingOuter() * xScaleCbpf.step())
 			.style("opacity", 1);
 
-		//arrows and listeners CERF
+		//cumulative chart CBPF
+
+		const cumulativeTitleCbpf = svgCbpf.selectAll("." + classPrefix + "cumulativeTitleCbpf")
+			.data([true])
+			.enter()
+			.append("text")
+			.attr("class", classPrefix + "cumulativeTitleCbpf")
+			.attr("x", svgPaddingsCbpf[3] + (svgWidthCbpf - svgPaddingsCbpf[1] - svgPaddingsCbpf[3]) / 2)
+			.attr("y", yScaleCumulativeCbpf(0) + cumulativeTitlePadding)
+			.text("Cumulative total");
+
+		let cumulativeLinesCbpf = chartLayerCbpf.selectAll("." + classPrefix + "cumulativeLinesCbpf")
+			.data(dataCumulative);
+
+		const cumulativeLinesExitCbpf = cumulativeLinesCbpf.exit()
+			.transition()
+			.duration(duration)
+			.style("opacity", 0)
+			.remove();
+
+		const cumulativeLinesEnterCbpf = cumulativeLinesCbpf.enter()
+			.append("path")
+			.attr("class", classPrefix + "cumulativeLinesCbpf")
+			.style("stroke", colors.cbpf)
+			.style("fill", "none")
+			.style("stroke-width", cumulativeStrokeWidth)
+			.attr("d", d => cumulativeLineGeneratorCbpf(d.values));
+
+		cumulativeLinesCbpf = cumulativeLinesEnterCbpf.merge(cumulativeLinesCbpf);
+
+		cumulativeLinesCbpf.transition()
+			.duration(duration)
+			.style("stroke", (_, i) => colors.cbpfAnalogous[i])
+			.attr("d", d => cumulativeLineGeneratorCbpf(d.values));
+
+		let cumulativeLabelsCbpf = chartLayerCbpf.selectAll("." + classPrefix + "cumulativeLabelsCbpf")
+			.data(dataCumulative.length === 1 ? dataCumulative[0].values : []);
+
+		const cumulativeLabelsExitCbpf = cumulativeLabelsCbpf.exit()
+			.transition()
+			.duration(duration)
+			.style("opacity", 0)
+			.remove();
+
+		const cumulativeLabelsEnterCbpf = cumulativeLabelsCbpf.enter()
+			.append("text")
+			.attr("class", classPrefix + "cumulativeLabelsCbpf")
+			.attr("x", d => xScaleCbpf(d[selectedYear[0] === allYears ? "year" : "month"]) + xScaleCbpf.bandwidth() / 2)
+			.attr("y", d => yScaleCumulativeCbpf(d.total) - cumulativeLabelPadding)
+			.text(d => "$" + formatSIFloat(d.total));
+
+		cumulativeLabelsCbpf = cumulativeLabelsEnterCbpf.merge(cumulativeLabelsCbpf);
+
+		cumulativeLabelsCbpf.transition()
+			.duration(duration)
+			.attr("x", d => xScaleCbpf(d[selectedYear[0] === allYears ? "year" : "month"]) + xScaleCbpf.bandwidth() / 2)
+			.attr("y", d => yScaleCumulativeCbpf(d.total) - cumulativeLabelPadding)
+			.textTween((d, i, n) => {
+				const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, d.total);
+				return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
+			});
+
+		//arrows and listeners CBPF
 
 		let leftArrowGroupCbpf = svgCbpf.selectAll("." + classPrefix + "leftArrowGroupCbpf")
 			.data(selectedYear[0] === allYears ? [true] : []);

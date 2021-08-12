@@ -1301,21 +1301,38 @@ a.video-tutorial{color:#333;}
   pointer-events: none;
 }
 
-.pfbiccyAxisGroupCerf text, .pfbiccyAxisGroupCbpf text {
+.pfbiccyAxisGroupCerf text, .pfbiccyAxisGroupCbpf text, .pfbiccyAxisGroupCumulativeCerf text, .pfbiccyAxisGroupCumulativeCbpf text {
   font-family: "Roboto", sans-serif;
   font-size: 10px;
   fill: #999;
   pointer-events: none;
 }
   
-.pfbiccyAxisGroupCerf line, .pfbiccyAxisGroupCbpf line {
+.pfbiccyAxisGroupCerf line, .pfbiccyAxisGroupCbpf line, .pfbiccyAxisGroupCumulativeCerf line, .pfbiccyAxisGroupCumulativeCbpf line {
   stroke: #ddd;
   stroke-dasharray: 2, 2;
 }
 
-.pfbiccxAxisGroupCerf path, .pfbiccxAxisGroupCbpf path, .pfbiccyAxisGroupCerf path, .pfbiccyAxisGroupCbpf path {
+.pfbiccxAxisGroupCerf path, .pfbiccxAxisGroupCbpf path, .pfbiccyAxisGroupCerf path, .pfbiccyAxisGroupCbpf path, .pfbiccyAxisGroupCumulativeCerf path, .pfbiccyAxisGroupCumulativeCbpf path {
   stroke: none;
 }
+
+.pfbicccumulativeTitleCerf, .pfbicccumulativeTitleCbpf {
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  fill: #666;
+  font-weight: 300;
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.pfbicccumulativeLabelsCerf, .pfbicccumulativeLabelsCbpf {
+  font-family: "Roboto", sans-serif;
+  font-size: 9px;
+  fill: #555;
+  text-anchor: middle;
+  pointer-events: none;
+} 
 
 .pfbicclabelsCerf, .pfbicclabelsCbpf {
   font-family: "Roboto", sans-serif;
