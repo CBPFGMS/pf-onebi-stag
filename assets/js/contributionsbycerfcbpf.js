@@ -666,7 +666,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			const foundMonth = dataMonth.find(e => e.month === curr);
 			if (foundMonth) {
 				acc.push(foundMonth)
-			} else {
+			} else if (!(selectedYear.length === 1 && selectedYear[0] === currentYear)) {
 				const obj = {
 					month: curr,
 					cerfMonthlyData: []
@@ -678,7 +678,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 						paid: 0,
 						pledged: 0
 					});
-				})
+				});
 				acc.push(obj);
 			};
 			return acc;
@@ -1469,7 +1469,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			const foundMonth = dataMonth.find(e => e.month === curr);
 			if (foundMonth) {
 				acc.push(foundMonth)
-			} else {
+			} else if (!(selectedYear.length === 1 && selectedYear[0] === currentYear)) {
 				const obj = {
 					month: curr,
 					cbpfMonthlyData: []
