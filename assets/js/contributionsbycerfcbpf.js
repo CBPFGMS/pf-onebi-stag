@@ -34,6 +34,8 @@ const classPrefix = "pfbicc",
 	maxColumnRectHeight = 16,
 	svgColumnChartHeight = 380,
 	labelsColumnPadding = 2,
+	cumulativeCircleRadius = 2,
+	cumulativeHighlightCircleRadius = 4,
 	maxYearNumber = 4,
 	flagSize = 16,
 	flagSizeTooltip = 20,
@@ -1292,7 +1294,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("class", classPrefix + "cumulativeLabelsCerf")
 			.attr("x", d => xScaleCerf(d[selectedYear[0] === allYears ? "year" : "month"]) + xScaleCerf.bandwidth() / 2)
 			.attr("y", d => yScaleCumulativeCerf(d.total) - cumulativeLabelPadding)
-			.text(d => "$" + formatSIFloat(d.total));
+			.text(d => "$" + formatSIFloat1Digit(d.total));
 
 		cumulativeLabelsCerf = cumulativeLabelsEnterCerf.merge(cumulativeLabelsCerf);
 
@@ -1302,8 +1304,52 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("y", d => yScaleCumulativeCerf(d.total) - cumulativeLabelPadding)
 			.textTween((d, i, n) => {
 				const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, d.total);
-				return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
+				return t => "$" + formatSIFloat1Digit(interpolator(t)).replace("G", "B");
 			});
+
+		let cumulativeCirclesGroupCerf = chartLayerCerf.selectAll("." + classPrefix + "cumulativeCirclesGroupCerf")
+			.data(dataCumulative);
+
+		const cumulativeCirclesGroupCerfExit = cumulativeCirclesGroupCerf.exit()
+			.transition()
+			.duration(duration)
+			.style("opacity", 0)
+			.remove();
+
+		const cumulativeCirclesGroupCerfEnter = cumulativeCirclesGroupCerf.enter()
+			.append("g")
+			.attr("class", classPrefix + "cumulativeCirclesGroupCerf")
+			.style("fill", (_, i) => colors.cerfAnalogous[i]);
+
+		cumulativeCirclesGroupCerf = cumulativeCirclesGroupCerfEnter.merge(cumulativeCirclesGroupCerf);
+
+		cumulativeCirclesGroupCerf.transition()
+			.duration(duration)
+			.style("fill", (_, i) => colors.cerfAnalogous[i]);
+
+		let cumulativeCirclesCerf = cumulativeCirclesGroupCerf.selectAll("." + classPrefix + "cumulativeCirclesCerf")
+			.data(d => d.values, d => selectedYear[0] === allYears ? d.year : d.month);
+
+		const cumulativeCirclesCerfExit = cumulativeCirclesCerf.exit()
+			.transition()
+			.duration(duration)
+			.style("opacity", 0)
+			.remove();
+
+		const cumulativeCirclesCerfEnter = cumulativeCirclesCerf.enter()
+			.append("circle")
+			.attr("class", classPrefix + "cumulativeCirclesCerf")
+			.attr("r", cumulativeCircleRadius)
+			.attr("cy", d => yScaleCumulativeCerf(d.total))
+			.attr("cx", d => xScaleCerf(selectedYear[0] === allYears ? d.year : d.month) + xScaleCerf.bandwidth() / 2);
+
+		cumulativeCirclesCerf = cumulativeCirclesCerfEnter.merge(cumulativeCirclesCerf);
+
+		cumulativeCirclesCerf.transition()
+			.duration(duration)
+			.attr("cy", d => yScaleCumulativeCerf(d.total))
+			.attr("cx", d => xScaleCerf(selectedYear[0] === allYears ? d.year : d.month) + xScaleCerf.bandwidth() / 2);
+
 
 		//arrows and listeners CERF
 
@@ -2096,7 +2142,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("class", classPrefix + "cumulativeLabelsCbpf")
 			.attr("x", d => xScaleCbpf(d[selectedYear[0] === allYears ? "year" : "month"]) + xScaleCbpf.bandwidth() / 2)
 			.attr("y", d => yScaleCumulativeCbpf(d.total) - cumulativeLabelPadding)
-			.text(d => "$" + formatSIFloat(d.total));
+			.text(d => "$" + formatSIFloat1Digit(d.total));
 
 		cumulativeLabelsCbpf = cumulativeLabelsEnterCbpf.merge(cumulativeLabelsCbpf);
 
@@ -2106,8 +2152,53 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("y", d => yScaleCumulativeCbpf(d.total) - cumulativeLabelPadding)
 			.textTween((d, i, n) => {
 				const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, d.total);
-				return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
+				return t => "$" + formatSIFloat1Digit(interpolator(t)).replace("G", "B");
 			});
+
+		let cumulativeCirclesGroupCbpf = chartLayerCbpf.selectAll("." + classPrefix + "cumulativeCirclesGroupCbpf")
+			.data(dataCumulative);
+
+		const cumulativeCirclesGroupCbpfExit = cumulativeCirclesGroupCbpf.exit()
+			.transition()
+			.duration(duration)
+			.style("opacity", 0)
+			.remove();
+
+		const cumulativeCirclesGroupCbpfEnter = cumulativeCirclesGroupCbpf.enter()
+			.append("g")
+			.attr("class", classPrefix + "cumulativeCirclesGroupCbpf")
+			.style("fill", (_, i) => colors.cbpfAnalogous[i]);
+
+		cumulativeCirclesGroupCbpf = cumulativeCirclesGroupCbpfEnter.merge(cumulativeCirclesGroupCbpf);
+
+		cumulativeCirclesGroupCbpf.transition()
+			.duration(duration)
+			.style("fill", (_, i) => colors.cbpfAnalogous[i]);
+
+		let cumulativeCirclesCbpf = cumulativeCirclesGroupCbpf.selectAll("." + classPrefix + "cumulativeCirclesCbpf")
+			.data(d => d.values, d => selectedYear[0] === allYears ? d.year : d.month);
+
+		const cumulativeCirclesCbpfExit = cumulativeCirclesCbpf.exit()
+			.transition()
+			.duration(duration)
+			.style("opacity", 0)
+			.remove();
+
+		const cumulativeCirclesCbpfEnter = cumulativeCirclesCbpf.enter()
+			.append("circle")
+			.attr("class", classPrefix + "cumulativeCirclesCbpf")
+			.attr("r", cumulativeCircleRadius)
+			.attr("cy", d => yScaleCumulativeCbpf(d.total))
+			.attr("cx", d => xScaleCbpf(selectedYear[0] === allYears ? d.year : d.month) + xScaleCbpf.bandwidth() / 2);
+
+		cumulativeCirclesCbpf = cumulativeCirclesCbpfEnter.merge(cumulativeCirclesCbpf);
+
+		cumulativeCirclesCbpf.transition()
+			.duration(duration)
+			.attr("cy", d => yScaleCumulativeCbpf(d.total))
+			.attr("cx", d => xScaleCbpf(selectedYear[0] === allYears ? d.year : d.month) + xScaleCbpf.bandwidth() / 2);
+
+
 
 		//arrows and listeners CBPF
 
@@ -2608,6 +2699,12 @@ function formatSIFloat(value) {
 	const length = (~~Math.log10(value) + 1) % 3;
 	const digits = length === 1 ? 2 : length === 2 ? 1 : 0;
 	return d3.formatPrefix("." + digits, value)(value);
+};
+
+function formatSIFloat1Digit(value) {
+	const length = (~~Math.log10(value) + 1) % 3;
+	const digits = length >= 1 ? 1 : 0;
+	return d3.formatPrefix("." + digits + "~", value)(value);
 };
 
 function reverseFormat(s) {
