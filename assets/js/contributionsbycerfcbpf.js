@@ -19,11 +19,11 @@ const classPrefix = "pfbicc",
 	currentYear = currentDate.getFullYear(),
 	localVariable = d3.local(),
 	allYears = "all",
-	svgPaddingsCerf = [38, 58, 20, 70],
-	svgPaddingsCbpf = [38, 58, 20, 70],
+	svgPaddingsCerf = [38, 42, 20, 50],
+	svgPaddingsCbpf = [38, 42, 20, 50],
 	svgColumnPadding = [16, 26, 8, 80],
-	svgCumulativePaddingsCerf = [28, 58, 46, 70],
-	svgCumulativePaddingsCbpf = [28, 58, 46, 70],
+	svgCumulativePaddingsCerf = [28, 42, 46, 50],
+	svgCumulativePaddingsCbpf = [28, 42, 46, 50],
 	arrowPaddingLeft = 22,
 	arrowPaddingRight = 22,
 	arrowCircleRadius = 15,
@@ -250,26 +250,6 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	const stack = d3.stack()
 		.keys(stackKeys)
 		.order(d3.stackOrderDescending);
-
-	const lineGroupGeneratorCerf = d3.line()
-		.y(d => yScaleCerf(d[selectedValue]))
-		.x(d => xScaleCerfInner(d.year) + xScaleCerfInner.bandwidth() / 2)
-		.curve(d3.curveMonotoneX);
-
-	const lineGroupGeneratorCbpf = d3.line()
-		.y(d => yScaleCbpf(d[selectedValue]))
-		.x(d => xScaleCbpfInner(d.year) + xScaleCbpfInner.bandwidth() / 2)
-		.curve(d3.curveMonotoneX);
-
-	const lineGroupGeneratorBaseCerf = d3.line()
-		.y(d => yScaleCerf(0))
-		.x(d => xScaleCerfInner(d.year) + xScaleCerfInner.bandwidth() / 2)
-		.curve(d3.curveMonotoneX);
-
-	const lineGroupGeneratorBaseCbpf = d3.line()
-		.y(d => yScaleCbpf(0))
-		.x(d => xScaleCbpfInner(d.year) + xScaleCbpfInner.bandwidth() / 2)
-		.curve(d3.curveMonotoneX);
 
 	const cumulativeLineGeneratorCerf = d3.line()
 		.y(d => yScaleCumulativeCerf(d.total))
@@ -877,32 +857,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("y", d => yScaleCerf(d[selectedValue]))
 			.attr("height", d => yScaleCerf(0) - yScaleCerf(d[selectedValue]));
 
-		let lineGroupCerf = groupCerf.selectAll("." + classPrefix + "lineGroupCerf")
-			.data(d => d.cerfMonthlyData.filter(e => e.year !== currentYear).length > 1 ? [d.cerfMonthlyData.filter(e => e.year !== currentYear)] : []);
-
-		const lineGroupCerfExit = lineGroupCerf.exit()
-			.remove();
-
-		const lineGroupCerfEnter = lineGroupCerf.enter()
-			.append("path")
-			.attr("class", classPrefix + "lineGroupCerf")
-			.style("fill", "none")
-			.style("stroke-width", "2px")
-			.style("opacity", lineOpacity)
-			.style("stroke", "#aaa")
-			.attr("d", lineGroupGeneratorBaseCerf);
-
-		lineGroupCerf = lineGroupCerfEnter.merge(lineGroupCerf);
-
-		lineGroupCerf.raise();
-
-		lineGroupCerf.transition()
-			.duration(duration)
-			.style("opacity", d => d.some(e => e[selectedValue]) ? lineOpacity : 0)
-			.attrTween("d", (d, i, n) => pathTween(lineGroupGeneratorCerf(d), precision, n[i])());
-
 		let labelsGroupCerf = groupCerf.selectAll("." + classPrefix + "labelsGroupCerf")
-			.data(d => d.cerfMonthlyData.filter(e => e[selectedValue]), d => d.year);
+			.data(d => d.cerfMonthlyData.filter((e, i) => e[selectedValue] && (!i || i === d.cerfMonthlyData.length - 1)), d => d.year);
 
 		const labelsGroupCerfExit = labelsGroupCerf.exit()
 			.transition()
@@ -918,6 +874,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("y", d => d.pledged && selectedValue === "total" ? yScaleCerf(0) - (3 * labelPaddingInner) : yScaleCerf(0) - labelPaddingInner);
 
 		labelsGroupCerf = labelsGroupCerfEnter.merge(labelsGroupCerf);
+
+		labelsGroupCerf.raise();
 
 		labelsGroupCerf.transition()
 			.duration(duration)
@@ -1050,6 +1008,19 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 			const valuesArray = tooltipType === "yearTooltip" ? d.yearValues : d.parentData.monthValues.filter(e => e.FiscalYear === d.year);
 
+			const totalValues = valuesArray.reduce((acc, curr) => {
+				if (curr.PooledFundId === lists.cerfPooledFundId) {
+					acc.total += curr.PaidAmt + curr.PledgeAmt;
+					acc.paid += curr.PaidAmt;
+					acc.pledged += curr.PledgeAmt;
+				};
+				return acc;
+			}, {
+				total: 0,
+				paid: 0,
+				pledged: 0
+			});
+
 			let tooltipData = valuesArray.reduce((acc, curr) => {
 				if (curr.PooledFundId === lists.cerfPooledFundId) {
 					const foundDonor = acc.find(e => e.donorId === curr.DonorId);
@@ -1084,6 +1055,23 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				};
 				return acc;
 			}, []);
+
+			const rowDivTotal = tooltipContainer.append("div")
+				.style("display", "flex")
+				.style("align-items", "center")
+				.style("margin-bottom", "12px")
+				.style("width", "100%");
+
+			rowDivTotal.append("span")
+				.attr("class", classPrefix + "tooltipYears")
+				.html("Total");
+
+			rowDivTotal.append("span")
+				.attr("class", classPrefix + "tooltipLeader");
+
+			rowDivTotal.append("span")
+				.attr("class", classPrefix + "tooltipValues")
+				.html("$" + formatMoney0Decimals(totalValues[selectedValue]));
 
 			tooltipData.forEach(row => {
 				const rowDiv = tooltipContainer.append("div")
@@ -1671,32 +1659,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("y", d => yScaleCbpf(d[selectedValue]))
 			.attr("height", d => yScaleCbpf(0) - yScaleCbpf(d[selectedValue]));
 
-		let lineGroupCbpf = groupCbpf.selectAll("." + classPrefix + "lineGroupCbpf")
-			.data(d => d.cbpfMonthlyData.filter(e => e.year !== currentYear).length > 1 ? [d.cbpfMonthlyData.filter(e => e.year !== currentYear)] : []);
-
-		const lineGroupCbpfExit = lineGroupCbpf.exit()
-			.remove();
-
-		const lineGroupCbpfEnter = lineGroupCbpf.enter()
-			.append("path")
-			.attr("class", classPrefix + "lineGroupCbpf")
-			.style("fill", "none")
-			.style("stroke-width", "2px")
-			.style("opacity", lineOpacity)
-			.style("stroke", "#aaa")
-			.attr("d", lineGroupGeneratorBaseCbpf);
-
-		lineGroupCbpf = lineGroupCbpfEnter.merge(lineGroupCbpf);
-
-		lineGroupCbpf.raise();
-
-		lineGroupCbpf.transition()
-			.duration(duration)
-			.style("opacity", d => d.some(e => e[selectedValue]) ? lineOpacity : 0)
-			.attrTween("d", (d, i, n) => pathTween(lineGroupGeneratorCbpf(d), precision, n[i])());
-
 		let labelsGroupCbpf = groupCbpf.selectAll("." + classPrefix + "labelsGroupCbpf")
-			.data(d => d.cbpfMonthlyData.filter(e => e[selectedValue]), d => d.year);
+			.data(d => d.cbpfMonthlyData.filter((e, i) => e[selectedValue] && (!i || i === d.cbpfMonthlyData.length - 1)), d => d.year);
 
 		const labelsGroupCbpfExit = labelsGroupCbpf.exit()
 			.transition()
@@ -1712,6 +1676,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("y", d => d.pledged && selectedValue === "total" ? yScaleCbpf(0) - (3 * labelPaddingInner) : yScaleCbpf(0) - labelPaddingInner);
 
 		labelsGroupCbpf = labelsGroupCbpfEnter.merge(labelsGroupCbpf);
+
+		labelsGroupCbpf.raise();
 
 		labelsGroupCbpf.transition()
 			.duration(duration)
@@ -1844,6 +1810,19 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 			const valuesArray = tooltipType === "yearTooltip" ? d.yearValues : d.parentData.monthValues.filter(e => e.FiscalYear === d.year);
 
+			const totalValues = valuesArray.reduce((acc, curr) => {
+				if (curr.PooledFundId !== lists.cerfPooledFundId) {
+					acc.total += curr.PaidAmt + curr.PledgeAmt;
+					acc.paid += curr.PaidAmt;
+					acc.pledged += curr.PledgeAmt;
+				};
+				return acc;
+			}, {
+				total: 0,
+				paid: 0,
+				pledged: 0
+			});
+
 			let tooltipData = valuesArray.reduce((acc, curr) => {
 				if (curr.PooledFundId !== lists.cerfPooledFundId) {
 					const foundDonor = acc.find(e => e.donorId === curr.DonorId);
@@ -1878,6 +1857,23 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				};
 				return acc;
 			}, []);
+
+			const rowDivTotal = tooltipContainer.append("div")
+				.style("display", "flex")
+				.style("align-items", "center")
+				.style("margin-bottom", "12px")
+				.style("width", "100%");
+
+			rowDivTotal.append("span")
+				.attr("class", classPrefix + "tooltipYears")
+				.html("Total");
+
+			rowDivTotal.append("span")
+				.attr("class", classPrefix + "tooltipLeader");
+
+			rowDivTotal.append("span")
+				.attr("class", classPrefix + "tooltipValues")
+				.html("$" + formatMoney0Decimals(totalValues[selectedValue]));
 
 			tooltipData.forEach(row => {
 				const rowDiv = tooltipContainer.append("div")

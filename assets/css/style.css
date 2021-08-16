@@ -1344,6 +1344,9 @@ a.video-tutorial{color:#333;}
   font-weight: bold;
   text-anchor: middle;
   pointer-events: none;
+  stroke: white;
+  stroke-width: 2px;
+  paint-order: stroke;
 } 
 
 .pfbiccchartTitleCerf, .pfbiccchartTitleCbpf {
@@ -1465,7 +1468,9 @@ a.video-tutorial{color:#333;}
   font-weight: bold;
   text-anchor: middle;
   pointer-events: none;
-  letter-spacing: -0.5px;
+  stroke: white;
+  stroke-width: 2px;
+  paint-order: stroke;
 }
 
 .pfbialtwoColorsBorder {
