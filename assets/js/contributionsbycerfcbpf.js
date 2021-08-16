@@ -647,7 +647,20 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		const dataMonthWithZeros = monthsArray.reduce((acc, curr) => {
 			const foundMonth = dataMonth.find(e => e.month === curr);
 			if (foundMonth) {
-				acc.push(foundMonth)
+				if (foundMonth.cerfMonthlyData.length !== selectedYear.length) {
+					selectedYear.forEach(year => {
+						const foundYear = foundMonth.cerfMonthlyData.find(f => f.year === year);
+						if (!foundYear) {
+							foundMonth.cerfMonthlyData.push({
+								year: year,
+								total: 0,
+								paid: 0,
+								pledged: 0
+							});
+						};
+					});
+				};
+				acc.push(foundMonth);
 			} else if (!(selectedYear.length === 1 && selectedYear[0] === currentYear)) {
 				const obj = {
 					month: curr,
@@ -1457,7 +1470,20 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		const dataMonthWithZeros = monthsArray.reduce((acc, curr) => {
 			const foundMonth = dataMonth.find(e => e.month === curr);
 			if (foundMonth) {
-				acc.push(foundMonth)
+				if (foundMonth.cbpfMonthlyData.length !== selectedYear.length) {
+					selectedYear.forEach(year => {
+						const foundYear = foundMonth.cbpfMonthlyData.find(f => f.year === year);
+						if (!foundYear) {
+							foundMonth.cbpfMonthlyData.push({
+								year: year,
+								total: 0,
+								paid: 0,
+								pledged: 0
+							});
+						};
+					});
+				};
+				acc.push(foundMonth);
 			} else if (!(selectedYear.length === 1 && selectedYear[0] === currentYear)) {
 				const obj = {
 					month: curr,
@@ -1470,7 +1496,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 						paid: 0,
 						pledged: 0
 					});
-				})
+				});
 				acc.push(obj);
 			};
 			return acc;
