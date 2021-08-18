@@ -48,6 +48,7 @@ const classPrefix = "pfbicc",
 	precision = 6,
 	topDonors = 10,
 	tooltipPadding = 12,
+	tooltipPaddingCumulative = 24,
 	legendPadding = 36,
 	legendRectSize = 16,
 	legendTextPadding = 4,
@@ -84,7 +85,8 @@ let selectedYear,
 	selectedValue,
 	yearsArray,
 	yearsArrayCerf,
-	yearsArrayCbpf;
+	yearsArrayCbpf,
+	previousXValue;
 
 function createContributionsByCerfCbpf(selections, colors, lists) {
 
@@ -214,16 +216,22 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	yearsArrayCbpf = d3.range(lists.yearsArrayContributionsCbpf[0], currentYear + 1, 1);
 
 	const xScaleCerf = d3.scaleBand()
-		.range([svgPaddingsCerf[3], svgWidthCerf - svgPaddingsCerf[1]])
 		.paddingOuter(0.2);
+
+	xScaleCerf.invert = function(x) {
+		return d3.scaleQuantize().domain(this.range()).range(this.domain())(x);
+	};
 
 	const xScaleCerfInner = d3.scaleBand()
 		.paddingInner(0.35)
 		.paddingOuter(0.2);
 
 	const xScaleCbpf = d3.scaleBand()
-		.range([svgPaddingsCbpf[3], svgWidthCbpf - svgPaddingsCbpf[1]])
 		.paddingOuter(0.2);
+
+	xScaleCbpf.invert = function(x) {
+		return d3.scaleQuantize().domain(this.range()).range(this.domain())(x);
+	};
 
 	const xScaleCbpfInner = d3.scaleBand()
 		.paddingInner(0.35)
@@ -292,13 +300,13 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		.tickSizeOuter(0);
 
 	const yAxisCumulativeCerf = d3.axisLeft(yScaleCumulativeCerf)
-		.ticks(3)
+		.ticks(2)
 		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"))
 		.tickSizeInner(-(svgWidthCerf - svgPaddingsCerf[1] - svgPaddingsCerf[3]))
 		.tickSizeOuter(0);
 
 	const yAxisCumulativeCbpf = d3.axisLeft(yScaleCumulativeCbpf)
-		.ticks(3)
+		.ticks(2)
 		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"))
 		.tickSizeInner(-(svgWidthCbpf - svgPaddingsCbpf[1] - svgPaddingsCbpf[3]))
 		.tickSizeOuter(0);
@@ -733,6 +741,9 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		xScaleCerfInner.domain(selectedYear[0] === allYears ? [] : selectedYear.slice().sort((a, b) => a - b))
 			.range([0, xScaleCerf.bandwidth()]);
 
+		const syncedTransitionCerf = d3.transition()
+			.duration(duration);
+
 		let chartTitleCerf = svgCerf.selectAll("." + classPrefix + "chartTitleCerf")
 			.data([true]);
 
@@ -762,8 +773,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.data(dataYear, d => d.year);
 
 		const barsCerfExit = barsCerf.exit()
-			.transition()
-			.duration(duration)
+			.transition(syncedTransitionCerf)
 			.attr("y", yScaleCerf(0))
 			.attr("height", 0)
 			.style("opacity", 0)
@@ -783,8 +793,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		barsCerf = barsCerfEnter.merge(barsCerf);
 
-		barsCerf.transition()
-			.duration(duration)
+		barsCerf.transition(syncedTransitionCerf)
 			.style("opacity", 1)
 			.attr("y", d => yScaleCerf(d[`${selectedValue}${separator}cerf`]))
 			.attr("height", d => yScaleCerf(0) - yScaleCerf(d[`${selectedValue}${separator}cerf`]));
@@ -793,8 +802,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.data(dataYear.filter(e => e[`${selectedValue}${separator}cerf`]), d => d.year);
 
 		const labelsCerfExit = labelsCerf.exit()
-			.transition()
-			.duration(duration)
+			.transition(syncedTransitionCerf)
 			.attr("y", yScaleCerf(0))
 			.style("opacity", 0)
 			.remove();
@@ -807,8 +815,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		labelsCerf = labelsCerfEnter.merge(labelsCerf);
 
-		labelsCerf.transition()
-			.duration(duration)
+		labelsCerf.transition(syncedTransitionCerf)
 			.attr("y", d => d[`pledged${separator}cerf`] && selectedValue === "total" ? yScaleCerf(d[`total${separator}cerf`]) - (2 * labelPadding) : yScaleCerf(d[`${selectedValue}${separator}cerf`]) - labelPadding)
 			.tween("text", (d, i, n) => {
 				const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, d[`${selectedValue}${separator}cerf`]);
@@ -841,8 +848,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.data(d => d.cerfMonthlyData, d => d.year);
 
 		const barsGroupExitCerf = barsGroupCerf.exit()
-			.transition()
-			.duration(duration)
+			.transition(syncedTransitionCerf)
 			.attr("y", yScaleCerf(0))
 			.attr("height", 0)
 			.style("opacity", 0)
@@ -862,8 +868,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		barsGroupCerf = barsGroupEnterCerf.merge(barsGroupCerf);
 
-		barsGroupCerf.transition()
-			.duration(duration)
+		barsGroupCerf.transition(syncedTransitionCerf)
 			.style("opacity", 1)
 			.style("fill", (d, i, n) => d.year === currentYear ? `url(#${classPrefix}patternCerf)` :
 				n.length > 1 ? colors.cerfAnalogous[i] : colors.cerf)
@@ -876,8 +881,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.data(d => d.cerfMonthlyData.filter((e, i) => e[selectedValue] && (!i || i === d.cerfMonthlyData.length - 1)), d => d.year);
 
 		const labelsGroupCerfExit = labelsGroupCerf.exit()
-			.transition()
-			.duration(duration)
+			.transition(syncedTransitionCerf)
 			.attr("y", yScaleCerf(0))
 			.style("opacity", 0)
 			.remove();
@@ -892,8 +896,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		labelsGroupCerf.raise();
 
-		labelsGroupCerf.transition()
-			.duration(duration)
+		labelsGroupCerf.transition(syncedTransitionCerf)
 			.attr("x", d => xScaleCerfInner(d.year) + xScaleCerfInner.bandwidth() / 2)
 			.attr("y", d => d.pledged && selectedValue === "total" ? yScaleCerf(d[selectedValue]) - (3 * labelPaddingInner) : yScaleCerf(d[selectedValue]) - labelPaddingInner)
 			.tween("text", (d, i, n) => {
@@ -918,8 +921,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.merge(xAxisGroupedGroupCerf)
 			.style("opacity", selectedYear.length > 1 ? 1 : 0);
 
-		xAxisGroupedGroupCerf.transition()
-			.duration(duration)
+		xAxisGroupedGroupCerf.transition(syncedTransitionCerf)
 			.call(xAxisGroupedCerf);
 
 		let tooltipRectCerf = tooltipRectLayerCerf.selectAll("." + classPrefix + "tooltipRectCerf")
@@ -977,8 +979,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		tooltipRectGroupCerf = tooltipRectGroupEnterCerf.merge(tooltipRectGroupCerf);
 
-		tooltipRectGroupCerf.transition()
-			.duration(duration)
+		tooltipRectGroupCerf.transition(syncedTransitionCerf)
 			.attr("x", d => xScaleCerfInner(d.year))
 			.attr("width", xScaleCerfInner.bandwidth());
 
@@ -1139,8 +1140,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		xAxisCerf.tickSizeInner(selectedYear.length === 1 ? tickSize : 0);
 
-		xAxisGroupCerf.transition()
-			.duration(duration)
+		xAxisGroupCerf.transition(syncedTransitionCerf)
 			.style("opacity", noCerfValues ? 0 : 1)
 			.attr("transform", "translate(0," + (selectedYear.length === 1 ?
 				yScaleCerf(0) : yScaleCerf(0) + xGroupExtraPadding) + ")")
@@ -1158,8 +1158,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("y1", secondTickPadding + xAxisCerf.tickSizeInner())
 			.attr("y2", secondTickPadding + xAxisCerf.tickSizeInner() + secondTickSize);
 
-		yAxisGroupCerf.transition()
-			.duration(duration)
+		yAxisGroupCerf.transition(syncedTransitionCerf)
 			.style("opacity", noCerfValues ? 0 : 1)
 			.call(yAxisCerf);
 
@@ -1167,8 +1166,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.filter(d => d === 0)
 			.remove();
 
-		yAxisGroupCumulativeCerf.transition()
-			.duration(duration)
+		yAxisGroupCumulativeCerf.transition(syncedTransitionCerf)
 			.style("opacity", noCerfValues ? 0 : 1)
 			.call(yAxisCumulativeCerf)
 			.selectAll("line")
@@ -1179,10 +1177,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.data(selectedYear[0] === allYears || selectedYear.indexOf(currentYear) > -1 ? [true] : []);
 
 		const legendGroupExitCerf = legendGroupCerf.exit()
-			.transition()
-			.duration(duration)
-			.style("opacity", 0)
-			.remove();
+			.call(exitSelection, syncedTransitionCerf);
 
 		const legendGroupEnterCerf = legendGroupCerf.enter()
 			.append("g")
@@ -1204,18 +1199,14 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		legendGroupCerf = legendGroupEnterCerf.merge(legendGroupCerf);
 
-		legendGroupCerf.transition()
-			.duration(duration)
+		legendGroupCerf.transition(syncedTransitionCerf)
 			.style("opacity", 1);
 
 		let legendPledgedCerf = svgCerf.selectAll("." + classPrefix + "legendPledgedCerf")
 			.data(dataYear.some(e => e[`pledged${separator}cerf`]) || dataMonth.some(e => e[`pledged${separator}cerf`]) ? [true] : []);
 
 		const legendPledgedExitCerf = legendPledgedCerf.exit()
-			.transition()
-			.duration(duration)
-			.style("opacity", 0)
-			.remove();
+			.call(exitSelection, syncedTransitionCerf);
 
 		const legendPledgedEnterCerf = legendPledgedCerf.enter()
 			.append("text")
@@ -1232,8 +1223,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		legendPledgedCerf = legendPledgedEnterCerf.merge(legendPledgedCerf);
 
-		legendPledgedCerf.transition()
-			.duration(duration)
+		legendPledgedCerf.transition(syncedTransitionCerf)
 			.attr("x", legendGroupCerf.size() ? legendPledgedPadding : svgPaddingsCerf[3] + xScaleCerf.paddingOuter() * xScaleCerf.step())
 			.style("opacity", 1);
 
@@ -1252,18 +1242,25 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		cumulativeTitleCerf = cumulativeTitleEnterCerf.merge(cumulativeTitleCerf);
 
-		cumulativeTitleCerf.transition()
-			.duration(duration)
+		cumulativeTitleCerf.transition(syncedTransitionCerf)
 			.style("opacity", noCerfValues ? 0 : 1);
+
+		let cumulativeVerticalLineCerf = chartLayerCerf.selectAll("." + classPrefix + "cumulativeVerticalLineCerf")
+			.data([true]);
+
+		cumulativeVerticalLineCerf = cumulativeVerticalLineCerf.enter()
+			.append("line")
+			.attr("class", classPrefix + "cumulativeVerticalLineCerf")
+			.style("opacity", 0)
+			.merge(cumulativeVerticalLineCerf)
+			.attr("y1", yScaleCumulativeCerf.range()[1] - svgCumulativePaddingsCerf[0] + secondTickSize + 2 + (selectedYear.length === 1 ? 0 : xGroupExtraPadding - secondTickSize))
+			.attr("y2", yScaleCumulativeCerf.range()[0]);
 
 		let cumulativeLinesCerf = chartLayerCerf.selectAll("." + classPrefix + "cumulativeLinesCerf")
 			.data(dataCumulative);
 
 		const cumulativeLinesExitCerf = cumulativeLinesCerf.exit()
-			.transition()
-			.duration(duration)
-			.style("opacity", 0)
-			.remove();
+			.call(exitSelection, syncedTransitionCerf);
 
 		const cumulativeLinesEnterCerf = cumulativeLinesCerf.enter()
 			.append("path")
@@ -1275,8 +1272,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		cumulativeLinesCerf = cumulativeLinesEnterCerf.merge(cumulativeLinesCerf);
 
-		cumulativeLinesCerf.transition()
-			.duration(duration)
+		cumulativeLinesCerf.transition(syncedTransitionCerf)
 			.style("stroke", (_, i) => colors.cerfAnalogous[i])
 			.attr("d", d => cumulativeLineGeneratorCerf(d.values));
 
@@ -1284,10 +1280,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.data(dataCumulative.length === 1 ? dataCumulative[0].values : []);
 
 		const cumulativeLabelsExitCerf = cumulativeLabelsCerf.exit()
-			.transition()
-			.duration(duration)
-			.style("opacity", 0)
-			.remove();
+			.call(exitSelection, syncedTransitionCerf);
 
 		const cumulativeLabelsEnterCerf = cumulativeLabelsCerf.enter()
 			.append("text")
@@ -1298,8 +1291,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		cumulativeLabelsCerf = cumulativeLabelsEnterCerf.merge(cumulativeLabelsCerf);
 
-		cumulativeLabelsCerf.transition()
-			.duration(duration)
+		cumulativeLabelsCerf.transition(syncedTransitionCerf)
 			.attr("x", d => xScaleCerf(d[selectedYear[0] === allYears ? "year" : "month"]) + xScaleCerf.bandwidth() / 2)
 			.attr("y", d => yScaleCumulativeCerf(d.total) - cumulativeLabelPadding)
 			.textTween((d, i, n) => {
@@ -1311,10 +1303,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.data(dataCumulative);
 
 		const cumulativeCirclesGroupCerfExit = cumulativeCirclesGroupCerf.exit()
-			.transition()
-			.duration(duration)
-			.style("opacity", 0)
-			.remove();
+			.call(exitSelection, syncedTransitionCerf);
 
 		const cumulativeCirclesGroupCerfEnter = cumulativeCirclesGroupCerf.enter()
 			.append("g")
@@ -1323,18 +1312,14 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		cumulativeCirclesGroupCerf = cumulativeCirclesGroupCerfEnter.merge(cumulativeCirclesGroupCerf);
 
-		cumulativeCirclesGroupCerf.transition()
-			.duration(duration)
+		cumulativeCirclesGroupCerf.transition(syncedTransitionCerf)
 			.style("fill", (_, i) => colors.cerfAnalogous[i]);
 
 		let cumulativeCirclesCerf = cumulativeCirclesGroupCerf.selectAll("." + classPrefix + "cumulativeCirclesCerf")
 			.data(d => d.values, d => selectedYear[0] === allYears ? d.year : d.month);
 
 		const cumulativeCirclesCerfExit = cumulativeCirclesCerf.exit()
-			.transition()
-			.duration(duration)
-			.style("opacity", 0)
-			.remove();
+			.call(exitSelection, syncedTransitionCerf);
 
 		const cumulativeCirclesCerfEnter = cumulativeCirclesCerf.enter()
 			.append("circle")
@@ -1345,11 +1330,133 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		cumulativeCirclesCerf = cumulativeCirclesCerfEnter.merge(cumulativeCirclesCerf);
 
-		cumulativeCirclesCerf.transition()
-			.duration(duration)
+		cumulativeCirclesCerf.transition(syncedTransitionCerf)
 			.attr("cy", d => yScaleCumulativeCerf(d.total))
 			.attr("cx", d => xScaleCerf(selectedYear[0] === allYears ? d.year : d.month) + xScaleCerf.bandwidth() / 2);
 
+		let cumulativeRectangleCerf = chartLayerCerf.selectAll("." + classPrefix + "cumulativeRectangleCerf")
+			.data([true]);
+
+		cumulativeRectangleCerf = cumulativeRectangleCerf.enter()
+			.append("rect")
+			.attr("class", classPrefix + "cumulativeRectangleCerf")
+			.style("opacity", 0)
+			.attr("pointer-events", "all")
+			.attr("x", 0)
+			.attr("y", yScaleCumulativeCerf.range()[1])
+			.attr("height", yScaleCumulativeCerf.range()[0] - yScaleCumulativeCerf.range()[1])
+			.merge(cumulativeRectangleCerf)
+			.attr("width", xScaleCerf.range()[1])
+			.raise();
+
+		cumulativeRectangleCerf.on("mousemove", event => {
+
+			chartState.currentHoveredElement = event.currentTarget;
+
+			const xValue = xScaleCerf.invert(d3.pointer(event)[0]);
+
+			if (xValue === previousXValue && tooltipDiv.style("display") === "block") return;
+
+			previousXValue = xValue;
+
+			cumulativeVerticalLineCerf.style("opacity", 1)
+				.attr("x1", xScaleCerf(xValue) + xScaleCerf.bandwidth() / 2)
+				.attr("x2", xScaleCerf(xValue) + xScaleCerf.bandwidth() / 2);
+
+			const thisData = dataCumulative.map(d => {
+				const thisValue = JSON.parse(JSON.stringify(d.values.find(e => (selectedYear[0] === allYears ? e.year : e.month) === xValue)));
+				thisValue.year = d.year;
+				return thisValue;
+			}).sort((a, b) => b.total - a.total);
+
+			let highlightCircles = chartAreaCerf.selectAll("." + classPrefix + "highlightCircles")
+				.data(thisData);
+
+			const highlightCirclesExit = highlightCircles.exit()
+				.remove();
+
+			const highlightCirclesEnter = highlightCircles.enter()
+				.append("circle")
+				.attr("class", classPrefix + "highlightCircles")
+				.attr("r", cumulativeHighlightCircleRadius)
+				.style("fill", "none")
+				.style("stroke-width", "1px")
+				.attr("pointer-events", "none")
+				.style("stroke", (_, i) => colors.cerfAnalogous[i])
+				.attr("cx", xScaleCerf(xValue) + xScaleCerf.bandwidth() / 2)
+				.attr("cy", d => yScaleCumulativeCerf(d.total));
+
+			highlightCircles = highlightCirclesEnter.merge(highlightCircles);
+
+			highlightCircles.attr("cx", xScaleCerf(xValue) + xScaleCerf.bandwidth() / 2)
+				.attr("cy", d => yScaleCumulativeCerf(d.total));
+
+			tooltipDiv.style("display", "block")
+				.html(null);
+
+			const innerTooltipDiv = tooltipDiv.append("div")
+				.style("max-width", innerTooltipDivWidth + "px")
+				.attr("id", classPrefix + "innerTooltipDiv");
+
+			innerTooltipDiv.append("div")
+				.style("margin-bottom", "8px")
+				.append("strong")
+				.html("Cumulative value up to " + (selectedYear[0] === allYears ? xValue : monthFormatFull(monthAbbrvParse(xValue))));
+
+			const tooltipContainer = innerTooltipDiv.append("div")
+				.style("margin", "0px")
+				.style("display", "flex")
+				.style("flex-wrap", "wrap")
+				.style("white-space", "pre")
+				.style("line-height", 1.4)
+				.style("width", "100%");
+
+			thisData.forEach((row, index) => {
+				const rowDiv = tooltipContainer.append("div")
+					.style("display", "flex")
+					.style("align-items", "center")
+					.style("width", "100%");
+
+				rowDiv.append("span")
+					.style("color", colors.cerfAnalogous[index])
+					.html("&#9679;&nbsp;");
+
+				rowDiv.append("span")
+					.attr("class", classPrefix + "tooltipYears")
+					.html(selectedYear[0] === allYears ? "Total" : row.year);
+
+				rowDiv.append("span")
+					.attr("class", classPrefix + "tooltipLeader");
+
+				rowDiv.append("span")
+					.attr("class", classPrefix + "tooltipValues")
+					.html("$" + formatMoney0Decimals(row.total));
+			});
+
+			const containerSize = containerDiv.node().getBoundingClientRect();
+			const thisSize = event.currentTarget.getBoundingClientRect();
+			const lineSize = cumulativeVerticalLineCerf.node().getBoundingClientRect();
+			const tooltipSize = tooltipDiv.node().getBoundingClientRect();
+
+			const thisOffsetLeft = tooltipSize.width > containerSize.right - lineSize.right - tooltipPaddingCumulative ?
+				lineSize.left - containerSize.left - lineSize.width - tooltipSize.width - tooltipPaddingCumulative :
+				lineSize.left - containerSize.left + lineSize.width + tooltipPaddingCumulative;
+
+			tooltipDiv.style("left", thisOffsetLeft + "px")
+				.style("top", Math.max((thisSize.top + thisSize.height / 2 - tooltipSize.height / 2) - containerSize.top, 0) + "px");
+
+
+		}).on("mouseout", () => {
+			if (chartState.isSnapshotTooltipVisible) return;
+			chartState.currentHoveredElement = null;
+
+			cumulativeVerticalLineCerf.style("opacity", 0);
+			chartAreaCerf.selectAll("." + classPrefix + "highlightCircles")
+				.remove();
+
+			tooltipDiv.style("display", "none")
+				.html(null);
+		});
 
 		//arrows and listeners CERF
 
@@ -1357,10 +1464,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.data(selectedYear[0] === allYears ? [true] : []);
 
 		const leftArrowGroupCerfExit = leftArrowGroupCerf.exit()
-			.transition()
-			.duration(duration)
-			.style("opacity", 0)
-			.remove();
+			.call(exitSelection, syncedTransitionCerf);
 
 		const leftArrowGroupCerfEnter = leftArrowGroupCerf.enter()
 			.append("g")
@@ -1379,18 +1483,14 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		leftArrowGroupCerf = leftArrowGroupCerfEnter.merge(leftArrowGroupCerf);
 
-		leftArrowGroupCerf.transition()
-			.duration(duration)
+		leftArrowGroupCerf.transition(syncedTransitionCerf)
 			.style("opacity", 1);
 
 		let rightArrowGroupCerf = svgCerf.selectAll("." + classPrefix + "rightArrowGroupCerf")
 			.data(selectedYear[0] === allYears ? [true] : []);
 
 		const rightArrowGroupCerfExit = rightArrowGroupCerf.exit()
-			.transition()
-			.duration(duration)
-			.style("opacity", 0)
-			.remove();
+			.call(exitSelection, syncedTransitionCerf);
 
 		const rightArrowGroupCerfEnter = rightArrowGroupCerf.enter()
 			.append("g")
@@ -1409,8 +1509,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		rightArrowGroupCerf = rightArrowGroupCerfEnter.merge(rightArrowGroupCerf);
 
-		rightArrowGroupCerf.transition()
-			.duration(duration)
+		rightArrowGroupCerf.transition(syncedTransitionCerf)
 			.style("opacity", 1);
 
 		if (selectedYear[0] === allYears) {
@@ -1599,6 +1698,9 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		xScaleCbpfInner.domain(selectedYear[0] === allYears ? [] : selectedYear.slice().sort((a, b) => a - b))
 			.range([0, xScaleCbpf.bandwidth()]);
 
+		const syncedTransitionCbpf = d3.transition()
+			.duration(duration);
+
 		let chartTitleCbpf = svgCbpf.selectAll("." + classPrefix + "chartTitleCbpf")
 			.data([true]);
 
@@ -1621,8 +1723,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.data(dataYear, d => d.year);
 
 		const barsCbpfExit = barsCbpf.exit()
-			.transition()
-			.duration(duration)
+			.transition(syncedTransitionCbpf)
 			.attr("y", yScaleCbpf(0))
 			.attr("height", 0)
 			.style("opacity", 0)
@@ -1642,8 +1743,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		barsCbpf = barsCbpfEnter.merge(barsCbpf);
 
-		barsCbpf.transition()
-			.duration(duration)
+		barsCbpf.transition(syncedTransitionCbpf)
 			.style("opacity", 1)
 			.attr("y", d => yScaleCbpf(d[`${selectedValue}${separator}cbpf`]))
 			.attr("height", d => yScaleCbpf(0) - yScaleCbpf(d[`${selectedValue}${separator}cbpf`]));
@@ -1652,8 +1752,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.data(dataYear.filter(e => e[`${selectedValue}${separator}cbpf`]), d => d.year);
 
 		const labelsCbpfExit = labelsCbpf.exit()
-			.transition()
-			.duration(duration)
+			.transition(syncedTransitionCbpf)
 			.attr("y", yScaleCbpf(0))
 			.style("opacity", 0)
 			.remove();
@@ -1666,8 +1765,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		labelsCbpf = labelsCbpfEnter.merge(labelsCbpf);
 
-		labelsCbpf.transition()
-			.duration(duration)
+		labelsCbpf.transition(syncedTransitionCbpf)
 			.attr("y", d => d[`pledged${separator}cbpf`] && selectedValue === "total" ? yScaleCbpf(d[`total${separator}cbpf`]) - (2 * labelPadding) : yScaleCbpf(d[`${selectedValue}${separator}cbpf`]) - labelPadding)
 			.tween("text", (d, i, n) => {
 				const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, d[`${selectedValue}${separator}cbpf`]);
@@ -1700,8 +1798,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.data(d => d.cbpfMonthlyData, d => d.year);
 
 		const barsGroupExitCbpf = barsGroupCbpf.exit()
-			.transition()
-			.duration(duration)
+			.transition(syncedTransitionCbpf)
 			.attr("y", yScaleCbpf(0))
 			.attr("height", 0)
 			.style("opacity", 0)
@@ -1721,8 +1818,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		barsGroupCbpf = barsGroupEnterCbpf.merge(barsGroupCbpf);
 
-		barsGroupCbpf.transition()
-			.duration(duration)
+		barsGroupCbpf.transition(syncedTransitionCbpf)
 			.style("opacity", 1)
 			.style("fill", (d, i, n) => d.year === currentYear ? `url(#${classPrefix}patternCbpf)` :
 				n.length > 1 ? colors.cbpfAnalogous[i] : colors.cbpf)
@@ -1735,8 +1831,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.data(d => d.cbpfMonthlyData.filter((e, i) => e[selectedValue] && (!i || i === d.cbpfMonthlyData.length - 1)), d => d.year);
 
 		const labelsGroupCbpfExit = labelsGroupCbpf.exit()
-			.transition()
-			.duration(duration)
+			.transition(syncedTransitionCbpf)
 			.attr("y", yScaleCbpf(0))
 			.style("opacity", 0)
 			.remove();
@@ -1751,8 +1846,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		labelsGroupCbpf.raise();
 
-		labelsGroupCbpf.transition()
-			.duration(duration)
+		labelsGroupCbpf.transition(syncedTransitionCbpf)
 			.attr("x", d => xScaleCbpfInner(d.year) + xScaleCbpfInner.bandwidth() / 2)
 			.attr("y", d => d.pledged && selectedValue === "total" ? yScaleCbpf(d[selectedValue]) - (3 * labelPaddingInner) : yScaleCbpf(d[selectedValue]) - labelPaddingInner)
 			.tween("text", (d, i, n) => {
@@ -1777,8 +1871,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.merge(xAxisGroupedGroupCbpf)
 			.style("opacity", selectedYear.length > 1 ? 1 : 0);
 
-		xAxisGroupedGroupCbpf.transition()
-			.duration(duration)
+		xAxisGroupedGroupCbpf.transition(syncedTransitionCbpf)
 			.call(xAxisGroupedCbpf);
 
 		let tooltipRectCbpf = tooltipRectLayerCbpf.selectAll("." + classPrefix + "tooltipRectCbpf")
@@ -1836,8 +1929,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		tooltipRectGroupCbpf = tooltipRectGroupEnterCbpf.merge(tooltipRectGroupCbpf);
 
-		tooltipRectGroupCbpf.transition()
-			.duration(duration)
+		tooltipRectGroupCbpf.transition(syncedTransitionCbpf)
 			.attr("x", d => xScaleCbpfInner(d.year))
 			.attr("width", xScaleCbpfInner.bandwidth());
 
@@ -1998,8 +2090,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		xAxisCbpf.tickSizeInner(selectedYear.length === 1 ? 6 : 0);
 
-		xAxisGroupCbpf.transition()
-			.duration(duration)
+		xAxisGroupCbpf.transition(syncedTransitionCbpf)
 			.attr("transform", "translate(0," + (selectedYear.length === 1 ?
 				yScaleCbpf(0) : yScaleCbpf(0) + xGroupExtraPadding) + ")")
 			.call(xAxisCbpf);
@@ -2016,16 +2107,14 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("y1", secondTickPadding + xAxisCbpf.tickSizeInner())
 			.attr("y2", secondTickPadding + xAxisCbpf.tickSizeInner() + secondTickSize);
 
-		yAxisGroupCbpf.transition()
-			.duration(duration)
+		yAxisGroupCbpf.transition(syncedTransitionCbpf)
 			.call(yAxisCbpf);
 
 		yAxisGroupCbpf.selectAll(".tick")
 			.filter(d => d === 0)
 			.remove();
 
-		yAxisGroupCumulativeCbpf.transition()
-			.duration(duration)
+		yAxisGroupCumulativeCbpf.transition(syncedTransitionCbpf)
 			.call(yAxisCumulativeCbpf)
 			.selectAll("line")
 			.style("stroke-dasharray", d => !d ? "none" : null)
@@ -2035,10 +2124,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.data(selectedYear[0] === allYears || selectedYear.indexOf(currentYear) > -1 ? [true] : []);
 
 		const legendGroupExitCbpf = legendGroupCbpf.exit()
-			.transition()
-			.duration(duration)
-			.style("opacity", 0)
-			.remove();
+			.call(exitSelection, syncedTransitionCbpf);
 
 		const legendGroupEnterCbpf = legendGroupCbpf.enter()
 			.append("g")
@@ -2060,18 +2146,14 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		legendGroupCbpf = legendGroupEnterCbpf.merge(legendGroupCbpf);
 
-		legendGroupCbpf.transition()
-			.duration(duration)
+		legendGroupCbpf.transition(syncedTransitionCbpf)
 			.style("opacity", 1);
 
 		let legendPledgedCbpf = svgCbpf.selectAll("." + classPrefix + "legendPledgedCbpf")
 			.data(dataYear.some(e => e[`pledged${separator}cbpf`]) || dataMonth.some(e => e[`pledged${separator}cbpf`]) ? [true] : []);
 
 		const legendPledgedExitCbpf = legendPledgedCbpf.exit()
-			.transition()
-			.duration(duration)
-			.style("opacity", 0)
-			.remove();
+			.call(exitSelection, syncedTransitionCbpf);
 
 		const legendPledgedEnterCbpf = legendPledgedCbpf.enter()
 			.append("text")
@@ -2088,8 +2170,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		legendPledgedCbpf = legendPledgedEnterCbpf.merge(legendPledgedCbpf);
 
-		legendPledgedCbpf.transition()
-			.duration(duration)
+		legendPledgedCbpf.transition(syncedTransitionCbpf)
 			.attr("x", legendGroupCbpf.size() ? legendPledgedPadding : svgPaddingsCbpf[3] + xScaleCbpf.paddingOuter() * xScaleCbpf.step())
 			.style("opacity", 1);
 
@@ -2104,14 +2185,22 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("y", yScaleCumulativeCbpf(0) + cumulativeTitlePadding)
 			.text("Cumulative total");
 
+		let cumulativeVerticalLineCbpf = chartLayerCbpf.selectAll("." + classPrefix + "cumulativeVerticalLineCbpf")
+			.data([true]);
+
+		cumulativeVerticalLineCbpf = cumulativeVerticalLineCbpf.enter()
+			.append("line")
+			.attr("class", classPrefix + "cumulativeVerticalLineCbpf")
+			.style("opacity", 0)
+			.merge(cumulativeVerticalLineCbpf)
+			.attr("y1", yScaleCumulativeCbpf.range()[1] - svgCumulativePaddingsCbpf[0] + secondTickSize + 2 + (selectedYear.length === 1 ? 0 : xGroupExtraPadding - secondTickSize))
+			.attr("y2", yScaleCumulativeCbpf.range()[0]);
+
 		let cumulativeLinesCbpf = chartLayerCbpf.selectAll("." + classPrefix + "cumulativeLinesCbpf")
 			.data(dataCumulative);
 
 		const cumulativeLinesExitCbpf = cumulativeLinesCbpf.exit()
-			.transition()
-			.duration(duration)
-			.style("opacity", 0)
-			.remove();
+			.call(exitSelection, syncedTransitionCbpf);
 
 		const cumulativeLinesEnterCbpf = cumulativeLinesCbpf.enter()
 			.append("path")
@@ -2123,8 +2212,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		cumulativeLinesCbpf = cumulativeLinesEnterCbpf.merge(cumulativeLinesCbpf);
 
-		cumulativeLinesCbpf.transition()
-			.duration(duration)
+		cumulativeLinesCbpf.transition(syncedTransitionCbpf)
 			.style("stroke", (_, i) => colors.cbpfAnalogous[i])
 			.attr("d", d => cumulativeLineGeneratorCbpf(d.values));
 
@@ -2132,10 +2220,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.data(dataCumulative.length === 1 ? dataCumulative[0].values : []);
 
 		const cumulativeLabelsExitCbpf = cumulativeLabelsCbpf.exit()
-			.transition()
-			.duration(duration)
-			.style("opacity", 0)
-			.remove();
+			.call(exitSelection, syncedTransitionCbpf);
 
 		const cumulativeLabelsEnterCbpf = cumulativeLabelsCbpf.enter()
 			.append("text")
@@ -2146,8 +2231,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		cumulativeLabelsCbpf = cumulativeLabelsEnterCbpf.merge(cumulativeLabelsCbpf);
 
-		cumulativeLabelsCbpf.transition()
-			.duration(duration)
+		cumulativeLabelsCbpf.transition(syncedTransitionCbpf)
 			.attr("x", d => xScaleCbpf(d[selectedYear[0] === allYears ? "year" : "month"]) + xScaleCbpf.bandwidth() / 2)
 			.attr("y", d => yScaleCumulativeCbpf(d.total) - cumulativeLabelPadding)
 			.textTween((d, i, n) => {
@@ -2159,10 +2243,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.data(dataCumulative);
 
 		const cumulativeCirclesGroupCbpfExit = cumulativeCirclesGroupCbpf.exit()
-			.transition()
-			.duration(duration)
-			.style("opacity", 0)
-			.remove();
+			.call(exitSelection, syncedTransitionCbpf);
 
 		const cumulativeCirclesGroupCbpfEnter = cumulativeCirclesGroupCbpf.enter()
 			.append("g")
@@ -2171,18 +2252,14 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		cumulativeCirclesGroupCbpf = cumulativeCirclesGroupCbpfEnter.merge(cumulativeCirclesGroupCbpf);
 
-		cumulativeCirclesGroupCbpf.transition()
-			.duration(duration)
+		cumulativeCirclesGroupCbpf.transition(syncedTransitionCbpf)
 			.style("fill", (_, i) => colors.cbpfAnalogous[i]);
 
 		let cumulativeCirclesCbpf = cumulativeCirclesGroupCbpf.selectAll("." + classPrefix + "cumulativeCirclesCbpf")
 			.data(d => d.values, d => selectedYear[0] === allYears ? d.year : d.month);
 
 		const cumulativeCirclesCbpfExit = cumulativeCirclesCbpf.exit()
-			.transition()
-			.duration(duration)
-			.style("opacity", 0)
-			.remove();
+			.call(exitSelection, syncedTransitionCbpf);
 
 		const cumulativeCirclesCbpfEnter = cumulativeCirclesCbpf.enter()
 			.append("circle")
@@ -2193,12 +2270,132 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		cumulativeCirclesCbpf = cumulativeCirclesCbpfEnter.merge(cumulativeCirclesCbpf);
 
-		cumulativeCirclesCbpf.transition()
-			.duration(duration)
+		cumulativeCirclesCbpf.transition(syncedTransitionCbpf)
 			.attr("cy", d => yScaleCumulativeCbpf(d.total))
 			.attr("cx", d => xScaleCbpf(selectedYear[0] === allYears ? d.year : d.month) + xScaleCbpf.bandwidth() / 2);
 
+		let cumulativeRectangleCbpf = chartLayerCbpf.selectAll("." + classPrefix + "cumulativeRectangleCbpf")
+			.data([true]);
 
+		cumulativeRectangleCbpf = cumulativeRectangleCbpf.enter()
+			.append("rect")
+			.attr("class", classPrefix + "cumulativeRectangleCbpf")
+			.style("opacity", 0)
+			.attr("pointer-events", "all")
+			.attr("x", 0)
+			.attr("y", yScaleCumulativeCbpf.range()[1])
+			.attr("height", yScaleCumulativeCbpf.range()[0] - yScaleCumulativeCbpf.range()[1])
+			.merge(cumulativeRectangleCbpf)
+			.attr("width", xScaleCbpf.range()[1])
+			.raise();
+
+		cumulativeRectangleCbpf.on("mousemove", event => {
+
+			chartState.currentHoveredElement = event.currentTarget;
+
+			const xValue = xScaleCbpf.invert(d3.pointer(event)[0]);
+
+			if (xValue === previousXValue && tooltipDiv.style("display") === "block") return;
+
+			previousXValue = xValue;
+
+			cumulativeVerticalLineCbpf.style("opacity", 1)
+				.attr("x1", xScaleCbpf(xValue) + xScaleCbpf.bandwidth() / 2)
+				.attr("x2", xScaleCbpf(xValue) + xScaleCbpf.bandwidth() / 2);
+
+			const thisData = dataCumulative.map(d => {
+				const thisValue = JSON.parse(JSON.stringify(d.values.find(e => (selectedYear[0] === allYears ? e.year : e.month) === xValue)));
+				thisValue.year = d.year;
+				return thisValue;
+			}).sort((a, b) => b.total - a.total);
+
+			let highlightCircles = chartAreaCbpf.selectAll("." + classPrefix + "highlightCircles")
+				.data(thisData);
+
+			const highlightCirclesExit = highlightCircles.exit()
+				.remove();
+
+			const highlightCirclesEnter = highlightCircles.enter()
+				.append("circle")
+				.attr("class", classPrefix + "highlightCircles")
+				.attr("r", cumulativeHighlightCircleRadius)
+				.style("fill", "none")
+				.style("stroke-width", "1px")
+				.attr("pointer-events", "none")
+				.style("stroke", (_, i) => colors.cbpfAnalogous[i])
+				.attr("cx", xScaleCbpf(xValue) + xScaleCbpf.bandwidth() / 2)
+				.attr("cy", d => yScaleCumulativeCbpf(d.total));
+
+			highlightCircles = highlightCirclesEnter.merge(highlightCircles);
+
+			highlightCircles.attr("cx", xScaleCbpf(xValue) + xScaleCbpf.bandwidth() / 2)
+				.attr("cy", d => yScaleCumulativeCbpf(d.total));
+
+			tooltipDiv.style("display", "block")
+				.html(null);
+
+			const innerTooltipDiv = tooltipDiv.append("div")
+				.style("max-width", innerTooltipDivWidth + "px")
+				.attr("id", classPrefix + "innerTooltipDiv");
+
+			innerTooltipDiv.append("div")
+				.style("margin-bottom", "8px")
+				.append("strong")
+				.html("Cumulative value up to " + (selectedYear[0] === allYears ? xValue : monthFormatFull(monthAbbrvParse(xValue))));
+
+			const tooltipContainer = innerTooltipDiv.append("div")
+				.style("margin", "0px")
+				.style("display", "flex")
+				.style("flex-wrap", "wrap")
+				.style("white-space", "pre")
+				.style("line-height", 1.4)
+				.style("width", "100%");
+
+			thisData.forEach((row, index) => {
+				const rowDiv = tooltipContainer.append("div")
+					.style("display", "flex")
+					.style("align-items", "center")
+					.style("width", "100%");
+
+				rowDiv.append("span")
+					.style("color", colors.cbpfAnalogous[index])
+					.html("&#9679;&nbsp;");
+
+				rowDiv.append("span")
+					.attr("class", classPrefix + "tooltipYears")
+					.html(selectedYear[0] === allYears ? "Total" : row.year);
+
+				rowDiv.append("span")
+					.attr("class", classPrefix + "tooltipLeader");
+
+				rowDiv.append("span")
+					.attr("class", classPrefix + "tooltipValues")
+					.html("$" + formatMoney0Decimals(row.total));
+			});
+
+			const containerSize = containerDiv.node().getBoundingClientRect();
+			const thisSize = event.currentTarget.getBoundingClientRect();
+			const lineSize = cumulativeVerticalLineCbpf.node().getBoundingClientRect();
+			const tooltipSize = tooltipDiv.node().getBoundingClientRect();
+
+			const thisOffsetLeft = tooltipSize.width > containerSize.right - lineSize.right - tooltipPaddingCumulative ?
+				lineSize.left - containerSize.left - lineSize.width - tooltipSize.width - tooltipPaddingCumulative :
+				lineSize.left - containerSize.left + lineSize.width + tooltipPaddingCumulative;
+
+			tooltipDiv.style("left", thisOffsetLeft + "px")
+				.style("top", Math.max((thisSize.top + thisSize.height / 2 - tooltipSize.height / 2) - containerSize.top, 0) + "px");
+
+		}).on("mouseout", () => {
+			if (chartState.isSnapshotTooltipVisible) return;
+			chartState.currentHoveredElement = null;
+
+			cumulativeVerticalLineCbpf.style("opacity", 0);
+			chartAreaCbpf.selectAll("." + classPrefix + "highlightCircles")
+				.remove();
+
+			tooltipDiv.style("display", "none")
+				.html(null);
+		});
 
 		//arrows and listeners CBPF
 
@@ -2206,10 +2403,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.data(selectedYear[0] === allYears ? [true] : []);
 
 		const leftArrowGroupCbpfExit = leftArrowGroupCbpf.exit()
-			.transition()
-			.duration(duration)
-			.style("opacity", 0)
-			.remove();
+			.call(exitSelection, syncedTransitionCbpf);
 
 		const leftArrowGroupCbpfEnter = leftArrowGroupCbpf.enter()
 			.append("g")
@@ -2228,18 +2422,14 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		leftArrowGroupCbpf = leftArrowGroupCbpfEnter.merge(leftArrowGroupCbpf);
 
-		leftArrowGroupCbpf.transition()
-			.duration(duration)
+		leftArrowGroupCbpf.transition(syncedTransitionCbpf)
 			.style("opacity", 1);
 
 		let rightArrowGroupCbpf = svgCbpf.selectAll("." + classPrefix + "rightArrowGroupCbpf")
 			.data(selectedYear[0] === allYears ? [true] : []);
 
 		const rightArrowGroupCbpfExit = rightArrowGroupCbpf.exit()
-			.transition()
-			.duration(duration)
-			.style("opacity", 0)
-			.remove();
+			.call(exitSelection, syncedTransitionCbpf);
 
 		const rightArrowGroupCbpfEnter = rightArrowGroupCbpf.enter()
 			.append("g")
@@ -2258,8 +2448,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		rightArrowGroupCbpf = rightArrowGroupCbpfEnter.merge(rightArrowGroupCbpf);
 
-		rightArrowGroupCbpf.transition()
-			.duration(duration)
+		rightArrowGroupCbpf.transition(syncedTransitionCbpf)
 			.style("opacity", 1);
 
 		if (selectedYear[0] === allYears) {
@@ -2405,6 +2594,9 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		const stackedData = stack(columnData);
 
+		const syncedTransitionColumn = d3.transition()
+			.duration(duration);
+
 		let barsGroupsColumn = svgColumnChart.selectAll("." + classPrefix + "barsGroupsColumn")
 			.data(stackedData, d => d.key);
 
@@ -2421,8 +2613,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.data(d => d, d => d.data.donor);
 
 		const barsColumnExit = barsColumn.exit()
-			.transition()
-			.duration(duration)
+			.transition(syncedTransitionColumn)
 			.attr("width", 0)
 			.attr("x", svgColumnPadding[3])
 			.style("opacity", 0)
@@ -2442,8 +2633,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		barsColumn = barsColumnEnter.merge(barsColumn);
 
-		barsColumn.transition()
-			.duration(duration)
+		barsColumn.transition(syncedTransitionColumn)
 			.attr("height", yScaleColumn.bandwidth())
 			.attr("y", d => yScaleColumn(d.data.donor))
 			.attr("x", d => d[0] === d[1] ? xScaleColumn(0) : xScaleColumn(d[0]))
@@ -2453,8 +2643,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.data(columnData, d => d.donor);
 
 		const labelsColumnExit = labelsColumn.exit()
-			.transition()
-			.duration(duration)
+			.transition(syncedTransitionColumn)
 			.style("opacity", 0)
 			.remove();
 
@@ -2467,8 +2656,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		labelsColumn = labelsColumnEnter.merge(labelsColumn);
 
-		labelsColumn.transition()
-			.duration(duration)
+		labelsColumn.transition(syncedTransitionColumn)
 			.style("opacity", 1)
 			.attr("x", d => xScaleColumn(d.cerf + d.cbpf) + labelsColumnPadding)
 			.attr("y", d => yScaleColumn(d.donor) + yScaleColumn.bandwidth() / 2)
@@ -2481,8 +2669,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.data(columnData.slice(0, topDonors), d => d.donor);
 
 		const flagsColumnExit = flagsColumn.exit()
-			.transition()
-			.duration(duration)
+			.transition(syncedTransitionColumn)
 			.style("opacity", 0)
 			.remove();
 
@@ -2498,23 +2685,20 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		flagsColumn = flagsColumnEnter.merge(flagsColumn);
 
-		flagsColumn.transition()
-			.duration(duration)
+		flagsColumn.transition(syncedTransitionColumn)
 			.style("opacity", 1)
 			.attr("y", d => yScaleColumn(d.donor));
 
 		xAxisColumn.tickSizeInner(-(yScaleColumn.range()[1] - yScaleColumn.range()[0]));
 
-		xAxisGroupColumn.transition()
-			.duration(duration)
+		xAxisGroupColumn.transition(syncedTransitionColumn)
 			.call(xAxisColumn);
 
 		xAxisGroupColumn.selectAll(".tick")
 			.filter(d => d === 0)
 			.remove();
 
-		yAxisGroupColumn.transition()
-			.duration(duration)
+		yAxisGroupColumn.transition(syncedTransitionColumn)
 			.call(customAxis);
 
 		function customAxis(group) {
@@ -2778,6 +2962,12 @@ function parseTransform(translate) {
 	group.setAttributeNS(null, "transform", translate);
 	const matrix = group.transform.baseVal.consolidate().matrix;
 	return [matrix.e, matrix.f];
+};
+
+function exitSelection(selection, transition) {
+	selection.transition(transition)
+		.style("opacity", 0)
+		.remove();
 };
 
 export {
