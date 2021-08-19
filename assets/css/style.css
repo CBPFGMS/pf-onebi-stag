@@ -1311,6 +1311,7 @@ a.video-tutorial{color:#333;}
 .pfbiccyAxisGroupCerf line, .pfbiccyAxisGroupCbpf line, .pfbiccyAxisGroupCumulativeCerf line, .pfbiccyAxisGroupCumulativeCbpf line {
   stroke: #ddd;
   stroke-dasharray: 2, 2;
+  pointer-events: none;
 }
 
 .pfbiccxAxisGroupCerf path, .pfbiccxAxisGroupCbpf path, .pfbiccyAxisGroupCerf path, .pfbiccyAxisGroupCbpf path, .pfbiccyAxisGroupCumulativeCerf path, .pfbiccyAxisGroupCumulativeCbpf path {
