@@ -669,7 +669,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			if (foundMonth) {
 				if (foundMonth.cerfMonthlyData.length !== selectedYear.length) {
 					selectedYear.forEach(year => {
-						if (!(year === currentYear && monthAbbrvParse(curr).getMonth() >= currentMonth)) {
+						if (!(year === currentYear && monthAbbrvParse(curr).getMonth() >= currentMonth) && year >= yearsArrayCerf[0]) {
 							const foundYear = foundMonth.cerfMonthlyData.find(f => f.year === year);
 							if (!foundYear) {
 								foundMonth.cerfMonthlyData.push({
@@ -689,7 +689,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 					cerfMonthlyData: []
 				};
 				selectedYear.forEach(year => {
-					if (!(year === currentYear && monthAbbrvParse(curr).getMonth() >= currentMonth)) {
+					if (!(year === currentYear && monthAbbrvParse(curr).getMonth() >= currentMonth) && year >= yearsArrayCerf[0]) {
 						obj.cerfMonthlyData.push({
 							year: year,
 							total: 0,
@@ -752,7 +752,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			dataCumulative[0].values[dataCumulative[0].values.length - 1].total || minxScaleValue :
 			d3.max(dataCumulative, d => d.values[d.values.length - 1].total) || minxScaleInnerValue)]);
 
-		xScaleCerfInner.domain(selectedYear[0] === allYears ? [] : selectedYear.slice().sort((a, b) => a - b))
+		xScaleCerfInner.domain(selectedYear[0] === allYears ? [] : selectedYear.slice().filter(e => e >= yearsArrayCerf[0]).sort((a, b) => a - b))
 			.range([0, xScaleCerf.bandwidth()]);
 
 		colorScaleCerf.domain(selectedYear.slice().sort((a, b) => b - a));
