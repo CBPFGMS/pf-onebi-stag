@@ -1,10 +1,11 @@
 //|Initial parameters
-//|for CERF and CBPF first year, 'null' will default to the first year in the data
+
 const parameters = {
 	chart: "allocationsByCountry",
 	fund: "total",
-	cerfFirstYear: null,
-	cbpfFirstYear: null
+	showClosedFunds: true,
+	cerfFirstYear: null, //if 'null' the first year will be the first year in the data
+	cbpfFirstYear: null //if 'null' the first year will be the first year in the data
 };
 
 export {

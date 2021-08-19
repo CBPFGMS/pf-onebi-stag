@@ -22,7 +22,8 @@ const generalClassPrefix = "pfbihp",
 	masterFundTypesUrl = "https://cbpfgms.github.io/pfbi-data/mst/MstFund.json",
 	masterPartnerTypesUrl = "https://cbpfgms.github.io/pfbi-data/mst/MstOrganization.json",
 	masterClusterTypesUrl = "https://cbpfgms.github.io/pfbi-data/mst/MstCluster.json",
-	contributionsDataUrl = "https://cbpfgms.github.io/pfbi-data/contributionbycerfcbpfAll.csv",
+	contributionsDataUrl = "https://cbpfgms.github.io/pfbi-data/contributionbycerfcbpf.csv",
+	contributionsDataUrlClosedFunds = "https://cbpfgms.github.io/pfbi-data/contributionbycerfcbpfAll.csv",
 	allocationsDataUrl = "https://cbpfgms.github.io/pfbi-data/allocationSummary.csv",
 	chartTypesAllocations = ["allocationsByCountry", "allocationsBySector", "allocationsByType"],
 	chartTypesContributions = ["contributionsByCerfCbpf", "contributionsByDonor"],
@@ -207,7 +208,7 @@ Promise.all([fetchFile("unworldmap", unworldmapUrl, "world map", "json"),
 		fetchFile("masterPartnerTypes", masterPartnerTypesUrl, "master table for partner types", "json"),
 		fetchFile("masterClusterTypes", masterClusterTypesUrl, "master table for cluster types", "json"),
 		fetchFile("allocationsData", allocationsDataUrl, "allocations data", "csv"),
-		fetchFile("contributionsData", contributionsDataUrl, "contributions data", "csv"),
+		fetchFile("contributionsData", (parameters.showClosedFunds ? contributionsDataUrlClosedFunds : contributionsDataUrl), "contributions data", "csv"),
 		fetchFile("lastModified", lastModifiedUrl, "last modified date", "json")
 	])
 	.then(rawData => controlCharts(rawData));
