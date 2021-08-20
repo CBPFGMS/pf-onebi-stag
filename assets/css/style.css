@@ -1462,6 +1462,13 @@ a.video-tutorial{color:#333;}
   fill: #777;
 }
 
+.pfbicccumulativeLegendCerf, .pfbicccumulativeLegendCbpf {
+  font-family: "Roboto", sans-serif;
+  font-size: 12px;
+  dominant-baseline: central;
+  fill: #777;
+}
+
 .pfbicclabelsGroupCerf, .pfbicclabelsGroupCbpf {
   font-family: "Roboto", sans-serif;
   font-size: 8px;
