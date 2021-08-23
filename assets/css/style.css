@@ -1214,7 +1214,7 @@ a.video-tutorial{color:#333;}
 }
 
 .pfbiccyearButtonsContainerDiv {
-  overflow-y: hidden;
+  overflow: hidden;
 }
 
 .pfbiccyearButtonsContainer {
