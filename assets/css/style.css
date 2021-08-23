@@ -969,15 +969,15 @@ a.video-tutorial{color:#333;}
   stroke-dasharray: 2, 2;
 }
 
-.pfbiccxAxisGroupedGroup line {
+.pfbiccxAxisGroupedGroupCerf line, .pfbiccxAxisGroupedGroupCbpf line {
   stroke: #777;
 }
 
-.pfbiccxAxisGroupedGroup path {
+.pfbiccxAxisGroupedGroupCerf path, .pfbiccxAxisGroupedGroupCbpf path {
   stroke: none;
 }
 
-.pfbiccxAxisGroupedGroup text {
+.pfbiccxAxisGroupedGroupCerf text, .pfbiccxAxisGroupedGroupCbpf text {
   font-family: "Roboto", sans-serif;
   font-size: 7px;
   fill: #888;
@@ -1214,7 +1214,7 @@ a.video-tutorial{color:#333;}
 }
 
 .pfbiccyearButtonsContainerDiv {
-  overflow-y: hidden;
+  overflow: hidden;
 }
 
 .pfbiccyearButtonsContainer {
@@ -1318,7 +1318,7 @@ a.video-tutorial{color:#333;}
   stroke: none;
 }
 
-.pfbicccumulativeTitle {
+.pfbicccumulativeTitleCerf, .pfbicccumulativeTitleCbpf {
   font-family: "Roboto", sans-serif;
   font-size: 14px;
   fill: #666;
@@ -1327,7 +1327,7 @@ a.video-tutorial{color:#333;}
   pointer-events: none;
 }
 
-.pfbicccumulativeLabels {
+.pfbicccumulativeLabelsCerf, .pfbicccumulativeLabelsCbpf {
   font-family: "Roboto", sans-serif;
   font-size: 9px;
   fill: #555;
@@ -1338,7 +1338,7 @@ a.video-tutorial{color:#333;}
   paint-order: stroke;
 } 
 
-.pfbicclabels {
+.pfbicclabelsCerf, .pfbicclabelsCbpf {
   font-family: "Roboto", sans-serif;
   font-size: 10px;
   fill: #666;
@@ -1350,7 +1350,7 @@ a.video-tutorial{color:#333;}
   paint-order: stroke;
 } 
 
-.pfbiccchartTitle {
+.pfbiccchartTitleCerf, .pfbiccchartTitleCbpf {
   font-family: "Roboto", sans-serif;
   font-size: 20px;
   fill: #666;
@@ -1359,7 +1359,7 @@ a.video-tutorial{color:#333;}
   pointer-events: none;
 }
 
-.pfbiccchartTitleSpan {
+.pfbiccchartTitleSpanCerf, .pfbiccchartTitleSpanCbpf {
   font-size: 14px;
 } 
 
@@ -1455,21 +1455,14 @@ a.video-tutorial{color:#333;}
 .pfbiccfirstBreadcrumb span{font-weight: 400;}
 .pfbicdfirstBreadcrumb span{font-weight: 400;}
 
-.pfbicclegendGroup text, .pfbicclegendPledged {
+.pfbicclegendGroupCerf text, .pfbicclegendGroupCbpf text, .pfbicclegendPledgedCerf, .pfbicclegendPledgedCbpf {
   font-family: "Roboto", sans-serif;
   font-size: 12px;
   dominant-baseline: central;
   fill: #777;
 }
 
-.pfbicccumulativeLegend {
-  font-family: "Roboto", sans-serif;
-  font-size: 12px;
-  dominant-baseline: central;
-  fill: #777;
-}
-
-.pfbicclabelsGroup {
+.pfbicclabelsGroupCerf, .pfbicclabelsGroupCbpf {
   font-family: "Roboto", sans-serif;
   font-size: 8px;
   fill: #666;
@@ -1481,7 +1474,7 @@ a.video-tutorial{color:#333;}
   paint-order: stroke;
 }
 
-.pfbicccumulativeVerticalLine {
+.pfbicccumulativeVerticalLineCerf, .pfbicccumulativeVerticalLineCbpf {
   fill: none;
   stroke: #aaa;
   stroke-width: 1px;
