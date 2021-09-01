@@ -23,8 +23,8 @@ const classPrefix = "pfbicc",
 	svgPaddingsCerf = [38, 42, 20, 50],
 	svgPaddingsCbpf = [38, 42, 20, 50],
 	svgColumnPadding = [16, 26, 8, 80],
-	svgCumulativePaddingsCerf = [28, 42, 50, 50],
-	svgCumulativePaddingsCbpf = [28, 42, 50, 50],
+	svgCumulativePaddingsCerf = [26, 42, 50, 50],
+	svgCumulativePaddingsCbpf = [26, 42, 50, 50],
 	arrowPaddingLeft = 22,
 	arrowPaddingRight = 22,
 	arrowCircleRadius = 15,
@@ -55,7 +55,6 @@ const classPrefix = "pfbicc",
 	legendPadding = 22,
 	legendRectSize = 16,
 	legendTextPadding = 4,
-	xGroupExtraPadding = 18,
 	lineOpacity = 0.75,
 	fadeOpacity = 0.1,
 	legendPledgedPadding = 158,
@@ -66,9 +65,7 @@ const classPrefix = "pfbicc",
 	cumulativeLabelPadding = 6,
 	maxNumberOfBars = 12,
 	tickMove = 6,
-	tickSize = 6,
-	secondTickSize = 6,
-	secondTickPadding = 14,
+	tickSize = 9,
 	unBlue = "#1F69B3",
 	arrowFadeColor = "#f1f1f1",
 	blankImg = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
@@ -283,20 +280,14 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		.curve(d3.curveMonotoneX);
 
 	const xAxisCerf = d3.axisBottom(xScaleCerf)
-		.tickSizeOuter(0);
+		.tickSizeOuter(0)
+		.tickSizeInner(0)
+		.tickPadding(tickSize);
 
 	const xAxisCbpf = d3.axisBottom(xScaleCbpf)
-		.tickSizeOuter(0);
-
-	const xAxisGroupedCerf = d3.axisBottom(xScaleCerfInner)
-		.tickFormat(d => d % 100 < 10 ? "0" + d % 100 : d % 100)
-		.tickSizeInner(3)
-		.tickSizeOuter(0);
-
-	const xAxisGroupedCbpf = d3.axisBottom(xScaleCbpfInner)
-		.tickFormat(d => d % 100 < 10 ? "0" + d % 100 : d % 100)
-		.tickSizeInner(3)
-		.tickSizeOuter(0);
+		.tickSizeOuter(0)
+		.tickSizeInner(0)
+		.tickPadding(tickSize);
 
 	const yAxisCerf = d3.axisLeft(yScaleCerf)
 		.ticks(4)
@@ -646,7 +637,6 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		const svgHeight = fundType === "cerf" ? svgHeightCerf : svgHeightCbpf;
 		const xAxis = fundType === "cerf" ? xAxisCerf : xAxisCbpf;
 		const xAxisGroup = fundType === "cerf" ? xAxisGroupCerf : xAxisGroupCbpf;
-		const xAxisGrouped = fundType === "cerf" ? xAxisGroupedCerf : xAxisGroupedCbpf;
 		const yAxis = fundType === "cerf" ? yAxisCerf : yAxisCbpf;
 		const yAxisGroup = fundType === "cerf" ? yAxisGroupCerf : yAxisGroupCbpf;
 		const yAxisCumulative = fundType === "cerf" ? yAxisCumulativeCerf : yAxisCumulativeCbpf;
@@ -810,6 +800,18 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.text(noValues ? fundType.toUpperCase() + " started operations in " + yearsArray[0] :
 				"(" + selectedValue + " by " + (selectedYear[0] === allYears ? "year" : "month") + ")");
 
+		let cumulativeVerticalRect = chartLayer.selectAll("." + classPrefix + "cumulativeVerticalRect")
+			.data([true]);
+
+		cumulativeVerticalRect = cumulativeVerticalRect.enter()
+			.append("rect")
+			.attr("class", classPrefix + "cumulativeVerticalRect")
+			.style("opacity", 0)
+			.style("fill", "#f6f6f6")
+			.merge(cumulativeVerticalRect)
+			.attr("y", yScale.range()[1] - labelMargin)
+			.attr("height", yScaleCumulative.range()[0] - yScale.range()[1] + labelMargin);
+
 		let bars = chartLayer.selectAll("." + classPrefix + "bars")
 			.data(dataYear, d => d.year);
 
@@ -950,19 +952,6 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 					.attr("x", xScaleInner(d.year) + xScaleInner.bandwidth() / 2)
 					.text("(" + d3.formatPrefix(".0", d.pledged)(d.pledged) + ")");
 			});
-
-		let xAxisGroupedGroup = group.selectAll("." + classPrefix + "xAxisGroupedGroup")
-			.data([true]);
-
-		xAxisGroupedGroup = xAxisGroupedGroup.enter()
-			.append("g")
-			.attr("class", classPrefix + "xAxisGroupedGroup")
-			.attr("transform", "translate(0," + (yScale(0)) + ")")
-			.merge(xAxisGroupedGroup)
-			.style("opacity", selectedYear.length > 1 ? 1 : 0);
-
-		xAxisGroupedGroup.transition(syncedTransition)
-			.call(xAxisGrouped);
 
 		let tooltipRect = tooltipRectLayer.selectAll("." + classPrefix + "tooltipRect")
 			.data(dataYear, d => d.year);
@@ -1178,25 +1167,10 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 				.style("display", "none");
 		};
 
-		xAxis.tickSizeInner(selectedYear.length === 1 ? tickSize : 0);
-
 		xAxisGroup.transition(syncedTransition)
 			.style("opacity", noValues ? 0 : 1)
-			.attr("transform", "translate(0," + (selectedYear.length === 1 ?
-				yScale(0) : yScale(0) + xGroupExtraPadding) + ")")
+			.attr("transform", "translate(0," + yScale(0) + ")")
 			.call(xAxis);
-
-		let secondTick = xAxisGroup.selectAll(".tick")
-			.selectAll("." + classPrefix + "secondTick")
-			.data([true]);
-
-		secondTick = secondTick.enter()
-			.append("line")
-			.attr("class", classPrefix + "secondTick")
-			.attr("stroke", "currentColor")
-			.merge(secondTick)
-			.attr("y1", secondTickPadding + xAxis.tickSizeInner())
-			.attr("y2", secondTickPadding + xAxis.tickSizeInner() + secondTickSize);
 
 		yAxisGroup.transition(syncedTransition)
 			.style("opacity", noValues ? 0 : 1)
@@ -1282,17 +1256,6 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 		cumulativeTitle.transition(syncedTransition)
 			.style("opacity", noValues ? 0 : 1);
-
-		let cumulativeVerticalLine = chartLayer.selectAll("." + classPrefix + "cumulativeVerticalLine")
-			.data([true]);
-
-		cumulativeVerticalLine = cumulativeVerticalLine.enter()
-			.append("line")
-			.attr("class", classPrefix + "cumulativeVerticalLine")
-			.style("opacity", 0)
-			.merge(cumulativeVerticalLine)
-			.attr("y1", yScaleCumulative.range()[1] - svgCumulativePaddings[0] + secondTickSize + 2 + (selectedYear.length === 1 ? 0 : xGroupExtraPadding - secondTickSize))
-			.attr("y2", yScaleCumulative.range()[0]);
 
 		let cumulativeLines = chartLayer.selectAll("." + classPrefix + "cumulativeLines")
 			.data(dataCumulative);
@@ -1456,9 +1419,9 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			const tooltipText = xValue === yearsArray[0] || xValue === monthsArray[0] ? "Contributions in " :
 				"Total contributions up to ";
 
-			cumulativeVerticalLine.style("opacity", 1)
-				.attr("x1", xScale(xValue) + xScale.bandwidth() / 2)
-				.attr("x2", xScale(xValue) + xScale.bandwidth() / 2);
+			cumulativeVerticalRect.style("opacity", 1)
+				.attr("x", xScale(xValue) - (xScale.step() - xScale.bandwidth()) / 2)
+				.attr("width", xScale.step());
 
 			if (cumulativeLabels.size()) {
 				cumulativeLabels.style("opacity", e => (selectedYear[0] === allYears ? e.year : e.month) === xValue ? 1 : fadeOpacity);
@@ -1531,7 +1494,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 
 			const containerSize = containerDiv.node().getBoundingClientRect();
 			const thisSize = event.currentTarget.getBoundingClientRect();
-			const lineSize = cumulativeVerticalLine.node().getBoundingClientRect();
+			const lineSize = cumulativeVerticalRect.node().getBoundingClientRect();
 			const tooltipSize = tooltipDiv.node().getBoundingClientRect();
 
 			const thisOffsetLeft = tooltipSize.width > containerSize.right - lineSize.right - tooltipPaddingCumulative ?
@@ -1546,7 +1509,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			if (chartState.isSnapshotTooltipVisible) return;
 			chartState.currentHoveredElement = null;
 
-			cumulativeVerticalLine.style("opacity", 0);
+			cumulativeVerticalRect.style("opacity", 0);
 			chartArea.selectAll("." + classPrefix + "highlightCircles")
 				.remove();
 			if (cumulativeLabels.size()) cumulativeLabels.style("opacity", 1);
