@@ -770,7 +770,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		xScaleInner.domain(selectedYear[0] === allYears ? [] : selectedYear.slice().filter(e => e >= yearsArray[0]).sort((a, b) => a - b))
 			.range([0, xScale.bandwidth()]);
 
-		colorScale.domain(selectedYear.slice().sort((a, b) => b - a));
+		colorScale.domain(selectedYear.length === 1 ? [null, selectedYear[0]] : selectedYear.slice().sort((a, b) => b - a));
 
 		const syncedTransition = d3.transition(fundType)
 			.duration(duration);
