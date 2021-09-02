@@ -337,6 +337,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		.attr("class", classPrefix + "yAxisGroupCumulativeCbpf")
 		.attr("transform", "translate(" + svgCumulativePaddingsCbpf[3] + ",0)");
 
+	yAxisGroupCerf.lower();
+	yAxisGroupCbpf.lower();
 	yAxisGroupCumulativeCerf.lower();
 	yAxisGroupCumulativeCbpf.lower();
 
