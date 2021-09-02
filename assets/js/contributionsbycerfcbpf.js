@@ -57,6 +57,7 @@ const classPrefix = "pfbicc",
 	legendTextPadding = 4,
 	lineOpacity = 0.75,
 	fadeOpacity = 0.1,
+	fadeOpacityPartial = 0.5,
 	legendPledgedPadding = 158,
 	cumulativeTitlePadding = 20,
 	cumulativeLegendPadding = 36,
@@ -940,7 +941,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			.attr("height", d => yScale(0) - yScale(d[selectedValue]));
 
 		let labelsGroup = group.selectAll("." + classPrefix + "labelsGroup")
-			.data(d => d.monthlyData.filter((e, i) => e[selectedValue] && (!i || i === d.monthlyData.length - 1)), d => d.year);
+			.data(d => d.monthlyData.filter((e, i) => e[selectedValue]), d => d.year);
 
 		const labelsGroupExit = labelsGroup.exit()
 			.transition(syncedTransition)
@@ -972,6 +973,9 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 					.attr("x", xScaleInner(d.year) + xScaleInner.bandwidth() / 2)
 					.text("(" + d3.formatPrefix(".0", d.pledged)(d.pledged) + ")");
 			});
+
+		group.selectAll("text")
+			.style("opacity", (_, i) => +(!i || i === selectedYear.length - 1));
 
 		let tooltipRect = tooltipRectLayer.selectAll("." + classPrefix + "tooltipRect")
 			.data(dataYear, d => d.year);
@@ -1049,6 +1053,11 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			function highlightSelection(selection) {
 				selection.style("opacity", e => d.parentData ? (e.month === d.parentData.month ? 1 : fadeOpacity) :
 					e.year === d.year ? 1 : fadeOpacity);
+			};
+
+			if (selectedYear.length > 1) {
+				barsGroup.style("opacity", e => e.year === d.year ? 1 : fadeOpacityPartial);
+				labelsGroup.style("opacity", e => e.year === d.year ? 1 : 0);
 			};
 
 			tooltipDiv.style("display", "block")
@@ -1182,6 +1191,9 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 			group.style("opacity", 1);
 			labels.style("opacity", 1);
 			bars.style("opacity", 1);
+			barsGroup.style("opacity", 1);
+			group.selectAll("text")
+				.style("opacity", (_, i) => +(!i || i === selectedYear.length - 1));
 
 			tooltipDiv.html(null)
 				.style("display", "none");
