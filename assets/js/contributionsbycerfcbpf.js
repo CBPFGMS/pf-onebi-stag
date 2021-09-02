@@ -206,6 +206,11 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		.attr("class", classPrefix + "chartAreaCbpf")
 		.attr("transform", "translate(0,0)");
 
+	const chartLayerCerf = chartAreaCerf.append("g");
+	const chartLayerCbpf = chartAreaCbpf.append("g");
+	const tooltipRectLayerCerf = chartAreaCerf.append("g");
+	const tooltipRectLayerCbpf = chartAreaCbpf.append("g");
+
 	const columnChartContainer = selections.byCerfCbpfChartContainer;
 
 	columnChartContainer.html(null);
@@ -359,11 +364,6 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	const yAxisGroupColumn = svgColumnChart.append("g")
 		.attr("class", classPrefix + "yAxisGroupColumn")
 		.attr("transform", "translate(" + svgColumnPadding[3] + ",0)");
-
-	const chartLayerCerf = chartAreaCerf.append("g");
-	const chartLayerCbpf = chartAreaCbpf.append("g");
-	const tooltipRectLayerCerf = chartAreaCerf.append("g");
-	const tooltipRectLayerCbpf = chartAreaCbpf.append("g");
 
 	const defsCerf = svgCerf.append("defs")
 
