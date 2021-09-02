@@ -371,14 +371,23 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		.attr("width", 10)
 		.attr("height", 6)
 		.attr("patternUnits", "userSpaceOnUse")
-		.attr("patternTransform", "rotate(-45 0 0)")
-		.append("line")
+		.attr("patternTransform", "rotate(-45 0 0)");
+
+	patternCerf.append("line")
 		.attr("x1", 0)
-		.attr("y1", 2)
+		.attr("y1", 1)
 		.attr("x2", 10)
-		.attr("y2", 2)
-		.attr("stroke-width", 2)
+		.attr("y2", 1)
+		.attr("stroke-width", 3)
 		.attr("stroke", colors.cerf);
+
+	patternCerf.append("line")
+		.attr("x1", 0)
+		.attr("y1", 4)
+		.attr("x2", 10)
+		.attr("y2", 4)
+		.attr("stroke-width", 4)
+		.attr("stroke", "white");
 
 	const defsCbpf = svgCbpf.append("defs")
 
@@ -387,14 +396,23 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		.attr("width", 10)
 		.attr("height", 6)
 		.attr("patternUnits", "userSpaceOnUse")
-		.attr("patternTransform", "rotate(-45 0 0)")
-		.append("line")
+		.attr("patternTransform", "rotate(-45 0 0)");
+
+	patternCbpf.append("line")
 		.attr("x1", 0)
-		.attr("y1", 2)
+		.attr("y1", 1)
 		.attr("x2", 10)
-		.attr("y2", 2)
-		.attr("stroke-width", 2)
+		.attr("y2", 1)
+		.attr("stroke-width", 3)
 		.attr("stroke", colors.cbpf);
+
+	patternCbpf.append("line")
+		.attr("x1", 0)
+		.attr("y1", 4)
+		.attr("x2", 10)
+		.attr("y2", 4)
+		.attr("stroke-width", 4)
+		.attr("stroke", "white");
 
 	createYearButtons(yearButtonsDiv);
 
