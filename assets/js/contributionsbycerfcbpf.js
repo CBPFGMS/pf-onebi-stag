@@ -1294,7 +1294,7 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		cumulativeLines = cumulativeLinesEnter.merge(cumulativeLines);
 
 		cumulativeLines.transition(syncedTransition)
-			.style("stroke", (_, i) => colors[fundType + "Analogous"][i])
+			.style("stroke", d => colorScale(d.year))
 			.attr("d", d => cumulativeLineGenerator(d.values));
 
 		let cumulativeLabels = chartLayer.selectAll("." + classPrefix + "cumulativeLabels")
@@ -1329,12 +1329,12 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		const cumulativeCirclesGroupEnter = cumulativeCirclesGroup.enter()
 			.append("g")
 			.attr("class", classPrefix + "cumulativeCirclesGroup")
-			.style("fill", (_, i) => colors[fundType + "Analogous"][i]);
+			.style("fill", d => colorScale(d.year));
 
 		cumulativeCirclesGroup = cumulativeCirclesGroupEnter.merge(cumulativeCirclesGroup);
 
 		cumulativeCirclesGroup.transition(syncedTransition)
-			.style("fill", (_, i) => colors[fundType + "Analogous"][i]);
+			.style("fill", d => colorScale(d.year));
 
 		let cumulativeCircles = cumulativeCirclesGroup.selectAll("." + classPrefix + "cumulativeCircles")
 			.data(d => d.values, d => selectedYear[0] === allYears ? d.year : d.month);
