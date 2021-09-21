@@ -586,7 +586,7 @@ function createContributionsByDonor(selections, colors, lists) {
 
 		donorDiv.on("mouseover", donorDivMouseOver)
 			.on("mouseout", donorDivMouseOut)
-			.on("click", (_, d) => donorDivClick(d, memberType === "member"));
+			.on("click", (event, d) => donorDivClick(event, d, memberType === "member"));
 
 		//end of createSmallMultiple
 	};
@@ -606,10 +606,10 @@ function createContributionsByDonor(selections, colors, lists) {
 			.remove();
 	};
 
-	function donorDivClick(datum, isMember) {
+	function donorDivClick(event, datum, isMember) {
 
-		d3.select(this).classed(classPrefix + "donorDivActive", false);
-		d3.select(this)
+		d3.select(event.currentTarget).classed(classPrefix + "donorDivActive", false);
+		d3.select(event.currentTarget)
 			.select("." + classPrefix + "donorExpandDiv")
 			.remove();
 
