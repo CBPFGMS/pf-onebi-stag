@@ -265,11 +265,9 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		.paddingInner(0.5)
 		.paddingOuter(0.5);
 
-	const colorScaleCerf = d3.scaleOrdinal()
-		.range(colors.cerfAnalogous);
+	const colorScaleCerf = d3.scaleOrdinal();
 
-	const colorScaleCbpf = d3.scaleOrdinal()
-		.range(colors.cbpfAnalogous);
+	const colorScaleCbpf = d3.scaleOrdinal();
 
 	const stack = d3.stack()
 		.keys(stackKeys)
@@ -791,7 +789,8 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 		xScaleInner.domain(selectedYear[0] === allYears ? [] : selectedYear.slice().filter(e => e >= yearsArray[0]).sort((a, b) => a - b))
 			.range([0, xScale.bandwidth()]);
 
-		colorScale.domain(selectedYear.length === 1 ? [null, selectedYear[0]] : selectedYear.slice().sort((a, b) => b - a));
+		colorScale.domain(selectedYear.slice().sort((a, b) => a - b))
+			.range(selectedYear.length === 1 ? [colors[fundType]] : colors[fundType + "Analogous"].slice().reverse());
 
 		const syncedTransition = d3.transition(fundType)
 			.duration(duration);

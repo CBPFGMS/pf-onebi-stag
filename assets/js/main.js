@@ -34,8 +34,8 @@ const generalClassPrefix = "pfbihp",
 		total: unBlue,
 		cerf: cerfColor,
 		cbpf: cbpfColor,
-		cerfAnalogous: ["#BC912D", cerfColor, "#FBDE8A", "#FDF6DC"],
-		cbpfAnalogous: ["#B52625", cbpfColor, "#F79C8F", "#FCE1DD"]
+		cerfAnalogous: ["#E48F07", "#E2A336", "#FBCC23", "#FBE23E"],
+		cbpfAnalogous: ["#B52625", "#CE2E2D", cbpfColor, "#F79C8F"]
 	},
 	queryStringValues = new URLSearchParams(location.search),
 	defaultValues = {
