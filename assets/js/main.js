@@ -170,29 +170,12 @@ const topTooltipDiv = selections.sideNavContainer.append("div")
 	.style("display", "none");
 
 //|import modules
-import {
-	createAllocations
-} from "./allocations.js";
-
-import {
-	createContributionsByCerfCbpf
-} from "./contributionsbycerfcbpf.js";
-
-import {
-	createContributionsByDonor
-} from "./contributionsbydonor.js";
-
-import {
-	chartState
-} from "./chartstate.js";
-
-import {
-	buttonsObject
-} from "./buttons.js";
-
-import {
-	parameters
-} from "./parameters.js";
+import { createAllocations } from "./allocations.js";
+import { createContributionsByCerfCbpf } from "./contributionsbycerfcbpf.js";
+import { createContributionsByDonor } from "./contributionsbydonor.js";
+import { chartState } from "./chartstate.js";
+import { buttonsObject } from "./buttons.js";
+import { parameters } from "./parameters.js";
 
 //|populate 'default' values
 for (const key in parameters) {

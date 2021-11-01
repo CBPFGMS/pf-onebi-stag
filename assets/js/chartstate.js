@@ -24,6 +24,4 @@ for (const key in chartState) {
 	});
 };
 
-export {
-	chartState
-};
+export { chartState };
