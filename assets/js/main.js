@@ -250,8 +250,6 @@ function controlCharts([worldMap,
 		queryStringValues: queryStringValues
 	};
 
-	console.log(lists);
-
 	populateLastModified(lastModified);
 
 	preProcessData(rawAllocationsData, rawContributionsData);
