@@ -9,7 +9,8 @@ const chartState = {
 	showNamesValue: false,
 	currentTooltipValue: null,
 	currentHoveredElementValue: null,
-	isSnapshotTooltipVisibleValue: false
+	isSnapshotTooltipVisibleValue: false,
+	selectedCountryProfile: null
 };
 
 for (const key in chartState) {
