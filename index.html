@@ -216,35 +216,70 @@
                             </div>
                         </div>
                         <div class="brdr-btm"></div>
-                        <div class="sb-sidenav-menu-heading text-uppercase">Allocations</div>
-                        <a id="navAllocationsByCountry" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byCountry', false)">
-                            	<div class="sb-nav-link-icon"><i class="un-icon icon-Location">&#xe99b;</i></div>
-                            By Country
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
-                        </a>
-                        <a id="navAllocationsBySector" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'bySector', false)">
-                            <div class="sb-nav-link-icon"><i class="un-icon icon-Multi-cluster-sector">&#xe9ae;</i></div>
-                            By Sector
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
-                        </a>
-                        <a id="navAllocationsByType" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byAllocationType', false)">
-                            <div class="sb-nav-link-icon"><i class="un-icon icon-Response">&#xe9e2;</i></div>
-                            By Allocation Type
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
-                        </a>
+                        
+                        
                     </div>
-                    <div class="nav">
-                        <div class="sb-sidenav-menu-heading text-uppercase">Contributions</div>
-                        <a id="navContributionsByCerfCbpf" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byCerfCbpf', true)">
-                            <div class="sb-nav-link-icon"><i class="un-icon icon-Fund">&#xe96a;</i></div>
-                            By CERF/CBPF
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
-                        </a>
-                        <a id="navContributionsByDonor" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byDonor', true)">
-                            <div class="sb-nav-link-icon"><i class="un-icon icon-Partnership">&#xe9bc;</i></div>
-                            By Donor
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
-                        </a>
+                    
+                    <div>
+                        <div class="pfdata-nav-tabs">
+                            <ul class="nav nav-tabs" id="pfdataTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link active" id="alloactions-tab" data-toggle="tab" href="#alloactions" role="tab" aria-controls="Allocations" aria-selected="true">Allocations</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link" id="contributions-tab" data-toggle="tab" href="#contributions" role="tab" aria-controls="Contributions" aria-selected="false">Contributions</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a class="nav-link" id="more-tab" data-toggle="tab" href="#more" role="tab" aria-controls="More" aria-selected="false">More..</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="pfdataTabsContent">
+                                <div class="tab-pane fade show active" id="alloactions" role="tabpanel" aria-labelledby="alloactions-tab">
+                                    <div class="marg-t10">
+                                        <!--<div class="sb-sidenav-menu-heading text-uppercase">Allocations</div>-->
+                                          <a id="navAllocationsByCountry" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byCountry', false)">
+                                              <div class="sb-nav-link-icon"><i class="un-icon icon-Location">&#xe99b;</i></div>
+                                              By Country
+                                              <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
+                                          </a>
+                                          <a id="navAllocationsBySector" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'bySector', false)">
+                                              <div class="sb-nav-link-icon"><i class="un-icon icon-Multi-cluster-sector">&#xe9ae;</i></div>
+                                              By Sector
+                                              <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
+                                          </a>
+                                          <a id="navAllocationsByType" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byAllocationType', false)">
+                                              <div class="sb-nav-link-icon"><i class="un-icon icon-Response">&#xe9e2;</i></div>
+                                              By Allocation Type
+                                              <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
+                                          </a>
+                                    </div>     
+                                </div>
+                                <div class="tab-pane fade" id="contributions" role="tabpanel" aria-labelledby="contributions-tab">
+                                    <div class="marg-t10">
+                                        <!--<div class="sb-sidenav-menu-heading text-uppercase">Contributions</div>-->
+                                        <a id="navContributionsByCerfCbpf" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byCerfCbpf', true)">
+                                            <div class="sb-nav-link-icon"><i class="un-icon icon-Fund">&#xe96a;</i></div>
+                                            By CERF/CBPF
+                                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
+                                        </a>
+                                        <a id="navContributionsByDonor" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byDonor', true)">
+                                            <div class="sb-nav-link-icon"><i class="un-icon icon-Partnership">&#xe9bc;</i></div>
+                                            By Donor
+                                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="more" role="tabpanel" aria-labelledby="more-tab">
+                                    <div class="marg-t10">
+                                        <a id="" class="nav-link" href="javascript:void(0)" onclick="">
+                                            <div class="sb-nav-link-icon"><i class="un-icon icon-Analysis">&#xe90d;</i></div>
+                                              Country Profile
+                                              <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
+                                          </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </nav>
@@ -259,10 +294,11 @@
 
                     </div>
                 </div>
-                <!--Main Map Area-->
+                <!--Main Map Area-->               
                 <div class="map-section" id="main-map-panel">
-
+                    
                 </div>
+                
             </main>
             <!-- The Modal -->
             <div class="modal fade" id="videoModal">
@@ -303,13 +339,13 @@
     </div>
     <script>
         function openNav(lnk, divID, disableDropdown) {
-            if (lnk == null || (lnk != null && $(lnk).length > 0 && !$(lnk).hasClass('active'))) {
+            if (lnk == null || (lnk != null && $(lnk).length > 0 && !$(lnk).hasClass('activelink'))) {
                 closeNav(false);
                 $(document).prop('title', 'OCHA - POOLED FUNDS DATA HUB - ' + $(lnk)[0].childNodes[2].nodeValue.trim());
-                document.getElementById(divID).style.width = "225px";
+                document.getElementById(divID).style.width = "300px";
                 if (lnk != null && $(lnk).length > 0) {
-                    $("#layoutSidenav_nav .sb-sidenav a.nav-link").removeClass('active');
-                    $(lnk).addClass('active');
+                    $("#layoutSidenav_nav .sb-sidenav a.nav-link").removeClass('activelink');
+                    $(lnk).addClass('activelink');
                 }
 
                 if (disableDropdown) {
@@ -332,7 +368,7 @@
             document.getElementById('byCerfCbpf').style.width = "0px";
             document.getElementById('byDonor').style.width = "0px";
             if (removeActive == undefined || removeActive == true) {
-                $("#layoutSidenav_nav .sb-sidenav a.nav-link").removeClass('active');
+                $("#layoutSidenav_nav .sb-sidenav a.nav-link").removeClass('activelink');
             }
 
         }
@@ -376,7 +412,7 @@
             gtag('config', 'UA-1884029-23');
         }
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.1.1/d3.min.js" integrity="sha512-COTaPOlz12cG4fSfcBsxZsjauBAyldqp+8FQUM/dZHm+ts/jR4AFoJhCqxy8K10Jrf3pojfsbq7fAPTb1XaVkg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.2.0/d3.min.js" integrity="sha512-C2RveGuPIWqkaLAluvoxyiaN1XYNe5ss11urhZWZYBUA9Ydgj+hfGKPcxCzTwut1/fmjEZR7Ac35f2aycT8Ogw==" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/topojson@3"></script>
     <script src="assets/js/scripts.js"></script>
     <script src="assets/js/simple-scrollbar.js"></script>
