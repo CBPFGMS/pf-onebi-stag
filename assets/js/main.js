@@ -39,9 +39,7 @@ const generalClassPrefix = "pfbihp",
 		cbpfAnalogous: ["#B52625", "#CE2E2D", cbpfColor, "#F79C8F"]
 	},
 	queryStringValues = new URLSearchParams(location.search),
-	defaultValues = {
-		year: currentYear
-	};
+	defaultValues = {};
 
 //|constants populated with the data
 const yearsArrayAllocations = [],
@@ -184,6 +182,9 @@ import { parameters } from "./parameters.js";
 for (const key in parameters) {
 	defaultValues[key] = parameters[key];
 };
+
+//check if the default year is null
+if (!defaultValues.year) defaultValues.year = currentYear;
 
 //|load master tables, world map and csv data
 Promise.all([fetchFile("unworldmap", unworldmapUrl, "world map", "json"),
