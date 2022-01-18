@@ -20,7 +20,7 @@ for (const key in chartState) {
 			return this[key]
 		},
 		set(value) {
-			return this[key] = value
+			this[key] = value
 		}
 	});
 };

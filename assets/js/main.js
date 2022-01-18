@@ -359,6 +359,7 @@ function controlCharts([worldMap,
 				setQueryString("year", chartState.selectedYear);
 			};
 		};
+		if (!allocationsData.length) allocationsData = processDataAllocations(rawAllocationsData);
 		if (chartState.selectedFund !== defaultValues.fund) setQueryString("fund", chartState.selectedFund);
 		drawAllocations(allocationsData);
 		highlightNavLinks();
@@ -396,6 +397,7 @@ function controlCharts([worldMap,
 				setQueryString("year", chartState.selectedYear);
 			};
 		};
+		if (!allocationsData.length) allocationsData = processDataAllocations(rawAllocationsData);
 		if (chartState.selectedFund !== defaultValues.fund) setQueryString("fund", chartState.selectedFund);
 		drawAllocations(allocationsData);
 		highlightNavLinks();
@@ -433,6 +435,7 @@ function controlCharts([worldMap,
 				setQueryString("year", chartState.selectedYear);
 			};
 		};
+		if (!allocationsData.length) allocationsData = processDataAllocations(rawAllocationsData);
 		if (chartState.selectedFund !== defaultValues.fund) setQueryString("fund", chartState.selectedFund);
 		drawAllocations(allocationsData);
 		highlightNavLinks();
