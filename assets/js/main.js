@@ -28,6 +28,7 @@ const generalClassPrefix = "pfbihp",
 	allocationsDataUrl = "https://cbpfgms.github.io/pfbi-data/allocationSummary.csv",
 	chartTypesAllocations = ["allocationsByCountry", "allocationsBySector", "allocationsByType"],
 	chartTypesContributions = ["contributionsByCerfCbpf", "contributionsByDonor"],
+	chartTypesCountryProfile = ["countryProfile"],
 	fundValues = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	contributionTypes = ["pledged", "paid", "total"],
 	separator = "##",
@@ -98,6 +99,7 @@ const selections = {
 	navlinkAllocationsByType: d3.select("#navAllocationsByType"),
 	navlinkContributionsByCerfCbpf: d3.select("#navContributionsByCerfCbpf"),
 	navlinkContributionsByDonor: d3.select("#navContributionsByDonor"),
+	navlinkCountryProfile: d3.select("#navCountryProfile"),
 	byCountryAllocationsValue: d3.select("#byCountryAllocationsValue"),
 	byCountryAllocationsText: d3.select("#byCountryAllocationsText"),
 	byCountryCountriesValue: d3.select("#byCountryCountriesValue"),
@@ -152,7 +154,8 @@ const navLinks = [selections.navlinkAllocationsByCountry,
 	selections.navlinkAllocationsBySector,
 	selections.navlinkAllocationsByType,
 	selections.navlinkContributionsByCerfCbpf,
-	selections.navlinkContributionsByDonor
+	selections.navlinkContributionsByDonor,
+	selections.navlinkCountryProfile
 ];
 
 createSpinner(selections.chartContainerDiv);
@@ -177,6 +180,7 @@ import { createContributionsByDonor } from "./contributionsbydonor.js";
 import { chartState } from "./chartstate.js";
 import { buttonsObject } from "./buttons.js";
 import { parameters } from "./parameters.js";
+//import { createCountryProfile } from "./countryprofilemain.js";
 
 //|populate 'default' values
 for (const key in parameters) {
@@ -312,6 +316,8 @@ function controlCharts([worldMap,
 		drawContributionsByDonor = createContributionsByDonor(selections, colorsObject, lists);
 		drawContributionsByDonor(contributionsDataByDonor);
 	};
+
+	//PUT COUNTRY PROFILE DEFAULT HERE
 
 	//|event listeners
 	selections.yearDropdown.on("change", event => {
@@ -474,6 +480,27 @@ function controlCharts([worldMap,
 		selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
 		drawContributionsByDonor = createContributionsByDonor(selections, colorsObject, lists);
 		drawContributionsByDonor(contributionsDataByDonor);
+		highlightNavLinks();
+		queryStringValues.delete("year");
+		queryStringValues.delete("contributionYear");
+		queryStringValues.delete("value");
+		setQueryString("chart", chartState.selectedChart);
+	});
+
+	//COUNTRY PROFILE
+	selections.navlinkCountryProfile.on("click", () => {
+		if (buttonsObject.playing) stopTimer();
+		if (chartState.selectedChart === "countryProfile") return;
+		if (chartState.selectedChart !== "contributionsByDonor") {
+			resetTopValues(topValues);
+			processAllocationsYearData(rawAllocationsData);
+			processContributionsYearData(rawContributionsData);
+			updateTopValues(topValues, selections);
+		};
+		chartState.selectedChart = "countryProfile";
+		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
+		selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
+		//createCountryProfile(ALL DATA HERE, selections, colorsObject, lists);
 		highlightNavLinks();
 		queryStringValues.delete("year");
 		queryStringValues.delete("contributionYear");
@@ -991,6 +1018,8 @@ function createSpinner(container) {
 };
 
 function createDisabledOption(dropdownContainer, yearsArray) {
+	dropdownContainer.attr("disabled", "disabled");
+
 	let disabledOption = dropdownContainer.selectAll("#" + generalClassPrefix + "disabledOption")
 		.data([true]);
 
@@ -1000,11 +1029,12 @@ function createDisabledOption(dropdownContainer, yearsArray) {
 		.merge(disabledOption)
 		.property("selected", true)
 		.property("disabled", true)
-		.html(chartState.selectedChart === "contributionsByDonor" ? yearsArray[0] + " - " + (currentYear - 1) :
+		.html((chartState.selectedChart === "contributionsByDonor" || chartState.selectedChart === "countryProfile") ? yearsArray[0] + " - " + (currentYear - 1) :
 			(chartState.selectedYear === allYears ? "All" : chartState.selectedYear));
 };
 
 function clearDisabledOption(dropdownContainer) {
+	dropdownContainer.attr("disabled", null);
 	dropdownContainer.select("#" + generalClassPrefix + "disabledOption").remove();
 	dropdownContainer.selectAll("option")
 		.property("selected", d => chartState.selectedYear === d);
