@@ -26,6 +26,7 @@ const generalClassPrefix = "pfbihp",
 	contributionsDataUrl = "https://cbpfgms.github.io/pfbi-data/contributionbycerfcbpf.csv",
 	contributionsDataUrlClosedFunds = "https://cbpfgms.github.io/pfbi-data/contributionbycerfcbpfAll.csv",
 	allocationsDataUrl = "https://cbpfgms.github.io/pfbi-data/allocationSummary.csv",
+	adminLevel1DataUrl = "https://raw.githubusercontent.com/CBPFGMS/cbpfgms.github.io/master/sandbox/countryprofile/overview/adminlevel1version2.csv",
 	chartTypesAllocations = ["allocationsByCountry", "allocationsBySector", "allocationsByType"],
 	chartTypesContributions = ["contributionsByCerfCbpf", "contributionsByDonor"],
 	chartTypesCountryProfile = ["countryProfile"],
@@ -180,7 +181,7 @@ import { createContributionsByDonor } from "./contributionsbydonor.js";
 import { chartState } from "./chartstate.js";
 import { buttonsObject } from "./buttons.js";
 import { parameters } from "./parameters.js";
-//import { createCountryProfile } from "./countryprofilemain.js";
+import { createCountryProfile } from "./countryprofilemain.js";
 
 //|populate 'default' values
 for (const key in parameters) {
@@ -201,7 +202,8 @@ Promise.all([fetchFile("unworldmap", unworldmapUrl, "world map", "json"),
 		fetchFile("masterUnAgenciesTypes", masterUnAgenciesUrl, "master table for UN agencies", "json"),
 		fetchFile("allocationsData", allocationsDataUrl, "allocations data", "csv"),
 		fetchFile("contributionsData", (parameters.showClosedFunds ? contributionsDataUrlClosedFunds : contributionsDataUrl), "contributions data", "csv"),
-		fetchFile("lastModified", lastModifiedUrl, "last modified date", "json")
+		fetchFile("lastModified", lastModifiedUrl, "last modified date", "json"),
+		fetchFile("adminLevel1Data", adminLevel1DataUrl, "Admin level 1", "csv")
 	])
 	.then(rawData => controlCharts(rawData));
 
@@ -215,7 +217,8 @@ function controlCharts([worldMap,
 	masterUnAgenciesTypes,
 	rawAllocationsData,
 	rawContributionsData,
-	lastModified
+	lastModified,
+	adminLevel1Data
 ]) {
 
 	createFundNamesList(masterFunds);
@@ -500,7 +503,7 @@ function controlCharts([worldMap,
 		chartState.selectedChart = "countryProfile";
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
 		selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
-		//createCountryProfile(ALL DATA HERE, selections, colorsObject, lists);
+		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists);
 		highlightNavLinks();
 		queryStringValues.delete("year");
 		queryStringValues.delete("contributionYear");
