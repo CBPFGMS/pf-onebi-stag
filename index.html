@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -16,7 +16,7 @@
     <script src="assets/js/CheckBrowserCompatibility.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-1884029-23"></script>
 </head>
-<body class="sb-nav-fixed"> 
+<body class="sb-nav-fixed">
     <!--Main Nav-->
     <nav class="sb-topnav navbar navbar-expand navbar-dark logo-panel">
         <a class="navbar-brand" href="index.html"><img src="assets/img/pfbi-logo.svg" alt="PF Data Hub" class="mr-2" title="Pooled Funds Data Hub"></a>
@@ -234,17 +234,17 @@
                                 <div class="tab-pane fade show active" id="alloactions" role="tabpanel" aria-labelledby="alloactions-tab">
                                     <div class="marg-t10">
                                         <!--<div class="sb-sidenav-menu-heading text-uppercase">Allocations</div>-->
-                                          <a id="navAllocationsByCountry" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byCountry', false)">
+                                          <a id="navAllocationsByCountry" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byCountry')">
                                               <div class="sb-nav-link-icon"><i class="un-icon icon-Location">&#xe99b;</i></div>
                                               By Country
                                               <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
                                           </a>
-                                          <a id="navAllocationsBySector" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'bySector', false)">
+                                          <a id="navAllocationsBySector" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'bySector')">
                                               <div class="sb-nav-link-icon"><i class="un-icon icon-Multi-cluster-sector">&#xe9ae;</i></div>
                                               By Sector
                                               <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
                                           </a>
-                                          <a id="navAllocationsByType" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byAllocationType', false)">
+                                          <a id="navAllocationsByType" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byAllocationType')">
                                               <div class="sb-nav-link-icon"><i class="un-icon icon-Response">&#xe9e2;</i></div>
                                               By Allocation Type
                                               <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
@@ -254,12 +254,12 @@
                                 <div class="tab-pane fade" id="contributions" role="tabpanel" aria-labelledby="contributions-tab">
                                     <div class="marg-t10">
                                         <!--<div class="sb-sidenav-menu-heading text-uppercase">Contributions</div>-->
-                                        <a id="navContributionsByCerfCbpf" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byCerfCbpf', true)">
+                                        <a id="navContributionsByCerfCbpf" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byCerfCbpf')">
                                             <div class="sb-nav-link-icon"><i class="un-icon icon-Fund">&#xe96a;</i></div>
                                             By CERF/CBPF
                                             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
                                         </a>
-                                        <a id="navContributionsByDonor" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byDonor', true)">
+                                        <a id="navContributionsByDonor" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byDonor')">
                                             <div class="sb-nav-link-icon"><i class="un-icon icon-Partnership">&#xe9bc;</i></div>
                                             By Donor
                                             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
@@ -268,7 +268,7 @@
                                 </div>
                                 <div class="tab-pane fade" id="more" role="tabpanel" aria-labelledby="more-tab">
                                     <div class="marg-t10">
-                                        <a id="" class="nav-link" href="javascript:void(0)" onclick="">
+                                        <a id="navCountryProfile" class="nav-link" href="javascript:void(0)" onclick="">
                                             <div class="sb-nav-link-icon"><i class="un-icon icon-Analysis">&#xe90d;</i></div>
                                               Country Profile
                                               <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
@@ -288,91 +288,11 @@
                         <span class="btn-icon"></span><span class="btn-title">Options</span>
                     </div>
                     <div class="btn-panel">
-
-                    </div>
-                </div>
-                <div class="country-pro-main">
-                    <div class="container">
-                        <h1>Country Profile</h1>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi nunc tellus, volutpat a laoreet sit amet, rhoncus cursus leo. Fusce velit lorem, interdum eu dui in, luctus ultrices eros. Nullam eu odio in lectus ullamcorper vulputate et a mauris. Nullam nulla lectus, porttitor non interdum vitae, facilisis iaculis urna. Morbi cursus sit amet nibh non rutrum. Etiam in sodales ipsum. Etiam id est magna. Cras ut leo et mi egestas pharetra. Cras et tortor vitae quam fermentum condimentum. Morbi pharetra, est eu viverra tincidunt, mi massa laoreet felis, nec fringilla massa quam at arcu. Donec urna enim, luctus sed blandit ac, vehicula vitae ipsum. Donec in dui non nisl rutrum ornare. Sed sed porttitor massa, id hendrerit mi. Nullam vitae volutpat nulla. Donec elit justo, convallis sed erat ut, elementum aliquam sem.</p>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="country-list mb-4">
-                                    <h2>West and Central Africa</h2>
-                                    <ul>
-                                        <li><a href="#">Burkina Faso</a></li>
-                                        <li><a href="#">Cameroon</a></li>
-                                        <li><a href="#">Central African Republic (CAR)</a></li>
-                                        <li><a href="#">Chad</a></li>
-                                        <li><a href="#">Democratic Republic of the Congo (DRC)</a></li>
-                                        <li><a href="#">Mali</a></li>
-                                        <li><a href="#">Niger</a></li>
-                                        <li><a href="#">Nigeria</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="country-list mb-4">
-                                    <h2>Middle East and North Africa</h2>
-                                    <ul>
-                                        <li><a href="#">Iraq</a></li>
-                                        <li><a href="#">Lebanon</a></li>
-                                        <li><a href="#">Libya</a></li>
-                                        <li><a href="#">Occupied Palestinian Territory</a></li>
-                                        <li><a href="#">Syria</a></li>
-                                        <li><a href="#">Yemen</a></li>
-                                        <li><a href="#">Turkey</a></li>                                        
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="country-list mb-4">
-                                    <h2>Asia and the Pacific</h2>
-                                    <ul>
-                                        <li><a href="#">Afghanistan</a></li>
-                                        <li><a href="#">Myanmar</a></li>                                                                               
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="country-list mb-4">
-                                    <h2>Southern and Eastern Africa</h2>
-                                    <ul>
-                                        <li><a href="#">Burundi</a></li>
-                                        <li><a href="#">Eritrea</a></li>  
-                                        <li><a href="#">Ethiopia</a></li>
-                                        <li><a href="#">Somalia</a></li>
-                                        <li><a href="#">South Sudan</a></li>
-                                        <li><a href="#">Sudan</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="country-list mb-4">
-                                    <h2>Latin America and the Caribbean</h2>
-                                    <ul>
-                                        <li><a href="#">Colombia</a></li>
-                                        <li><a href="#">Haiti</a></li>  
-                                        <li><a href="#">Venezuela</a></li>                                        
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="country-list mb-4">
-                                    <h2>Eastern Europe</h2>
-                                    <ul>
-                                        <li><a href="#">Ukraine</a></li>                                                                             
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <!--Main Map Area-->               
                 <div class="map-section" id="main-map-panel">
-                    
                 </div>
-                
             </main>
             <!-- The Modal -->
             <div class="modal fade" id="videoModal">
@@ -420,20 +340,11 @@
                 if (lnk != null && $(lnk).length > 0) {
                     $("#layoutSidenav_nav .sb-sidenav a.nav-link").removeClass('activelink');
                     $(lnk).addClass('activelink');
-                }
-
-                if (disableDropdown) {
-                    $("#ddlDropdown").attr('disabled', 'disabled');
-                }
-                else {
-                    $("#ddlDropdown").removeAttr('disabled');
-                }
-
-            }
-            else {
+                };
+            } else {
                 closeNav(true);
-            }
-        }
+            };
+        };
 
         function closeNav(removeActive) {
             document.getElementById('byCountry').style.width = "0px";
