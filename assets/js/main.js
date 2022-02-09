@@ -284,28 +284,28 @@ function controlCharts([worldMap,
 
 	//|Open the link and draws charts according to chartState
 	if (chartState.selectedChart === "allocationsByCountry") {
-		setTimeout(() => openNav(selections.navlinkAllocationsByCountry.node(), "byCountry", false), duration);
+		setTimeout(() => openNav(selections.navlinkAllocationsByCountry.node(), "byCountry"), duration);
 		selections.navlinkAllocationsByCountry.classed("menuactive", true);
 		drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		drawAllocations(allocationsData);
 	};
 
 	if (chartState.selectedChart === "allocationsBySector") {
-		setTimeout(() => openNav(selections.navlinkAllocationsBySector.node(), "bySector", false), duration);
+		setTimeout(() => openNav(selections.navlinkAllocationsBySector.node(), "bySector"), duration);
 		selections.navlinkAllocationsBySector.classed("menuactive", true);
 		drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		drawAllocations(allocationsData);
 	};
 
 	if (chartState.selectedChart === "allocationsByType") {
-		setTimeout(() => openNav(selections.navlinkAllocationsByType.node(), "byAllocationType", false), duration);
+		setTimeout(() => openNav(selections.navlinkAllocationsByType.node(), "byAllocationType"), duration);
 		selections.navlinkAllocationsByType.classed("menuactive", true);
 		drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		drawAllocations(allocationsData);
 	};
 
 	if (chartState.selectedChart === "contributionsByCerfCbpf") {
-		setTimeout(() => openNav(selections.navlinkContributionsByCerfCbpf.node(), "byCerfCbpf", true), duration);
+		setTimeout(() => openNav(selections.navlinkContributionsByCerfCbpf.node(), "byCerfCbpf"), duration);
 		selections.navlinkContributionsByCerfCbpf.classed("menuactive", true);
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
 		drawContributionsByCerfCbpf = createContributionsByCerfCbpf(selections, colorsObject, lists);
@@ -313,14 +313,19 @@ function controlCharts([worldMap,
 	};
 
 	if (chartState.selectedChart === "contributionsByDonor") {
-		setTimeout(() => openNav(selections.navlinkContributionsByDonor.node(), "byDonor", true), duration);
+		setTimeout(() => openNav(selections.navlinkContributionsByDonor.node(), "byDonor"), duration);
 		selections.navlinkContributionsByDonor.classed("menuactive", true);
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
 		drawContributionsByDonor = createContributionsByDonor(selections, colorsObject, lists);
 		drawContributionsByDonor(contributionsDataByDonor);
 	};
 
-	//PUT COUNTRY PROFILE DEFAULT HERE
+	if (chartState.selectedChart === "countryProfile") {
+		setTimeout(() => openNav(selections.navlinkContributionsByDonor.node(), "byDonor"), duration);
+		selections.navlinkCountryProfile.classed("menuactive", true);
+		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
+		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, generalClassPrefix);
+	};
 
 	//|event listeners
 	selections.yearDropdown.on("change", event => {
@@ -502,8 +507,7 @@ function controlCharts([worldMap,
 		};
 		chartState.selectedChart = "countryProfile";
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
-		selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
-		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists);
+		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, generalClassPrefix);
 		highlightNavLinks();
 		queryStringValues.delete("year");
 		queryStringValues.delete("contributionYear");
@@ -899,7 +903,9 @@ function populateYearDropdown(yearData, dropdownContainer) {
 };
 
 function validateDefault(values) {
-	chartState.selectedChart = chartTypesAllocations.indexOf(values.chart) > -1 || chartTypesContributions.indexOf(values.chart) > -1 ?
+	chartState.selectedChart = chartTypesAllocations.indexOf(values.chart) > -1 ||
+		chartTypesContributions.indexOf(values.chart) > -1 ||
+		chartTypesCountryProfile.indexOf(values.chart) > -1 ?
 		values.chart : defaultValues.chart;
 	const yearArray = chartTypesAllocations.indexOf(chartState.selectedChart) > -1 ? yearsArrayAllocations : yearsArrayContributions;
 	if (!yearArray.includes(defaultValues.year)) {
