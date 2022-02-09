@@ -148,7 +148,10 @@ const selections = {
 	byDonorChartContainer: d3.select("#bydonor-bar-chart"),
 	byCerfCbpfChartContainer: d3.select("#bycerfcbpf-bar-chart"),
 	buttonsContainer: d3.select(".btn-panel"),
-	buttonsOuterContainer: d3.select("#btnOptionDiv")
+	buttonsOuterContainer: d3.select("#btnOptionDiv"),
+	allocationsTab: d3.select("#allocations-tab"),
+	contributionsTab: d3.select("#contributions-tab"),
+	moreTab: d3.select("#more-tab")
 };
 
 const navLinks = [selections.navlinkAllocationsByCountry,
@@ -285,6 +288,7 @@ function controlCharts([worldMap,
 	//|Open the link and draws charts according to chartState
 	if (chartState.selectedChart === "allocationsByCountry") {
 		setTimeout(() => openNav(selections.navlinkAllocationsByCountry.node(), "byCountry"), duration);
+		$(selections.allocationsTab.node()).click();
 		selections.navlinkAllocationsByCountry.classed("menuactive", true);
 		drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		drawAllocations(allocationsData);
@@ -292,6 +296,7 @@ function controlCharts([worldMap,
 
 	if (chartState.selectedChart === "allocationsBySector") {
 		setTimeout(() => openNav(selections.navlinkAllocationsBySector.node(), "bySector"), duration);
+		$(selections.allocationsTab.node()).click();
 		selections.navlinkAllocationsBySector.classed("menuactive", true);
 		drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		drawAllocations(allocationsData);
@@ -299,6 +304,7 @@ function controlCharts([worldMap,
 
 	if (chartState.selectedChart === "allocationsByType") {
 		setTimeout(() => openNav(selections.navlinkAllocationsByType.node(), "byAllocationType"), duration);
+		$(selections.allocationsTab.node()).click();
 		selections.navlinkAllocationsByType.classed("menuactive", true);
 		drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		drawAllocations(allocationsData);
@@ -306,6 +312,7 @@ function controlCharts([worldMap,
 
 	if (chartState.selectedChart === "contributionsByCerfCbpf") {
 		setTimeout(() => openNav(selections.navlinkContributionsByCerfCbpf.node(), "byCerfCbpf"), duration);
+		$(selections.contributionsTab.node()).click();
 		selections.navlinkContributionsByCerfCbpf.classed("menuactive", true);
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
 		drawContributionsByCerfCbpf = createContributionsByCerfCbpf(selections, colorsObject, lists);
@@ -314,6 +321,7 @@ function controlCharts([worldMap,
 
 	if (chartState.selectedChart === "contributionsByDonor") {
 		setTimeout(() => openNav(selections.navlinkContributionsByDonor.node(), "byDonor"), duration);
+		$(selections.contributionsTab.node()).click();
 		selections.navlinkContributionsByDonor.classed("menuactive", true);
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
 		drawContributionsByDonor = createContributionsByDonor(selections, colorsObject, lists);
@@ -321,7 +329,7 @@ function controlCharts([worldMap,
 	};
 
 	if (chartState.selectedChart === "countryProfile") {
-		setTimeout(() => openNav(selections.navlinkContributionsByDonor.node(), "byDonor"), duration);
+		$(selections.moreTab.node()).click();
 		selections.navlinkCountryProfile.classed("menuactive", true);
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
 		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, generalClassPrefix);
