@@ -503,7 +503,6 @@ function controlCharts([worldMap,
 		setQueryString("chart", chartState.selectedChart);
 	});
 
-	//COUNTRY PROFILE
 	selections.navlinkCountryProfile.on("click", () => {
 		if (buttonsObject.playing) stopTimer();
 		if (chartState.selectedChart === "countryProfile") return;
