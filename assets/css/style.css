@@ -1373,7 +1373,7 @@ a.video-tutorial{color:#333;}
   font-size: 14px;
 } 
 
-.pfbialouterDiv, .pfbiccouterDiv, .pfbicdouterDiv {
+.pfbialouterDiv, .pfbiccouterDiv, .pfbicdouterDiv, .pfcpmainouterDiv {
   display: flex;
   flex-direction: column;
   width: 100%;

@@ -515,7 +515,8 @@ function controlCharts([worldMap,
 		};
 		chartState.selectedChart = "countryProfile";
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
-		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, generalClassPrefix);
+		selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
+		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists);
 		highlightNavLinks();
 		queryStringValues.delete("year");
 		queryStringValues.delete("contributionYear");
