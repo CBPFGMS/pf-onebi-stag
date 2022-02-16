@@ -1386,6 +1386,7 @@ a.video-tutorial{color:#333;}
   padding: 0 15px;
   display: flex;
   align-items: center;
+  font-size: 0.8rem;
 }
 
 .pfcpmaintabsOuterDiv {
@@ -1398,6 +1399,7 @@ a.video-tutorial{color:#333;}
   width: 100%;
   min-height: 5vh;
   margin-bottom: -1px;
+  font-size: 0.8rem;
 }
 
 .pfcpmaintabsDiv .nav-link {
