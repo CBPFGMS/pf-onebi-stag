@@ -2,6 +2,7 @@
 import { chartState } from "./chartstate.js";
 import { donorsFlagsData } from "./donorsflagsdata.js";
 import { createLinks } from "./links.js";
+import { createBreadcrumbs } from "./breadcrumbs.js";
 
 //|constants
 const classPrefix = "pfbicc",
@@ -94,28 +95,11 @@ function createContributionsByCerfCbpf(selections, colors, lists) {
 	const outerDiv = selections.chartContainerDiv.append("div")
 		.attr("class", classPrefix + "outerDiv");
 
-	const breadcrumbDiv = outerDiv.append("div")
-		.attr("class", classPrefix + "breadcrumbDiv");
+	const breadcrumb = createBreadcrumbs(outerDiv, "contributions");
 
-	const breadcrumbDivInner = breadcrumbDiv.append("div")
-		.attr("class", classPrefix + "breadcrumbDivInner");
+	breadcrumb.secondBreadcrumbSpan.html("by CERF/CBPF");
 
-	const firstBreadcrumb = breadcrumbDivInner.append("div")
-		.attr("class", classPrefix + "firstBreadcrumb");
-
-	firstBreadcrumb.append("span")
-		.html("contributions");
-
-	const middleBreadcrumb = breadcrumbDivInner.append("div")
-		.attr("class", classPrefix + "middleBreadcrumb");
-
-	const secondBreadcrumb = breadcrumbDivInner.append("div")
-		.attr("class", classPrefix + "secondBreadcrumb");
-
-	secondBreadcrumb.append("span")
-		.html("by CERF/CBPF");
-
-	const topButtonsDiv = breadcrumbDiv.append("div")
+	const topButtonsDiv = breadcrumb.breadcrumbDiv.append("div")
 		.attr("data-html2canvas-ignore", "true")
 		.attr("class", classPrefix + "topButtonsDiv");
 

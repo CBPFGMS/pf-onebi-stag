@@ -2,6 +2,7 @@
 import { chartState } from "./chartstate.js";
 import { clustersIconsData } from "./clustersiconsdata.js";
 import { createLinks } from "./links.js";
+import { createBreadcrumbs } from "./breadcrumbs.js";
 
 //|constants
 const classPrefix = "pfbial",
@@ -87,27 +88,9 @@ function createAllocations(selections, colors, mapData, lists) {
 	const outerDiv = selections.chartContainerDiv.append("div")
 		.attr("class", classPrefix + "outerDiv");
 
-	const breadcrumbDiv = outerDiv.append("div")
-		.attr("class", classPrefix + "breadcrumbDiv");
+	const breadcrumb = createBreadcrumbs(outerDiv, "allocations");
 
-	const breadcrumbDivInner = breadcrumbDiv.append("div")
-		.attr("class", classPrefix + "breadcrumbDivInner");
-
-	const firstBreadcrumb = breadcrumbDivInner.append("div")
-		.attr("class", classPrefix + "firstBreadcrumb");
-
-	firstBreadcrumb.append("span")
-		.html("allocations");
-
-	const middleBreadcrumb = breadcrumbDivInner.append("div")
-		.attr("class", classPrefix + "middleBreadcrumb");
-
-	const secondBreadcrumb = breadcrumbDivInner.append("div")
-		.attr("class", classPrefix + "secondBreadcrumb");
-
-	const secondBreadcrumbSpan = secondBreadcrumb.append("span");
-
-	const topButtonsDiv = breadcrumbDiv.append("div")
+	const topButtonsDiv = breadcrumb.breadcrumbDiv.append("div")
 		.attr("data-html2canvas-ignore", "true")
 		.attr("class", classPrefix + "topButtonsDiv");
 
@@ -525,7 +508,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 	function draw(originalData) {
 
-		secondBreadcrumbSpan.html(breadcrumbScale(chartState.selectedChart));
+		breadcrumb.secondBreadcrumbSpan.html(breadcrumbScale(chartState.selectedChart));
 
 		verifyCentroids(originalData);
 

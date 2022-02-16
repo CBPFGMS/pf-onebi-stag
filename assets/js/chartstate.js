@@ -10,7 +10,8 @@ const chartState = {
 	currentTooltipValue: null,
 	currentHoveredElementValue: null,
 	isSnapshotTooltipVisibleValue: false,
-	selectedCountryProfile: null
+	selectedCountryProfileValue: null,
+	selectedCountryProfileTabValue: null
 };
 
 for (const key in chartState) {

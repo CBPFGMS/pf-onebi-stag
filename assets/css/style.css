@@ -490,8 +490,8 @@ a.video-tutorial{color:#333;}
 	.pfbialtopButtonsDiv .cerf-link, .pfbicctopButtonsDiv .cerf-link {padding: 3px 7px !important; font-size: 0.7em; line-height: normal; text-align: center;}
 	.pfbialtopButtonsDiv .cerf-link .icon-chart, .pfbicctopButtonsDiv .cerf-link .icon-chart{display: none !important;}	
 	.link-sidenav{left: 0;}
-	.pfbialtopButtonsDiv svg, .pfbicctopButtonsDiv svg, .pfbicdtopButtonsDiv svg{display:none;}
-	.pfbialbreadcrumbDiv, .pfbiccbreadcrumbDiv, .pfbicdbreadcrumbDiv{padding: 0 15px 0 60px !important;}
+	.pfbialtopButtonsDiv svg, .pfbicctopButtonsDiv svg, .pfbicdtopButtonsDiv svg, .pfcpmaintopButtonsDiv svg{display:none;}
+	.pfbihpbreadcrumbDiv{padding: 0 15px 0 60px !important;}
 	footer{width: 100% !important;}
 	.mobile-menu{margin-top:7px !important;}	
 }
@@ -500,7 +500,7 @@ a.video-tutorial{color:#333;}
 }
 @media (max-width: 767.98px) { 
 	#sidebarToggle{display:block !important;}
-	.pfbialbreadcrumbDiv, .pfbiccbreadcrumbDiv, .pfbicdbreadcrumbDiv{padding: 0 15px 0 60px !important; min-height: 50px !important;} 
+	.pfbihpbreadcrumbDiv{padding: 0 15px 0 60px !important; min-height: 50px !important;} 
 	footer{width: 100% !important;}
 	.mobile-menu{margin-top:7px !important;}
 	
@@ -508,7 +508,7 @@ a.video-tutorial{color:#333;}
 @media (max-width: 991.98px) {
 	#sidebarToggle{display:block !important;}
 	.link-sidenav{z-index: 1050; }
-	.pfbialbreadcrumbDiv, .pfbiccbreadcrumbDiv, .pfbicdbreadcrumbDiv{padding: 0 15px 0 60px !important; min-height: 50px !important;}
+	.pfbihpbreadcrumbDiv{padding: 0 15px 0 60px !important; min-height: 50px !important;}
 	footer{width: 100% !important;}
 	.mobile-menu{margin-top:7px !important;}
 }
@@ -1378,9 +1378,42 @@ a.video-tutorial{color:#333;}
   flex-direction: column;
   width: 100%;
   height: 100%;
+}
+
+.pfcpmaindropdownDiv {
+  width: 100%;
+  min-height: 5vh;
+  padding: 0 15px;
+  display: flex;
+  align-items: center;
+}
+
+.pfcpmaintabsOuterDiv {
+  width: 100%;
+  border-bottom: 1px solid #dee2e6;
 }  
 
-.pfbialbreadcrumbDiv, .pfbiccbreadcrumbDiv, .pfbicdbreadcrumbDiv {
+.pfcpmaintabsDiv {
+  padding: 5px 15px 0px 15px;
+  width: 100%;
+  min-height: 5vh;
+  margin-bottom: -1px;
+}
+
+.pfcpmaintabsDiv .nav-link {
+  color:  #777;
+}
+
+.pfcpmaintabsDiv .nav-link.active {
+  border-color: #dee2e6 #dee2e6 #fff;
+}
+
+.pfcpmainchartDiv {
+  flex: 1;
+  display: flex;
+}
+
+.pfbihpbreadcrumbDiv {
   display: flex;
   flex-direction: row;
   width: 100%;
@@ -1391,20 +1424,20 @@ a.video-tutorial{color:#333;}
   padding: 0 15px;
 }
 
-.pfbialbreadcrumbDivInner, .pfbiccbreadcrumbDivInner, .pfbicdbreadcrumbDivInner {
+.pfbihpbreadcrumbDivInner {
   display: flex;
   flex:0 50%;
   align-items: center;
 }
 
-.pfbialtopButtonsDiv, .pfbicctopButtonsDiv, .pfbicdtopButtonsDiv {
+.pfbialtopButtonsDiv, .pfbicctopButtonsDiv, .pfbicdtopButtonsDiv, .pfcpmaintopButtonsDiv {
   display: flex;
   flex:0 50%;
   justify-content: flex-start;
   flex-direction: row-reverse;
 }
 
-.pfbialtopButtonsDiv button, .pfbicdtopButtonsDiv button, .pfbicctopButtonsDiv button{
+.pfbialtopButtonsDiv button, .pfbicdtopButtonsDiv button, .pfbicctopButtonsDiv button, .pfcpmaintopButtonsDiv button{
 	border: 1px solid #3289c9;
   border-radius: 3px;
   font-size: 0.7em;
@@ -1417,8 +1450,8 @@ a.video-tutorial{color:#333;}
 	vertical-align: top;
 }
 
-.pfbialtopButtonsDiv .pfbihpSnapshotDiv, .pfbicctopButtonsDiv .pfbihpSnapshotDiv, .pfbicdtopButtonsDiv .pfbihpSnapshotDiv {line-height: normal;}
-.pfbialtopButtonsDiv button:hover, .pfbicctopButtonsDiv button:hover, .pfbicdtopButtonsDiv button:hover {background-color: #3289c9; color:#fff;}
+.pfbialtopButtonsDiv .pfbihpSnapshotDiv, .pfbicctopButtonsDiv .pfbihpSnapshotDiv, .pfbicdtopButtonsDiv .pfbihpSnapshotDiv, .pfcpmaintopButtonsDiv .pfbihpSnapshotDiv {line-height: normal;}
+.pfbialtopButtonsDiv button:hover, .pfbicctopButtonsDiv button:hover, .pfbicdtopButtonsDiv button:hover, .pfcpmaintopButtonsDiv button:hover {background-color: #3289c9; color:#fff;}
 
 .pfbihpSnapshotContent {
   position: absolute;
@@ -1454,16 +1487,14 @@ a.video-tutorial{color:#333;}
   color: white;
 }
 
-.pfbialfirstBreadcrumb, .pfbialsecondBreadcrumb, .pfbiccfirstBreadcrumb, .pfbiccsecondBreadcrumb, .pfbicdfirstBreadcrumb, .pfbicdsecondBreadcrumb {
+.pfbihpfirstBreadcrumb, .pfbihpsecondBreadcrumb {
   margin-left: 0; text-transform: capitalize; font-size: 0.8em;
 } 
 
-.pfbialmiddleBreadcrumb, .pfbiccmiddleBreadcrumb, .pfbicdmiddleBreadcrumb {
+.pfbihpmiddleBreadcrumb {
   background-image: url("../img/breadcrumb-arrow-icon.png"); background-position: center center; width: 6px; height: 10px; margin: auto 7px auto 7px;
 }
-.pfbialfirstBreadcrumb span{font-weight: 400;}
-.pfbiccfirstBreadcrumb span{font-weight: 400;}
-.pfbicdfirstBreadcrumb span{font-weight: 400;}
+.pfbihpfirstBreadcrumb span{font-weight: 400;}
 
 .pfbicclegendGroup text, .pfbicclegendPledged {
   font-family: "Roboto", sans-serif;
@@ -1927,4 +1958,314 @@ a.video-tutorial{color:#333;}
 }
 .country-pro-tabs .nav-tabs .nav-item.show .nav-link, .country-pro-tabs .nav-tabs .nav-link.active {
     border-color: #dee2e6 #dee2e6 #fff;
+}
+
+/*country profile style*/
+
+/*Overview tab, code:pfbicpoverview*/
+.pfbicpoverviewouterDiv {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  --unColor:  #65A8DC;
+}
+
+.pfbicpoverviewtopDiv {
+  width: 100%;
+  display: flex;
+}
+
+.pfbicpoverviewtitleDiv {
+  width: 50%;
+  font-family: "Roboto", sans-serif;
+  font-size: 1.4em;
+  color: darkslategray;
+  font-weight: 500;
+}
+
+.pfbicpoverviewbuttonsOuterDiv {
+  width: 50%;
+  right: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: 1rem;
+}
+
+.pfbicpoverviewbuttonsDiv button, .pfbicdbuttonsDiv button {
+  margin: 0px 0px 0px 8px;
+  display: inline-flex;
+  align-items: center; 
+  white-space: pre;
+  z-index: 1000;
+  border: 1px solid #BCBEC0;
+  font-size: 0.8rem;
+  padding: 0 10px 0 0;
+  border-radius: 3px;
+  background-color: #eee;
+  line-height: normal;
+  transition: all 0.2s linear;
+  outline: 0;
+}
+
+.pfbicpoverviewbuttonsDiv button .icon-circle, .pfbicdbuttonsDiv button .icon-circle{
+  background-color: #fff;
+  padding: 5px;
+  display: inline-flex;
+  margin-right: 5px;
+  border-radius: 3px 0 0 3px;
+}
+
+.pfbicpoverviewbuttonsDiv button:hover{background-color: #3289C9; color:#fff; border-color:#3289C9;}
+.pfbicpoverviewbuttonsDiv button.active{background-color: #3289C9; color:#fff; border-color:#3289C9;}
+
+.fa-adjust {
+  color: transparent;
+  background: linear-gradient(to right, #FBD45C 0%, #FBD45C 50%, #F37261 50%, #F37261 100%);
+  border-radius: 50%;
+}
+
+.pfbicpoverviewtitleDiv p {
+  margin: 0.2em 0 0.2em 0.8em;
+}
+
+.pfbicpoverviewchartsDiv {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.pfbicpoverviewtopRowDiv {
+  display: flex;
+  flex-direction: row;
+}
+
+.pfbicpoverviewdonutsRowDiv {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pfbicpoverviewdonutsTitle {
+  border-top: 2px solid var(--unColor);
+  width: 98%;
+}
+
+.pfbicpoverviewdonutsTitle span {
+  font-family: "Roboto", sans-serif;
+  font-size: 1.1em;
+  font-weight: 500;
+  color:  white;
+  padding: 0.2em 2em;
+  display: inline-block;
+  background-color: var(--unColor);
+}
+
+.pfbicpoverviewdonutsDiv {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.pfbicpoverviewmainDonutsDiv {
+  height: 100%;
+  flex-grow: 2;
+}
+
+.pfbicpoverviewcerfDonutsDiv {
+  height: 100%;
+  flex-grow: 1;
+}
+
+.pfbicpoverviewcbpfDonutsDiv {
+  height: 100%;
+  flex-grow: 1;
+}
+
+.pfbicpoverviewmapDiv {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pfbicpoverviewtopFiguresDiv {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: "Roboto", sans-serif;
+  justify-content: center;
+}
+
+.pfbicpoverviewallocationsDiv, .pfbicpoverviewdescriptionDiv, .pfbicpoverviewprojectsDiv, .pfbicpoverviewpartnersDiv {
+  padding-left: 1.6em;
+}
+
+.pfbicpoverviewallocationsValue {
+  font-size: 3.2em;
+}
+
+.pfbicpoverviewallocationsUnit {
+  font-size: 1.8em;
+  color: dimgray;
+  padding-left: 0.4em;
+}
+
+.pfbicpoverviewdescriptionDiv {
+  color: dimgray;
+  font-size: 1.2em;
+  padding-bottom: 1em;
+}
+
+.pfbicpoverviewprojectsValue, .pfbicpoverviewpartnersValue {
+  font-size: 1.8em;
+}
+
+.pfbicpoverviewprojectsText, .pfbicpoverviewpartnersText {
+  font-size: 1.2em;
+  color: dimgray;
+  padding-left: 0.4em;
+}
+
+.pfbicpoverviewbarChartDiv {
+  width: 100%;
+  height: 100%;
+}
+
+
+.pfbicpoverviewxAxisGroup line {
+  stroke: darkslategray;
+}
+
+.pfbicpoverviewxAxisGroup path, .pfbicpoverviewyAxisGroup path {
+  stroke: none;
+}
+
+.pfbicpoverviewxAxisGroup text {
+  font-family: "Roboto", sans-serif;
+  font-size: 9px;
+  letter-spacing: -0.3px;
+}
+
+.pfbicpoverviewyAxisGroup text {
+  font-family: "Roboto", sans-serif;
+  font-size: 10px;
+  fill: #999;
+  pointer-events: none;
+}
+
+.pfbicpoverviewyAxisGroup line {
+  stroke: #ddd;
+  stroke-dasharray: 2, 2;
+}
+
+.pfbicpoverviewbarChartLegend {
+  font-family: "Roboto", sans-serif;
+  font-size: 11px;
+  fill: #666;
+  pointer-events: none;
+  text-anchor: middle;
+}
+
+.pfbicpoverviewbarsLabels {
+  font-family: "Roboto", sans-serif;
+  font-size: 10px;
+  fill: #666;
+  pointer-events: none;
+  text-anchor: middle;
+  letter-spacing: -0.3px;
+}
+
+.pfbicpoverviewnoData {
+  font-family: "Roboto", sans-serif;
+  font-size: 16px;
+  fill: #666;
+  pointer-events: none;
+  text-anchor: middle;
+}
+
+.pfbicpoverviewmainDonutText {
+  font-family: "Roboto", sans-serif;
+  font-size: 0.7em;
+  fill: white;
+  font-weight: 800;
+  pointer-events: none;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  stroke: #777;
+  stroke-width: 2px;
+  paint-order: stroke;
+}
+
+.pfbicpoverviewcerfDonutText, .pfbicpoverviewcbpfDonutText {
+  font-family: "Roboto", sans-serif;
+  font-size: 0.7em;
+  fill: white;
+  font-weight: 800;
+  pointer-events: none;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  stroke: #777;
+  stroke-width: 2px;
+  paint-order: stroke;
+}
+
+.pfbicpoverviewmainDonutValues {
+  font-family: "Roboto", sans-serif;
+  font-size: 3em;
+  fill: #444;
+  pointer-events: none;
+}
+
+.pfbicpoverviewcerfDonutValues, .pfbicpoverviewcbpfDonutValues {
+  font-family: "Roboto", sans-serif;
+  font-size: 1.1em;
+  fill: #444;
+  pointer-events: none;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.pfbicpoverviewmainDonutUnits {
+  font-family: "Roboto", sans-serif;
+  font-size: 1.4em;
+  fill: #444;
+  pointer-events: none;
+  dominant-baseline: hanging;
+}
+
+.pfbicpoverviewmainDonutDescription {
+  font-family: "Roboto", sans-serif;
+  font-size: 1.1em;
+  fill: #777;
+  pointer-events: none;
+  dominant-baseline: hanging;
+}
+
+.pfbicpoverviewcerfDonutDescription, .pfbicpoverviewcbpfDonutDescription {
+  font-family: "Roboto", sans-serif;
+  font-size: 0.8em;
+  fill: #666;
+  pointer-events: none;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.pfbicpoverviewbubbleLegendText {
+  font-family: "Roboto", sans-serif;
+  font-size: 0.7em;
+  fill: #666;
+  dominant-baseline: central;
+}
+
+.pfbicpoverviewbubbleLegendValue {
+  font-family: "Roboto", sans-serif;
+  font-size: 0.7em;
+  fill: #555;
+  font-weight: bold;
+  dominant-baseline: central;
 }
