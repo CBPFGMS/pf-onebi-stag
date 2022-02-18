@@ -293,10 +293,18 @@ function createCountryProfileOverview(container, lists, colors, mapData) {
 
 	function drawBubbleMap(adminLevel1Data, syncedTransition) {
 
+		const adminLevel1WithoutCoordinates = adminLevel1Data.filter(d => d.AdminLocation1Latitude === null &&
+			d.AdminLocation1Longitude === null &&
+			(chartState.selectedFund !== "cerf" && chartState.selectedFund !== "cbpf" ? true : d.FundType === chartState.selectedFund));
+
+		//Create disclaimer for admin lv1 without coords
+
 		radiusScale.domain([0, d3.max(adminLevel1Data, d => d.AdminLocation1Budget) || 0]);
 
-		const adminLevel1DataCerf = chartState.selectedFund !== "cbpf" ? adminLevel1Data.filter(d => d.FundType === cerfId) : [];
-		const adminLevel1DataCbpf = chartState.selectedFund !== "cerf" ? adminLevel1Data.filter(d => d.FundType === cbpfId) : [];
+		const adminLevel1DataCerf = chartState.selectedFund !== "cbpf" ? adminLevel1Data.filter(d => d.FundType === cerfId &&
+			d.AdminLocation1Latitude !== null && d.AdminLocation1Longitude !== null) : [];
+		const adminLevel1DataCbpf = chartState.selectedFund !== "cerf" ? adminLevel1Data.filter(d => d.FundType === cbpfId &&
+			d.AdminLocation1Latitude !== null && d.AdminLocation1Longitude !== null) : [];
 
 		let markers = markersLayer.selectAll(`.${classPrefix}markers`)
 			.data(adminLevel1DataCerf, d => d.AdminLocation1 + d.AdminLocation1Latitude.toFixed(6) + d.AdminLocation1Longitude.toFixed(6));
