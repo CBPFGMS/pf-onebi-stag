@@ -22,7 +22,7 @@ function createBreadcrumbs(containerSelection, firstValue) {
 
 	const secondBreadcrumbSpan = secondBreadcrumb.append("span");
 
-	return { breadcrumbDiv, secondBreadcrumbSpan };
+	return { breadcrumbDiv, secondBreadcrumbSpan, firstBreadcrumb };
 
 };
 

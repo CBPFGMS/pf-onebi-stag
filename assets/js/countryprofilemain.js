@@ -6,7 +6,7 @@ import { createCountryProfileOverview } from "./countryprofileoverview.js";
 
 //|constants
 const classPrefix = "pfcpmain",
-	tabsData = ["Overview", "People Targeted", "Allocations", "Funding by Cluster", "Contributions by Donor"],
+	tabsData = ["Overview", "Allocations by partner", "Allocations", "Funding by Cluster", "Contributions by Donor"],
 	backToMenu = "Back to main menu",
 	selectAnOption = "Select Fund",
 	separator = "##",
@@ -102,6 +102,8 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 
 	const breadcrumb = createBreadcrumbs(outerDiv, "country profile");
 
+	breadcrumb.firstBreadcrumb.style("cursor", "pointer");
+
 	breadcrumb.secondBreadcrumbSpan.html(lists.fundNamesList[chartState.selectedCountryProfile]);
 
 	const topButtonsDiv = breadcrumb.breadcrumbDiv.append("div")
@@ -153,6 +155,15 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 		chartDiv.selectChildren().remove();
 		setCallFunctions();
 		callDrawingFunction();
+	});
+
+	breadcrumb.firstBreadcrumb.on("click", (event, d) => {
+		const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv);
+		countries.on("click", (event, d) => {
+			chartState.selectedCountryProfile = d;
+			drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv);
+		});
+		return;
 	});
 
 	function setCallFunctions() {

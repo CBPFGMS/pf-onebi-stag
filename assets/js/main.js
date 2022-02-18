@@ -505,7 +505,11 @@ function controlCharts([worldMap,
 
 	selections.navlinkCountryProfile.on("click", () => {
 		if (buttonsObject.playing) stopTimer();
-		if (chartState.selectedChart === "countryProfile") return;
+		if (chartState.selectedChart === "countryProfile") {
+			selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
+			createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists);
+			return;
+		};
 		if (chartState.selectedChart !== "contributionsByDonor") {
 			resetTopValues(topValues);
 			processAllocationsYearData(rawAllocationsData);
