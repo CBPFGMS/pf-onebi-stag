@@ -2092,6 +2092,7 @@ a.video-tutorial{color:#333;}
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
 }
 
 .pfbicpoverviewtopFiguresDiv {
@@ -2270,4 +2271,13 @@ a.video-tutorial{color:#333;}
   fill: #555;
   font-weight: bold;
   dominant-baseline: central;
+}
+
+.pfbicpoverviewallocationsDisclaimer {
+  position: absolute;
+  top:  84%;
+  left: 90%;
+  font-size: 1.2em;
+  color: #555;
+  z-index: 50;
 }

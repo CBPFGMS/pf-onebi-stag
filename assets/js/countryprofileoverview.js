@@ -61,7 +61,8 @@ const topRowPercentage = 0.45,
 	xAxisTextSize = 12;
 
 let bubbleLegendValue,
-	bubbleLegendGroup;
+	bubbleLegendGroup,
+	allocationsWithoutCoordsDisclaimer;
 
 function createCountryProfileOverview(container, lists, colors, mapData) {
 
@@ -262,7 +263,7 @@ function createCountryProfileOverview(container, lists, colors, mapData) {
 
 		if (resetYear) setDefaultYear(originalData);
 
-		if (drawMap) createMap(mapData, mapLayer, mapDivSize, lists);
+		if (drawMap) createMap(mapData, mapLayer, mapDivSize, lists, mapDiv);
 
 		const data = processData(originalData);
 		const adminLevel1Object = originalAdminLevel1Data.find(e => e.year === chartState.selectedYear);
@@ -372,6 +373,10 @@ function createCountryProfileOverview(container, lists, colors, mapData) {
 
 		bubbleLegendGroup.transition(syncedTransition)
 			.style("opacity", adminLevel1Data.length ? 1 : 0);
+
+		allocationsWithoutCoordsDisclaimer.datum(adminLevel1WithoutCoordinates)
+			.transition(syncedTransition)
+			.style("opacity", adminLevel1WithoutCoordinates.length ? 1 : 0);
 
 	};
 
@@ -958,7 +963,7 @@ function createCountryProfileOverview(container, lists, colors, mapData) {
 	//end of createCountryProfileOverview
 };
 
-function createMap(mapData, mapLayer, mapDivSize, lists) {
+function createMap(mapData, mapLayer, mapDivSize, lists, mapDiv) {
 
 	mapLayer.selectChildren().remove();
 
@@ -1001,6 +1006,13 @@ function createMap(mapData, mapLayer, mapDivSize, lists) {
 		.attr("y", maxRadius)
 		.attr("x", mapPadding[3] + 2 * maxRadius + 1.5 * bubbleLegendPadding + bubbleTextWidth)
 		.text("0");
+
+	allocationsWithoutCoordsDisclaimer = mapDiv.append("div")
+		.attr("class", classPrefix + "allocationsDisclaimer")
+		.style("opacity", 0);
+
+	allocationsWithoutCoordsDisclaimer.append("span")
+		.attr("class", "fas fa-exclamation-circle");
 
 };
 
