@@ -124,6 +124,10 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 	const chartDiv = outerDiv.append("div")
 		.attr("class", classPrefix + "chartDiv");
 
+	const tooltipDiv = chartDiv.append("div")
+		.attr("id", classPrefix + "tooltipDiv")
+		.style("display", "none");
+
 	const dropdown = createDropdown(dropdownDiv, pooledFundsInData, lists);
 
 	const tabs = createTabs(tabsDiv, tabsData);
@@ -167,7 +171,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 	});
 
 	function setCallFunctions() {
-		if (selectedTab === tabsData[0]) tabsCallingFunctions.find(d => d.name === tabsData[0]).callingFunction = createCountryProfileOverview(chartDiv, lists, colorsObject, worldMap);
+		if (selectedTab === tabsData[0]) tabsCallingFunctions.find(d => d.name === tabsData[0]).callingFunction = createCountryProfileOverview(chartDiv, lists, colorsObject, worldMap, tooltipDiv);
 	};
 
 	function callDrawingFunction() {

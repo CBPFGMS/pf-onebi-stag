@@ -619,7 +619,7 @@ a.video-tutorial{color:#333;}
 
 /*tooltip styles*/
 
-#pfbialtooltipDivMap, #pfbialtooltipDivBarChart, #pfbicctooltipDiv, #pfbicdtooltipDiv, #pfbihptopTooltipDiv {    
+#pfbialtooltipDivMap, #pfbialtooltipDivBarChart, #pfbicctooltipDiv, #pfbicdtooltipDiv, #pfbihptopTooltipDiv, #pfcpmaintooltipDiv {    
   position: absolute;
   text-align: left;
   color: darkslategray;
@@ -636,6 +636,11 @@ a.video-tutorial{color:#333;}
   z-index: 1500;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
+
+#pfbicpoverviewinnerTooltipDiv > div:nth-child(2) {
+  padding: 8px;
+}
+
 #pfbicctooltipDiv{
 	padding: 8px !important;
 }
@@ -643,7 +648,7 @@ a.video-tutorial{color:#333;}
 #pfbialinnerTooltipDiv > div:nth-child(2){padding:8px !important;}
 #pfbialinnerTooltipDiv > div:nth-child(2) > div:nth-child(3){margin-bottom: 10px !important; border-bottom: 1px dotted #999 !important; padding-bottom: 5px !important;}
 
-.pfbialtooltipTitleDiv, .pfbicdtooltipTitleDiv {
+.pfbialtooltipTitleDiv, .pfbicdtooltipTitleDiv, .pfbicpoverviewtooltipTitleDiv {
 	margin-bottom: 3px !important;
     background-color: #3189c9;
     padding: 8px 8px;
@@ -1413,6 +1418,7 @@ a.video-tutorial{color:#333;}
 .pfcpmainchartDiv {
   flex: 1;
   display: flex;
+  position: relative;
 }
 
 .pfbihpbreadcrumbDiv {
