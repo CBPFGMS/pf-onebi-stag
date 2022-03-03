@@ -665,10 +665,11 @@ function processAllocationsYearData(rawAllocationsData) {
 		if (row.AllocationYear === chartState.selectedYear ||
 			(chartState.selectedChart === "contributionsByCerfCbpf" && chartState.selectedYear === allYears) ||
 			(chartState.selectedChart === "contributionsByDonor" && row.AllocationYear < currentYear)) {
-			topValues.allocations += row.ClusterBudget;
+			const budget = splitBudget(row.ClusterBudget)
+			topValues.allocations += budget;
 			row.ProjList.toString().split(separator).forEach(e => topValues.projects.add(e));
-			if (fundTypesList[row.FundId] === "cerf") topValues[`cerf${separator}allocated`] = (topValues[`cerf${separator}allocated`] || 0) + row.ClusterBudget;
-			if (fundTypesList[row.FundId] === "cbpf") topValues[`cbpf${separator}allocated`] = (topValues[`cbpf${separator}allocated`] || 0) + row.ClusterBudget;
+			if (fundTypesList[row.FundId] === "cerf") topValues[`cerf${separator}allocated`] = (topValues[`cerf${separator}allocated`] || 0) + budget;
+			if (fundTypesList[row.FundId] === "cbpf") topValues[`cbpf${separator}allocated`] = (topValues[`cbpf${separator}allocated`] || 0) + budget;
 		};
 	});
 };
@@ -721,18 +722,19 @@ function processDataAllocations(rawAllocationsData) {
 };
 
 function pushCbpfOrCerf(obj, row) {
+	const budget = splitBudget(row.ClusterBudget);
 	if (fundTypesList[row.FundId] === "cbpf") {
-		obj.cbpf += +row.ClusterBudget;
-		obj[`cluster${separator}${row.ClusterId}${separator}cbpf`] += +row.ClusterBudget;
-		obj[`type${separator}${row.AllocationSurceId}${separator}cbpf`] += +row.ClusterBudget;;
+		obj.cbpf += budget;
+		obj[`cluster${separator}${row.ClusterId}${separator}cbpf`] += budget;
+		obj[`type${separator}${row.AllocationSurceId}${separator}cbpf`] += budget;
 	} else if (fundTypesList[row.FundId] === "cerf") {
-		obj.cerf += +row.ClusterBudget;
-		obj[`cluster${separator}${row.ClusterId}${separator}cerf`] += +row.ClusterBudget;
-		obj[`type${separator}${row.AllocationSurceId}${separator}cerf`] += +row.ClusterBudget;;
+		obj.cerf += budget;
+		obj[`cluster${separator}${row.ClusterId}${separator}cerf`] += budget;
+		obj[`type${separator}${row.AllocationSurceId}${separator}cerf`] += budget;
 	};
-	obj.total += +row.ClusterBudget;
-	obj[`cluster${separator}${row.ClusterId}${separator}total`] += +row.ClusterBudget;
-	obj[`type${separator}${row.AllocationSurceId}${separator}total`] += +row.ClusterBudget;;
+	obj.total += budget;
+	obj[`cluster${separator}${row.ClusterId}${separator}total`] += budget;
+	obj[`type${separator}${row.AllocationSurceId}${separator}total`] += budget;
 };
 
 function processContributionsYearData(rawContributionsData) {
@@ -989,6 +991,14 @@ function formatSIFloat(value) {
 	const length = (~~Math.log10(value) + 1) % 3;
 	const digits = length === 1 ? 2 : length === 2 ? 1 : 0;
 	return d3.formatPrefix("." + digits, value)(value);
+};
+
+function splitBudget(value) {
+	if (!value.split) {
+		return value;
+	} else {
+		return value.split(separator).reduce((acc, curr) => acc + (+curr), 0);
+	};
 };
 
 function reverseFormat(s) {
