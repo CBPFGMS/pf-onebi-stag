@@ -3,6 +3,7 @@ import { chartState } from "./chartstate.js";
 import { createLinks } from "./links.js";
 import { createBreadcrumbs } from "./breadcrumbs.js";
 import { createCountryProfileOverview } from "./countryprofileoverview.js";
+import { createCountryProfileByPartner } from "./countryprofilebypartner.js";
 
 //|constants
 const classPrefix = "pfcpmain",
@@ -15,14 +16,17 @@ const classPrefix = "pfcpmain",
 let selectedTab = tabsData[0],
 	overviewData,
 	overviewAdminLevel1Data,
-	drawOverview;
+	byPartnerData,
+	drawOverview,
+	cerfId,
+	cbpfId;
 
 const tabsCallingFunctions = tabsData.map(d => ({
 	name: d,
 	callingFunction: null
 }));
 
-function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists) {
+function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, cerfByPartnerData, selections, colorsObject, lists) {
 
 	const pooledFundsInData = rawAllocationsData.reduce((acc, curr) => {
 		const foundRegion = acc.find(e => e.region === lists.fundRegionsList[curr.PooledFundId]);
@@ -37,6 +41,9 @@ function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData
 		return acc;
 	}, []);
 
+	cerfId = +Object.keys(lists.fundTypesList).find(e => lists.fundTypesList[e] === "cerf");
+	cbpfId = +Object.keys(lists.fundTypesList).find(e => lists.fundTypesList[e] === "cbpf");
+
 	pooledFundsInData.forEach(e => e.funds.sort((a, b) => lists.fundNamesList[a].localeCompare(lists.fundNamesList[b])));
 
 	const outerDiv = selections.chartContainerDiv.append("div")
@@ -46,7 +53,7 @@ function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData
 
 	countries.on("click", (event, d) => {
 		chartState.selectedCountryProfile = d;
-		drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv);
+		drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, cerfByPartnerData, selections, colorsObject, lists, outerDiv);
 	});
 
 };
@@ -94,9 +101,9 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv) {
 
 };
 
-function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv) {
+function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, cerfByPartnerData, selections, colorsObject, lists, outerDiv) {
 
-	processAllData(rawAllocationsData, adminLevel1Data, lists);
+	processAllData(rawAllocationsData, adminLevel1Data, cerfByPartnerData, lists);
 
 	outerDiv.selectChildren().remove();
 
@@ -146,7 +153,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 		};
 		if (+event.currentTarget.value === chartState.selectedCountryProfile) return;
 		chartState.selectedCountryProfile = +event.currentTarget.value;
-		processAllData(rawAllocationsData, adminLevel1Data, lists);
+		processAllData(rawAllocationsData, adminLevel1Data, cerfByPartnerData, lists);
 		chartDiv.selectChildren().remove();
 		setCallFunctions();
 		callDrawingFunction();
@@ -175,7 +182,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 	};
 
 	function callDrawingFunction() {
-		if (selectedTab === tabsData[0]) tabsCallingFunctions.find(d => d.name === tabsData[0]).callingFunction(overviewData, overviewAdminLevel1Data, true, true);
+		if (selectedTab === tabsData[0]) tabsCallingFunctions.find(d => d.name === tabsData[0]).callingFunction(overviewData, overviewAdminLevel1Data, lists, true, true);
 	};
 
 };
@@ -250,7 +257,7 @@ function processAdminLevel1DataForCountryProfileOverview(rawAdminLevel1Data) {
 function processDataForCountryProfileOverview(rawDataAllocations, lists) {
 	const data = [];
 	rawDataAllocations.forEach(row => {
-		if (+row.PooledFundId === chartState.selectedCountryProfile) {
+		if (row.PooledFundId === chartState.selectedCountryProfile) {
 			const foundYear = data.find(d => d.year === row.AllocationYear);
 			if (foundYear) {
 				foundYear.allocationsList.push(row);
@@ -276,6 +283,62 @@ function processDataForCountryProfileOverview(rawDataAllocations, lists) {
 	return data;
 };
 
+function processDataForCountryProfileByPartner(rawDataAllocations, cerfByPartnerData, lists) {
+
+	//this is the object:
+	// {
+	// 	"AllocationYear": 2006,
+	// 	"PooledFundId": 1,
+	// 	"OrganizatinonId": 3,
+	// 	"ClusterId": 7,
+	// 	"FundId": 1,
+	// 	"AllocationSurceId": 3,
+	// 	"ProjList": "124##300",
+	// 	"OrgList": 3,
+	// 	"NumbofProj": 2,
+	// 	"ClusterBudget": 2022300
+	// }
+
+	//this is cerfbypartner object:
+
+
+	const data = {
+		cerf: [],
+		cbpf: []
+	};
+
+	rawDataAllocations.forEach(row => {
+		if (row.FundId === cbpfId && row.PooledFundId === chartState.selectedCountryProfile) {
+			const foundYear = data.cbpf.find(e => e.year === row.AllocationYear);
+			if (foundYear) {
+				const foundPartner = foundYear.values.find(e => e.partner === row.OrganizatinonId);
+				if (foundPartner) {
+					foundPartner.value += row.ClusterBudget;
+				} else {
+					foundYear.values.push({
+						partner: row.OrganizatinonId,
+						value: row.ClusterBudget
+					});
+				};
+			} else {
+				data.cbpf.push({
+					year: row.AllocationYear,
+					values: [{
+						partner: row.OrganizatinonId,
+						value: row.ClusterBudget
+					}]
+				});
+			};
+		};
+	});
+
+	//CERF HERE
+	console.log(cerfByPartnerData)
+
+	return data;
+
+};
+
 function pushCbpfOrCerf(obj, row, lists) {
 	if (lists.fundTypesList[row.FundId] === "cbpf") {
 		obj.cbpf += +row.ClusterBudget;
@@ -288,9 +351,10 @@ function pushCbpfOrCerf(obj, row, lists) {
 	obj[`type${separator}${row.AllocationSurceId}${separator}total`] += +row.ClusterBudget;;
 };
 
-function processAllData(rawAllocationsData, adminLevel1Data, lists) {
+function processAllData(rawAllocationsData, adminLevel1Data, cerfByPartnerData, lists) {
 	overviewData = processDataForCountryProfileOverview(rawAllocationsData, lists);
 	overviewAdminLevel1Data = processAdminLevel1DataForCountryProfileOverview(adminLevel1Data);
+	byPartnerData = processDataForCountryProfileByPartner(rawAllocationsData, cerfByPartnerData, lists);
 };
 
 export { createCountryProfile };

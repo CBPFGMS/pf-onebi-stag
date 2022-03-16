@@ -262,13 +262,13 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 
 	createFundButtons(buttonsDiv, colors);
 
-	function draw(originalData, originalAdminLevel1Data, resetYear, drawMap) {
+	function draw(originalData, originalAdminLevel1Data, lists, resetYear, drawMap) {
 
 		if (resetYear) setDefaultYear(originalData);
 
 		if (drawMap) createMap(mapData, mapLayer, mapDivSize, lists, mapDiv);
 
-		const data = processData(originalData);
+		const data = processData(originalData, lists);
 		const adminLevel1Object = originalAdminLevel1Data.find(e => e.year === chartState.selectedYear);
 		const adminLevel1Data = adminLevel1Object ? adminLevel1Object.adminLevel1List : [];
 
@@ -287,7 +287,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		fundButtons.on("click", (event, d) => {
 			chartState.selectedFund = d;
 			fundButtons.classed("active", e => e === chartState.selectedFund);
-			draw(originalData, originalAdminLevel1Data, true, false);
+			draw(originalData, originalAdminLevel1Data, lists, true, false);
 			drawBubbleMap(adminLevel1Data, d3.transition()
 				.duration(duration));
 		});
@@ -532,7 +532,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 
 		barsTooltipRectangles.on("click", (event, d) => {
 				chartState.selectedYear = d.year;
-				draw(originalData, originalAdminLevel1Data, false, false);
+				draw(originalData, originalAdminLevel1Data, lists, false, false);
 			}).on("mouseover", (event, d) => mouseoverBars(event, d, tooltipDiv, container))
 			.on("mouseout", () => mouseOut(tooltipDiv));
 
@@ -1097,7 +1097,7 @@ function createFundButtons(container, colors) {
 		.html(d => " " + (d === "total" ? capitalize(d) : d.toUpperCase()));
 };
 
-function processData(originalData) {
+function processData(originalData, lists) {
 
 	const data = {
 		stackedBarData: [],

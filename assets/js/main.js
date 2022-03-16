@@ -26,12 +26,16 @@ const generalClassPrefix = "pfbihp",
 	contributionsDataUrl = "https://cbpfgms.github.io/pfbi-data/contributionbycerfcbpf.csv",
 	contributionsDataUrlClosedFunds = "https://cbpfgms.github.io/pfbi-data/contributionbycerfcbpfAll.csv",
 	allocationsDataUrl = "https://cbpfgms.github.io/pfbi-data/allocationSummary.csv",
+	allocationsDataUrlClosedFunds = "https://cbpfgms.github.io/cbpf-bi-stag/assets/stg-data/allocationSummary.csv",
 	adminLevel1DataUrl = "https://raw.githubusercontent.com/CBPFGMS/cbpfgms.github.io/master/sandbox/countryprofile/overview/adminlevel1version2.csv",
+	cerfByPartnerDataUrl = "https://cbpfgms.github.io/pfbi-data/cerf/cerf_allocationSummary_byorg.csv",
 	chartTypesAllocations = ["allocationsByCountry", "allocationsBySector", "allocationsByType"],
 	chartTypesContributions = ["contributionsByCerfCbpf", "contributionsByDonor"],
 	chartTypesCountryProfile = ["countryProfile"],
 	fundValues = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	contributionTypes = ["pledged", "paid", "total"],
+	closedStatus = "Closed",
+	closedPrefix = "(Closed) ",
 	separator = "##",
 	colorsObject = {
 		total: unBlue,
@@ -50,6 +54,7 @@ const yearsArrayAllocations = [],
 	yearsArrayContributionsCerf = [],
 	donorsInSelectedYear = [],
 	fundsInSelectedYear = [],
+	cbpfStatusList = {},
 	fundNamesList = {},
 	fundAbbreviatedNamesList = {},
 	fundRegionsList = {},
@@ -203,10 +208,15 @@ Promise.all([fetchFile("unworldmap", unworldmapUrl, "world map", "json"),
 		fetchFile("masterPartnerTypes", masterPartnerTypesUrl, "master table for partner types", "json"),
 		fetchFile("masterClusterTypes", masterClusterTypesUrl, "master table for cluster types", "json"),
 		fetchFile("masterUnAgenciesTypes", masterUnAgenciesUrl, "master table for UN agencies", "json"),
-		fetchFile("allocationsData", allocationsDataUrl, "allocations data", "csv"),
-		fetchFile("contributionsData", (parameters.showClosedFunds ? contributionsDataUrlClosedFunds : contributionsDataUrl), "contributions data", "csv"),
+		fetchFile((parameters.showClosedFunds ? "allocationsDataClosedFunds" : "allocationsData"),
+			(parameters.showClosedFunds ? allocationsDataUrlClosedFunds : allocationsDataUrl),
+			"allocations data" + (parameters.showClosedFunds ? " (with closed funds)" : ""), "csv"),
+		fetchFile((parameters.showClosedFunds ? "contributionsDataClosedFunds" : "contributionsData"),
+			(parameters.showClosedFunds ? contributionsDataUrlClosedFunds : contributionsDataUrl),
+			"contributions data" + (parameters.showClosedFunds ? " (with closed funds)" : ""), "csv"),
 		fetchFile("lastModified", lastModifiedUrl, "last modified date", "json"),
-		fetchFile("adminLevel1Data", adminLevel1DataUrl, "Admin level 1", "csv")
+		fetchFile("adminLevel1Data", adminLevel1DataUrl, "Admin level 1", "csv"),
+		fetchFile("cerfByPartnerData", cerfByPartnerDataUrl, "cerf by partner data", "csv")
 	])
 	.then(rawData => controlCharts(rawData));
 
@@ -221,7 +231,8 @@ function controlCharts([worldMap,
 	rawAllocationsData,
 	rawContributionsData,
 	lastModified,
-	adminLevel1Data
+	adminLevel1Data,
+	cerfByPartnerData
 ]) {
 
 	createFundNamesList(masterFunds);
@@ -237,6 +248,7 @@ function controlCharts([worldMap,
 
 	const lists = {
 		fundNamesList: fundNamesList,
+		cbpfStatusList: cbpfStatusList,
 		fundAbbreviatedNamesList: fundAbbreviatedNamesList,
 		fundRegionsList: fundRegionsList,
 		fundIsoCodesList: fundIsoCodesList,
@@ -332,7 +344,7 @@ function controlCharts([worldMap,
 		$(selections.moreTab.node()).click();
 		selections.navlinkCountryProfile.classed("menuactive", true);
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
-		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, generalClassPrefix);
+		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, cerfByPartnerData, selections, colorsObject, lists, generalClassPrefix);
 	};
 
 	//|event listeners
@@ -507,7 +519,7 @@ function controlCharts([worldMap,
 		if (buttonsObject.playing) stopTimer();
 		if (chartState.selectedChart === "countryProfile") {
 			selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
-			createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists);
+			createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, cerfByPartnerData, selections, colorsObject, lists);
 			return;
 		};
 		if (chartState.selectedChart !== "contributionsByDonor") {
@@ -519,7 +531,7 @@ function controlCharts([worldMap,
 		chartState.selectedChart = "countryProfile";
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
 		selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
-		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists);
+		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, cerfByPartnerData, selections, colorsObject, lists);
 		highlightNavLinks();
 		queryStringValues.delete("year");
 		queryStringValues.delete("contributionYear");
@@ -691,7 +703,9 @@ function processDataAllocations(rawAllocationsData) {
 				const fundObject = {
 					country: row.PooledFundId,
 					countryName: fundNamesList[row.PooledFundId],
+					countryNameCbpf: (cbpfStatusList[row.PooledFundId] === closedStatus ? closedPrefix : "") + fundNamesList[row.PooledFundId],
 					labelText: fundNamesList[row.PooledFundId].split(" "),
+					labelTextCbpf: ((cbpfStatusList[row.PooledFundId] === closedStatus ? closedPrefix : "") + fundNamesList[row.PooledFundId]).split(" "),
 					isoCode: fundIsoCodesList[row.PooledFundId],
 					cbpf: 0,
 					cerf: 0,
@@ -940,6 +954,7 @@ function validateDefault(values) {
 
 function createFundNamesList(fundsData) {
 	fundsData.forEach(row => {
+		cbpfStatusList[row.id + ""] = row.CBPFFundStatus;
 		fundNamesList[row.id + ""] = row.PooledFundName;
 		fundAbbreviatedNamesList[row.id + ""] = row.PooledFundNameAbbrv;
 		fundNamesListKeys.push(row.id + "");

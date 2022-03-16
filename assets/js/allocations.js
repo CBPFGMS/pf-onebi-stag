@@ -254,7 +254,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("transform", "translate(" + svgBarChartPadding[3] + "," + svgBarChartPadding[0] + ")"),
 		width: svgBarChartWidth - svgBarChartPadding[3] - svgBarChartPadding[1],
 		height: svgBarChartHeight - svgBarChartPadding[2] - svgBarChartPadding[0],
-		padding: [14, 0, 58, 32],
+		padding: [14, 0, 62, 32],
 		labelsPadding: 3
 	};
 
@@ -901,15 +901,22 @@ function createAllocations(selections, colors, mapData, lists) {
 		const groupName = pieGroupTextsEnter.append("text")
 			.attr("class", classPrefix + "groupName")
 			.attr("x", d => radiusScale(chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf) + groupNamePadding)
-			.attr("y", d => d.labelText.length > 1 ? groupNamePadding * 2 - 5 : groupNamePadding * 2)
+			.attr("y", d => {
+				const thisLabel = chooseLabel(d);
+				return thisLabel.length > 1 ? groupNamePadding * 2 - 5 : groupNamePadding * 2
+			})
 			.style("opacity", 0)
-			.text(d => d.labelText.length > 2 ? d.labelText[0] + " " + d.labelText[1] : d.labelText[0])
+			.text(d => {
+				const thisLabel = chooseLabel(d);
+				return thisLabel.length > 2 ? thisLabel[0] + " " + thisLabel[1] : thisLabel[0]
+			})
 			.each((d, i, n) => {
-				if (d.labelText.length > 1) {
+				const thisLabel = chooseLabel(d);
+				if (thisLabel.length > 1) {
 					d3.select(n[i]).append("tspan")
 						.attr("x", radiusScale(chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf) + groupNamePadding)
 						.attr("dy", 12)
-						.text(d.labelText.length > 2 ? d.labelText.filter((_, i) => i > 1).join(" ") : d.labelText[1]);
+						.text(thisLabel.length > 2 ? thisLabel.filter((_, i) => i > 1).join(" ") : thisLabel[1]);
 				};
 			});
 
@@ -924,16 +931,35 @@ function createAllocations(selections, colors, mapData, lists) {
 		const allTexts = pieGroupTexts.selectAll("text");
 
 		pieGroupTexts.select("text." + classPrefix + "groupName tspan")
+			.text(d => {
+				const thisLabel = chooseLabel(d);
+				return thisLabel.length > 2 ? thisLabel.filter((_, i) => i > 1).join(" ") : thisLabel[1]
+			})
 			.transition()
 			.duration(duration)
 			.style("opacity", 1)
 			.attr("x", d => radiusScale(chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf) + groupNamePadding);
 
 		pieGroupTexts.select("text." + classPrefix + "groupName")
+			.each((d, i, n) => {
+				const thisLabel = chooseLabel(d);
+				Array.from(n[i].childNodes).find(e => e.nodeType === Node.TEXT_NODE)
+					.textContent = thisLabel.length > 2 ? thisLabel[0] + " " + thisLabel[1] : thisLabel[0];
+				if (thisLabel.length > 1 && !d3.select(n[i]).select("tspan").size()) {
+					d3.select(n[i]).append("tspan")
+						.attr("x", radiusScale(chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf) + groupNamePadding)
+						.attr("dy", 12)
+						.text(thisLabel.length > 2 ? thisLabel.filter((_, i) => i > 1).join(" ") : thisLabel[1]);
+				};
+			})
 			.transition()
 			.duration(duration)
 			.style("opacity", 1)
 			.attr("x", d => radiusScale(chartState.selectedFund === "total" ? d.total : d.cbpf + d.cerf) + groupNamePadding)
+			.attr("y", d => {
+				const thisLabel = chooseLabel(d);
+				return thisLabel.length > 1 ? groupNamePadding * 2 - 5 : groupNamePadding * 2
+			})
 			.end()
 			.then(() => {
 				clickableButtons = true;
@@ -941,6 +967,14 @@ function createAllocations(selections, colors, mapData, lists) {
 				allTexts.each((_, i, n) => d3.select(n[i]).style("display", null)).call(displayLabels);
 			})
 			.catch(error => console.warn("Moved too fast"));
+
+		function chooseLabel(d) {
+			if ((!d.cerf && d.cbpf) || chartState.selectedFund === "cbpf") {
+				return d.labelTextCbpf;
+			} else {
+				return d.labelText;
+			};
+		};
 
 		///
 
@@ -1242,6 +1276,16 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		yScale.domain([0, d3.max(data, d => chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund])]);
 
+		xAxis.tickFormat(d => {
+			if (lists.fundAbbreviatedNamesList[d] === "Venezuela Regional Refugee and Migration Crisis") return VenezuelaRegionalRefugeeAbbr;
+			const thisDatum = data.find(e => e.country === d);
+			if ((!thisDatum.cerf && thisDatum.cbpf) || chartState.selectedFund === "cbpf") {
+				return (lists.cbpfStatusList[d] === "Closed" ? "(Closed) " : "") + lists.fundAbbreviatedNamesList[d];
+			} else {
+				return lists.fundAbbreviatedNamesList[d]
+			};
+		});
+
 		let barTitleSpanText;
 
 		if (chartState.selectedChart === "allocationsByCountry") {
@@ -1541,7 +1585,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		titleDiv.append("strong")
 			.style("font-size", "16px")
-			.html(datum.countryName);
+			.html((!tooltipCerf && tooltipCbpf) || chartState.selectedFund === "cbpf" ? datum.countryNameCbpf : datum.countryName);
 
 		titleDiv.append("span")
 			.attr("class", classPrefix + "tooltipRank")
