@@ -49,6 +49,8 @@ const generalClassPrefix = "pfbihp",
 
 //|constants populated with the data
 const yearsArrayAllocations = [],
+	yearsArrayAllocationsCerf = [],
+	yearsArrayAllocationsCbpf = [],
 	yearsArrayContributions = [],
 	yearsArrayContributionsCbpf = [],
 	yearsArrayContributionsCerf = [],
@@ -265,6 +267,9 @@ function controlCharts([worldMap,
 		allocationTypesList: allocationTypesList,
 		fundNamesListKeys: fundNamesListKeys,
 		donorNamesListKeys: donorNamesListKeys,
+		yearsArrayAllocations: yearsArrayAllocations,
+		yearsArrayAllocationsCbpf: yearsArrayAllocationsCbpf,
+		yearsArrayAllocationsCerf: yearsArrayAllocationsCerf,
 		yearsArrayContributions: yearsArrayContributions,
 		yearsArrayContributionsCbpf: yearsArrayContributionsCbpf,
 		yearsArrayContributionsCerf: yearsArrayContributionsCerf,
@@ -295,7 +300,7 @@ function controlCharts([worldMap,
 
 	populateYearDropdown(yearsArrayAllocations, selections.yearDropdown);
 
-	buttonsObject.createButtons(selections.buttonsContainer, yearsArrayAllocations, yearsArrayContributions, duration, selections);
+	buttonsObject.createButtons(selections.buttonsContainer, yearsArrayAllocations, yearsArrayAllocationsCerf, yearsArrayAllocationsCbpf, yearsArrayContributions, duration, selections);
 
 	//|Open the link and draws charts according to chartState
 	if (chartState.selectedChart === "allocationsByCountry") {
@@ -636,14 +641,23 @@ function mouseoutTopFigures() {
 function preProcessData(rawAllocationsData, rawContributionsData) {
 
 	const yearsSetAllocations = new Set();
+	const yearsSetAllocationsCbpf = new Set();
+	const yearsSetAllocationsCerf = new Set();
+	const yearsSetContributions = new Set();
 	const yearsSetContributionsCbpf = new Set();
 	const yearsSetContributionsCerf = new Set();
 
 	rawAllocationsData.forEach(row => {
 		yearsSetAllocations.add(+row.AllocationYear);
+		if (fundTypesList[row.FundId] === "cerf") {
+			yearsSetAllocationsCerf.add(+row.AllocationYear);
+		} else {
+			yearsSetAllocationsCbpf.add(+row.AllocationYear);
+		};
 	});
 
 	rawContributionsData.forEach(row => {
+		yearsSetContributions.add(+row.FiscalYear);
 		if (row.PooledFundId === cerfPooledFundId) {
 			if (defaultValues.cerfFirstYear) {
 				if (+row.FiscalYear >= defaultValues.cerfFirstYear) yearsSetContributionsCerf.add(+row.FiscalYear);
@@ -661,14 +675,17 @@ function preProcessData(rawAllocationsData, rawContributionsData) {
 
 	yearsArrayAllocations.push(...yearsSetAllocations);
 	yearsArrayAllocations.sort((a, b) => a - b);
+	yearsArrayAllocationsCbpf.push(...yearsSetAllocationsCbpf);
+	yearsArrayAllocationsCbpf.sort((a, b) => a - b);
+	yearsArrayAllocationsCerf.push(...yearsSetAllocationsCerf);
+	yearsArrayAllocationsCerf.sort((a, b) => a - b);
+
+	yearsArrayContributions.push(...yearsSetContributions);
+	yearsArrayContributions.sort((a, b) => a - b);
 	yearsArrayContributionsCbpf.push(...yearsSetContributionsCbpf);
 	yearsArrayContributionsCbpf.sort((a, b) => a - b);
 	yearsArrayContributionsCerf.push(...yearsSetContributionsCerf);
 	yearsArrayContributionsCerf.sort((a, b) => a - b);
-
-	const yearsSetContributions = new Set([...yearsSetContributionsCerf, ...yearsSetContributionsCbpf]);
-	yearsArrayContributions.push(...yearsSetContributions);
-	yearsArrayContributions.sort((a, b) => a - b);
 
 };
 

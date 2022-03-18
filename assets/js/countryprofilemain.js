@@ -285,23 +285,6 @@ function processDataForCountryProfileOverview(rawDataAllocations, lists) {
 
 function processDataForCountryProfileByPartner(rawDataAllocations, cerfByPartnerData, lists) {
 
-	//this is the object:
-	// {
-	// 	"AllocationYear": 2006,
-	// 	"PooledFundId": 1,
-	// 	"OrganizatinonId": 3,
-	// 	"ClusterId": 7,
-	// 	"FundId": 1,
-	// 	"AllocationSurceId": 3,
-	// 	"ProjList": "124##300",
-	// 	"OrgList": 3,
-	// 	"NumbofProj": 2,
-	// 	"ClusterBudget": 2022300
-	// }
-
-	//this is cerfbypartner object:
-
-
 	const data = {
 		cerf: [],
 		cbpf: []
@@ -332,8 +315,30 @@ function processDataForCountryProfileByPartner(rawDataAllocations, cerfByPartner
 		};
 	});
 
-	//CERF HERE
-	console.log(cerfByPartnerData)
+	cerfByPartnerData.forEach(row => {
+		if (row.PooledFundId === chartState.selectedCountryProfile) {
+			const foundYear = data.cerf.find(e => e.year === row.AllocationYear);
+			if (foundYear) {
+				const foundPartner = foundYear.values.find(e => e.partner === row.PartnerCode);
+				if (foundPartner) {
+					foundPartner.value += row.Budget;
+				} else {
+					foundYear.values.push({
+						partner: row.PartnerCode,
+						value: row.Budget
+					});
+				};
+			} else {
+				data.cerf.push({
+					year: row.AllocationYear,
+					values: [{
+						partner: row.PartnerCode,
+						value: row.Budget
+					}]
+				});
+			};
+		};
+	});
 
 	return data;
 

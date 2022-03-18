@@ -12,10 +12,7 @@ const generalClassPrefix = "pfbihp",
 const buttonsObject = {
 	timer: null,
 	playing: false,
-	createButtons(containerSelection, yearsArrayAllocations, yearsArrayContributions, duration, selections) {
-
-		const yearsArray = chartState.selectedChart !== "contributionsByCerfCbpf" ? JSON.parse(JSON.stringify(yearsArrayAllocations)) :
-			JSON.parse(JSON.stringify(yearsArrayContributions));
+	createButtons(containerSelection, yearsArrayAllocations, yearsArrayAllocationsCerf, yearsArrayAllocationsCbpf, yearsArrayContributions, duration, selections) {
 
 		const helpIcon = containerSelection.append("button")
 			.attr("id", generalClassPrefix + "HelpButton");
@@ -121,6 +118,14 @@ const buttonsObject = {
 
 		playIcon.on("click", (_, d) => {
 			d.clicked = !d.clicked;
+
+			const thisYearArrayAllocations = chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ?
+				yearsArrayAllocations : chartState.selectedFund === "cerf" ? yearsArrayAllocationsCerf : yearsArrayAllocationsCbpf;
+
+			const yearsArray = chartState.selectedChart !== "contributionsByCerfCbpf" ?
+				JSON.parse(JSON.stringify(thisYearArrayAllocations)) :
+				JSON.parse(JSON.stringify(yearsArrayContributions));
+
 			playIcon.html(d.clicked ? "PAUSE " : "PLAY  ")
 				.append("span")
 				.attr("class", d.clicked ? "fas fa-pause" : "fas fa-play");
