@@ -1142,6 +1142,18 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		const sizeCirclesData = maxDataValue ? [0, maxDataValue / 4, maxDataValue / 2, maxDataValue] : [];
 
+		let backgroundRectangle = legendPanel.main.selectAll("." + classPrefix + "backgroundRectangle")
+			.data([true]);
+
+		backgroundRectangle = backgroundRectangle.enter()
+			.append("rect")
+			.attr("class", classPrefix + "backgroundRectangle")
+			.merge(backgroundRectangle)
+			.style("fill", "#fff")
+			.style("opacity", 0.6)
+			.attr("width", legendPanel.width)
+			.attr("height", legendPanel.height);
+
 		let legendSizeGroups = legendPanel.main.selectAll("." + classPrefix + "legendSizeGroups")
 			.data([true]);
 
@@ -1652,6 +1664,8 @@ function createAllocations(selections, colors, mapData, lists) {
 		};
 
 		if (!showCerfOnly) {
+			const closedText = lists.cbpfStatusList[datum.country] === "Closed" ? " (closed)" : "";
+
 			const rowDivCbpf = innerDiv.append("div")
 				.attr("class", classPrefix + "tooltipCbpfValue")
 				.classed(classPrefix + "tooltipZeroValueCbpf", !tooltipCbpf)
@@ -1663,7 +1677,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			rowDivCbpf.append("span")
 				.style("font-weight", 500)
 				.attr("class", classPrefix + "tooltipKeys")
-				.html("CBPF:");
+				.html(`CBPF${closedText}:`);
 
 			rowDivCbpf.append("span")
 				.attr("class", classPrefix + "tooltipLeader");
