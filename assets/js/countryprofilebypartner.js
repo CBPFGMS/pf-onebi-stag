@@ -535,7 +535,9 @@ function drawBarChart(data, panel, xScale, yScale, xAxis, yAxis, lists, colors, 
 	xAxisGroup = xAxisGroup.enter()
 		.append("g")
 		.attr("class", `${classPrefix}xAxisGroup${fundType}`)
+		.attr("transform", "translate(0," + yScale.range()[1] + ")")
 		.merge(xAxisGroup)
+		.transition(syncedTransition)
 		.attr("transform", "translate(0," + yScale.range()[1] + ")")
 		.call(xAxis);
 
@@ -545,20 +547,32 @@ function drawBarChart(data, panel, xScale, yScale, xAxis, yAxis, lists, colors, 
 	yAxisGroup = yAxisGroup.enter()
 		.append("g")
 		.attr("class", `${classPrefix}yAxisGroup${fundType}`)
-		.merge(yAxisGroup)
 		.attr("transform", "translate(" + panel.padding[3] + ",0)")
-		.call(yAxis);
+		.merge(yAxisGroup)
+		.transition(syncedTransition)
+		.attr("transform", "translate(" + panel.padding[3] + ",0)")
+		.call(fundType === "cerf" ? customAxis : yAxis);
 
-	yAxisGroup.selectAll(".tick text")
-		.call(wrapText, panel.padding[3] - yAxis.tickPadding())
-		.each((_, i, n) => {
-			const numberOfLines = d3.select(n[i]).selectAll("tspan").size();
-			const currentValue = +d3.select(n[i]).attr("y");
-			d3.select(n[i])
-				.selectAll("tspan")
-				.attr("y", numberOfLines - 1 ?
-					currentValue - (axisLineHeight * (numberOfLines - 1)) : currentValue + axisLineHeight);
-		});
+	function customAxis(group) {
+		const sel = group.selection ? group.selection() : group;
+		group.call(yAxis);
+		sel.selectAll(".tick text")
+			.filter(d => lists.unAgenciesNamesList[d].indexOf(" ") > -1)
+			.text(d => lists.unAgenciesNamesList[d])
+			.call(wrapText, panel.padding[3] - yAxis.tickPadding())
+			.each((_, i, n) => {
+				const numberOfLines = d3.select(n[i]).selectAll("tspan").size();
+				const currentValue = +d3.select(n[i]).attr("y");
+				d3.select(n[i])
+					.selectAll("tspan")
+					.attr("y", numberOfLines - 1 ?
+						currentValue - (axisLineHeight * (numberOfLines - 1)) : currentValue + axisLineHeight);
+			});
+		if (sel !== group) group.selectAll(".tick text")
+			.filter(d => lists.unAgenciesNamesList[d].indexOf(" ") > -1)
+			.attrTween("x", null)
+			.tween("text", null);
+	};
 
 	let bars = panel.main.selectAll("." + classPrefix + "bars")
 		.data(data, d => d.partner);
