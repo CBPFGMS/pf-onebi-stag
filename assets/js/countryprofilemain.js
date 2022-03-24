@@ -60,6 +60,8 @@ function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData
 
 function createListMenu(selections, lists, pooledFundsInData, outerDiv) {
 
+	selectedTab = tabsData[0];
+
 	outerDiv.selectChildren().remove();
 
 	const container = outerDiv.append("div")
@@ -173,7 +175,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 		const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv);
 		countries.on("click", (event, d) => {
 			chartState.selectedCountryProfile = d;
-			drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv);
+			drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, cerfByPartnerData, selections, colorsObject, lists, outerDiv);
 		});
 		return;
 	});
