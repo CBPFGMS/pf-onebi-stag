@@ -262,7 +262,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 
 	createFundButtons(buttonsDiv, colors);
 
-	function draw(originalData, originalAdminLevel1Data, lists, resetYear, drawMap) {
+	function draw(originalData, originalAdminLevel1Data, resetYear, drawMap) {
 
 		if (resetYear) setDefaultYear(originalData);
 
@@ -287,7 +287,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		fundButtons.on("click", (event, d) => {
 			chartState.selectedFund = d;
 			fundButtons.classed("active", e => e === chartState.selectedFund);
-			draw(originalData, originalAdminLevel1Data, lists, true, false);
+			draw(originalData, originalAdminLevel1Data, true, false);
 			drawBubbleMap(adminLevel1Data, d3.transition()
 				.duration(duration));
 		});
@@ -532,7 +532,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 
 		barsTooltipRectangles.on("click", (event, d) => {
 				chartState.selectedYear = d.year;
-				draw(originalData, originalAdminLevel1Data, lists, false, false);
+				draw(originalData, originalAdminLevel1Data, false, false);
 			}).on("mouseover", (event, d) => mouseoverBars(event, d, tooltipDiv, container))
 			.on("mouseout", () => mouseOut(tooltipDiv));
 

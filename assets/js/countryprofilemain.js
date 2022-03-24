@@ -147,14 +147,15 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 			const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv);
 			countries.on("click", (event, d) => {
 				chartState.selectedCountryProfile = d;
-				drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv);
+				drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, cerfByPartnerData, selections, colorsObject, lists, outerDiv);
 			});
 			return;
 		};
 		if (+event.currentTarget.value === chartState.selectedCountryProfile) return;
 		chartState.selectedCountryProfile = +event.currentTarget.value;
+		breadcrumb.secondBreadcrumbSpan.html(lists.fundNamesList[chartState.selectedCountryProfile]);
 		processAllData(rawAllocationsData, adminLevel1Data, cerfByPartnerData, lists);
-		chartDiv.selectChildren().remove();
+		chartDiv.selectChildren("div:not(#" + classPrefix + "tooltipDiv)").remove();
 		setCallFunctions();
 		callDrawingFunction();
 	});
@@ -163,7 +164,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 		if (selectedTab === d) return;
 		selectedTab = d;
 		tabs.classed("active", (_, i, n) => n[i] === event.currentTarget);
-		chartDiv.selectChildren().remove();
+		chartDiv.selectChildren("div:not(#" + classPrefix + "tooltipDiv)").remove();
 		setCallFunctions();
 		callDrawingFunction();
 	});
@@ -179,10 +180,12 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 
 	function setCallFunctions() {
 		if (selectedTab === tabsData[0]) tabsCallingFunctions.find(d => d.name === tabsData[0]).callingFunction = createCountryProfileOverview(chartDiv, lists, colorsObject, worldMap, tooltipDiv);
+		if (selectedTab === tabsData[1]) tabsCallingFunctions.find(d => d.name === tabsData[1]).callingFunction = createCountryProfileByPartner(chartDiv, lists, colorsObject, tooltipDiv);
 	};
 
 	function callDrawingFunction() {
-		if (selectedTab === tabsData[0]) tabsCallingFunctions.find(d => d.name === tabsData[0]).callingFunction(overviewData, overviewAdminLevel1Data, lists, true, true);
+		if (selectedTab === tabsData[0]) tabsCallingFunctions.find(d => d.name === tabsData[0]).callingFunction(overviewData, overviewAdminLevel1Data, true, true);
+		if (selectedTab === tabsData[1]) tabsCallingFunctions.find(d => d.name === tabsData[1]).callingFunction(byPartnerData, true, true);
 	};
 
 };
@@ -339,6 +342,9 @@ function processDataForCountryProfileByPartner(rawDataAllocations, cerfByPartner
 			};
 		};
 	});
+
+	data.cerf.sort((a, b) => a.year - b.year);
+	data.cbpf.sort((a, b) => a.year - b.year);
 
 	return data;
 
