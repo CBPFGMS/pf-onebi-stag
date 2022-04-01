@@ -806,6 +806,8 @@ function wrapTextTwoLines(text, width) {
 						.attr("y", y)
 						.attr("dy", ++lineNumber * lineHeight + dy + "em")
 						.text(word);
+					d3.select(tspan.node().previousSibling)
+						.attr("dy", "-0.3em");
 				};
 			};
 		};
