@@ -21,7 +21,6 @@ const padding = [4, 8, 4, 8],
 	bandScalePadding = 0.5,
 	chartTitlePadding = 12,
 	labelsPadding = 4,
-	axisLineHeight = 3,
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	allocationTypes = {
 		cbpf: ["1", "2"],
@@ -559,15 +558,7 @@ function drawBarChart(data, panel, xScale, yScale, xAxis, yAxis, lists, colors, 
 		sel.selectAll(".tick text")
 			.filter(d => lists.unAgenciesNamesList[d].indexOf(" ") > -1)
 			.text(d => lists.unAgenciesNamesList[d])
-			.call(wrapText, panel.padding[3] - yAxis.tickPadding())
-			.each((_, i, n) => {
-				const numberOfLines = d3.select(n[i]).selectAll("tspan").size();
-				const currentValue = +d3.select(n[i]).attr("y");
-				d3.select(n[i])
-					.selectAll("tspan")
-					.attr("y", numberOfLines - 1 ?
-						currentValue - (axisLineHeight * (numberOfLines - 1)) : currentValue + axisLineHeight);
-			});
+			.call(wrapTextTwoLines, panel.padding[3] - yAxis.tickPadding())
 		if (sel !== group) group.selectAll(".tick text")
 			.filter(d => lists.unAgenciesNamesList[d].indexOf(" ") > -1)
 			.attrTween("x", null)
@@ -783,7 +774,7 @@ function parseTransform(translate) {
 	return [matrix.e, matrix.f];
 };
 
-function wrapText(text, width) {
+function wrapTextTwoLines(text, width) {
 	text.each(function() {
 		let text = d3.select(this),
 			words = text.text().split(/\s+/).reverse(),
@@ -794,26 +785,30 @@ function wrapText(text, width) {
 			y = text.attr("y"),
 			x = text.attr("x"),
 			dy = 0,
+			counter = 0,
 			tspan = text.text(null)
 			.append("tspan")
 			.attr("x", x)
 			.attr("y", y)
 			.attr("dy", dy + "em");
-		while (word = words.pop()) {
+		while ((word = words.pop()) && counter < 2) {
 			line.push(word);
 			tspan.text(line.join(" "));
 			if (tspan.node()
 				.getComputedTextLength() > width) {
+				counter++;
 				line.pop();
-				tspan.text(line.join(" "));
+				tspan.text(line.join(" ") + (counter < 2 ? "" : "..."));
 				line = [word];
-				tspan = text.append("tspan")
-					.attr("x", x)
-					.attr("y", y)
-					.attr("dy", ++lineNumber * lineHeight + dy + "em")
-					.text(word);
-			}
-		}
+				if (counter < 2) {
+					tspan = text.append("tspan")
+						.attr("x", x)
+						.attr("y", y)
+						.attr("dy", ++lineNumber * lineHeight + dy + "em")
+						.text(word);
+				};
+			};
+		};
 	});
 };
 
