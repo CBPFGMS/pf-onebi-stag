@@ -22,6 +22,7 @@ const generalClassPrefix = "pfbihp",
 	masterFundTypesUrl = "https://cbpfgms.github.io/pfbi-data/mst/MstFund.json",
 	masterPartnerTypesUrl = "https://cbpfgms.github.io/pfbi-data/mst/MstOrganization.json",
 	masterClusterTypesUrl = "https://cbpfgms.github.io/pfbi-data/mst/MstCluster.json",
+	masterPartnersUrl = "https://cbpfgms.github.io/pfbi-data/mst/MstPartner.json",
 	masterUnAgenciesUrl = "https://cerfgms-webapi.unocha.org/v1/agency/All.json",
 	contributionsDataUrl = "https://cbpfgms.github.io/pfbi-data/contributionbycerfcbpf.csv",
 	contributionsDataUrlClosedFunds = "https://cbpfgms.github.io/pfbi-data/contributionbycerfcbpfAll.csv",
@@ -29,6 +30,7 @@ const generalClassPrefix = "pfbihp",
 	allocationsDataUrlClosedFunds = "https://cbpfgms.github.io/cbpf-bi-stag/assets/stg-data/allocationSummary.csv",
 	adminLevel1DataUrl = "https://raw.githubusercontent.com/CBPFGMS/cbpfgms.github.io/master/sandbox/countryprofile/overview/adminlevel1version2.csv",
 	cerfByPartnerDataUrl = "https://cbpfgms.github.io/pfbi-data/cerf/cerf_allocationSummary_byorg.csv",
+	cbpfPartnersDataUrl = "https://cbpfgms.github.io/pfbi-data/sectorSummarybyOrg.csv",
 	chartTypesAllocations = ["allocationsByCountry", "allocationsBySector", "allocationsByType"],
 	chartTypesContributions = ["contributionsByCerfCbpf", "contributionsByDonor"],
 	chartTypesCountryProfile = ["countryProfile"],
@@ -72,6 +74,7 @@ const yearsArrayAllocations = [],
 	allocationTypesList = {},
 	unAgenciesNamesList = {},
 	unAgenciesShortNamesList = {},
+	partnersNamesList = {},
 	fundNamesListKeys = [],
 	donorNamesListKeys = [],
 	topValues = {
@@ -210,6 +213,7 @@ Promise.all([fetchFile("unworldmap", unworldmapUrl, "world map", "json"),
 		fetchFile("masterPartnerTypes", masterPartnerTypesUrl, "master table for partner types", "json"),
 		fetchFile("masterClusterTypes", masterClusterTypesUrl, "master table for cluster types", "json"),
 		fetchFile("masterUnAgenciesTypes", masterUnAgenciesUrl, "master table for UN agencies", "json"),
+		fetchFile("masterPartners", masterPartnersUrl, "master table for partners", "json"),
 		fetchFile((parameters.showClosedFunds ? "allocationsDataClosedFunds" : "allocationsData"),
 			(parameters.showClosedFunds ? allocationsDataUrlClosedFunds : allocationsDataUrl),
 			"allocations data" + (parameters.showClosedFunds ? " (with closed funds)" : ""), "csv"),
@@ -218,7 +222,8 @@ Promise.all([fetchFile("unworldmap", unworldmapUrl, "world map", "json"),
 			"contributions data" + (parameters.showClosedFunds ? " (with closed funds)" : ""), "csv"),
 		fetchFile("lastModified", lastModifiedUrl, "last modified date", "json"),
 		fetchFile("adminLevel1Data", adminLevel1DataUrl, "Admin level 1", "csv"),
-		fetchFile("cerfByPartnerData", cerfByPartnerDataUrl, "cerf by partner data", "csv")
+		fetchFile("cerfByPartnerData", cerfByPartnerDataUrl, "cerf by partner data", "csv"),
+		fetchFile("cbpfPartnersData", cbpfPartnersDataUrl, "cbpf partner data", "csv")
 	])
 	.then(rawData => controlCharts(rawData));
 
@@ -230,11 +235,13 @@ function controlCharts([worldMap,
 	masterPartnerTypes,
 	masterClusterTypes,
 	masterUnAgenciesTypes,
+	masterPartners,
 	rawAllocationsData,
 	rawContributionsData,
 	lastModified,
 	adminLevel1Data,
-	cerfByPartnerData
+	cerfByPartnerData,
+	cbpfPartnersData
 ]) {
 
 	createFundNamesList(masterFunds);
@@ -244,6 +251,7 @@ function controlCharts([worldMap,
 	createClustersList(masterClusterTypes);
 	createAllocationTypesList(masterAllocationTypes);
 	createUnAgenciesNamesList(masterUnAgenciesTypes);
+	createPartnerNamesList(masterPartners);
 
 	//Hardcoded Syria Cross Border ISO 3 code
 	fundIsoCodes3List["108"] = "SCB";
@@ -264,6 +272,7 @@ function controlCharts([worldMap,
 		clustersList: clustersList,
 		unAgenciesNamesList: unAgenciesNamesList,
 		unAgenciesShortNamesList: unAgenciesShortNamesList,
+		partnersNamesList: partnersNamesList,
 		allocationTypesList: allocationTypesList,
 		fundNamesListKeys: fundNamesListKeys,
 		donorNamesListKeys: donorNamesListKeys,
@@ -349,7 +358,7 @@ function controlCharts([worldMap,
 		$(selections.moreTab.node()).click();
 		selections.navlinkCountryProfile.classed("menuactive", true);
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
-		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, cerfByPartnerData, selections, colorsObject, lists, generalClassPrefix);
+		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, selections, colorsObject, lists, generalClassPrefix);
 	};
 
 	//|event listeners
@@ -524,7 +533,7 @@ function controlCharts([worldMap,
 		if (buttonsObject.playing) stopTimer();
 		if (chartState.selectedChart === "countryProfile") {
 			selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
-			createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, cerfByPartnerData, selections, colorsObject, lists);
+			createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, selections, colorsObject, lists);
 			return;
 		};
 		if (chartState.selectedChart !== "contributionsByDonor") {
@@ -536,7 +545,7 @@ function controlCharts([worldMap,
 		chartState.selectedChart = "countryProfile";
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
 		selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
-		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, cerfByPartnerData, selections, colorsObject, lists);
+		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, selections, colorsObject, lists);
 		highlightNavLinks();
 		queryStringValues.delete("year");
 		queryStringValues.delete("contributionYear");
@@ -1013,6 +1022,10 @@ function createUnAgenciesNamesList(unAgenciesTypesData) {
 		unAgenciesNamesList[row.agencyID + ""] = row.agencyName;
 		unAgenciesShortNamesList[row.agencyID + ""] = row.agencyShortName;
 	});
+};
+
+function createPartnerNamesList(partnersData) {
+	partnersData.forEach(row => partnersNamesList[row.id + ""] = row.fullName);
 };
 
 function resetTopValues(obj) {

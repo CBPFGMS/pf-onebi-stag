@@ -26,7 +26,7 @@ const tabsCallingFunctions = tabsData.map(d => ({
 	callingFunction: null
 }));
 
-function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, cerfByPartnerData, selections, colorsObject, lists) {
+function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, selections, colorsObject, lists) {
 
 	const pooledFundsInData = rawAllocationsData.reduce((acc, curr) => {
 		const foundRegion = acc.find(e => e.region === lists.fundRegionsList[curr.PooledFundId]);
@@ -53,7 +53,7 @@ function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData
 
 	countries.on("click", (event, d) => {
 		chartState.selectedCountryProfile = d;
-		drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, cerfByPartnerData, selections, colorsObject, lists, outerDiv);
+		drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, selections, colorsObject, lists, outerDiv);
 	});
 
 };
@@ -103,7 +103,7 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv) {
 
 };
 
-function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, cerfByPartnerData, selections, colorsObject, lists, outerDiv) {
+function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, selections, colorsObject, lists, outerDiv) {
 
 	processAllData(rawAllocationsData, adminLevel1Data, cerfByPartnerData, lists);
 
@@ -149,7 +149,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 			const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv);
 			countries.on("click", (event, d) => {
 				chartState.selectedCountryProfile = d;
-				drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, cerfByPartnerData, selections, colorsObject, lists, outerDiv);
+				drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, selections, colorsObject, lists, outerDiv);
 			});
 			return;
 		};
@@ -175,14 +175,14 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 		const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv);
 		countries.on("click", (event, d) => {
 			chartState.selectedCountryProfile = d;
-			drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, cerfByPartnerData, selections, colorsObject, lists, outerDiv);
+			drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, selections, colorsObject, lists, outerDiv);
 		});
 		return;
 	});
 
 	function setCallFunctions() {
 		if (selectedTab === tabsData[0]) tabsCallingFunctions.find(d => d.name === tabsData[0]).callingFunction = createCountryProfileOverview(chartDiv, lists, colorsObject, worldMap, tooltipDiv);
-		if (selectedTab === tabsData[1]) tabsCallingFunctions.find(d => d.name === tabsData[1]).callingFunction = createCountryProfileByPartner(chartDiv, lists, colorsObject, tooltipDiv);
+		if (selectedTab === tabsData[1]) tabsCallingFunctions.find(d => d.name === tabsData[1]).callingFunction = createCountryProfileByPartner(chartDiv, lists, colorsObject, tooltipDiv, cbpfPartnersData);
 	};
 
 	function callDrawingFunction() {

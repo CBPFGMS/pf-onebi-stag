@@ -2,6 +2,10 @@ import { chartState } from "./chartstate.js";
 
 //|constants
 const padding = [4, 8, 4, 8],
+	paddingCerf = [10, 52, 30, 118],
+	paddingCbpf = [10, 52, 30, 118],
+	paddingPartnersCerf = [30, 52, 10, 118],
+	paddingPartnersCbpf = [30, 52, 10, 118],
 	buttonsPanelHeight = 30,
 	panelHorizontalPadding = 8,
 	panelVerticalPadding = 8,
@@ -19,22 +23,24 @@ const padding = [4, 8, 4, 8],
 	darkerValue = 0.2,
 	tickSize = 9,
 	bandScalePadding = 0.5,
-	chartTitlePadding = 12,
 	labelsPadding = 4,
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	allocationTypes = {
 		cbpf: ["1", "2"],
 		cerf: ["3", "4"]
 	}, //THIS SHOULD NOT BE HARDCODED
-	maxBarHeight = 40;
+	barHeight = 40;
 
 let yearsArrayCerf,
 	yearsArrayCbpf,
-	chartWidth,
-	chartHeight,
+	totalWidth,
+	svgWidth = {
+		cerf: 0,
+		cbpf: 0
+	},
 	activeTransition = false;
 
-function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
+function createCountryProfileByPartner(container, lists, colors, tooltipDiv, cbpfPartnersData) {
 
 	const outerDiv = container.append("div")
 		.attr("class", classPrefix + "outerDiv");
@@ -59,8 +65,37 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
 	const topRowDiv = chartsDiv.append("div")
 		.attr("class", classPrefix + "topRowDiv");
 
+	const yearsButtonsDiv = chartsDiv.append("div")
+		.attr("class", classPrefix + "yearsButtonsDiv");
+
 	const barChartsDiv = chartsDiv.append("div")
 		.attr("class", classPrefix + "barChartsDiv");
+
+	const barChartsDivCerf = barChartsDiv.append("div")
+		.attr("class", classPrefix + "barChartsDivCerf");
+
+	const titleDivCerf = barChartsDivCerf.append("div")
+		.attr("class", classPrefix + "titleDivCerf")
+		.html("CERF");
+
+	const aggregatedDivCerf = barChartsDivCerf.append("div")
+		.attr("class", classPrefix + "aggregatedDivCerf");
+
+	const partnersDivCerf = barChartsDivCerf.append("div")
+		.attr("class", classPrefix + "partnersDivCerf");
+
+	const barChartsDivCbpf = barChartsDiv.append("div")
+		.attr("class", classPrefix + "barChartsDivCbpf");
+
+	const titleDivCbpf = barChartsDivCbpf.append("div")
+		.attr("class", classPrefix + "titleDivCbpf")
+		.html("CBPF");
+
+	const aggregatedDivCbpf = barChartsDivCbpf.append("div")
+		.attr("class", classPrefix + "aggregatedDivCbpf");
+
+	const partnersDivCbpf = barChartsDivCbpf.append("div")
+		.attr("class", classPrefix + "partnersDivCbpf");
 
 	createTopFiguresDiv(topRowDiv, colors, lists);
 
@@ -69,21 +104,27 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
 
 	createFundButtons(buttonsDiv, colors);
 
+	const yearsButtonsDivSize = yearsButtonsDiv.node().getBoundingClientRect();
 	const barChartsDivSize = barChartsDiv.node().getBoundingClientRect();
-	chartWidth = barChartsDivSize.width;
-	chartHeight = barChartsDivSize.height;
 
-	const svg = barChartsDiv.append("svg")
-		.attr("viewBox", `0 0 ${chartWidth} ${chartHeight}`)
+	totalWidth = barChartsDivSize.width;
+
+	const buttonsSvg = yearsButtonsDiv.append("svg")
+		.attr("viewBox", `0 0 ${yearsButtonsDivSize.width} ${buttonsPanelHeight}`)
+		.style("background-color", "white");
+
+	const svgAggregatedCerf = aggregatedDivCerf.append("svg")
+		.attr("viewBox", `0 0 ${totalWidth/2} 1`)
+		.style("background-color", "white");
+
+	const svgAggregatedCbpf = aggregatedDivCbpf.append("svg")
+		.attr("viewBox", `0 0 ${totalWidth/2} 1`)
 		.style("background-color", "white");
 
 	const buttonsPanel = {
-		main: svg.append("g")
-			.attr("class", classPrefix + "buttonsPanel")
-			.attr("transform", "translate(" + padding[3] + "," + padding[0] + ")"),
-		width: chartWidth - padding[1] - padding[3],
+		width: yearsButtonsDivSize.width,
 		height: buttonsPanelHeight,
-		padding: [0, 0, 0, 6],
+		padding: [0, 0, 0, 14],
 		buttonWidth: 52,
 		buttonPadding: 4,
 		buttonVerticalPadding: 4,
@@ -94,30 +135,9 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
 		}
 	};
 
-	const cerfPanel = {
-		main: svg.append("g")
-			.attr("class", classPrefix + "cerfPanel")
-			.attr("transform", "translate(" + padding[3] + "," + (padding[0] + buttonsPanel.height + panelHorizontalPadding) + ")"),
-		width: (chartWidth - padding[1] - padding[3] - panelVerticalPadding) / 2,
-		height: chartHeight - padding[0] - padding[2] - buttonsPanel.height - panelHorizontalPadding,
-		padding: [36, 52, 30, 118]
-	};
+	const xScaleCerf = d3.scaleLinear();
 
-	const cbpfPanel = {
-		main: svg.append("g")
-			.attr("class", classPrefix + "cbpfPanel")
-			.attr("transform", "translate(" + (padding[3] + cerfPanel.width + panelVerticalPadding) + "," +
-				(padding[0] + buttonsPanel.height + panelHorizontalPadding) + ")"),
-		width: (chartWidth - padding[1] - padding[3] - panelVerticalPadding) / 2,
-		height: chartHeight - padding[0] - padding[2] - buttonsPanel.height - panelHorizontalPadding,
-		padding: [36, 52, 30, 118]
-	};
-
-	const xScaleCerf = d3.scaleLinear()
-		.range([cerfPanel.padding[3], cerfPanel.width - cerfPanel.padding[1]]);
-
-	const xScaleCbpf = d3.scaleLinear()
-		.range([cbpfPanel.padding[3], cbpfPanel.width - cbpfPanel.padding[1]]);
+	const xScaleCbpf = d3.scaleLinear();
 
 	const yScaleCerf = d3.scaleBand()
 		.padding(bandScalePadding);
@@ -147,21 +167,6 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
 		.tickPadding(tickSize)
 		.tickFormat(d => lists.partnersList[d]);
 
-	// buttonsPanel.main.append("rect")
-	// 	.attr("width", buttonsPanel.width)
-	// 	.attr("height", buttonsPanel.height)
-	// 	.style("fill", "gainsboro");
-
-	// cerfPanel.main.append("rect")
-	// 	.attr("width", cerfPanel.width)
-	// 	.attr("height", cerfPanel.height)
-	// 	.style("fill", "green");
-
-	// cbpfPanel.main.append("rect")
-	// 	.attr("width", cbpfPanel.width)
-	// 	.attr("height", cbpfPanel.height)
-	// 	.style("fill", "red");
-
 	function draw(originalData, resetYear, firstTime) {
 
 		if (firstTime) {
@@ -181,18 +186,18 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
 			.on("start", () => activeTransition = true)
 			.on("end", () => activeTransition = false);
 
-		if (firstTime) createButtonsPanel(originalData, yearsArrayCerf, yearsArrayCbpf, buttonsPanel, tooltipDiv, container, draw);
+		if (firstTime) createButtonsPanel(originalData, yearsArrayCerf, yearsArrayCbpf, buttonsSvg, buttonsPanel, tooltipDiv, container, draw);
 		drawTopFigures(data.topFigures, topRowDiv, colors, syncedTransition);
-		recalculateScales(data, xScaleCerf, xScaleCbpf, cerfPanel, cbpfPanel, buttonsPanel);
-		drawBarChart(data.cerfData, cerfPanel, xScaleCerf, yScaleCerf, xAxisCerf, yAxisCerf, lists, colors, "cerf", syncedTransition);
-		drawBarChart(data.cbpfData, cbpfPanel, xScaleCbpf, yScaleCbpf, xAxisCbpf, yAxisCbpf, lists, colors, "cbpf", syncedTransition);
+		recalculateDivWidth(data, barChartsDivCerf, barChartsDivCbpf, xScaleCerf, xScaleCbpf);
+		drawBarChart(cbpfPartnersData, data.cerfData, svgAggregatedCerf, container, paddingCerf, xScaleCerf, yScaleCerf, xAxisCerf, yAxisCerf, lists, colors, "cerf", syncedTransition, tooltipDiv);
+		drawBarChart(cbpfPartnersData, data.cbpfData, svgAggregatedCbpf, container, paddingCbpf, xScaleCbpf, yScaleCbpf, xAxisCbpf, yAxisCbpf, lists, colors, "cbpf", syncedTransition, tooltipDiv);
 
 		const fundButtons = buttonsDiv.selectAll("button");
 
 		fundButtons.on("click", (event, d) => {
 			chartState.selectedFund = d;
 			fundButtons.classed("active", e => e === chartState.selectedFund);
-			buttonsPanel.main.selectChildren().remove();
+			buttonsSvg.selectChildren().remove();
 			draw(originalData, true, true);
 		});
 
@@ -204,13 +209,12 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
 	//end of createCountryProfileOverview
 };
 
-function createButtonsPanel(originalData, yearsArrayCerf, yearsArrayCbpf, buttonsPanel, tooltip, container, draw) {
+function createButtonsPanel(originalData, yearsArrayCerf, yearsArrayCbpf, svg, buttonsPanel, tooltip, container, draw) {
 
-	const yearsArray = chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ?
-		[...new Set(yearsArrayCerf.concat(yearsArrayCbpf))].sort((a, b) => a - b) :
+	const yearsArray = chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? [...new Set(yearsArrayCerf.concat(yearsArrayCbpf))].sort((a, b) => a - b) :
 		chartState.selectedFund === "cerf" ? yearsArrayCerf : yearsArrayCbpf;
 
-	const clipPath = buttonsPanel.main.append("clipPath")
+	const clipPath = svg.append("clipPath")
 		.attr("id", classPrefix + "clipButtons")
 		.append("rect")
 		.attr("width", buttonsPanel.buttonsNumber * buttonsPanel.buttonWidth)
@@ -218,7 +222,7 @@ function createButtonsPanel(originalData, yearsArrayCerf, yearsArrayCbpf, button
 
 	const extraPadding = yearsArray.length > buttonsPanel.buttonsNumber ? buttonsPanel.arrowPadding : -2;
 
-	const clipPathGroup = buttonsPanel.main.append("g")
+	const clipPathGroup = svg.append("g")
 		.attr("class", classPrefix + "ClipPathGroup")
 		.attr("transform", "translate(" + (buttonsPanel.padding[3] + extraPadding) + ",0)")
 		.attr("clip-path", `url(#${classPrefix}clipButtons)`);
@@ -252,7 +256,7 @@ function createButtonsPanel(originalData, yearsArrayCerf, yearsArrayCbpf, button
 		.style("fill", d => chartState.selectedYear === d ? "white" : "#444")
 		.text(d => d);
 
-	const leftArrow = buttonsPanel.main.append("g")
+	const leftArrow = svg.append("g")
 		.attr("class", classPrefix + "LeftArrowGroup")
 		.style("opacity", 0)
 		.attr("pointer-events", "none")
@@ -271,7 +275,7 @@ function createButtonsPanel(originalData, yearsArrayCerf, yearsArrayCbpf, button
 		.style("fill", "#666")
 		.text("\u25c4");
 
-	const rightArrow = buttonsPanel.main.append("g")
+	const rightArrow = svg.append("g")
 		.attr("class", classPrefix + "RightArrowGroup")
 		.style("opacity", 0)
 		.attr("pointer-events", "none")
@@ -504,31 +508,22 @@ function createTopFiguresDiv(container, colors, lists) {
 
 };
 
-function drawBarChart(data, panel, xScale, yScale, xAxis, yAxis, lists, colors, fundType, syncedTransition) {
+function drawBarChart(cbpfPartnersData, data, svg, container, padding, xScale, yScale, xAxis, yAxis, lists, colors, fundType, syncedTransition, tooltip) {
 
 	const trueData = data.length ? [true] : [];
+
+	svg.attr("viewBox", `0 0 ${svgWidth[fundType]} ${padding[0] + padding[2] + (data.length * barHeight)}`)
 
 	const maxValue = d3.max(data, d => d.value);
 
 	xScale.domain([0, maxValue]);
 
 	yScale.domain(data.map(d => d.partner))
-		.range([panel.padding[0], Math.min(panel.padding[0] + (data.length * maxBarHeight)), panel.height - panel.padding[2]]);
+		.range([padding[0], padding[0] + (data.length * barHeight)]);
 
 	xAxis.tickSizeInner(-(yScale.range()[1] - yScale.range()[0]));
 
-	let chartTitle = panel.main.selectAll(`.${classPrefix}chartTitle`)
-		.data(trueData);
-
-	chartTitle = chartTitle.enter()
-		.append("text")
-		.attr("class", classPrefix + "chartTitle")
-		.text(fundType.toUpperCase())
-		.merge(chartTitle)
-		.attr("y", panel.padding[0] - chartTitlePadding)
-		.attr("x", panel.width / 2);
-
-	let xAxisGroup = panel.main.selectAll(`.${classPrefix}xAxisGroup${fundType}`)
+	let xAxisGroup = svg.selectAll(`.${classPrefix}xAxisGroup${fundType}`)
 		.data(trueData);
 
 	xAxisGroup = xAxisGroup.enter()
@@ -540,16 +535,16 @@ function drawBarChart(data, panel, xScale, yScale, xAxis, yAxis, lists, colors, 
 		.attr("transform", "translate(0," + yScale.range()[1] + ")")
 		.call(xAxis);
 
-	let yAxisGroup = panel.main.selectAll(`.${classPrefix}yAxisGroup${fundType}`)
+	let yAxisGroup = svg.selectAll(`.${classPrefix}yAxisGroup${fundType}`)
 		.data(trueData);
 
 	yAxisGroup = yAxisGroup.enter()
 		.append("g")
 		.attr("class", `${classPrefix}yAxisGroup${fundType}`)
-		.attr("transform", "translate(" + panel.padding[3] + ",0)")
+		.attr("transform", "translate(" + padding[3] + ",0)")
 		.merge(yAxisGroup)
 		.transition(syncedTransition)
-		.attr("transform", "translate(" + panel.padding[3] + ",0)")
+		.attr("transform", "translate(" + padding[3] + ",0)")
 		.call(fundType === "cerf" ? customAxis : yAxis);
 
 	function customAxis(group) {
@@ -558,20 +553,20 @@ function drawBarChart(data, panel, xScale, yScale, xAxis, yAxis, lists, colors, 
 		sel.selectAll(".tick text")
 			.filter(d => lists.unAgenciesNamesList[d].indexOf(" ") > -1)
 			.text(d => lists.unAgenciesNamesList[d])
-			.call(wrapTextTwoLines, panel.padding[3] - yAxis.tickPadding())
+			.call(wrapTextTwoLines, padding[3] - yAxis.tickPadding())
 		if (sel !== group) group.selectAll(".tick text")
 			.filter(d => lists.unAgenciesNamesList[d].indexOf(" ") > -1)
 			.attrTween("x", null)
 			.tween("text", null);
 	};
 
-	let bars = panel.main.selectAll("." + classPrefix + "bars")
+	let bars = svg.selectAll("." + classPrefix + "bars")
 		.data(data, d => d.partner);
 
 	const barsExit = bars.exit()
 		.transition(syncedTransition)
 		.attr("width", 0)
-		.attr("x", panel.padding[3])
+		.attr("x", padding[3])
 		.style("opacity", 0)
 		.remove();
 
@@ -581,7 +576,7 @@ function drawBarChart(data, panel, xScale, yScale, xAxis, yAxis, lists, colors, 
 		.attr("height", yScale.bandwidth())
 		.attr("width", 0)
 		.style("fill", colors[fundType])
-		.attr("x", panel.padding[3])
+		.attr("x", padding[3])
 		.attr("y", d => yScale(d.partner));
 
 	bars = barsEnter.merge(bars);
@@ -589,10 +584,10 @@ function drawBarChart(data, panel, xScale, yScale, xAxis, yAxis, lists, colors, 
 	bars.transition(syncedTransition)
 		.attr("height", yScale.bandwidth())
 		.attr("y", d => yScale(d.partner))
-		.attr("x", panel.padding[3])
-		.attr("width", d => xScale(d.value) - panel.padding[3]);
+		.attr("x", padding[3])
+		.attr("width", d => xScale(d.value) - padding[3]);
 
-	let labels = panel.main.selectAll("." + classPrefix + "labels")
+	let labels = svg.selectAll("." + classPrefix + "labels")
 		.data(data, d => d.partner);
 
 	const labelsExit = labels.exit()
@@ -604,7 +599,7 @@ function drawBarChart(data, panel, xScale, yScale, xAxis, yAxis, lists, colors, 
 		.append("text")
 		.attr("class", classPrefix + "labels")
 		.style("opacity", 0)
-		.attr("x", panel.padding[3] + labelsPadding)
+		.attr("x", padding[3] + labelsPadding)
 		.attr("y", d => yScale(d.partner) + yScale.bandwidth() / 2);
 
 	labels = labelsEnter.merge(labels);
@@ -618,7 +613,157 @@ function drawBarChart(data, panel, xScale, yScale, xAxis, yAxis, lists, colors, 
 			return t => formatSIFloat(interpolator(t)).replace("G", "B");
 		});
 
+	let tooltipBars = svg.selectAll("." + classPrefix + "tooltipBars")
+		.data(data, d => d.partner);
+
+	tooltipBars.exit().remove();
+
+	tooltipBars = tooltipBars.enter()
+		.append("rect")
+		.attr("class", classPrefix + "tooltipBars")
+		.attr("height", yScale.bandwidth())
+		.attr("x", padding[3])
+		.style("cursor", "pointer")
+		.style("opacity", 0)
+		.merge(tooltipBars)
+		.attr("width", xScale(maxValue) - padding[3])
+		.attr("y", d => yScale(d.partner));
+
+	if (fundType === "cbpf") {
+		tooltipBars.on("mouseover", mouseoverTooltipBars)
+			.on("mouseout", () => mouseOut(tooltip))
+			.on("click", (_, d) => generatePartnersChart(d, fundType, cbpfPartnersData, lists, colors));
+	};
+
+	function mouseoverTooltipBars(event, datum) {
+
+		tooltip.style("display", "block")
+			.html(null)
+
+		const innerTooltip = tooltip.append("div")
+			.style("max-width", "200px")
+			.attr("id", classPrefix + "innerTooltipDiv");
+
+		//here, check for CERF or CBPF
+		innerTooltip.html(`Click for generating a chart with all ${lists.partnersList[datum.partner]} partners`);
+
+		positionTooltip(tooltip, container, event, "bottom");
+	};
+
 	//end of drawBarChart
+};
+
+function generatePartnersChart(datum, fundType, cbpfPartnersData, lists, colors) {
+
+	const padding = fundType === "cerf" ? paddingPartnersCerf : paddingPartnersCbpf;
+
+	const xScale = d3.scaleLinear();
+	const yScale = d3.scaleBand()
+		.padding(bandScalePadding);
+
+	const xAxis = d3.axisTop(xScale)
+		.ticks(4)
+		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"))
+		.tickSizeOuter(0);
+
+	const yAxis = d3.axisLeft(yScale)
+		.tickSizeOuter(0)
+		.tickSizeInner(0)
+		.tickPadding(tickSize)
+		.tickFormat(d => lists.partnersNamesList[d]);
+
+	const data = [];
+
+	cbpfPartnersData.forEach(row => {
+		if (chartState.selectedYear === row.AllocationYear &&
+			row.PooledFundId === chartState.selectedCountryProfile &&
+			lists.fundTypesList[row.FundId] === fundType &&
+			row.OrganizatinonId === datum.partner) {
+			const foundPartner = data.find(e => e.partner === row.PartnerCode);
+			if (foundPartner) {
+				foundPartner.value += row.ClusterBudget;
+			} else {
+				data.push({ partner: row.PartnerCode, value: row.ClusterBudget });
+			};
+		};
+	});
+
+	data.sort((a, b) => b.value - a.value);
+
+	const containerDiv = d3.select(`.${classPrefix}partnersDiv${capitalize(fundType)}`);
+
+	containerDiv.selectChildren().remove();
+
+	containerDiv.append("div")
+		.attr("class", classPrefix + "partnersTitleDiv" + capitalize(fundType))
+		.html(lists.partnersList[datum.partner] + " Partners");
+
+	//ADD CLOSE BUTTON
+
+	const syncedTransition = d3.transition()
+		.duration(duration)
+		.on("start", () => activeTransition = true)
+		.on("end", () => activeTransition = false);
+
+	const svg = containerDiv.append("svg")
+		.attr("width", svgWidth[fundType])
+		.attr("height", padding[0] + padding[2] + (data.length * barHeight));
+
+	const maxValue = d3.max(data, d => d.value);
+
+	xScale.domain([0, maxValue])
+		.range([padding[3], svgWidth[fundType] - padding[1]]);
+
+	yScale.domain(data.map(d => d.partner))
+		.range([padding[0], padding[0] + (data.length * barHeight)]);
+
+	xAxis.tickSizeInner(-(yScale.range()[1] - yScale.range()[0]));
+
+	const xAxisGroup = svg.append("g")
+		.attr("class", `${classPrefix}xAxisGroupPartners${fundType}`)
+		.attr("transform", "translate(0," + padding[0] + ")")
+		.call(xAxis);
+
+	const yAxisGroup = svg.append("g")
+		.attr("class", `${classPrefix}yAxisGroupPartners${fundType}`)
+		.attr("transform", "translate(" + padding[3] + ",0)")
+		.call(yAxis)
+		.selectAll(".tick text")
+		.call(wrapTextTwoLines, padding[3] - yAxis.tickPadding());
+
+	const bars = svg.selectAll(null)
+		.data(data, d => d.partner)
+		.enter()
+		.append("rect")
+		.attr("height", yScale.bandwidth())
+		.attr("width", 0)
+		.style("fill", d3.color(colors[fundType]).brighter(0.6))
+		.attr("x", padding[3])
+		.attr("y", d => yScale(d.partner))
+		.transition(syncedTransition)
+		.attr("height", yScale.bandwidth())
+		.attr("y", d => yScale(d.partner))
+		.attr("x", padding[3])
+		.attr("width", d => xScale(d.value) - padding[3]);
+
+	const labels = svg.selectAll(null)
+		.data(data, d => d.partner)
+		.enter()
+		.append("text")
+		.attr("class", classPrefix + "labelsPartners")
+		.style("opacity", 0)
+		.attr("x", padding[3] + labelsPadding)
+		.attr("y", d => yScale(d.partner) + yScale.bandwidth() / 2)
+		.transition(syncedTransition)
+		.style("opacity", 1)
+		.attr("x", d => xScale(d.value) + labelsPadding)
+		.attr("y", d => yScale(d.partner) + yScale.bandwidth() / 2)
+		.textTween((d, i, n) => {
+			const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, d.value);
+			return t => formatSIFloat(interpolator(t)).replace("G", "B");
+		});
+
+	//end of generatePartnersChart
 };
 
 function mouseOut(tooltip) {
@@ -646,7 +791,7 @@ function positionTooltip(tooltip, container, event, position) {
 		top = elementSize.top - containerSize.top + (elementSize.height / 2) - (tooltipSize.height / 2) + "px";
 		left = Math.max(0, elementSize.left - tooltipSize.width - containerSize.left - tooltipHorizontalPadding) + "px";
 	} else if (position === "bottom") {
-		top = Math.min(containerSize.height - tooltipSize.height - tooltipVerticalPadding, elementSize.top - containerSize.top + tooltipSize.height + tooltipVerticalPadding) + "px";
+		top = Math.min(containerSize.height - tooltipSize.height - tooltipVerticalPadding, elementSize.top - containerSize.top + elementSize.height + tooltipVerticalPadding) + "px";
 		left = Math.max(0, Math.min(containerSize.width - tooltipSize.width - tooltipHorizontalPadding,
 			elementSize.left - containerSize.left + (elementSize.width / 2) - (tooltipSize.width / 2))) + "px";
 	};
@@ -694,8 +839,7 @@ function processData(originalData, lists) {
 };
 
 function setDefaultYear(originalData, yearsArrayCerf, yearsArrayCbpf) {
-	const years = chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ?
-		[...new Set(yearsArrayCerf.concat(yearsArrayCbpf))] :
+	const years = chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? [...new Set(yearsArrayCerf.concat(yearsArrayCbpf))] :
 		chartState.selectedFund === "cerf" ? yearsArrayCerf : yearsArrayCbpf;
 	let index = years.length;
 	while (--index >= 0) {
@@ -716,29 +860,29 @@ function setDefaultYear(originalData, yearsArrayCerf, yearsArrayCbpf) {
 	};
 };
 
-function recalculateScales(data, xScaleCerf, xScaleCbpf, cerfPanel, cbpfPanel, buttonsPanel) {
+function recalculateDivWidth(data, barChartsDivCerf, barChartsDivCbpf, xScaleCerf, xScaleCbpf) {
 	if (data.cerfData.length && data.cbpfData.length) {
-		cerfPanel.main.attr("transform", "translate(" + padding[3] + "," + (padding[0] + buttonsPanel.height + panelHorizontalPadding) + ")");
-		cerfPanel.width = (chartWidth - padding[1] - padding[3] - panelVerticalPadding) / 2;
-		cbpfPanel.main.attr("transform", "translate(" + (padding[3] + cerfPanel.width + panelVerticalPadding) + "," +
-			(padding[0] + buttonsPanel.height + panelHorizontalPadding) + ")");
-		cbpfPanel.width = (chartWidth - padding[1] - padding[3] - panelVerticalPadding) / 2;
+		barChartsDivCerf.style("width", "50%");
+		barChartsDivCbpf.style("width", "50%");
+		svgWidth.cerf = totalWidth / 2;
+		svgWidth.cbpf = totalWidth / 2;
+		xScaleCerf.range([paddingCerf[3], (totalWidth / 2) - paddingCerf[1]]);
+		xScaleCbpf.range([paddingCbpf[3], (totalWidth / 2) - paddingCbpf[1]]);
 	} else if (!data.cbpfData.length) {
-		cerfPanel.main.attr("transform", "translate(" + padding[3] + "," + (padding[0] + buttonsPanel.height + panelHorizontalPadding) + ")");
-		cerfPanel.width = chartWidth - padding[1] - padding[3];
-		cbpfPanel.main.attr("transform", "translate(" + (padding[3] + cerfPanel.width + panelVerticalPadding) + "," +
-			(padding[0] + buttonsPanel.height + panelHorizontalPadding) + ")");
-		cbpfPanel.width = 0;
-		cbpfPanel.main.selectChildren().remove();
+		barChartsDivCerf.style("width", "100%");
+		barChartsDivCbpf.style("width", "0%");
+		svgWidth.cerf = totalWidth;
+		svgWidth.cbpf = 0;
+		xScaleCerf.range([paddingCerf[3], totalWidth - paddingCerf[1]]);
+		xScaleCbpf.range([0, 0]);
 	} else if (!data.cerfData.length) {
-		cerfPanel.main.attr("transform", "translate(" + padding[3] + "," + (padding[0] + buttonsPanel.height + panelHorizontalPadding) + ")");
-		cerfPanel.width = 0;
-		cbpfPanel.main.attr("transform", "translate(" + padding[3] + "," + (padding[0] + buttonsPanel.height + panelHorizontalPadding) + ")");
-		cbpfPanel.width = chartWidth - padding[1] - padding[3];
-		cerfPanel.main.selectChildren().remove();
+		barChartsDivCerf.style("width", "0%");
+		barChartsDivCbpf.style("width", "100%");
+		svgWidth.cerf = 0;
+		svgWidth.cbpf = totalWidth;
+		xScaleCerf.range([0, 0]);
+		xScaleCbpf.range([paddingCbpf[3], totalWidth - paddingCbpf[1]]);
 	};
-	xScaleCerf.range([cerfPanel.padding[3], cerfPanel.width - cerfPanel.padding[1]]);
-	xScaleCbpf.range([cbpfPanel.padding[3], cbpfPanel.width - cbpfPanel.padding[1]]);
 };
 
 function createYearsArray(originalData, fund) {
@@ -784,7 +928,7 @@ function wrapTextTwoLines(text, width) {
 			lineHeight = 1.1,
 			y = text.attr("y"),
 			x = text.attr("x"),
-			dy = 0,
+			dy = 0.32,
 			counter = 0,
 			tspan = text.text(null)
 			.append("tspan")
@@ -806,8 +950,7 @@ function wrapTextTwoLines(text, width) {
 						.attr("y", y)
 						.attr("dy", ++lineNumber * lineHeight + dy + "em")
 						.text(word);
-					d3.select(tspan.node().previousSibling)
-						.attr("dy", "-0.3em");
+					if (counter > 0) d3.select(tspan.node().previousSibling).attr("dy", "-0.3em");
 				};
 			};
 		};
