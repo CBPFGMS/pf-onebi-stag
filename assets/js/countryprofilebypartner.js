@@ -868,20 +868,27 @@ function recalculateDivWidth(data, barChartsDivCerf, barChartsDivCbpf, xScaleCer
 		svgWidth.cbpf = totalWidth / 2;
 		xScaleCerf.range([paddingCerf[3], (totalWidth / 2) - paddingCerf[1]]);
 		xScaleCbpf.range([paddingCbpf[3], (totalWidth / 2) - paddingCbpf[1]]);
-	} else if (!data.cbpfData.length) {
+	} else if (!data.cbpfData.length && data.cerfData.length) {
 		barChartsDivCerf.style("width", "100%");
 		barChartsDivCbpf.style("width", "0%");
 		svgWidth.cerf = totalWidth;
 		svgWidth.cbpf = 0;
 		xScaleCerf.range([paddingCerf[3], totalWidth - paddingCerf[1]]);
 		xScaleCbpf.range([0, 0]);
-	} else if (!data.cerfData.length) {
+	} else if (!data.cerfData.length && data.cbpfData.length) {
 		barChartsDivCerf.style("width", "0%");
 		barChartsDivCbpf.style("width", "100%");
 		svgWidth.cerf = 0;
 		svgWidth.cbpf = totalWidth;
 		xScaleCerf.range([0, 0]);
 		xScaleCbpf.range([paddingCbpf[3], totalWidth - paddingCbpf[1]]);
+	} else if (!data.cerfData.length && !data.cbpfData.length) {
+		barChartsDivCerf.style("width", "0%");
+		barChartsDivCbpf.style("width", "0%");
+		svgWidth.cerf = 0;
+		svgWidth.cbpf = 0;
+		xScaleCerf.range([0, 0]);
+		xScaleCbpf.range([0, 0]);
 	};
 };
 
