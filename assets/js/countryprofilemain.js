@@ -4,10 +4,11 @@ import { createLinks } from "./links.js";
 import { createBreadcrumbs } from "./breadcrumbs.js";
 import { createCountryProfileOverview } from "./countryprofileoverview.js";
 import { createCountryProfileByPartner } from "./countryprofilebypartner.js";
+import { createCountryProfileBySector } from "./countryprofilebysector.js";
 
 //|constants
 const classPrefix = "pfcpmain",
-	tabsData = ["Overview", "Allocations by partner", "Allocations", "Funding by Cluster", "Contributions by Donor"],
+	tabsData = ["Overview", "Allocations by Partner", "Allocations by Sector", "Funding by Cluster", "Contributions by Donor"],
 	backToMenu = "Back to main menu",
 	selectAnOption = "Select Fund",
 	separator = "##",
@@ -17,6 +18,7 @@ let selectedTab = tabsData[0],
 	overviewData,
 	overviewAdminLevel1Data,
 	byPartnerData,
+	bySectorData,
 	drawOverview,
 	cerfId,
 	cbpfId;
@@ -105,7 +107,7 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv) {
 
 function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, selections, colorsObject, lists, outerDiv) {
 
-	processAllData(rawAllocationsData, adminLevel1Data, cerfByPartnerData, lists);
+	processAllData(rawAllocationsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, lists);
 
 	outerDiv.selectChildren().remove();
 
@@ -183,11 +185,13 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 	function setCallFunctions() {
 		if (selectedTab === tabsData[0]) tabsCallingFunctions.find(d => d.name === tabsData[0]).callingFunction = createCountryProfileOverview(chartDiv, lists, colorsObject, worldMap, tooltipDiv);
 		if (selectedTab === tabsData[1]) tabsCallingFunctions.find(d => d.name === tabsData[1]).callingFunction = createCountryProfileByPartner(chartDiv, lists, colorsObject, tooltipDiv, cbpfPartnersData);
+		if (selectedTab === tabsData[2]) tabsCallingFunctions.find(d => d.name === tabsData[2]).callingFunction = createCountryProfileBySector(chartDiv, lists, colorsObject, tooltipDiv);
 	};
 
 	function callDrawingFunction() {
 		if (selectedTab === tabsData[0]) tabsCallingFunctions.find(d => d.name === tabsData[0]).callingFunction(overviewData, overviewAdminLevel1Data, true, true);
 		if (selectedTab === tabsData[1]) tabsCallingFunctions.find(d => d.name === tabsData[1]).callingFunction(byPartnerData, true, true);
+		if (selectedTab === tabsData[2]) tabsCallingFunctions.find(d => d.name === tabsData[2]).callingFunction(bySectorData, true, true);
 	};
 
 };
@@ -352,6 +356,17 @@ function processDataForCountryProfileByPartner(rawDataAllocations, cerfByPartner
 
 };
 
+function processDataForCountryProfileBySector(cerfByPartnerData, cbpfPartnersData, lists) {
+
+	const data = {
+		cerf: [],
+		cbpf: []
+	};
+
+	return data;
+
+};
+
 function pushCbpfOrCerf(obj, row, lists) {
 	if (lists.fundTypesList[row.FundId] === "cbpf") {
 		obj.cbpf += +row.ClusterBudget;
@@ -364,10 +379,11 @@ function pushCbpfOrCerf(obj, row, lists) {
 	obj[`type${separator}${row.AllocationSurceId}${separator}total`] += +row.ClusterBudget;;
 };
 
-function processAllData(rawAllocationsData, adminLevel1Data, cerfByPartnerData, lists) {
+function processAllData(rawAllocationsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, lists) {
 	overviewData = processDataForCountryProfileOverview(rawAllocationsData, lists);
 	overviewAdminLevel1Data = processAdminLevel1DataForCountryProfileOverview(adminLevel1Data);
 	byPartnerData = processDataForCountryProfileByPartner(rawAllocationsData, cerfByPartnerData, lists);
+	bySectorData = processDataForCountryProfileBySector(cerfByPartnerData, cbpfPartnersData, lists);
 };
 
 export { createCountryProfile };
