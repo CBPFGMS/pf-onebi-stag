@@ -2376,18 +2376,46 @@ a.video-tutorial{color:#333;}
   display: flex;
   flex-direction: column;
   width: 50%;
-  overflow-y: scroll;
   height: 100%;
+  align-items: center;
 }
 
-.pfbicpbypartneraggregatedDivCerf, .pfbicpbypartneraggregatedDivCbpf {
-  width: 100%;
+.pfbicpbypartnerheaderRowDivCerf, .pfbicpbypartnerheaderRowDivCbpf {
+  width: 92%;
+  display: flex;
+  flex-direction: row;
+  border-bottom: 2px solid black;
+  font-family: "Roboto", sans-serif;
+  font-size: 0.8em;
+  font-weight: 500;
+  color: #222;
+  margin-top: 0.2em;
+  align-items: center;
+}
+
+.pfbicpbypartnerrowDivCerf, .pfbicpbypartnerrowDivCbpf {
+  width: 92%;
+  display: flex;
+  flex-direction: row;
+  font-family: "Roboto", sans-serif;
+  font-size: 0.8em;
+  font-weight: 400;
+  color: #444;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  align-items: center;
+}
+
+.pfbicpbypartnerpartnerNameDiv {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
 }
 
 .pfbicpbypartnerpartnersDivCerf, .pfbicpbypartnerpartnersDivCbpf {
   width: 100%;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .pfbicpbypartnertitleDivCerf, .pfbicpbypartnertitleDivCbpf {
@@ -2397,6 +2425,7 @@ a.video-tutorial{color:#333;}
   font-weight: 300;
   text-align: center;
   color: #444;
+  margin-top: 1em;
 }
 
 .pfbicpbypartnerpartnersTitleDivCerf, .pfbicpbypartnerpartnersTitleDivCbpf {
