@@ -999,7 +999,7 @@ function createAllocationsByMonth(selections, colors, lists) {
 			const valuesArray = tooltipType === "yearTooltip" ? d.yearValues : d.parentData.monthValues.filter(e => e.FiscalYear === d.year);
 
 			const totalValues = valuesArray.reduce((acc, curr) => {
-				if (fundType === "cerf" ? curr.PooledFundId === lists.cerfPooledFundId : curr.PooledFundId !== lists.cerfPooledFundId) {
+				if (fundType === "cerf" ? curr.FundType === cerfId : curr.FundType !== cerfId) {
 					acc.total += curr.Budget;
 				};
 				return acc;
@@ -1008,13 +1008,13 @@ function createAllocationsByMonth(selections, colors, lists) {
 			});
 
 			let tooltipData = valuesArray.reduce((acc, curr) => {
-				if (fundType === "cerf" ? curr.PooledFundId === lists.cerfPooledFundId : curr.PooledFundId !== lists.cerfPooledFundId) {
-					const foundDonor = acc.find(e => e.donorId === curr.DonorId);
-					if (foundDonor) {
-						foundDonor.total += curr.Budget;
+				if (fundType === "cerf" ? curr.FundType === cerfId : curr.FundType !== cerfId) {
+					const foundFund = acc.find(e => e.fundId === curr.PooledFundName);
+					if (foundFund) {
+						foundFund.total += curr.Budget;
 					} else {
 						acc.push({
-							donorId: curr.DonorId,
+							donorId: curr.PooledFundName,
 							total: curr.Budget,
 						});
 					};
@@ -1739,6 +1739,7 @@ function createAllocationsByMonth(selections, colors, lists) {
 
 		originalData.forEach(row => {
 
+			//REMOVE THIS!!!
 			if (typeof row.ApprovedDate !== "string") row.ApprovedDate = formatTime(row.ApprovedDate);
 
 			if (selectedYear.indexOf(allYears) > -1 && (+row.ApprovedDate.split("/")[2]) <= currentYear) {

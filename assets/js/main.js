@@ -34,6 +34,7 @@ const generalClassPrefix = "pfbihp",
 	cbpfPartnersDataUrl = "https://cbpfgms.github.io/pfbi-data/sectorSummarybyOrg.csv",
 	chartTypesAllocations = ["allocationsByCountry", "allocationsBySector", "allocationsByType"],
 	chartTypesContributions = ["contributionsByCerfCbpf", "contributionsByDonor"],
+	chartTypesAllocationByMonth = ["allocationsByMonth"],
 	chartTypesCountryProfile = ["countryProfile"],
 	fundValues = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	contributionTypes = ["pledged", "paid", "total"],
@@ -1005,7 +1006,8 @@ function populateYearDropdown(yearData, dropdownContainer) {
 function validateDefault(values) {
 	chartState.selectedChart = chartTypesAllocations.indexOf(values.chart) > -1 ||
 		chartTypesContributions.indexOf(values.chart) > -1 ||
-		chartTypesCountryProfile.indexOf(values.chart) > -1 ?
+		chartTypesCountryProfile.indexOf(values.chart) > -1 ||
+		chartTypesAllocationByMonth.indexOf(values.chart) > -1 ?
 		values.chart : defaultValues.chart;
 	const yearArray = chartTypesAllocations.indexOf(chartState.selectedChart) > -1 ? yearsArrayAllocations : yearsArrayContributions;
 	if (!yearArray.includes(defaultValues.year)) {
