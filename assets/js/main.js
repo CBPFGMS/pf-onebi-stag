@@ -28,6 +28,7 @@ const generalClassPrefix = "pfbihp",
 	contributionsDataUrlClosedFunds = "https://cbpfgms.github.io/pfbi-data/contributionbycerfcbpfAll.csv",
 	allocationsDataUrl = "https://cbpfgms.github.io/pfbi-data/allocationSummary.csv",
 	allocationsDataUrlClosedFunds = "https://cbpfgms.github.io/cbpf-bi-stag/assets/stg-data/allocationSummary.csv",
+	allocationsMonthlyDataUrl = "https://cbpfgms.github.io/pfbi-data/allocationSummarybyapproveddate.csv",
 	adminLevel1DataUrl = "https://raw.githubusercontent.com/CBPFGMS/cbpfgms.github.io/master/sandbox/countryprofile/overview/adminlevel1version2.csv",
 	cerfByPartnerDataUrl = "https://cbpfgms.github.io/pfbi-data/cerf/cerf_allocationSummary_byorg.csv",
 	cbpfPartnersDataUrl = "https://cbpfgms.github.io/pfbi-data/sectorSummarybyOrg.csv",
@@ -87,6 +88,7 @@ const yearsArrayAllocations = [],
 //|set variables
 let spinnerContainer,
 	drawAllocations,
+	drawAllocationsByMonth,
 	drawContributionsByCerfCbpf,
 	drawContributionsByDonor,
 	allocationsData,
@@ -108,6 +110,7 @@ const selections = {
 	navlinkAllocationsByCountry: d3.select("#navAllocationsByCountry"),
 	navlinkAllocationsBySector: d3.select("#navAllocationsBySector"),
 	navlinkAllocationsByType: d3.select("#navAllocationsByType"),
+	navlinkAllocationsByMonth: d3.select("#navAllocationsByMonth"),
 	navlinkContributionsByCerfCbpf: d3.select("#navContributionsByCerfCbpf"),
 	navlinkContributionsByDonor: d3.select("#navContributionsByDonor"),
 	navlinkCountryProfile: d3.select("#navCountryProfile"),
@@ -139,6 +142,15 @@ const selections = {
 	byTypeProjectsText: d3.select("#byTypeProjectsText"),
 	byTypePartnersValue: d3.select("#byTypePartnersValue"),
 	byTypePartnersText: d3.select("#byTypePartnersText"),
+	byMonthAllocationsValue: d3.select("#byMonthAllocationsValue"),
+	byMonthAllocationsText: d3.select("#byMonthAllocationsText"),
+	byMonthCountriesValue: d3.select("#byMonthCountriesValue"),
+	byMonthCountriesText: d3.select("#byMonthCountriesText"),
+	byMonthProjectsValue: d3.select("#byMonthProjectsValue"),
+	byMonthProjectsText: d3.select("#byMonthProjectsText"),
+	byMonthPartnersValue: d3.select("#byMonthPartnersValue"),
+	byMonthPartnersText: d3.select("#byMonthPartnersText"),
+	byMonthChartContainer: d3.select("#bymonth-bar-chart"),
 	byDonorContributionsValue: d3.select("#byDonorContributionsValue"),
 	byDonorContributionsText: d3.select("#byDonorContributionsText"),
 	byDonorPaidValue: d3.select("#byDonorPaidValue"),
@@ -167,6 +179,7 @@ const selections = {
 const navLinks = [selections.navlinkAllocationsByCountry,
 	selections.navlinkAllocationsBySector,
 	selections.navlinkAllocationsByType,
+	selections.navlinkAllocationsByMonth,
 	selections.navlinkContributionsByCerfCbpf,
 	selections.navlinkContributionsByDonor,
 	selections.navlinkCountryProfile
@@ -189,6 +202,7 @@ const topTooltipDiv = selections.sideNavContainer.append("div")
 
 //|import modules
 import { createAllocations } from "./allocations.js";
+import { createAllocationsByMonth } from "./allocationsbymonth.js";
 import { createContributionsByCerfCbpf } from "./contributionsbycerfcbpf.js";
 import { createContributionsByDonor } from "./contributionsbydonor.js";
 import { chartState } from "./chartstate.js";
@@ -220,6 +234,7 @@ Promise.all([fetchFile("unworldmap", unworldmapUrl, "world map", "json"),
 		fetchFile((parameters.showClosedFunds ? "contributionsDataClosedFunds" : "contributionsData"),
 			(parameters.showClosedFunds ? contributionsDataUrlClosedFunds : contributionsDataUrl),
 			"contributions data" + (parameters.showClosedFunds ? " (with closed funds)" : ""), "csv"),
+		fetchFile("allocationsMonthlyData", allocationsMonthlyDataUrl, "allocations data by month", "csv"),
 		fetchFile("lastModified", lastModifiedUrl, "last modified date", "json"),
 		fetchFile("adminLevel1Data", adminLevel1DataUrl, "Admin level 1", "csv"),
 		fetchFile("cerfByPartnerData", cerfByPartnerDataUrl, "cerf by partner data", "csv"),
@@ -238,6 +253,7 @@ function controlCharts([worldMap,
 	masterPartners,
 	rawAllocationsData,
 	rawContributionsData,
+	rawAllocationsMonthlyData,
 	lastModified,
 	adminLevel1Data,
 	cerfByPartnerData,
@@ -334,6 +350,15 @@ function controlCharts([worldMap,
 		selections.navlinkAllocationsByType.classed("menuactive", true);
 		drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		drawAllocations(allocationsData);
+	};
+
+	if (chartState.selectedChart === "allocationsByMonth") {
+		setTimeout(() => openNav(selections.navlinkAllocationsByMonth.node(), "byMonth"), duration);
+		$(selections.allocationsTab.node()).click();
+		selections.navlinkAllocationsByMonth.classed("menuactive", true);
+		createDisabledOption(selections.yearDropdown, yearsArrayAllocations);
+		drawAllocationsByMonth = createAllocationsByMonth(selections, colorsObject, lists);
+		drawAllocationsByMonth(rawAllocationsMonthlyData);
 	};
 
 	if (chartState.selectedChart === "contributionsByCerfCbpf") {
@@ -487,6 +512,27 @@ function controlCharts([worldMap,
 		if (chartState.selectedFund !== defaultValues.fund) setQueryString("fund", chartState.selectedFund);
 		drawAllocations(allocationsData);
 		highlightNavLinks();
+	});
+
+	selections.navlinkAllocationsByMonth.on("click", () => {
+		if (buttonsObject.playing) stopTimer();
+		if (chartState.selectedChart === "allocationsByMonth") return;
+		chartState.selectedChart = "allocationsByMonth";
+		if (!queryStringValues.has("year")) {
+			chartState.selectedYear = allYears;
+			resetTopValues(topValues);
+			processAllocationsYearData(rawAllocationsData);
+			processContributionsYearData(rawContributionsData);
+			updateTopValues(topValues, selections);
+		};
+		createDisabledOption(selections.yearDropdown, yearsArrayAllocations);
+		selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
+		drawAllocationsByMonth = createAllocationsByMonth(selections, colorsObject, lists);
+		drawAllocationsByMonth(rawAllocationsMonthlyData);
+		highlightNavLinks();
+		queryStringValues.delete("year");
+		queryStringValues.delete("fund");
+		setQueryString("chart", chartState.selectedChart);
 	});
 
 	selections.navlinkContributionsByCerfCbpf.on("click", () => {

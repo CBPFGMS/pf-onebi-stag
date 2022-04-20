@@ -1,7 +1,7 @@
 //|Initial parameters
 const parameters = {
 	chart: "allocationsByCountry", //chart displayed when the page loads. 
-	//The accepted values are: "allocationsByCountry", "allocationsBySector", "allocationsByType", "contributionsByCerfCbpf" and "contributionsByDonor"
+	//The accepted values are: "allocationsByCountry", "allocationsBySector", "allocationsByType", "allocationsByMonth", "contributionsByCerfCbpf" and "contributionsByDonor"
 	fund: "total", //type of fund: total, cerf/cbpf, cerf, cbpf
 	year: null, //if 'null' the year will be the current year
 	showClosedFunds: true, //show or hide closed funds
