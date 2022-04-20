@@ -2411,6 +2411,11 @@ a.video-tutorial{color:#333;}
   padding-right: 0.5em;
 }
 
+.pfbicpbypartnerbarDivContainer {
+  width: 100%;
+  /*continue here!!!*/
+}
+
 .pfbicpbypartnerpartnersDivCerf, .pfbicpbypartnerpartnersDivCbpf {
   width: 100%;
   display: flex;
