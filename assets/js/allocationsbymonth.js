@@ -1153,6 +1153,7 @@ function createAllocationsByMonth(selections, colors, lists) {
 			.attr("x", legendGroup.size() ? legendPledgedPadding : svgPaddings[3] + xScale.paddingOuter() * xScale.step())
 			.attr("y", svgHeight - legendPadding + legendRectSize / 2)
 			.text("*: Limited allocation data in GMS prior to 2015")
+			.merge(legendPledged)
 			.transition(syncedTransition)
 			.attr("x", legendGroup.size() ? legendPledgedPadding : svgPaddings[3] + xScale.paddingOuter() * xScale.step());
 
