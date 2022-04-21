@@ -13,7 +13,7 @@ const classPrefix = "pfbicc",
 	allYears = "all",
 	svgPaddingsCerf = [38, 42, 20, 50],
 	svgPaddingsCbpf = [38, 42, 20, 50],
-	svgColumnPadding = [16, 26, 8, 80],
+	svgColumnPadding = [16, 26, 4, 56],
 	svgCumulativePaddingsCerf = [26, 42, 50, 50],
 	svgCumulativePaddingsCbpf = [26, 42, 50, 50],
 	arrowPaddingLeft = 22,
@@ -69,7 +69,7 @@ const classPrefix = "pfbicc",
 	formatSIaxes = d3.format("~s"),
 	monthsArray = d3.range(1, 13, 1).map(d => monthFormat(monthParse(d))),
 	separator = "##",
-	stackKeys = ["cerf", "cbpf"],
+	stackKeys = ["total"],
 	selectedValue = "total";
 
 //|variables
@@ -183,7 +183,7 @@ function createAllocationsByMonth(selections, colors, lists) {
 	const tooltipRectLayerCerf = chartAreaCerf.append("g");
 	const tooltipRectLayerCbpf = chartAreaCbpf.append("g");
 
-	const columnChartContainer = selections.byCerfCbpfChartContainer;
+	const columnChartContainer = selections.byMonthChartContainer;
 
 	columnChartContainer.html(null);
 
@@ -1578,146 +1578,174 @@ function createAllocationsByMonth(selections, colors, lists) {
 
 	function createColumnChart(data) {
 
-		// data.sort((a, b) => b[`${selectedValue}${separator}total`] - a[`${selectedValue}${separator}total`]);
+		const columnData = data.reduce((acc, curr) => {
+			const foundRegion = acc.find(e => e.region === curr.region);
+			if (foundRegion) {
+				foundRegion.total += curr[`total${separator}total`];
+			} else {
+				acc.push({
+					region: curr.region,
+					total: curr[`total${separator}total`]
+				});
+			};
+			return acc;
+		}, []);
+		columnData.sort((a, b) => b.total - a.total);
+		columnData.forEach(row => row.clicked = chartState.selectedRegion.indexOf(row.region) > -1);
 
-		// const columnData = data.reduce((acc, curr, index) => {
-		// 	if (index < topDonors) {
-		// 		acc.push({
-		// 			fund: curr.fund,
-		// 			cerf: curr[`${selectedValue}${separator}cerf`],
-		// 			cbpf: curr[`${selectedValue}${separator}cbpf`],
-		// 			totalValue: curr[`total${separator}cerf`] + curr[`total${separator}cbpf`]
-		// 		});
-		// 	} else if (index === topDonors) {
-		// 		acc.push({
-		// 			fund: "Others",
-		// 			cerf: curr[`${selectedValue}${separator}cerf`],
-		// 			cbpf: curr[`${selectedValue}${separator}cbpf`],
-		// 			totalValue: curr[`total${separator}cerf`] + curr[`total${separator}cbpf`]
-		// 		});
-		// 	} else {
-		// 		acc[topDonors].cerf += curr[`${selectedValue}${separator}cerf`];
-		// 		acc[topDonors].cbpf += curr[`${selectedValue}${separator}cbpf`];
-		// 		acc[topDonors].totalValue += curr[`total${separator}cerf`] + curr[`total${separator}cbpf`];
-		// 	};
-		// 	return acc;
-		// }, []);
+		const filteredData = columnData.filter(d => d.total);
 
-		// yScaleColumn.domain(columnData.map(e => e.donor))
-		// 	.range([svgColumnPadding[0],
-		// 		Math.min(svgColumnChartHeight - svgColumnPadding[2], maxColumnRectHeight * 2 * (columnData.length + 1))
-		// 	]);
+		yScaleColumn.domain(filteredData.map(e => e.region))
+			.range([svgColumnPadding[0],
+				Math.min(svgColumnChartHeight - svgColumnPadding[2], maxColumnRectHeight * 2 * (filteredData.length + 1))
+			]);
 
-		// const minxScaleValue = d3.max(columnData, d => d.totalValue);
+		svgColumnChart.attr("height", yScaleColumn.range()[1] + svgColumnPadding[2]);
 
-		// xScaleColumn.domain([0, d3.max(columnData, e => e.cbpf + e.cerf) || minxScaleValue]);
+		xScaleColumn.domain([0, d3.max(filteredData, e => e.total)]);
 
-		// const stackedData = stack(columnData);
+		const stackedData = stack(filteredData);
 
-		// const syncedTransitionColumn = d3.transition()
-		// 	.duration(duration);
+		let barsGroupsColumn = svgColumnChart.selectAll("." + classPrefix + "barsGroupsColumn")
+			.data(stackedData, d => d.key);
 
-		// let barsGroupsColumn = svgColumnChart.selectAll("." + classPrefix + "barsGroupsColumn")
-		// 	.data(stackedData, d => d.key);
+		const barsGroupsColumnExit = barsGroupsColumn.exit().remove();
 
-		// const barsGroupsColumnExit = barsGroupsColumn.exit().remove();
+		const barsGroupsColumnEnter = barsGroupsColumn.enter()
+			.append("g")
+			.attr("class", classPrefix + "barsGroupsColumn")
+			.attr("pointer-events", "none");
 
-		// const barsGroupsColumnEnter = barsGroupsColumn.enter()
-		// 	.append("g")
-		// 	.attr("class", classPrefix + "barsGroupsColumn")
-		// 	.attr("pointer-events", "none");
+		barsGroupsColumn = barsGroupsColumnEnter.merge(barsGroupsColumn);
 
-		// barsGroupsColumn = barsGroupsColumnEnter.merge(barsGroupsColumn);
+		let barsColumn = barsGroupsColumn.selectAll("." + classPrefix + "barsColumn")
+			.data(d => d, d => d.data.region);
 
-		// let barsColumn = barsGroupsColumn.selectAll("." + classPrefix + "barsColumn")
-		// 	.data(d => d, d => d.data.donor);
+		const barsColumnExit = barsColumn.exit()
+			.transition()
+			.duration(duration)
+			.attr("width", 0)
+			.attr("x", svgColumnPadding[3])
+			.style("opacity", 0)
+			.remove();
 
-		// const barsColumnExit = barsColumn.exit()
-		// 	.transition(syncedTransitionColumn)
-		// 	.attr("width", 0)
-		// 	.attr("x", svgColumnPadding[3])
-		// 	.style("opacity", 0)
-		// 	.remove();
+		const barsColumnEnter = barsColumn.enter()
+			.append("rect")
+			.attr("class", classPrefix + "barsColumn")
+			.attr("height", yScaleColumn.bandwidth())
+			.attr("width", 0)
+			.style("fill", (d, i, n) => {
+				const thisKey = d3.select(n[i].parentNode).datum().key;
+				return colors[thisKey];
+			})
+			.attr("x", xScaleColumn(0))
+			.attr("y", d => yScaleColumn(d.data.region))
 
-		// const barsColumnEnter = barsColumn.enter()
-		// 	.append("rect")
-		// 	.attr("class", classPrefix + "barsColumn")
-		// 	.attr("height", yScaleColumn.bandwidth())
-		// 	.attr("width", 0)
-		// 	.style("fill", (d, i, n) => {
-		// 		const thisKey = d3.select(n[i].parentNode).datum().key;
-		// 		return colors[thisKey]
-		// 	})
-		// 	.attr("x", xScaleColumn(0))
-		// 	.attr("y", d => yScaleColumn(d.data.donor))
+		barsColumn = barsColumnEnter.merge(barsColumn);
 
-		// barsColumn = barsColumnEnter.merge(barsColumn);
+		barsColumn.transition()
+			.duration(duration)
+			.attr("height", yScaleColumn.bandwidth())
+			.attr("y", d => yScaleColumn(d.data.region))
+			.attr("x", d => d[0] === d[1] ? xScaleColumn(0) : xScaleColumn(d[0]))
+			.attr("width", d => xScaleColumn(d[1]) - xScaleColumn(d[0]));
 
-		// barsColumn.transition(syncedTransitionColumn)
-		// 	.attr("height", yScaleColumn.bandwidth())
-		// 	.attr("y", d => yScaleColumn(d.data.donor))
-		// 	.attr("x", d => d[0] === d[1] ? xScaleColumn(0) : xScaleColumn(d[0]))
-		// 	.attr("width", d => xScaleColumn(d[1]) - xScaleColumn(d[0]));
+		let labelsColumn = svgColumnChart.selectAll("." + classPrefix + "labelsColumn")
+			.data(filteredData, d => d.region);
 
-		// let labelsColumn = svgColumnChart.selectAll("." + classPrefix + "labelsColumn")
-		// 	.data(columnData, d => d.donor);
+		const labelsColumnExit = labelsColumn.exit()
+			.transition()
+			.duration(duration)
+			.style("opacity", 0)
+			.attr("x", svgColumnPadding[3] + labelsColumnPadding)
+			.remove();
 
-		// const labelsColumnExit = labelsColumn.exit()
-		// 	.transition(syncedTransitionColumn)
-		// 	.style("opacity", 0)
-		// 	.remove();
+		const labelsColumnEnter = labelsColumn.enter()
+			.append("text")
+			.attr("class", classPrefix + "labelsColumn")
+			.style("opacity", 0)
+			.attr("x", svgColumnPadding[3] + labelsColumnPadding)
+			.attr("y", d => yScaleColumn(d.region) + yScaleColumn.bandwidth() / 2);
 
-		// const labelsColumnEnter = labelsColumn.enter()
-		// 	.append("text")
-		// 	.attr("class", classPrefix + "labelsColumn")
-		// 	.style("opacity", 0)
-		// 	.attr("x", svgColumnPadding[3] + labelsColumnPadding)
-		// 	.attr("y", d => yScaleColumn(d.donor) + yScaleColumn.bandwidth() / 2);
+		labelsColumn = labelsColumnEnter.merge(labelsColumn);
 
-		// labelsColumn = labelsColumnEnter.merge(labelsColumn);
+		labelsColumn.transition()
+			.duration(duration)
+			.style("opacity", 1)
+			.attr("x", d => xScaleColumn(d.total) + labelsColumnPadding)
+			.attr("y", d => yScaleColumn(d.region) + yScaleColumn.bandwidth() / 2)
+			.textTween((d, i, n) => {
+				const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, d.total);
+				return t => formatSIFloat(interpolator(t)).replace("G", "B");
+			});
 
-		// labelsColumn.transition(syncedTransitionColumn)
-		// 	.style("opacity", 1)
-		// 	.attr("x", d => xScaleColumn(d.cerf + d.cbpf) + labelsColumnPadding)
-		// 	.attr("y", d => yScaleColumn(d.donor) + yScaleColumn.bandwidth() / 2)
-		// 	.textTween((d, i, n) => {
-		// 		const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, d.cerf + d.cbpf);
-		// 		return t => formatSIFloat(interpolator(t)).replace("G", "B");
-		// 	});
+		let barsColumnTooltipRectangles = svgColumnChart.selectAll("." + classPrefix + "barsColumnTooltipRectangles")
+			.data(filteredData, d => d.region);
 
-		// xAxisColumn.tickSizeInner(-(yScaleColumn.range()[1] - yScaleColumn.range()[0]));
+		const barsColumnTooltipRectanglesExit = barsColumnTooltipRectangles.exit().remove();
 
-		// xAxisGroupColumn.transition(syncedTransitionColumn)
-		// 	.call(xAxisColumn);
+		const barsColumnTooltipRectanglesEnter = barsColumnTooltipRectangles.enter()
+			.append("rect")
+			.attr("class", classPrefix + "barsColumnTooltipRectangles")
+			.attr("pointer-events", "all")
+			.style("cursor", "pointer")
+			.style("opacity", 0)
+			.attr("x", 0)
+			.attr("width", svgColumnChartWidth)
+			.attr("height", yScaleColumn.step())
+			.attr("y", d => yScaleColumn(d.region) - yScaleColumn.bandwidth() / 2);
 
-		// xAxisGroupColumn.selectAll(".tick")
-		// 	.filter(d => d === 0)
-		// 	.remove();
+		barsColumnTooltipRectangles = barsColumnTooltipRectanglesEnter.merge(barsColumnTooltipRectangles);
 
-		// yAxisGroupColumn.transition(syncedTransitionColumn)
-		// 	.call(customAxis);
+		barsColumnTooltipRectangles.transition()
+			.duration(duration)
+			.attr("y", d => yScaleColumn(d.region) - yScaleColumn.bandwidth() / 2);
 
-		// function customAxis(group) {
-		// 	const sel = group.selection ? group.selection() : group;
-		// 	group.call(yAxisColumn);
-		// 	sel.selectAll(".tick text")
-		// 		.filter(d => d.indexOf(" ") > -1)
-		// 		.text(d => d.split(" ")[0])
-		// 		.attr("x", -(yAxisColumn.tickPadding() + yAxisColumn.tickSize()))
-		// 		.attr("dy", "-0.3em")
-		// 		.append("tspan")
-		// 		.attr("dy", "1.1em")
-		// 		.attr("x", -(yAxisColumn.tickPadding() + yAxisColumn.tickSize()))
-		// 		.text(d => d.split(" ")[1]);
-		// 	sel.selectAll(".tick text")
-		// 		.filter(d => d === "Others")
-		// 		.attr("dx", flagSize + flagPadding);
-		// 	if (sel !== group) group.selectAll(".tick text")
-		// 		.filter(d => d.indexOf(" ") > -1)
-		// 		.attrTween("x", null)
-		// 		.tween("text", null);
-		// };
+		// barsColumnTooltipRectangles.on("mouseover", mouseoverBarsColumnTooltipRectangles)
+		// 	.on("mouseout", mouseoutBarsColumnTooltipRectangles)
+		// 	.on("click", clickBarsColumnTooltipRectangles);
 
+		function highlightBars() {
+			barsColumn.style("fill", (e, i, n) => {
+				const thisKey = d3.select(n[i].parentNode).datum().key;
+				return chartState.selectedRegion.indexOf(e.data.region) > -1 ? d3.color(colors[thisKey]).darker(0.5) : colors[thisKey];
+			});
+
+			yAxisGroupColumn.selectAll(".tick text")
+				.classed(classPrefix + "darkTick", e => chartState.selectedRegion.indexOf(e) > -1);
+		};
+
+		xAxisColumn.tickSizeInner(-(yScaleColumn.range()[1] - yScaleColumn.range()[0]));
+
+		xAxisGroupColumn.transition()
+			.duration(duration)
+			.call(xAxisColumn);
+
+		xAxisGroupColumn.selectAll(".tick")
+			.filter(d => d === 0)
+			.remove();
+
+		yAxisGroupColumn.transition()
+			.duration(duration)
+			.call(customAxis);
+
+		function customAxis(group) {
+			const sel = group.selection ? group.selection() : group;
+			group.call(yAxisColumn);
+			sel.selectAll(".tick text")
+				.filter(d => d.indexOf(" ") > -1)
+				.text(d => d.split(" ")[0] === "South-Eastern" ? "South-East." : d.split(" ")[0] === "Horn" ? "Horn of" : d.split(" ")[0])
+				.attr("x", -(yAxisColumn.tickPadding() + yAxisColumn.tickSize()))
+				.attr("dy", "-0.3em")
+				.append("tspan")
+				.attr("dy", "1.1em")
+				.attr("x", -(yAxisColumn.tickPadding() + yAxisColumn.tickSize()))
+				.text(d => d.split(" ")[1] === "of" ? "Africa" : d.split(" ")[1]);
+			if (sel !== group) group.selectAll(".tick text")
+				.filter(d => d.indexOf(" ") > -1)
+				.attrTween("x", null)
+				.tween("text", null);
+		};
 
 		//end of createColumnChart
 	};
@@ -1797,6 +1825,7 @@ function createAllocationsByMonth(selections, colors, lists) {
 					const fundObject = {
 						fund: lists.fundNamesList[row.PooledFundName],
 						fundId: row.PooledFundName,
+						region: lists.fundRegionsList[row.PooledFundName],
 						[`total${separator}total`]: 0,
 						[`total${separator}cerf`]: 0,
 						[`total${separator}cbpf`]: 0,
@@ -1815,6 +1844,7 @@ function createAllocationsByMonth(selections, colors, lists) {
 						const fundObject = {
 							fund: lists.fundNamesList[row.PooledFundName],
 							fundId: row.PooledFundName,
+							region: lists.fundRegionsList[row.PooledFundName],
 							[`total${separator}total`]: 0,
 							[`total${separator}cerf`]: 0,
 							[`total${separator}cbpf`]: 0,
