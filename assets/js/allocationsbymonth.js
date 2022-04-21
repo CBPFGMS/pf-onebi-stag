@@ -1550,39 +1550,27 @@ function createAllocationsByMonth(selections, colors, lists) {
 
 	function createColumnTopValues(originalData) {
 
-		// let totalContributions = 0;
+		let totalAllocations = 0;
 
-		// const numberOfDonors = originalData.length;
+		const numberOfCountries = originalData.length;
 
-		// originalData.forEach(row => {
-		// 	totalContributions += row[`total${separator}total`];
-		// });
+		originalData.forEach(row => {
+			totalAllocations += row[`total${separator}total`];
+		});
 
-		// const updateTransition = d3.transition()
-		// 	.duration(duration);
+		const updateTransition = d3.transition()
+			.duration(duration);
 
-		// selections.byCerfCbpfContributionsValue.transition(updateTransition)
-		// 	.textTween((_, i, n) => {
-		// 		const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, totalContributions);
-		// 		return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
-		// 	});
+		selections.byMonthAllocationsValue.transition(updateTransition)
+			.textTween((_, i, n) => {
+				const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, totalAllocations);
+				return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
+			});
 
-		// selections.byCerfCbpfPaidValue.transition(updateTransition)
-		// 	.textTween((_, i, n) => {
-		// 		const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, totalPaid);
-		// 		return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
-		// 	});
+		selections.byMonthCountriesValue.transition(updateTransition)
+			.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfCountries));
 
-		// selections.byCerfCbpfPledgedValue.transition(updateTransition)
-		// 	.textTween((_, i, n) => {
-		// 		const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, totalPledged);
-		// 		return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
-		// 	});
-
-		// selections.byCerfCbpfDonorsValue.transition(updateTransition)
-		// 	.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, numberOfDonors));
-
-		// selections.byCerfCbpfDonorsText.html(numberOfDonors > 1 ? "Donors" : "Donor");
+		selections.byCerfCbpfDonorsText.html(numberOfCountries > 1 ? "Donors" : "Donor");
 
 		//end of createColumnTopValues
 	};
