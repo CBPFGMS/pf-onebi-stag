@@ -1,6 +1,5 @@
 //|Allocations by month module
 import { chartState } from "./chartstate.js";
-import { donorsFlagsData } from "./donorsflagsdata.js";
 import { createLinks } from "./links.js";
 import { createBreadcrumbs } from "./breadcrumbs.js";
 
@@ -31,10 +30,8 @@ const classPrefix = "pfbicc",
 	cumulativeLegendCircleRadius = 4,
 	cumulativeLegendCirclePadding = 4,
 	cumulativeHighlightCircleRadius = 4,
+	legendPledgedPadding = 158,
 	maxYearNumber = 4,
-	flagSize = 16,
-	flagSizeTooltip = 20,
-	flagPadding = 2,
 	duration = 1000,
 	labelMargin = 22,
 	labelPadding = 8,
@@ -67,7 +64,7 @@ const classPrefix = "pfbicc",
 	monthFormatFull = d3.timeFormat("%B"),
 	monthAbbrvParse = d3.timeParse("%b"),
 	monthParse = d3.timeParse("%m"),
-	dateParse = d3.timeParse("%d/%m/%Y"),
+	dateParse = d3.timeParse("%m-%Y"),
 	formatTime = d3.timeFormat("%d/%m/%Y"),
 	formatSIaxes = d3.format("~s"),
 	monthsArray = d3.range(1, 13, 1).map(d => monthFormat(monthParse(d))),
@@ -327,7 +324,6 @@ function createAllocationsByMonth(selections, colors, lists) {
 		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"));
 
 	const yAxisColumn = d3.axisLeft(yScaleColumn)
-		.tickPadding(flagSize + 2 * flagPadding)
 		.tickSize(3);
 
 	const xAxisGroupColumn = svgColumnChart.append("g")
@@ -616,12 +612,12 @@ function createAllocationsByMonth(selections, colors, lists) {
 			dataMonth.forEach(row => {
 				const monthlyData = row.monthValues.reduce((acc, curr) => {
 					if (fundType === "cerf" ? curr.FundType === cerfId : curr.FundType !== cerfId) {
-						const foundYear = acc.find(e => e.year === +curr.ApprovedDate.split("/")[2]);
+						const foundYear = acc.find(e => e.year === +curr.ApprovedDate.split("-")[1]);
 						if (foundYear) {
 							foundYear.total += curr.Budget;
 						} else {
 							acc.push({
-								year: +curr.ApprovedDate.split("/")[2],
+								year: +curr.ApprovedDate.split("-")[1],
 								total: curr.Budget,
 							});
 						};
@@ -734,7 +730,7 @@ function createAllocationsByMonth(selections, colors, lists) {
 			.attr("class", classPrefix + "chartTitle")
 			.attr("x", svgPaddings[3] + (svgWidth - svgPaddings[1] - svgPaddings[3]) / 2)
 			.attr("y", noValues ? d3.mean(yScale.range()) : svgPaddings[0] - titlePadding)
-			.text(noValues ? "" : fundType.toUpperCase() + " ");
+			.text(noValues ? "" : fundType.toUpperCase() + (fundType === "cbpf" ? "* " : " "));
 
 		chartTitleEnter.append("tspan")
 			.attr("class", classPrefix + "chartTitleSpan")
@@ -745,7 +741,7 @@ function createAllocationsByMonth(selections, colors, lists) {
 
 		chartTitle.attr("y", noValues ? d3.mean(yScale.range()) : svgPaddings[0] - titlePadding);
 
-		chartTitle.node().childNodes[0].textContent = noValues ? "" : fundType.toUpperCase() + " ";
+		chartTitle.node().childNodes[0].textContent = noValues ? "" : fundType.toUpperCase() + (fundType === "cbpf" ? "* " : " ");
 
 		chartTitle.select("tspan")
 			.text(noValues ? fundType.toUpperCase() + " started operations in " + yearsArray[0] :
@@ -891,7 +887,7 @@ function createAllocationsByMonth(selections, colors, lists) {
 			});
 
 		group.selectAll("text")
-			.style("opacity", (_, i) => +(!i || i === selectedYear.length - 1));
+			.style("opacity", (_, i, n) => n.length > 2 ? +(!i || i === selectedYear.length - 1) : 1);
 
 		let tooltipRect = tooltipRectLayer.selectAll("." + classPrefix + "tooltipRect")
 			.data(dataYear, d => d.year);
@@ -996,7 +992,7 @@ function createAllocationsByMonth(selections, colors, lists) {
 				.style("line-height", 1.4)
 				.style("width", "100%");
 
-			const valuesArray = tooltipType === "yearTooltip" ? d.yearValues : d.parentData.monthValues.filter(e => e.FiscalYear === d.year);
+			const valuesArray = tooltipType === "yearTooltip" ? d.yearValues : d.parentData.monthValues.filter(e => +e.ApprovedDate.split("-")[1] === d.year);
 
 			const totalValues = valuesArray.reduce((acc, curr) => {
 				if (fundType === "cerf" ? curr.FundType === cerfId : curr.FundType !== cerfId) {
@@ -1014,7 +1010,7 @@ function createAllocationsByMonth(selections, colors, lists) {
 						foundFund.total += curr.Budget;
 					} else {
 						acc.push({
-							donorId: curr.PooledFundName,
+							fundId: curr.PooledFundName,
 							total: curr.Budget,
 						});
 					};
@@ -1028,7 +1024,7 @@ function createAllocationsByMonth(selections, colors, lists) {
 				if (index < maxTooltipDonorNumber) {
 					acc.push(curr)
 				} else if (index === maxTooltipDonorNumber) {
-					curr.donorId = null;
+					curr.fundId = null;
 					acc.push(curr);
 				} else {
 					acc[maxTooltipDonorNumber].total += curr.total;
@@ -1059,15 +1055,9 @@ function createAllocationsByMonth(selections, colors, lists) {
 					.style("align-items", "center")
 					.style("width", "100%");
 
-				rowDiv.append("img")
-					.attr("width", flagSizeTooltip)
-					.attr("height", flagSizeTooltip)
-					.style("margin-right", "4px")
-					.attr("src", row.donorId ? (donorsFlagsData[lists.donorIsoCodesList[row.donorId].toLowerCase()] || blankImg) : blankImg);
-
 				rowDiv.append("span")
 					.attr("class", classPrefix + "tooltipYears")
-					.html(row.donorId ? lists.donorNamesList[row.donorId].substring(0, maxTooltipNameLength) : "Others");
+					.html(row.fundId ? lists.fundAbbreviatedNamesList[row.fundId].substring(0, maxTooltipNameLength) : "Others");
 
 				rowDiv.append("span")
 					.attr("class", classPrefix + "tooltipLeader");
@@ -1153,6 +1143,18 @@ function createAllocationsByMonth(selections, colors, lists) {
 
 		legendGroup.transition(syncedTransition)
 			.style("opacity", 1);
+
+		let legendPledged = svg.selectAll("." + classPrefix + "legendPledged")
+			.data(fundType === "cbpf" ? [true] : []);
+
+		legendPledged = legendPledged.enter()
+			.append("text")
+			.attr("class", classPrefix + "legendPledged")
+			.attr("x", legendGroup.size() ? legendPledgedPadding : svgPaddings[3] + xScale.paddingOuter() * xScale.step())
+			.attr("y", svgHeight - legendPadding + legendRectSize / 2)
+			.text("*: Limited allocation data in GMS prior to 2015")
+			.transition(syncedTransition)
+			.attr("x", legendGroup.size() ? legendPledgedPadding : svgPaddings[3] + xScale.paddingOuter() * xScale.step());
 
 		let cumulativeTitle = svg.selectAll("." + classPrefix + "cumulativeTitle")
 			.data([true]);
@@ -1739,19 +1741,16 @@ function createAllocationsByMonth(selections, colors, lists) {
 
 		originalData.forEach(row => {
 
-			//REMOVE THIS!!!
-			if (typeof row.ApprovedDate !== "string") row.ApprovedDate = formatTime(row.ApprovedDate);
+			if (selectedYear.indexOf(allYears) > -1 && (+row.ApprovedDate.split("-")[1]) <= currentYear) {
 
-			if (selectedYear.indexOf(allYears) > -1 && (+row.ApprovedDate.split("/")[2]) <= currentYear) {
-
-				const foundYear = data.find(e => e.year === (+row.ApprovedDate.split("/")[2]));
+				const foundYear = data.find(e => e.year === (+row.ApprovedDate.split("-")[1]));
 
 				if (foundYear) {
 					pushCbpfOrCerfAllocation(foundYear, row);
 					foundYear.yearValues.push(row);
 				} else {
 					const yearObject = {
-						year: (+row.ApprovedDate.split("/")[2]),
+						year: (+row.ApprovedDate.split("-")[1]),
 						[`total${separator}total`]: 0,
 						[`total${separator}cerf`]: 0,
 						[`total${separator}cbpf`]: 0,
@@ -1762,7 +1761,7 @@ function createAllocationsByMonth(selections, colors, lists) {
 				};
 
 			} else {
-				if (selectedYear.indexOf(+row.ApprovedDate.split("/")[2]) > -1) {
+				if (selectedYear.indexOf(+row.ApprovedDate.split("-")[1]) > -1) {
 
 					const foundMonth = data.find(e => e.month === monthFormat(dateParse(row.ApprovedDate)));
 
@@ -1799,7 +1798,7 @@ function createAllocationsByMonth(selections, colors, lists) {
 		const data = [];
 
 		originalData.forEach(row => {
-			if (selectedYear.indexOf(allYears) > -1 && (+row.ApprovedDate.split("/")[2]) <= currentYear) {
+			if (selectedYear.indexOf(allYears) > -1 && (+row.ApprovedDate.split("-")[1]) <= currentYear) {
 
 				const foundFund = data.find(e => e.fundId === row.PooledFundName);
 
@@ -1817,7 +1816,7 @@ function createAllocationsByMonth(selections, colors, lists) {
 					data.push(fundObject);
 				};
 			} else {
-				if (selectedYear.indexOf((+row.ApprovedDate.split("/")[2])) > -1) {
+				if (selectedYear.indexOf((+row.ApprovedDate.split("-")[1])) > -1) {
 
 					const foundFund = data.find(e => e.fundId === row.PooledFundName);
 
