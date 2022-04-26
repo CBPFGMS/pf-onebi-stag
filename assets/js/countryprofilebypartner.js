@@ -27,6 +27,7 @@ const padding = [4, 8, 4, 8],
 	partnerNameWidth = 0.4,
 	typeWidth = 0.1,
 	barWidth = 1 - partnerNameWidth - typeWidth,
+	maxRowWidth = 98,
 	partnerRowHeight = 3.2,
 	partnerRowMinHeight = 2.4,
 	namePadding = 1,
@@ -142,12 +143,12 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
 		}
 	};
 
-	const xScaleCbpf = d3.scaleLinear();
+	// const xScaleCbpf = d3.scaleLinear();
 
-	const xAxisCbpf = d3.axisBottom(xScaleCbpf)
-		.ticks(4)
-		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"))
-		.tickSizeOuter(0);
+	// const xAxisCbpf = d3.axisBottom(xScaleCbpf)
+	// 	.ticks(4)
+	// 	.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"))
+	// 	.tickSizeOuter(0);
 
 	function draw(originalData, resetYear, firstTime) {
 
@@ -506,6 +507,8 @@ function createHeaderRow(...containers) {
 
 function drawTable(data, partnerType, containerDiv, container, lists, colors, fundType, syncedTransition, tooltip) {
 
+	containerDiv.selectChildren().remove();
+
 	const namesList = fundType === "cerf" ? lists.unAgenciesNamesList : lists.partnersNamesList;
 
 	const filteredData = !partnerType ? data :
@@ -513,38 +516,58 @@ function drawTable(data, partnerType, containerDiv, container, lists, colors, fu
 
 	const maxValue = d3.max(filteredData, d => d.value);
 
-	let rowDiv = containerDiv.selectAll(`.${classPrefix}rowDiv${capitalize(fundType)}`)
-		.data(filteredData, d => d.partner);
-
-	rowDiv.exit().remove();
-
-	const rowDivEnter = rowDiv.enter()
+	let rowDiv = containerDiv.selectAll(null)
+		.data(filteredData)
+		.enter()
 		.append("div")
 		.attr("class", classPrefix + "rowDiv" + capitalize(fundType))
+		.style("background-color", (_, i) => !(i % 2) ? "#fff" : "#eee")
 		.style("max-height", partnerRowHeight + "em")
 		.style("min-height", partnerRowMinHeight + "em")
 		.style("line-height", (partnerRowHeight / 2) + "em");
 
-	const partnerNameDiv = rowDivEnter.append("div")
+	const partnerNameDiv = rowDiv.append("div")
 		.attr("class", classPrefix + "partnerNameDiv")
 		.style("flex", `0 ${formatPercent(partnerNameWidth)}`)
 		.html(d => namesList[d.partner]);
 
-	const partnerTypeDiv = rowDivEnter.append("div")
+	const partnerTypeDiv = rowDiv.append("div")
 		.style("flex", `0 ${formatPercent(typeWidth)}`)
 		.html(d => partnersShortNames[d.partnerType]);
 
-	const barDivContainer = rowDivEnter.append("div")
+	const barDivContainer = rowDiv.append("div")
 		.attr("class", classPrefix + "barDivContainer")
 		.style("flex", `0 ${formatPercent(barWidth)}`);
 
-	//continue here
+	const barDiv = barDivContainer.append("div")
+		.attr("class", classPrefix + "barDiv")
+		.style("width", "0%")
+		.style("background-color", colors[fundType]);
 
-	rowDiv = rowDivEnter.merge(rowDiv);
+	const barLabel = barDivContainer.append("span")
+		.attr("class", classPrefix + "barLabel")
+		.style("right", "95%");
 
-	rowDiv.order();
+	rowDiv.select(`.${classPrefix}barDiv`)
+		.transition(syncedTransition)
+		.style("width", d => (maxRowWidth * d.value / maxValue) + "%");
 
-	rowDiv.style("background-color", (_, i) => !(i % 2) ? "#fff" : "#eee");
+	rowDiv.select(`.${classPrefix}barLabel`)
+		.transition(syncedTransition)
+		.textTween((d, i, n) => {
+			const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, d.value);
+			return t => d.value ? formatSIFloat(interpolator(t)).replace("G", "B") : 0;
+		})
+		.styleTween("right", (d, i, n) => {
+			const containerWidth = n[i].parentNode.getBoundingClientRect().width;
+			return () => {
+				const textWidth = n[i].getBoundingClientRect().width;
+				const barWidth = n[i].previousSibling.getBoundingClientRect().width;
+				return textWidth > barWidth ?
+					0.99 * containerWidth - barWidth - textWidth + "px" :
+					0.99 * containerWidth - barWidth + "px";
+			};
+		});
 
 
 	//end of drawTable
@@ -622,6 +645,7 @@ function processData(originalData, lists) {
 	};
 
 	data.cerfData.sort((a, b) => b.value - a.value);
+	data.cbpfData.sort((a, b) => b.value - a.value);
 	data.cbpfDataAggregated.sort((a, b) => b.value - a.value);
 
 	return data;

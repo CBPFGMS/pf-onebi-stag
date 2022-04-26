@@ -2409,11 +2409,26 @@ a.video-tutorial{color:#333;}
 .pfbicpbypartnerpartnerNameDiv {
   padding-left: 0.5em;
   padding-right: 0.5em;
+  max-height: inherit;
+  text-overflow: ellipsis;
 }
 
 .pfbicpbypartnerbarDivContainer {
-  width: 100%;
-  /*continue here!!!*/
+  position: relative;
+}
+
+.pfbicpbypartnerbarDiv {
+  height: 1.4em;
+}
+
+.pfbicpbypartnerbarLabel {
+  font-family: "Roboto", sans-serif;
+  font-size: 0.8em;
+  font-weight: 500;
+  color: #222;
+  padding-right: 0.5em;
+  position: absolute;
+  top: 0%;
 }
 
 .pfbicpbypartnerpartnersDivCerf, .pfbicpbypartnerpartnersDivCbpf {
