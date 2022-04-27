@@ -2391,6 +2391,20 @@ a.video-tutorial{color:#333;}
   color: #222;
   margin-top: 0.2em;
   align-items: center;
+  cursor: pointer;
+}
+
+.pfbicpbypartnerheaderName, .pfbicpbypartnerheaderType, .pfbicpbypartnerheaderValue {
+  position: relative;
+}
+
+.pfbicpbypartnericonDiv {
+  position: absolute;
+  right: 10%;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  font-size: 1.2em;
 }
 
 .pfbicpbypartnerrowDivCerf, .pfbicpbypartnerrowDivCbpf {

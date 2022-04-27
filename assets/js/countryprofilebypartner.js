@@ -494,12 +494,15 @@ function createTopFiguresDiv(container, colors, lists) {
 function createHeaderRow(...containers) {
 	containers.forEach(container => {
 		container.append("div")
+			.attr("class", classPrefix + "headerName")
 			.style("flex", `0 ${formatPercent(partnerNameWidth)}`)
 			.html("Organization<br>Name");
 		container.append("div")
+			.attr("class", classPrefix + "headerType")
 			.style("flex", `0 ${formatPercent(typeWidth)}`)
 			.html("Type");
 		container.append("div")
+			.attr("class", classPrefix + "headerValue")
 			.style("flex", `0 ${formatPercent(barWidth)}`)
 			.html("Allocation Amount");
 	});
@@ -516,8 +519,8 @@ function drawTable(data, partnerType, containerDiv, container, lists, colors, fu
 
 	const maxValue = d3.max(filteredData, d => d.value);
 
-	let rowDiv = containerDiv.selectAll(null)
-		.data(filteredData)
+	const rowDiv = containerDiv.selectAll(null)
+		.data(filteredData, d => d.partner)
 		.enter()
 		.append("div")
 		.attr("class", classPrefix + "rowDiv" + capitalize(fundType))
@@ -569,11 +572,48 @@ function drawTable(data, partnerType, containerDiv, container, lists, colors, fu
 			};
 		});
 
+	const thisHeader = d3.select(`.${classPrefix}headerRowDiv${capitalize(fundType)}`);
+	const headerName = thisHeader.select(`.${classPrefix}headerName`);
+	const headerType = thisHeader.select(`.${classPrefix}headerType`);
+	const headerValue = thisHeader.select(`.${classPrefix}headerValue`);
+
+	headerName.on("mouseover", event => mouseOverHeader(event, "name"))
+		.on("mouseout", mouseOutHeader)
+		.on("click", () => sortRows("name"));
+
+	headerType.on("mouseover", event => mouseOverHeader(event, "type"))
+		.on("mouseout", mouseOutHeader)
+		.on("click", () => sortRows("type"));
+
+	headerValue.on("mouseover", event => mouseOverHeader(event, "value"))
+		.on("mouseout", mouseOutHeader)
+		.on("click", () => sortRows("value"));
+
+	function sortRows(sortType) {
+		filteredData.sort((a, b) => sortType === "name" ? namesList[a.partner].localeCompare(namesList[b.partner]) :
+			sortType === "type" ? partnersShortNames[a.partnerType].localeCompare(partnersShortNames[b.partnerType]) :
+			b.value - a.value);
+		rowDiv.data(filteredData, d => d.partner)
+			.order()
+			.each((_, i, n) => d3.select(n[i]).style("background-color", !(i % 2) ? "#fff" : "#eee"));
+	};
+
+	function mouseOverHeader(event, iconType) {
+		const iconDiv = d3.select(event.currentTarget).append("div")
+			.attr("class", classPrefix + "iconDiv")
+			.append("i")
+			.attr("class", iconType !== "value" ? "fas fa-sort-alpha-down" : "fas fa-sort-amount-down");
+	};
+
+	function mouseOutHeader(event) {
+		d3.select(event.currentTarget)
+			.select(`.${classPrefix}iconDiv`)
+			.remove();
+	};
+
 
 	//end of drawTable
 };
-
-
 
 function mouseOut(tooltip) {
 	tooltip.html(null)

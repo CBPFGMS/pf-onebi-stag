@@ -158,7 +158,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 		if (+event.currentTarget.value === chartState.selectedCountryProfile) return;
 		chartState.selectedCountryProfile = +event.currentTarget.value;
 		breadcrumb.secondBreadcrumbSpan.html(lists.fundNamesList[chartState.selectedCountryProfile]);
-		processAllData(rawAllocationsData, adminLevel1Data, cerfByPartnerData, lists);
+		processAllData(rawAllocationsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, lists);
 		chartDiv.selectChildren("div:not(#" + classPrefix + "tooltipDiv)").remove();
 		setCallFunctions();
 		callDrawingFunction();
