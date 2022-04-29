@@ -6,11 +6,17 @@ const padding = [4, 8, 4, 8],
 	paddingCbpf = [10, 52, 30, 118],
 	paddingPartnersCerf = [30, 52, 10, 118],
 	paddingPartnersCbpf = [30, 52, 10, 118],
+	selectionSvgHeight = 80,
+	selectionSvgPadding = [20, 10, 14, 10],
+	selectionBarHeight = 14,
+	selectionBarPadding = 6,
+	selectionBarSpace = 2,
 	buttonsPanelHeight = 30,
 	panelHorizontalPadding = 8,
 	panelVerticalPadding = 8,
 	tooltipVerticalPadding = 6,
 	tooltipHorizontalPadding = 6,
+	polylinePadding = 4,
 	classPrefix = "pfbicpbypartner",
 	formatPercent = d3.format(".0%"),
 	formatSIaxes = d3.format("~s"),
@@ -47,10 +53,7 @@ const padding = [4, 8, 4, 8],
 let yearsArrayCerf,
 	yearsArrayCbpf,
 	totalWidth,
-	svgWidth = {
-		cerf: 0,
-		cbpf: 0
-	},
+	selectionSvgWidth,
 	activeTransition = false;
 
 function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
@@ -143,12 +146,16 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
 		}
 	};
 
-	// const xScaleCbpf = d3.scaleLinear();
+	const xScaleCbpf = d3.scaleLinear();
 
-	// const xAxisCbpf = d3.axisBottom(xScaleCbpf)
-	// 	.ticks(4)
-	// 	.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"))
-	// 	.tickSizeOuter(0);
+	const xScaleCbpfLabels = d3.scalePoint()
+		.padding(0.5);
+
+	const xAxisCbpf = d3.axisTop(xScaleCbpf)
+		.ticks(4)
+		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"))
+		.tickSizeOuter(0)
+		.tickSizeInner(-(selectionBarHeight + 2*(selectionBarPadding)));
 
 	function draw(originalData, resetYear, firstTime) {
 
@@ -172,6 +179,10 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
 		if (firstTime) createButtonsPanel(originalData, yearsArrayCerf, yearsArrayCbpf, buttonsSvg, buttonsPanel, tooltipDiv, container, draw);
 		drawTopFigures(data.topFigures, topRowDiv, colors, syncedTransition);
 		recalculateDivWidth(data, barChartsDivCerf, barChartsDivCbpf);
+		if (chartState.selectedFund !== "cerf") {
+			drawSelectionChart(data.cbpfDataAggregated, selectionChartDivCbpf, xScaleCbpf, xScaleCbpfLabels, xAxisCbpf, syncedTransition, colors);
+			reselectLabels(selectionChartDivCbpf);
+		};
 		drawTable(data.cerfData, null, partnersDivCerf, container, lists, colors, "cerf", syncedTransition, tooltipDiv);
 		drawTable(data.cbpfData, null, partnersDivCbpf, container, lists, colors, "cbpf", syncedTransition, tooltipDiv);
 
@@ -183,6 +194,20 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
 			buttonsSvg.selectChildren().remove();
 			draw(originalData, true, true);
 		});
+
+		function reselectLabels(container) {
+			const labels = container.selectAll(`.${classPrefix}labels`);
+			const bars = container.selectAll(`.${classPrefix}bars`);
+			const polylines = container.selectAll(`.${classPrefix}polylines`);
+
+			labels.on("click", redraw);
+			bars.on("click", redraw);
+			polylines.on("click", redraw);
+
+			function redraw(event, d) {
+				drawTable(data.cbpfData, d.partnerType, partnersDivCbpf, container, lists, colors, "cbpf", null, tooltipDiv);
+			};
+		};
 
 		//end of draw
 	};
@@ -508,9 +533,156 @@ function createHeaderRow(...containers) {
 	});
 };
 
-function drawTable(data, partnerType, containerDiv, container, lists, colors, fundType, syncedTransition, tooltip) {
+function drawSelectionChart(data, container, xScaleCbpf, xScaleCbpfLabels, xAxisCbpf, syncedTransition, colors) {
+
+	const selectionChartDivCbpfSize = container.node().getBoundingClientRect();
+	selectionSvgWidth = selectionChartDivCbpfSize.width;
+
+	let selectionSvg = container.selectAll(`.${classPrefix}selectionSvg`)
+		.data([true]);
+
+	selectionSvg = selectionSvg.enter()
+		.append("svg")
+		.attr("class", classPrefix + "selectionSvg")
+		.merge(selectionSvg)
+		.attr("width", selectionSvgWidth)
+		.attr("height", selectionSvgHeight)
+		.style("background-color", "white");
+
+	const total = d3.sum(data, d => d.value);
+
+	xScaleCbpf.domain([0, total])
+		.range([selectionSvgPadding[3], selectionSvgWidth - selectionSvgPadding[1] - (data.length - 1) * selectionBarSpace]);
+
+	xScaleCbpfLabels.domain(data.map(e => e.partnerType))
+		.range([selectionSvgPadding[3], selectionSvgWidth - selectionSvgPadding[1] - (data.length - 1) * selectionBarSpace])
+
+	let xAxisCbpfGroup = selectionSvg.selectAll(`.${classPrefix}xAxisGroupcbpf`)
+		.data([true]);
+
+	xAxisCbpfGroup = xAxisCbpfGroup.enter()
+		.append("g")
+		.attr("class", classPrefix + "xAxisGroupcbpf")
+		.merge(xAxisCbpfGroup)
+		.attr("transform", `translate(0,${selectionSvgPadding[0]})`);
+
+	xAxisCbpfGroup.transition(syncedTransition)
+		.call(xAxisCbpf);
+
+	let bars = selectionSvg.selectAll(`.${classPrefix}bars`)
+		.data(data, d => d.partnerType);
+
+	const barsExit = bars.exit()
+		.transition(syncedTransition)
+		.style("width", 0)
+		.remove();
+
+	const barsEnter = bars.enter()
+		.append("rect")
+		.attr("class", classPrefix + "bars")
+		.style("fill", (_, i, n) => colors.cbpfAnalogous[n.length - (i + 1)])
+		.attr("height", selectionBarHeight)
+		.attr("width", 0)
+		.attr("y", selectionSvgPadding[0] + selectionBarPadding)
+		.attr("x", selectionSvgPadding[3])
+		.style("cursor", "pointer");
+
+	bars = barsEnter.merge(bars);
+
+	bars.order();
+
+	bars.transition(syncedTransition)
+		.style("fill", (_, i, n) => colors.cbpfAnalogous[n.length - (i + 1)])
+		.attr("width", d => xScaleCbpf(d.value) - selectionSvgPadding[3])
+		.attr("x", (d, i, n) => {
+			if (!i) {
+				localVariable.set(n[i], d.value);
+				return selectionSvgPadding[3];
+			} else {
+				const previous = localVariable.get(n[i].previousSibling);
+				localVariable.set(n[i], previous + d.value);
+				return xScaleCbpf(previous) + i * selectionBarSpace;
+			};
+		});
+
+	let labels = selectionSvg.selectAll(`.${classPrefix}labels`)
+		.data(data, d => d.partnerType);
+
+	const labelsExit = labels.exit()
+		.transition(syncedTransition)
+		.style("opacity", 0)
+		.remove();
+
+	const labelsEnter = labels.enter()
+		.append("text")
+		.attr("class", classPrefix + "labels")
+		.attr("y", selectionSvgHeight - selectionSvgPadding[2])
+		.attr("x", selectionSvgPadding[3])
+		.style("opacity", 0)
+		.text(d => partnersShortNames[d.partnerType]);
+
+	labels = labelsEnter.merge(labels);
+
+	labels.transition(syncedTransition)
+		.style("opacity", 1)
+		.attr("x", d => xScaleCbpfLabels(d.partnerType));
+
+	let polylines = selectionSvg.selectAll(`.${classPrefix}polylines`)
+		.data(data, d => d.partnerType);
+
+	const polylinesExit = polylines.exit()
+		.transition(syncedTransition)
+		.style("opacity", 0)
+		.remove();
+
+	const polylinesEnter = polylines.enter()
+		.append("polyline")
+		.attr("class", classPrefix + "polylines")
+		.style("opacity", 0)
+		.attr("points", (d, i, n) => {
+			let previous = 0;
+			if (!i) {
+				localVariable.set(n[i], d.value);
+			} else {
+				previous = localVariable.get(n[i].previousSibling);
+				localVariable.set(n[i], previous + d.value);
+			};
+			return `${xScaleCbpf(previous + d.value/2)},${selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight} 
+			${xScaleCbpf(previous + d.value/2)},${(selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight)/2 + (selectionSvgHeight - selectionSvgPadding[2] - polylinePadding)/2} 
+			${xScaleCbpfLabels(d.partnerType)},${(selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight)/2 + (selectionSvgHeight - selectionSvgPadding[2] - polylinePadding)/2} 
+			${xScaleCbpfLabels(d.partnerType)},${selectionSvgHeight - selectionSvgPadding[2] - polylinePadding}`;
+		});
+
+	polylines = polylinesEnter.merge(polylines);
+
+	polylines.order();
+
+	polylines.transition(syncedTransition)
+		.style("opacity", 1)
+		.attr("points", (d, i, n) => {
+			let previous = 0;
+			if (!i) {
+				localVariable.set(n[i], d.value);
+			} else {
+				previous = localVariable.get(n[i].previousSibling);
+				localVariable.set(n[i], previous + d.value);
+			};
+			return `${xScaleCbpf(previous + d.value/2)},${selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight} 
+			${xScaleCbpf(previous + d.value/2)},${(selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight)/2 + (selectionSvgHeight - selectionSvgPadding[2] - polylinePadding)/2} 
+			${xScaleCbpfLabels(d.partnerType)},${(selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight)/2 + (selectionSvgHeight - selectionSvgPadding[2] - polylinePadding)/2} 
+			${xScaleCbpfLabels(d.partnerType)},${selectionSvgHeight - selectionSvgPadding[2] - polylinePadding}`;
+		});
+
+};
+
+function drawTable(data, partnerType, containerDiv, container, lists, colors, fundType, syncedTransitionOriginal, tooltip) {
 
 	containerDiv.selectChildren().remove();
+
+	const syncedTransition = syncedTransitionOriginal || d3.transition()
+		.duration(duration)
+		.on("start", () => activeTransition = true)
+		.on("end", () => activeTransition = false);
 
 	const namesList = fundType === "cerf" ? lists.unAgenciesNamesList : lists.partnersNamesList;
 
@@ -686,7 +858,7 @@ function processData(originalData, lists) {
 
 	data.cerfData.sort((a, b) => b.value - a.value);
 	data.cbpfData.sort((a, b) => b.value - a.value);
-	data.cbpfDataAggregated.sort((a, b) => b.value - a.value);
+	data.cbpfDataAggregated.sort((a, b) => a.value - b.value);
 
 	return data;
 
@@ -717,17 +889,17 @@ function setDefaultYear(originalData, yearsArrayCerf, yearsArrayCbpf) {
 
 function recalculateDivWidth(data, barChartsDivCerf, barChartsDivCbpf) {
 	if (data.cerfData.length && data.cbpfData.length) {
-		barChartsDivCerf.style("width", "50%");
-		barChartsDivCbpf.style("width", "50%");
+		barChartsDivCerf.style("width", "50%").style("display", null);
+		barChartsDivCbpf.style("width", "50%").style("display", null);
 	} else if (!data.cbpfData.length && data.cerfData.length) {
-		barChartsDivCerf.style("width", "100%");
-		barChartsDivCbpf.style("width", "0%");
+		barChartsDivCerf.style("width", "100%").style("display", null);
+		barChartsDivCbpf.style("width", "0%").style("display", "none");
 	} else if (!data.cerfData.length && data.cbpfData.length) {
-		barChartsDivCerf.style("width", "0%");
-		barChartsDivCbpf.style("width", "100%");
+		barChartsDivCerf.style("width", "0%").style("display", "none");
+		barChartsDivCbpf.style("width", "100%").style("display", null);
 	} else if (!data.cerfData.length && !data.cbpfData.length) {
-		barChartsDivCerf.style("width", "0%");
-		barChartsDivCbpf.style("width", "0%");
+		barChartsDivCerf.style("width", "0%").style("display", "none");
+		barChartsDivCbpf.style("width", "0%").style("display", "none");
 	};
 };
 
