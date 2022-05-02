@@ -17,6 +17,8 @@ const padding = [4, 8, 4, 8],
 	tooltipVerticalPadding = 6,
 	tooltipHorizontalPadding = 6,
 	polylinePadding = 4,
+	fadeOpacity = 0.2,
+	innerTooltipDivWidth = 290,
 	classPrefix = "pfbicpbypartner",
 	formatPercent = d3.format(".0%"),
 	formatSIaxes = d3.format("~s"),
@@ -155,7 +157,7 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
 		.ticks(4)
 		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"))
 		.tickSizeOuter(0)
-		.tickSizeInner(-(selectionBarHeight + 2*(selectionBarPadding)));
+		.tickSizeInner(-(selectionBarHeight + 2 * (selectionBarPadding)));
 
 	function draw(originalData, resetYear, firstTime) {
 
@@ -180,7 +182,7 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
 		drawTopFigures(data.topFigures, topRowDiv, colors, syncedTransition);
 		recalculateDivWidth(data, barChartsDivCerf, barChartsDivCbpf);
 		if (chartState.selectedFund !== "cerf") {
-			drawSelectionChart(data.cbpfDataAggregated, selectionChartDivCbpf, xScaleCbpf, xScaleCbpfLabels, xAxisCbpf, syncedTransition, colors);
+			drawSelectionChart(data.cbpfDataAggregated, selectionChartDivCbpf, xScaleCbpf, xScaleCbpfLabels, xAxisCbpf, syncedTransition, colors, tooltipDiv, container, lists);
 			reselectLabels(selectionChartDivCbpf);
 		};
 		drawTable(data.cerfData, null, partnersDivCerf, container, lists, colors, "cerf", syncedTransition, tooltipDiv);
@@ -205,7 +207,18 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
 			polylines.on("click", redraw);
 
 			function redraw(event, d) {
-				drawTable(data.cbpfData, d.partnerType, partnersDivCbpf, container, lists, colors, "cbpf", null, tooltipDiv);
+				d.clicked = !d.clicked;
+				if (!d.clicked) {
+					bars.style("opacity", 1);
+					labels.style("opacity", 1);
+					polylines.style("opacity", 1);
+					drawTable(data.cbpfData, null, partnersDivCbpf, container, lists, colors, "cbpf", null, tooltipDiv);
+				} else {
+					bars.style("opacity", e => e.partnerType === d.partnerType ? 1 : fadeOpacity);
+					labels.style("opacity", e => e.partnerType === d.partnerType ? 1 : fadeOpacity);
+					polylines.style("opacity", e => e.partnerType === d.partnerType ? 1 : fadeOpacity);
+					drawTable(data.cbpfData, d.partnerType, partnersDivCbpf, container, lists, colors, "cbpf", null, tooltipDiv);
+				};
 			};
 		};
 
@@ -533,7 +546,7 @@ function createHeaderRow(...containers) {
 	});
 };
 
-function drawSelectionChart(data, container, xScaleCbpf, xScaleCbpfLabels, xAxisCbpf, syncedTransition, colors) {
+function drawSelectionChart(data, container, xScaleCbpf, xScaleCbpfLabels, xAxisCbpf, syncedTransition, colors, tooltip, containerDiv, lists) {
 
 	const selectionChartDivCbpfSize = container.node().getBoundingClientRect();
 	selectionSvgWidth = selectionChartDivCbpfSize.width;
@@ -567,7 +580,13 @@ function drawSelectionChart(data, container, xScaleCbpf, xScaleCbpfLabels, xAxis
 		.attr("transform", `translate(0,${selectionSvgPadding[0]})`);
 
 	xAxisCbpfGroup.transition(syncedTransition)
-		.call(xAxisCbpf);
+		.call(xAxisCbpf)
+		.on("start", (_, i, n) => {
+			d3.select(n[i]).selectAll(".tick")
+				.filter(e => e === 0)
+				.remove();
+		})
+
 
 	let bars = selectionSvg.selectAll(`.${classPrefix}bars`)
 		.data(data, d => d.partnerType);
@@ -672,6 +691,23 @@ function drawSelectionChart(data, container, xScaleCbpf, xScaleCbpfLabels, xAxis
 			${xScaleCbpfLabels(d.partnerType)},${(selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight)/2 + (selectionSvgHeight - selectionSvgPadding[2] - polylinePadding)/2} 
 			${xScaleCbpfLabels(d.partnerType)},${selectionSvgHeight - selectionSvgPadding[2] - polylinePadding}`;
 		});
+
+	bars.on("mouseover", mouseOverSelection)
+		.on("mouseout", () => mouseOut(tooltip));
+
+	function mouseOverSelection(event, datum) {
+		tooltip.style("display", "block")
+			.html(null);
+
+		const innerTooltipDiv = tooltip.append("div")
+			.style("max-width", innerTooltipDivWidth + "px")
+			.attr("id", classPrefix + "innerTooltipDiv");
+
+		innerTooltipDiv.append("div")
+			.html("Click for filtering the partners list, showing only " + lists.partnersList[datum.partnerType] + " partners. Click again for removing the filter");
+
+		positionTooltip(tooltip, containerDiv, event, "top");
+	};
 
 };
 
