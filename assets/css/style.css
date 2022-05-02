@@ -641,7 +641,7 @@ a.video-tutorial{color:#333;}
   padding: 8px;
 }
 
-#pfbicpbypartnerinnerTooltipDiv {
+#pfbicpbypartnerinnerTooltipDiv > div:not(:first-child) {
   padding: 8px;
 }
 
@@ -652,12 +652,17 @@ a.video-tutorial{color:#333;}
 #pfbialinnerTooltipDiv > div:nth-child(2){padding:8px !important;}
 #pfbialinnerTooltipDiv > div:nth-child(2) > div:nth-child(3){margin-bottom: 10px !important; border-bottom: 1px dotted #999 !important; padding-bottom: 5px !important;}
 
-.pfbialtooltipTitleDiv, .pfbicdtooltipTitleDiv, .pfbicpoverviewtooltipTitleDiv {
+.pfbialtooltipTitleDiv, .pfbicdtooltipTitleDiv, .pfbicpoverviewtooltipTitleDiv, .pfbicpbypartnertooltipTitleDiv {
 	margin-bottom: 3px !important;
     background-color: #3189c9;
     padding: 8px 8px;
     color: #fff;
     border-radius: 5px 5px 0 0;
+}
+
+.pfbicpbypartnerclickText {
+  font-style: italic;
+  font-size: 1em;
 }
 
 .pfbialtooltipTitleDiv strong, .pfbicdtooltipTitleDiv strong{
@@ -723,7 +728,7 @@ a.video-tutorial{color:#333;}
 	font-weight: 600;
 }
 
-.pfbialtooltipValues, .pfbialtooltipKeys, .pfbicctooltipValues, .pfbicctooltipYears {
+.pfbialtooltipValues, .pfbialtooltipKeys, .pfbicctooltipValues, .pfbicctooltipYears, .pfbicpbypartnertooltipKeys, .pfbicpbypartnertooltipValues {
   flex: 1 0 auto;
 }
 
@@ -731,13 +736,13 @@ a.video-tutorial{color:#333;}
 	font-weight: 600;
 }
 
-.pfbialtooltipLeader, .pfbicctooltipLeader {
+.pfbialtooltipLeader, .pfbicctooltipLeader, .pfbicpbypartnertooltipLeader {
   flex: 0 1 auto;
   overflow: hidden;
   color: #ccc;
 }
 
-.pfbialtooltipLeader::before, .pfbicctooltipLeader::before {
+.pfbialtooltipLeader::before, .pfbicctooltipLeader::before, .pfbicpbypartnertooltipLeader:before {
    display: block;
    overflow: hidden;
    text-overflow: clip;

@@ -22,6 +22,7 @@ const padding = [4, 8, 4, 8],
 	classPrefix = "pfbicpbypartner",
 	formatPercent = d3.format(".0%"),
 	formatSIaxes = d3.format("~s"),
+	formatMoney0Decimals = d3.format(",.0f"),
 	currentDate = new Date(),
 	localVariable = d3.local(),
 	unBlue = "#1F69B3",
@@ -667,8 +668,8 @@ function drawSelectionChart(data, container, xScaleCbpf, xScaleCbpfLabels, xAxis
 				localVariable.set(n[i], previous + d.value);
 			};
 			return `${xScaleCbpf(previous + d.value/2)},${selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight} 
-			${xScaleCbpf(previous + d.value/2)},${(selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight)/2 + (selectionSvgHeight - selectionSvgPadding[2] - polylinePadding)/2} 
-			${xScaleCbpfLabels(d.partnerType)},${(selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight)/2 + (selectionSvgHeight - selectionSvgPadding[2] - polylinePadding)/2} 
+			${xScaleCbpf(previous + d.value/2)},${(selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight)/2 + n.length - i * 3 +(selectionSvgHeight - selectionSvgPadding[2] - polylinePadding)/2} 
+			${xScaleCbpfLabels(d.partnerType)},${(selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight)/2 + n.length - i * 3 +(selectionSvgHeight - selectionSvgPadding[2] - polylinePadding)/2} 
 			${xScaleCbpfLabels(d.partnerType)},${selectionSvgHeight - selectionSvgPadding[2] - polylinePadding}`;
 		});
 
@@ -687,12 +688,18 @@ function drawSelectionChart(data, container, xScaleCbpf, xScaleCbpfLabels, xAxis
 				localVariable.set(n[i], previous + d.value);
 			};
 			return `${xScaleCbpf(previous + d.value/2)},${selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight} 
-			${xScaleCbpf(previous + d.value/2)},${(selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight)/2 + (selectionSvgHeight - selectionSvgPadding[2] - polylinePadding)/2} 
-			${xScaleCbpfLabels(d.partnerType)},${(selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight)/2 + (selectionSvgHeight - selectionSvgPadding[2] - polylinePadding)/2} 
+			${xScaleCbpf(previous + d.value/2)},${(selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight)/2 + n.length - i * 3 +(selectionSvgHeight - selectionSvgPadding[2] - polylinePadding)/2} 
+			${xScaleCbpfLabels(d.partnerType)},${(selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight)/2 + n.length - i * 3 +(selectionSvgHeight - selectionSvgPadding[2] - polylinePadding)/2} 
 			${xScaleCbpfLabels(d.partnerType)},${selectionSvgHeight - selectionSvgPadding[2] - polylinePadding}`;
 		});
 
 	bars.on("mouseover", mouseOverSelection)
+		.on("mouseout", () => mouseOut(tooltip));
+
+	labels.on("mouseover", mouseOverSelection)
+		.on("mouseout", () => mouseOut(tooltip));
+
+	polylines.on("mouseover", mouseOverSelection)
 		.on("mouseout", () => mouseOut(tooltip));
 
 	function mouseOverSelection(event, datum) {
@@ -703,8 +710,43 @@ function drawSelectionChart(data, container, xScaleCbpf, xScaleCbpfLabels, xAxis
 			.style("max-width", innerTooltipDivWidth + "px")
 			.attr("id", classPrefix + "innerTooltipDiv");
 
+		const titleDiv = innerTooltipDiv.append("div")
+			.attr("class", classPrefix + "tooltipTitleDiv")
+			.style("margin-bottom", "18px");
+
+		titleDiv.append("strong")
+			.style("font-size", "16px")
+			.html(lists.partnersList[datum.partnerType]);
+
+		const innerDiv = innerTooltipDiv.append("div")
+			.style("display", "flex")
+			.style("flex-wrap", "wrap")
+			.style("white-space", "pre")
+			.style("width", "100%");
+
+		const valueDiv = innerDiv.append("div")
+			.attr("class", classPrefix + "tooltipValue")
+			.style("display", "flex")
+			.style("align-items", "center")
+			.style("width", "100%")
+			.style("margin-bottom", "0.4em");
+
+		valueDiv.append("span")
+			.style("font-weight", 500)
+			.attr("class", classPrefix + "tooltipKeys")
+			.html("Total:");
+
+		valueDiv.append("span")
+			.attr("class", classPrefix + "tooltipLeader");
+
+		valueDiv.append("span")
+			.attr("class", classPrefix + "tooltipValues")
+			.html(formatMoney0Decimals(datum.value));
+
 		innerTooltipDiv.append("div")
-			.html("Click for filtering the partners list, showing only " + lists.partnersList[datum.partnerType] + " partners. Click again for removing the filter");
+			.attr("class", classPrefix + "clickText")
+			.html(datum.clicked ? "Click for removing the filter" : "Click for filtering the partners list, showing only " + lists.partnersList[datum.partnerType] + " partners. Click again for removing the filter");
+
 
 		positionTooltip(tooltip, containerDiv, event, "top");
 	};
