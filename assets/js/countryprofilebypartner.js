@@ -420,7 +420,8 @@ function createButtonsPanel(originalData, yearsArrayCerf, yearsArrayCbpf, svg, b
 
 		const innerTooltip = tooltip.append("div")
 			.style("max-width", "200px")
-			.attr("id", classPrefix + "innerTooltipDiv");
+			.attr("id", classPrefix + "innerTooltipDiv")
+			.style("padding", "8px")
 
 		innerTooltip.html("Click for selecting a year");
 
