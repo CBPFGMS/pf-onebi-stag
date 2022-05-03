@@ -818,7 +818,7 @@ function drawTable(data, partnerType, containerDiv, container, lists, colors, fu
 				const barWidth = n[i].previousSibling.getBoundingClientRect().width;
 				return textWidth > barWidth ?
 					0.99 * containerWidth - barWidth - textWidth + "px" :
-					0.99 * containerWidth - barWidth + "px";
+					containerWidth - barWidth + "px";
 			};
 		});
 
