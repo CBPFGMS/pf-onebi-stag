@@ -910,13 +910,13 @@ function processData(originalData, lists) {
 		cerfData: []
 	};
 
-	if (chartState.selectedFund !== "cbpf") originalData.cerf.forEach(row => processRow(row, data.cerfData));
+	if (chartState.selectedFund !== "cbpf") originalData.cerf.forEach(row => processRow(row, data.cerfData, true));
 	if (chartState.selectedFund !== "cerf") {
-		originalData.cbpfAggregated.forEach(row => processRow(row, data.cbpfDataAggregated));
-		originalData.cbpf.forEach(row => processRow(row, data.cbpfData))
+		originalData.cbpfAggregated.forEach(row => processRow(row, data.cbpfDataAggregated, true));
+		originalData.cbpf.forEach(row => processRow(row, data.cbpfData, false))
 	};
 
-	function processRow(row, target) {
+	function processRow(row, target, addTotal) {
 		if (chartState.selectedYear === row.year) {
 			row.values.forEach(innerRow => {
 				const foundPartner = target.find(e => e.partner === innerRow.partner);
@@ -929,7 +929,7 @@ function processData(originalData, lists) {
 						value: innerRow.value
 					});
 				};
-				data.topFigures.total += innerRow.value;
+				if (addTotal) data.topFigures.total += innerRow.value;
 			});
 		};
 	};
