@@ -391,10 +391,43 @@ function processDataForCountryProfileByPartner(rawDataAllocations, cerfByPartner
 
 function processDataForCountryProfileBySector(cerfByPartnerData, cbpfPartnersData, lists) {
 
-	const data = {
-		cerf: [],
-		cbpf: []
-	};
+	const data = [];
+
+	cerfByPartnerData.forEach(row => {
+		if (row.PooledFundId === chartState.selectedCountryProfile) {
+			const foundYearAndSector = data.find(e => e.year === row.AllocationYear && e.sector === row.ClusterId);
+			if (foundYearAndSector) {
+				foundYearAndSector.total += row.Budget;
+				foundYearAndSector.cerf += row.Budget;
+			} else {
+				data.push({
+					year: row.AllocationYear,
+					sector: row.ClusterId,
+					total: row.Budget,
+					cerf: row.Budget,
+					cbpf: 0
+				});
+			};
+		};
+	});
+
+	cbpfPartnersData.forEach(row => {
+		if (row.PooledFundId === chartState.selectedCountryProfile && row.FundId === cbpfId) {
+			const foundYearAndSector = data.find(e => e.year === row.AllocationYear && e.sector === row.ClusterId);
+			if (foundYearAndSector) {
+				foundYearAndSector.total += row.ClusterBudget;
+				foundYearAndSector.cbpf += row.ClusterBudget;
+			} else {
+				data.push({
+					year: row.AllocationYear,
+					sector: row.ClusterId,
+					total: row.ClusterBudget,
+					cerf: 0,
+					cbpf: row.ClusterBudget
+				});
+			};
+		};
+	});
 
 	return data;
 

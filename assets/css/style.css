@@ -918,11 +918,11 @@ a.video-tutorial{color:#333;}
   fill: #666;
 }
 
-.pfbialxAxisGroup line, .pfbiccxAxisGroupBarChart line, .pfbicdxAxisGroupTooltip line, .pfbicdcurrentYearTick, .pfbicdyAxisGroupColumn line, .pfbiccyAxisGroupColumn line, .pfbialyAxisGroupColumnByCountry line, .pfbialyAxisGroupColumnBySector line, .pfbialyAxisGroupColumnByTypeCerf line, .pfbialyAxisGroupColumnByTypeCbpf line {
+.pfbialxAxisGroup line, .pfbiccxAxisGroupBarChart line, .pfbicdxAxisGroupTooltip line, .pfbicdcurrentYearTick, .pfbicdyAxisGroupColumn line, .pfbiccyAxisGroupColumn line, .pfbialyAxisGroupColumnByCountry line, .pfbialyAxisGroupColumnBySector line, .pfbialyAxisGroupColumnByTypeCerf line, .pfbialyAxisGroupColumnByTypeCbpf line, .pfbicpbysectoryAxisGroup line {
   stroke: darkslategray;
 }
 
-.pfbialxAxisGroup path, .pfbiccxAxisGroupBarChart path, .pfbicdyAxisGroupTooltip path, .pfbicdxAxisGroupTooltip path, .pfbicdxAxisGroupColumn path, .pfbiccxAxisGroupColumn path, .pfbialxAxisGroupColumnByCountry path, .pfbialxAxisGroupColumnBySector path, .pfbialxAxisGroupColumnByType path, .pfbialyAxisGroup path, .pfbiccyAxisGroupBarChart path, .pfbicdyAxisGroupColumn path, .pfbiccyAxisGroupColumn path, .pfbialyAxisGroupColumnByCountry path, .pfbialyAxisGroupColumnBySector path, .pfbialyAxisGroupColumnByTypeCerf path, .pfbialyAxisGroupColumnByTypeCbpf path {
+.pfbialxAxisGroup path, .pfbiccxAxisGroupBarChart path, .pfbicdyAxisGroupTooltip path, .pfbicdxAxisGroupTooltip path, .pfbicdxAxisGroupColumn path, .pfbiccxAxisGroupColumn path, .pfbialxAxisGroupColumnByCountry path, .pfbialxAxisGroupColumnBySector path, .pfbialxAxisGroupColumnByType path, .pfbialyAxisGroup path, .pfbiccyAxisGroupBarChart path, .pfbicdyAxisGroupColumn path, .pfbiccyAxisGroupColumn path, .pfbialyAxisGroupColumnByCountry path, .pfbialyAxisGroupColumnBySector path, .pfbialyAxisGroupColumnByTypeCerf path, .pfbialyAxisGroupColumnByTypeCbpf path, .pfbicpbysectoryAxisGroup path {
   stroke: none;
 }
 
@@ -973,6 +973,13 @@ a.video-tutorial{color:#333;}
   pointer-events: none;
 }
 
+.pfbicpbysectoryAxisGroup text {
+  font-family: "Roboto", sans-serif;
+  font-size: 12px;
+  fill: #444;
+  pointer-events: none;
+}
+
 .pfbicdyAxisGroupColumn text, .pfbiccyAxisGroupColumn text, .pfbialyAxisGroupColumnByCountry text, .pfbialyAxisGroupColumnBySector text, .pfbialyAxisGroupColumnByTypeCerf text, .pfbialyAxisGroupColumnByTypeCbpf text {
   font-family: "Roboto", sans-serif;
   font-size: 10px;
@@ -986,7 +993,7 @@ a.video-tutorial{color:#333;}
   font-weight: 500;
 }
   
-.pfbicdxAxisGroupColumn line, .pfbicdyAxisGroupTooltip line, .pfbiccxAxisGroupColumn line, .pfbialxAxisGroupColumnByCountry line, .pfbialxAxisGroupColumnBySector line, .pfbialxAxisGroupColumnByType line {
+.pfbicdxAxisGroupColumn line, .pfbicdyAxisGroupTooltip line, .pfbiccxAxisGroupColumn line, .pfbialxAxisGroupColumnByCountry line, .pfbialxAxisGroupColumnBySector line, .pfbialxAxisGroupColumnByType line, .pfbicpbysectorxAxisGroup line {
   stroke: #ddd;
   stroke-dasharray: 2, 2;
 }
@@ -1000,7 +1007,7 @@ a.video-tutorial{color:#333;}
   stroke: #777;
 }
 
-.pfbiccxAxisGroupedGroup path {
+.pfbiccxAxisGroupedGroup path, .pfbicpbysectorxAxisGroup path {
   stroke: none;
 }
 
@@ -1213,6 +1220,14 @@ a.video-tutorial{color:#333;}
   letter-spacing: -0.25px;
 }
 
+.pfbicpbysectorlabelsBySector {
+  font-family: "Roboto", sans-serif;
+  font-size: 10px;
+  fill: #444;
+  pointer-events: none;
+  dominant-baseline: middle;
+}
+
 .pfbicdtooltipBarLabel, .pfbicdtooltipBarLabelCerfValue {
   font-family: "Roboto", sans-serif;
   font-size: 9px;
@@ -1345,6 +1360,15 @@ a.video-tutorial{color:#333;}
 .pfbicccumulativeTitle {
   font-family: "Roboto", sans-serif;
   font-size: 14px;
+  fill: #666;
+  font-weight: 300;
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.pfbicpbysectortitle {
+  font-family: "Roboto", sans-serif;
+  font-size: 16px;
   fill: #666;
   font-weight: 300;
   text-anchor: middle;
@@ -2674,9 +2698,9 @@ a.video-tutorial{color:#333;}
   flex-direction: row;
 }
 
-.pfbicpbysectorchartDiv {
+/*.pfbicpbysectorchartDiv {
   flex-grow: 1;
-}
+}*/
 
 .pfbicpbysectoryearsButtonsDiv {
   width: 100%;

@@ -421,7 +421,7 @@ function createButtonsPanel(originalData, yearsArrayCerf, yearsArrayCbpf, svg, b
 		const innerTooltip = tooltip.append("div")
 			.style("max-width", "200px")
 			.attr("id", classPrefix + "innerTooltipDiv")
-			.style("padding", "8px")
+			.style("padding", "8px");
 
 		innerTooltip.html("Click for selecting a year");
 
@@ -587,8 +587,7 @@ function drawSelectionChart(data, container, xScaleCbpf, xScaleCbpfLabels, xAxis
 			d3.select(n[i]).selectAll(".tick")
 				.filter(e => e === 0)
 				.remove();
-		})
-
+		});
 
 	let bars = selectionSvg.selectAll(`.${classPrefix}bars`)
 		.data(data, d => d.partnerType);
