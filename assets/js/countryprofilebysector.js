@@ -435,22 +435,20 @@ function drawTopFigures(data, container, colors, syncedTransition) {
 	//end of drawTopFigures
 };
 
-function drawStackedChart(argumentsObject) {
-
-	const {
-		data,
-		svg,
-		colors,
-		stack,
-		yScale,
-		xAxis,
-		yAxis,
-		xScale,
-		syncedTransition,
-		container,
-		lists,
-		tooltipDiv
-	} = argumentsObject;
+function drawStackedChart({
+	data,
+	svg,
+	colors,
+	stack,
+	yScale,
+	xAxis,
+	yAxis,
+	xScale,
+	syncedTransition,
+	container,
+	lists,
+	tooltipDiv
+}) {
 
 	const filteredData = data.filter(d => chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]);
 

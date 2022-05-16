@@ -57,6 +57,7 @@ let yearsArrayCerf,
 	yearsArrayCbpf,
 	totalWidth,
 	selectionSvgWidth,
+	sortedRow = "value",
 	activeTransition = false;
 
 function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
@@ -536,15 +537,33 @@ function createHeaderRow(...containers) {
 		container.append("div")
 			.attr("class", classPrefix + "headerName")
 			.style("flex", `0 ${formatPercent(partnerNameWidth)}`)
-			.html("Organization<br>Name");
+			.datum({ type: "name" })
+			.html("Organization<br>Name")
+			.append("div")
+			.style("display", "none")
+			.attr("class", classPrefix + "iconDiv")
+			.append("i")
+			.attr("class", "fas fa-sort-alpha-down");
 		container.append("div")
 			.attr("class", classPrefix + "headerType")
 			.style("flex", `0 ${formatPercent(typeWidth)}`)
-			.html("Type");
+			.datum({ type: "type" })
+			.html("Type")
+			.append("div")
+			.style("display", "none")
+			.attr("class", classPrefix + "iconDiv")
+			.append("i")
+			.attr("class", "fas fa-sort-alpha-down");
 		container.append("div")
 			.attr("class", classPrefix + "headerValue")
 			.style("flex", `0 ${formatPercent(barWidth)}`)
-			.html("Allocation Amount");
+			.datum({ type: "value" })
+			.html("Allocation Amount")
+			.append("div")
+			.style("display", "none")
+			.attr("class", classPrefix + "iconDiv")
+			.append("i")
+			.attr("class", "fas fa-sort-amount-down")
 	});
 };
 
@@ -827,19 +846,22 @@ function drawTable(data, partnerType, containerDiv, container, lists, colors, fu
 	const headerType = thisHeader.select(`.${classPrefix}headerType`);
 	const headerValue = thisHeader.select(`.${classPrefix}headerValue`);
 
-	headerName.on("mouseover", event => mouseOverHeader(event, "name"))
+	headerName.on("mouseover", mouseOverHeader)
 		.on("mouseout", mouseOutHeader)
 		.on("click", () => sortRows("name"));
 
-	headerType.on("mouseover", event => mouseOverHeader(event, "type"))
+	headerType.on("mouseover", mouseOverHeader)
 		.on("mouseout", mouseOutHeader)
 		.on("click", () => sortRows("type"));
 
-	headerValue.on("mouseover", event => mouseOverHeader(event, "value"))
+	headerValue.on("mouseover", mouseOverHeader)
 		.on("mouseout", mouseOutHeader)
 		.on("click", () => sortRows("value"));
 
+	headerValue.dispatch("mouseover");
+
 	function sortRows(sortType) {
+		sortedRow = sortType;
 		filteredData.sort((a, b) => sortType === "name" ? namesList[a.partner].localeCompare(namesList[b.partner]) :
 			sortType === "type" ? partnersShortNames[a.partnerType].localeCompare(partnersShortNames[b.partnerType]) :
 			b.value - a.value);
@@ -848,17 +870,18 @@ function drawTable(data, partnerType, containerDiv, container, lists, colors, fu
 			.each((_, i, n) => d3.select(n[i]).style("background-color", !(i % 2) ? "#fff" : "#eee"));
 	};
 
-	function mouseOverHeader(event, iconType) {
-		const iconDiv = d3.select(event.currentTarget).append("div")
-			.attr("class", classPrefix + "iconDiv")
-			.append("i")
-			.attr("class", iconType !== "value" ? "fas fa-sort-alpha-down" : "fas fa-sort-amount-down");
+	function mouseOverHeader(event) {
+		d3.select(event.currentTarget.parentNode)
+			.selectAll("div")
+			.select(`.${classPrefix}iconDiv`)
+			.style("display", (_, i, n) => n[i].parentNode === event.currentTarget ? "block" : "none");
 	};
 
 	function mouseOutHeader(event) {
-		d3.select(event.currentTarget)
+		d3.select(event.currentTarget.parentNode)
+			.selectAll("div")
 			.select(`.${classPrefix}iconDiv`)
-			.remove();
+			.style("display", d => d.type === sortedRow ? "block" : "none");
 	};
 
 
