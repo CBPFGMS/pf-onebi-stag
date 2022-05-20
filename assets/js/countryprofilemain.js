@@ -8,7 +8,7 @@ import { createCountryProfileBySector } from "./countryprofilebysector.js";
 
 //|constants
 const classPrefix = "pfcpmain",
-	tabsData = ["Overview", "Allocations by Partner", "Allocations by Sector", "Funding by Cluster", "Contributions by Donor"],
+	tabsData = ["Overview", "Allocations by Partner", "Allocations by Sector", "Allocations by Partner/Sector", "Contributions by Donor"],
 	backToMenu = "Back to main menu",
 	selectAnOption = "Select Fund",
 	separator = "##",

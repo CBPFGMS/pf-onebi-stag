@@ -61,6 +61,7 @@ const yearsArrayAllocations = [],
 	donorsInSelectedYear = [],
 	fundsInSelectedYear = [],
 	cbpfStatusList = {},
+	cerfIdsList = {},
 	fundNamesList = {},
 	fundAbbreviatedNamesList = {},
 	fundRegionsList = {},
@@ -272,6 +273,7 @@ function controlCharts([worldMap,
 	const lists = {
 		fundNamesList: fundNamesList,
 		cbpfStatusList: cbpfStatusList,
+		cerfIdsList: cerfIdsList,
 		fundAbbreviatedNamesList: fundAbbreviatedNamesList,
 		fundRegionsList: fundRegionsList,
 		fundIsoCodesList: fundIsoCodesList,
@@ -1025,6 +1027,7 @@ function validateDefault(values) {
 function createFundNamesList(fundsData) {
 	fundsData.forEach(row => {
 		cbpfStatusList[row.id + ""] = row.CBPFFundStatus;
+		cerfIdsList[row.id + ""] = row.CERFId;
 		fundNamesList[row.id + ""] = row.PooledFundName;
 		fundAbbreviatedNamesList[row.id + ""] = row.PooledFundNameAbbrv;
 		fundNamesListKeys.push(row.id + "");

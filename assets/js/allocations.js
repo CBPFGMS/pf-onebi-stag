@@ -29,7 +29,7 @@ const classPrefix = "pfbial",
 	fillOpacityValue = 0.5,
 	groupNamePadding = 2,
 	barWidth = 36,
-	fadeOpacity = 0.1,
+	fadeOpacity = 0.35,
 	maxLabelLength = 16,
 	labelsColumnPadding = 2,
 	zoomBoundingMargin = 6,
@@ -61,6 +61,7 @@ const classPrefix = "pfbial",
 let svgMapWidth,
 	svgMapHeight,
 	allocationsProperty,
+	hoveredCountry,
 	showCovidDisclaimer = true,
 	covid19InCluster = false,
 	clickableButtons = true,
@@ -986,8 +987,7 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		///
 
-		pieGroup.on("mouseover", pieGroupMouseover)
-			.on("mouseout", pieGroupMouseout);
+		pieGroup.on("mouseover", pieGroupMouseover);
 
 		function zoomed(event) {
 
@@ -1023,7 +1023,11 @@ function createAllocations(selections, colors, mapData, lists) {
 
 		function pieGroupMouseover(event, datum) {
 
-			chartState.currentHoveredElement = event.currentTarget;
+			if (hoveredCountry === datum.country) return;
+			hoveredCountry = datum.country;
+
+			tooltipDivBarChart.style("display", "none")
+				.html(null);
 
 			let thisRank,
 				thisOrdinal;
@@ -1052,6 +1056,9 @@ function createAllocations(selections, colors, mapData, lists) {
 							.attr("dy", "1.2em")
 							.attr("x", (_, j, m) => -(m[j].parentNode.getComputedTextLength() / 2))
 							.text("(" + thisRank + thisOrdinal + ")");
+					} else {
+						d3.select(n[i]).select(`.${classPrefix}countryRanking`)
+							.remove();
 					};
 				});
 
@@ -1077,12 +1084,16 @@ function createAllocations(selections, colors, mapData, lists) {
 			tooltipDivMap.style("top", thisOffsetTop + "px")
 				.style("left", thisOffsetLeft + "px");
 
+			tooltipDivMap.select(`.${classPrefix}closeButton`)
+				.on("click", () => pieGroupMouseout(event));
+
+			zoomLayer.on("click", () => pieGroupMouseout(event));
+
 		};
 
 		function pieGroupMouseout(event) {
 
-			if (chartState.isSnapshotTooltipVisible) return;
-			chartState.currentHoveredElement = null;
+			hoveredCountry = null;
 
 			pieGroup.style("opacity", 1);
 
@@ -1450,12 +1461,15 @@ function createAllocations(selections, colors, mapData, lists) {
 			.filter(d => d === 0)
 			.remove();
 
-		barsTooltipRectangles.on("mouseover", mouseoverBarsTooltipRectangles)
-			.on("mouseout", mouseoutBarsTooltipRectangles);
+		barsTooltipRectangles.on("mouseover", mouseoverBarsTooltipRectangles);
 
 		function mouseoverBarsTooltipRectangles(event, d) {
 
-			chartState.currentHoveredElement = event.currentTarget;
+			if (hoveredCountry === d.country) return;
+			hoveredCountry = d.country;
+
+			tooltipDivMap.style("display", "none")
+				.html(null);
 
 			let thisRank,
 				thisOrdinal;
@@ -1478,6 +1492,9 @@ function createAllocations(selections, colors, mapData, lists) {
 							.attr("dy", "1.2em")
 							.attr("x", (_, j, m) => -(m[j].parentNode.getComputedTextLength() / 2))
 							.text("(" + thisRank + thisOrdinal + ")");
+					} else {
+						d3.select(n[i]).select(`.${classPrefix}countryRanking`)
+							.remove();
 					};
 				});
 
@@ -1518,12 +1535,16 @@ function createAllocations(selections, colors, mapData, lists) {
 			tooltipDivBarChart.style("top", thisOffsetTop + "px")
 				.style("left", thisOffsetLeft + "px");
 
+			tooltipDivBarChart.select(`.${classPrefix}closeButton`)
+				.on("click", () => mouseoutBarsTooltipRectangles(event, d));
+
+			zoomLayer.on("click", () => mouseoutBarsTooltipRectangles(event, d));
+
 		};
 
 		function mouseoutBarsTooltipRectangles(_, d) {
 
-			if (chartState.isSnapshotTooltipVisible) return;
-			chartState.currentHoveredElement = null;
+			hoveredCountry = null;
 
 			bars.style("opacity", 1);
 
@@ -1611,6 +1632,11 @@ function createAllocations(selections, colors, mapData, lists) {
 			.attr("class", classPrefix + "tooltipRank")
 			.html(` (rank: ${rank}<sup>${ordinal}</sup>)`);
 
+		const closeButton = titleDiv.append("div")
+			.attr("class", classPrefix + "closeButton")
+			.append("span")
+			.attr("class", "fas fa-times");
+
 		const innerDiv = innerTooltipDiv.append("div")
 			.style("display", "flex")
 			.style("flex-wrap", "wrap")
@@ -1668,7 +1694,20 @@ function createAllocations(selections, colors, mapData, lists) {
 
 			chartDivCerf = innerDiv.append("div")
 				.style("width", "100%")
-				.style("margin-bottom", "16px");
+				.style("margin-bottom", "6px");
+
+			const cerfLinkUrl = `https://cerf.un.org/what-we-do/allocation/${chartState.selectedYear}/country/${lists.cerfIdsList[datum.country]}`;
+
+			const cerfLink = innerDiv.append("div")
+				.attr("class", classPrefix + "cerfLink");
+
+			cerfLink.append("span")
+				.html("More info: ");
+
+			cerfLink.append("a")
+				.attr("href", cerfLinkUrl)
+				.attr("target", "_blank")
+				.html(cerfLinkUrl);
 		};
 
 		if (!showCerfOnly) {
