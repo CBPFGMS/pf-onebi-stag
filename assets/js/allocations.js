@@ -1088,6 +1088,8 @@ function createAllocations(selections, colors, mapData, lists) {
 				.on("click", () => pieGroupMouseout(event));
 
 			zoomLayer.on("click", () => pieGroupMouseout(event));
+			containerDiv.on("mouseleave", () => pieGroupMouseout(event));
+			buttonsDiv.on("mouseover", () => pieGroupMouseout(event));
 
 		};
 
@@ -1539,6 +1541,8 @@ function createAllocations(selections, colors, mapData, lists) {
 				.on("click", () => mouseoutBarsTooltipRectangles(event, d));
 
 			zoomLayer.on("click", () => mouseoutBarsTooltipRectangles(event, d));
+			containerDiv.on("mouseleave", () => mouseoutBarsTooltipRectangles(event, d));
+			buttonsDiv.on("mouseover", () => mouseoutBarsTooltipRectangles(event, d));
 
 		};
 
@@ -1697,6 +1701,7 @@ function createAllocations(selections, colors, mapData, lists) {
 				.style("margin-bottom", "6px");
 
 			const cerfLinkUrl = `https://cerf.un.org/what-we-do/allocation/${chartState.selectedYear}/country/${lists.cerfIdsList[datum.country]}`;
+			const cerfLinkUrlText = `CERF - ${chartState.selectedYear} - ${datum.countryName} allocation data`;
 
 			const cerfLink = innerDiv.append("div")
 				.attr("class", classPrefix + "cerfLink");
@@ -1707,7 +1712,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			cerfLink.append("a")
 				.attr("href", cerfLinkUrl)
 				.attr("target", "_blank")
-				.html(cerfLinkUrl);
+				.html(cerfLinkUrlText);
 		};
 
 		if (!showCerfOnly) {
