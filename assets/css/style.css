@@ -655,7 +655,7 @@ a.video-tutorial{color:#333;}
 }
 #pfbialinnerTooltipDiv {max-width: 308px !important;}
 #pfbialinnerTooltipDiv > div:nth-child(2){padding:8px !important;}
-#pfbialinnerTooltipDiv > div:nth-child(2) > div:nth-child(4){margin-bottom: 12px !important; border-bottom: 1px dotted #999 !important; padding-bottom: 8px !important;}
+
 
 .pfbialcerfLink {
   font-size: 0.8em;
@@ -663,6 +663,9 @@ a.video-tutorial{color:#333;}
   overflow-wrap: break-word;
   word-break: break-word;
   white-space: normal;
+  margin-bottom: 12px !important; 
+  border-bottom: 1px dotted #999 !important; 
+  padding-bottom: 8px !important;
 }
 
 .pfbialtooltipTitleDiv, .pfbicdtooltipTitleDiv, .pfbicpoverviewtooltipTitleDiv, .pfbicpbypartnertooltipTitleDiv {

@@ -1700,19 +1700,25 @@ function createAllocations(selections, colors, mapData, lists) {
 				.style("width", "100%")
 				.style("margin-bottom", "6px");
 
-			const cerfLinkUrl = `https://cerf.un.org/what-we-do/allocation/${chartState.selectedYear}/country/${lists.cerfIdsList[datum.country]}`;
-			const cerfLinkUrlText = `CERF - ${chartState.selectedYear} - ${datum.countryName} allocation data`;
+			if (tooltipCerf) {
+				const cerfLinkUrl = `https://cerf.un.org/what-we-do/allocation/${chartState.selectedYear}/country/${lists.cerfIdsList[datum.country]}`;
+				const cerfLinkUrlText = `CERF - ${chartState.selectedYear} - ${datum.countryName} allocation data`;
 
-			const cerfLink = innerDiv.append("div")
-				.attr("class", classPrefix + "cerfLink");
+				const cerfLink = innerDiv.append("div")
+					.attr("class", classPrefix + "cerfLink");
 
-			cerfLink.append("span")
-				.html("More info: ");
+				cerfLink.append("span")
+					.html("More info: ");
 
-			cerfLink.append("a")
-				.attr("href", cerfLinkUrl)
-				.attr("target", "_blank")
-				.html(cerfLinkUrlText);
+				cerfLink.append("a")
+					.attr("href", cerfLinkUrl)
+					.attr("target", "_blank")
+					.html(cerfLinkUrlText);
+			} else {
+				chartDivCerf.style("margin-bottom", "10px", "important")
+					.style("border-bottom", "1px dotted #999", "important")
+					.style("padding-bottom", "5px", "important");
+			};
 		};
 
 		if (!showCerfOnly) {
