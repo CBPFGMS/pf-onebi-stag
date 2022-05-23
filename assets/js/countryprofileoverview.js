@@ -1142,7 +1142,7 @@ function processData(originalData, lists) {
 					chartState.selectedFund === "total" ||
 					chartState.selectedFund === lists.fundTypesList[allocation.FundId]) {
 					allocation.ProjList.toString().split(separator).forEach(e => data.topFigures.projects.add(e));
-					allocation.OrgList.toString().split(separator).forEach(e => data.topFigures.partners.add(e));
+					data.topFigures.partners.add(allocation.PartnerCode);
 				};
 			});
 		};

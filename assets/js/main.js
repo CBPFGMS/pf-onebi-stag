@@ -26,12 +26,10 @@ const generalClassPrefix = "pfbihp",
 	masterUnAgenciesUrl = "https://cerfgms-webapi.unocha.org/v1/agency/All.json",
 	contributionsDataUrl = "https://cbpfgms.github.io/pfbi-data/contributionbycerfcbpf.csv",
 	contributionsDataUrlClosedFunds = "https://cbpfgms.github.io/pfbi-data/contributionbycerfcbpfAll.csv",
-	allocationsDataUrl = "https://cbpfgms.github.io/pfbi-data/allocationSummary.csv",
-	allocationsDataUrlClosedFunds = "https://cbpfgms.github.io/cbpf-bi-stag/assets/stg-data/allocationSummary.csv",
+	allocationsDataUrl = "https://cbpfgms.github.io/pfbi-data/sectorSummarybyOrg.csv",
+	allocationsDataUrlClosedFunds = "https://cbpfgms.github.io/pfbi-data/sectorSummarybyOrg.csv", //IMPOSRATANT: ASK FOR CLOSED FUNDS
 	allocationsMonthlyDataUrl = "https://cbpfgms.github.io/pfbi-data/allocationSummarybyapproveddate.csv",
 	adminLevel1DataUrl = "https://raw.githubusercontent.com/CBPFGMS/cbpfgms.github.io/master/sandbox/countryprofile/overview/adminlevel1version2.csv",
-	cerfByPartnerDataUrl = "https://cbpfgms.github.io/pfbi-data/cerf/cerf_allocationSummary_byorg.csv",
-	cbpfPartnersDataUrl = "https://cbpfgms.github.io/pfbi-data/sectorSummarybyOrg.csv",
 	chartTypesAllocations = ["allocationsByCountry", "allocationsBySector", "allocationsByType"],
 	chartTypesContributions = ["contributionsByCerfCbpf", "contributionsByDonor"],
 	chartTypesAllocationByMonth = ["allocationsByMonth"],
@@ -234,9 +232,7 @@ Promise.all([fetchFile("unworldmap", unworldmapUrl, "world map", "json"),
 			"contributions data" + (parameters.showClosedFunds ? " (with closed funds)" : ""), "csv"),
 		fetchFile("allocationsMonthlyData", allocationsMonthlyDataUrl, "allocations data by month", "csv"),
 		fetchFile("lastModified", lastModifiedUrl, "last modified date", "json"),
-		fetchFile("adminLevel1Data", adminLevel1DataUrl, "Admin level 1", "csv"),
-		fetchFile("cerfByPartnerData", cerfByPartnerDataUrl, "cerf by partner data", "csv"),
-		fetchFile("cbpfPartnersData", cbpfPartnersDataUrl, "cbpf partner data", "csv")
+		fetchFile("adminLevel1Data", adminLevel1DataUrl, "Admin level 1", "csv")
 	])
 	.then(rawData => controlCharts(rawData));
 
@@ -253,9 +249,7 @@ function controlCharts([worldMap,
 	rawContributionsData,
 	rawAllocationsMonthlyData,
 	lastModified,
-	adminLevel1Data,
-	cerfByPartnerData,
-	cbpfPartnersData
+	adminLevel1Data
 ]) {
 
 	createFundNamesList(masterFunds);
@@ -382,7 +376,7 @@ function controlCharts([worldMap,
 		$(selections.moreTab.node()).click();
 		selections.navlinkCountryProfile.classed("menuactive", true);
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
-		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, selections, colorsObject, lists, generalClassPrefix);
+		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, generalClassPrefix);
 	};
 
 	//|event listeners
@@ -578,7 +572,7 @@ function controlCharts([worldMap,
 		if (buttonsObject.playing) stopTimer();
 		if (chartState.selectedChart === "countryProfile") {
 			selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
-			createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, selections, colorsObject, lists);
+			createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists);
 			return;
 		};
 		if (chartState.selectedChart !== "contributionsByDonor") {
@@ -590,7 +584,7 @@ function controlCharts([worldMap,
 		chartState.selectedChart = "countryProfile";
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
 		selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
-		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, selections, colorsObject, lists);
+		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists);
 		highlightNavLinks();
 		queryStringValues.delete("year");
 		queryStringValues.delete("contributionYear");
@@ -702,6 +696,7 @@ function preProcessData(rawAllocationsData, rawContributionsData) {
 	const yearsSetContributionsCerf = new Set();
 
 	rawAllocationsData.forEach(row => {
+		row.AllocationSurceId = row.AllocationSourceId;//REMOVE THIS: TEMPORARY FIX
 		yearsSetAllocations.add(+row.AllocationYear);
 		if (fundTypesList[row.FundId] === "cerf") {
 			yearsSetAllocationsCerf.add(+row.AllocationYear);

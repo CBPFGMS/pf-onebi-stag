@@ -28,7 +28,7 @@ const tabsCallingFunctions = tabsData.map(d => ({
 	callingFunction: null
 }));
 
-function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, selections, colorsObject, lists) {
+function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists) {
 
 	const pooledFundsInData = rawAllocationsData.reduce((acc, curr) => {
 		const foundRegion = acc.find(e => e.region === lists.fundRegionsList[curr.PooledFundId]);
@@ -55,7 +55,7 @@ function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData
 
 	countries.on("click", (event, d) => {
 		chartState.selectedCountryProfile = d;
-		drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, selections, colorsObject, lists, outerDiv);
+		drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv);
 	});
 
 };
@@ -105,9 +105,9 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv) {
 
 };
 
-function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, selections, colorsObject, lists, outerDiv) {
+function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv) {
 
-	processAllData(rawAllocationsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, lists);
+	processAllData(rawAllocationsData, adminLevel1Data, lists);
 
 	outerDiv.selectChildren().remove();
 
@@ -151,14 +151,14 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 			const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv);
 			countries.on("click", (event, d) => {
 				chartState.selectedCountryProfile = d;
-				drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, selections, colorsObject, lists, outerDiv);
+				drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv);
 			});
 			return;
 		};
 		if (+event.currentTarget.value === chartState.selectedCountryProfile) return;
 		chartState.selectedCountryProfile = +event.currentTarget.value;
 		breadcrumb.secondBreadcrumbSpan.html(lists.fundNamesList[chartState.selectedCountryProfile]);
-		processAllData(rawAllocationsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, lists);
+		processAllData(rawAllocationsData, adminLevel1Data, lists);
 		chartDiv.selectChildren("div:not(#" + classPrefix + "tooltipDiv)").remove();
 		setCallFunctions();
 		callDrawingFunction();
@@ -177,7 +177,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 		const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv);
 		countries.on("click", (event, d) => {
 			chartState.selectedCountryProfile = d;
-			drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, selections, colorsObject, lists, outerDiv);
+			drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv);
 		});
 		return;
 	});
@@ -263,9 +263,9 @@ function processAdminLevel1DataForCountryProfileOverview(rawAdminLevel1Data) {
 	return data;
 };
 
-function processDataForCountryProfileOverview(rawDataAllocations, lists) {
+function processDataForCountryProfileOverview(rawAllocationsData, lists) {
 	const data = [];
-	rawDataAllocations.forEach(row => {
+	rawAllocationsData.forEach(row => {
 		if (row.PooledFundId === chartState.selectedCountryProfile) {
 			const foundYear = data.find(d => d.year === row.AllocationYear);
 			if (foundYear) {
@@ -292,7 +292,7 @@ function processDataForCountryProfileOverview(rawDataAllocations, lists) {
 	return data;
 };
 
-function processDataForCountryProfileByPartner(rawDataAllocations, cerfByPartnerData, cbpfPartnersData, lists) {
+function processDataForCountryProfileByPartner(rawAllocationsData, lists) {
 
 	const data = {
 		cerf: [],
@@ -300,83 +300,77 @@ function processDataForCountryProfileByPartner(rawDataAllocations, cerfByPartner
 		cbpfAggregated: []
 	};
 
-	rawDataAllocations.forEach(row => {
-		if (row.FundId === cbpfId && row.PooledFundId === chartState.selectedCountryProfile) {
-			const foundYear = data.cbpfAggregated.find(e => e.year === row.AllocationYear);
-			if (foundYear) {
-				const foundPartner = foundYear.values.find(e => e.partner === row.OrganizatinonId);
-				if (foundPartner) {
-					foundPartner.value += row.ClusterBudget;
-				} else {
-					foundYear.values.push({
-						partner: row.OrganizatinonId,
-						partnerType: row.OrganizatinonId,
-						value: row.ClusterBudget
-					});
-				};
-			} else {
-				data.cbpfAggregated.push({
-					year: row.AllocationYear,
-					values: [{
-						partner: row.OrganizatinonId,
-						partnerType: row.OrganizatinonId,
-						value: row.ClusterBudget
-					}]
-				});
-			};
-		};
-	});
-
-	cbpfPartnersData.forEach(row => {
-		if (row.PooledFundId === chartState.selectedCountryProfile && row.FundId === cbpfId) {
-			const foundYear = data.cbpf.find(e => e.year === row.AllocationYear);
-			if (foundYear) {
-				const foundPartner = foundYear.values.find(e => e.partner === row.PartnerCode);
-				if (foundPartner) {
-					foundPartner.value += row.ClusterBudget;
-				} else {
-					foundYear.values.push({
-						partner: row.PartnerCode,
-						partnerType: row.OrganizatinonId,
-						value: row.ClusterBudget
-					});
-				};
-			} else {
-				data.cbpf.push({
-					year: row.AllocationYear,
-					values: [{
-						partner: row.PartnerCode,
-						partnerType: row.OrganizatinonId,
-						value: row.ClusterBudget
-					}]
-				});
-			};
-		};
-	});
-
-	cerfByPartnerData.forEach(row => {
+	rawAllocationsData.forEach(row => {
 		if (row.PooledFundId === chartState.selectedCountryProfile) {
-			const foundYear = data.cerf.find(e => e.year === row.AllocationYear);
-			if (foundYear) {
-				const foundPartner = foundYear.values.find(e => e.partner === row.PartnerCode);
-				if (foundPartner) {
-					foundPartner.value += row.Budget;
+			if (row.FundId === cbpfId) {
+				const foundYearAggregated = data.cbpfAggregated.find(e => e.year === row.AllocationYear);
+				if (foundYearAggregated) {
+					const foundPartner = foundYearAggregated.values.find(e => e.partner === row.OrganizatinonId);
+					if (foundPartner) {
+						foundPartner.value += row.ClusterBudget;
+					} else {
+						foundYearAggregated.values.push({
+							partner: row.OrganizatinonId,
+							partnerType: row.OrganizatinonId,
+							value: row.ClusterBudget
+						});
+					};
 				} else {
-					foundYear.values.push({
-						partner: row.PartnerCode,
-						partnerType: row.OrganizatinonId,
-						value: row.Budget
+					data.cbpfAggregated.push({
+						year: row.AllocationYear,
+						values: [{
+							partner: row.OrganizatinonId,
+							partnerType: row.OrganizatinonId,
+							value: row.ClusterBudget
+						}]
 					});
 				};
-			} else {
-				data.cerf.push({
-					year: row.AllocationYear,
-					values: [{
-						partner: row.PartnerCode,
-						partnerType: row.OrganizatinonId,
-						value: row.Budget
-					}]
-				});
+				const foundYear = data.cbpf.find(e => e.year === row.AllocationYear);
+				if (foundYear) {
+					const foundPartner = foundYear.values.find(e => e.partner === row.PartnerCode);
+					if (foundPartner) {
+						foundPartner.value += row.ClusterBudget;
+					} else {
+						foundYear.values.push({
+							partner: row.PartnerCode,
+							partnerType: row.OrganizatinonId,
+							value: row.ClusterBudget
+						});
+					};
+				} else {
+					data.cbpf.push({
+						year: row.AllocationYear,
+						values: [{
+							partner: row.PartnerCode,
+							partnerType: row.OrganizatinonId,
+							value: row.ClusterBudget
+						}]
+					});
+				};
+			};
+			if (row.FundId === cerfId) {
+				const foundYear = data.cerf.find(e => e.year === row.AllocationYear);
+				if (foundYear) {
+					const foundPartner = foundYear.values.find(e => e.partner === row.PartnerCode);
+					if (foundPartner) {
+						foundPartner.value += row.ClusterBudget;
+					} else {
+						foundYear.values.push({
+							partner: row.PartnerCode,
+							partnerType: row.OrganizatinonId,
+							value: row.ClusterBudget
+						});
+					};
+				} else {
+					data.cerf.push({
+						year: row.AllocationYear,
+						values: [{
+							partner: row.PartnerCode,
+							partnerType: row.OrganizatinonId,
+							value: row.ClusterBudget
+						}]
+					});
+				};
 			};
 		};
 	});
@@ -389,55 +383,58 @@ function processDataForCountryProfileByPartner(rawDataAllocations, cerfByPartner
 
 };
 
-function processDataForCountryProfileBySector(cerfByPartnerData, cbpfPartnersData, lists) {
+function processDataForCountryProfileBySector(rawAllocationsData, lists) {
 
 	const data = [];
 
-	cerfByPartnerData.forEach(row => {
+	rawAllocationsData.forEach(row => {
 		if (row.PooledFundId === chartState.selectedCountryProfile) {
-			const foundYearAndSector = data.find(e => e.year === row.AllocationYear && e.sector === row.ClusterId);
-			if (foundYearAndSector) {
-				foundYearAndSector.total += row.Budget;
-				foundYearAndSector.cerf += row.Budget;
-			} else {
-				data.push({
-					year: row.AllocationYear,
-					sector: row.ClusterId,
-					total: row.Budget,
-					cerf: row.Budget,
-					cbpf: 0
-				});
+			if (row.FundId === cerfId) {
+				const foundYearAndSector = data.find(e => e.year === row.AllocationYear && e.sector === row.ClusterId);
+				if (foundYearAndSector) {
+					foundYearAndSector.total += row.ClusterBudget;
+					foundYearAndSector.cerf += row.ClusterBudget;
+				} else {
+					data.push({
+						year: row.AllocationYear,
+						sector: row.ClusterId,
+						total: row.ClusterBudget,
+						cerf: row.ClusterBudget,
+						cbpf: 0
+					});
+				};
+			};
+			if (row.FundId === cbpfId) {
+				if (row.PooledFundId === chartState.selectedCountryProfile && row.FundId === cbpfId) {
+					const foundYearAndSector = data.find(e => e.year === row.AllocationYear && e.sector === row.ClusterId);
+					if (foundYearAndSector) {
+						foundYearAndSector.total += row.ClusterBudget;
+						foundYearAndSector.cbpf += row.ClusterBudget;
+					} else {
+						data.push({
+							year: row.AllocationYear,
+							sector: row.ClusterId,
+							total: row.ClusterBudget,
+							cerf: 0,
+							cbpf: row.ClusterBudget
+						});
+					};
+				};
 			};
 		};
 	});
 
-	cbpfPartnersData.forEach(row => {
-		if (row.PooledFundId === chartState.selectedCountryProfile && row.FundId === cbpfId) {
-			const foundYearAndSector = data.find(e => e.year === row.AllocationYear && e.sector === row.ClusterId);
-			if (foundYearAndSector) {
-				foundYearAndSector.total += row.ClusterBudget;
-				foundYearAndSector.cbpf += row.ClusterBudget;
-			} else {
-				data.push({
-					year: row.AllocationYear,
-					sector: row.ClusterId,
-					total: row.ClusterBudget,
-					cerf: 0,
-					cbpf: row.ClusterBudget
-				});
-			};
-		};
-	});
+	console.log(data)
 
 	return data;
 
 };
 
 function pushCbpfOrCerf(obj, row, lists) {
-	if (lists.fundTypesList[row.FundId] === "cbpf") {
+	if (row.FundId === cbpfId) {
 		obj.cbpf += +row.ClusterBudget;
 		obj[`type${separator}${row.AllocationSurceId}${separator}cbpf`] += +row.ClusterBudget;;
-	} else if (lists.fundTypesList[row.FundId] === "cerf") {
+	} else if (row.FundId === cerfId) {
 		obj.cerf += +row.ClusterBudget;
 		obj[`type${separator}${row.AllocationSurceId}${separator}cerf`] += +row.ClusterBudget;;
 	};
@@ -445,11 +442,11 @@ function pushCbpfOrCerf(obj, row, lists) {
 	obj[`type${separator}${row.AllocationSurceId}${separator}total`] += +row.ClusterBudget;;
 };
 
-function processAllData(rawAllocationsData, adminLevel1Data, cerfByPartnerData, cbpfPartnersData, lists) {
+function processAllData(rawAllocationsData, adminLevel1Data, lists) {
 	overviewData = processDataForCountryProfileOverview(rawAllocationsData, lists);
 	overviewAdminLevel1Data = processAdminLevel1DataForCountryProfileOverview(adminLevel1Data);
-	byPartnerData = processDataForCountryProfileByPartner(rawAllocationsData, cerfByPartnerData, cbpfPartnersData, lists);
-	bySectorData = processDataForCountryProfileBySector(cerfByPartnerData, cbpfPartnersData, lists);
+	byPartnerData = processDataForCountryProfileByPartner(rawAllocationsData, lists);
+	bySectorData = processDataForCountryProfileBySector(rawAllocationsData, lists);
 };
 
 export { createCountryProfile };

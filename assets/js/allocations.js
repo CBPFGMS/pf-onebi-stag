@@ -2017,7 +2017,7 @@ function createAllocations(selections, colors, mapData, lists) {
 						(chartState.selectedChart === "allocationsBySector" && chartState.selectedCluster.indexOf(allocation.ClusterId + "") > -1) ||
 						(chartState.selectedChart === "allocationsByType" && chartState.selectedType.indexOf(allocation.AllocationSurceId + "") > -1)) {
 						allocation.ProjList.toString().split(separator).forEach(e => numberOfProjects.add(e));
-						allocation.OrgList.toString().split(separator).forEach(e => numberOfPartners.add(e));
+						numberOfPartners.add(allocation.PartnerCode);
 					};
 				};
 			});
