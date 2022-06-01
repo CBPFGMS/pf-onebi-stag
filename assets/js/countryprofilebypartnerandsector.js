@@ -6,6 +6,11 @@ const padding = [4, 8, 4, 8],
 	paddingCbpf = [10, 52, 30, 118],
 	paddingPartnersCerf = [30, 52, 10, 118],
 	paddingPartnersCbpf = [30, 52, 10, 118],
+	selectionSvgHeight = 80,
+	selectionSvgPadding = [20, 18, 14, 18],
+	selectionBarHeight = 14,
+	selectionBarPadding = 6,
+	selectionBarSpace = 2,
 	buttonsPanelHeight = 30,
 	panelHorizontalPadding = 8,
 	panelVerticalPadding = 8,
@@ -14,9 +19,8 @@ const padding = [4, 8, 4, 8],
 	polylinePadding = 4,
 	fadeOpacity = 0.2,
 	innerTooltipDivWidth = 290,
-	classPrefix = "pfbicpbypartner",
+	classPrefix = "pfbicpps",
 	formatPercent = d3.format(".0%"),
-	formatPercent1Decimal = d3.format(".1%"),
 	formatSIaxes = d3.format("~s"),
 	formatMoney0Decimals = d3.format(",.0f"),
 	currentDate = new Date(),
@@ -52,10 +56,11 @@ const padding = [4, 8, 4, 8],
 let yearsArrayCerf,
 	yearsArrayCbpf,
 	totalWidth,
+	selectionSvgWidth,
 	sortedRow = "value",
 	activeTransition = false;
 
-function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
+function createCountryProfileByPartnerAndSector(container, lists, colors, tooltipDiv) {
 
 	const cerfId = +Object.keys(lists.fundTypesList).find(e => lists.fundTypesList[e] === "cerf");
 	const cbpfId = +Object.keys(lists.fundTypesList).find(e => lists.fundTypesList[e] === "cbpf");
@@ -86,6 +91,9 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
 	const yearsButtonsDiv = chartsDiv.append("div")
 		.attr("class", classPrefix + "yearsButtonsDiv");
 
+	const selectionChartDiv = chartsDiv.append("div")
+		.attr("class", classPrefix + "selectionChartDiv");
+
 	const barChartsDiv = chartsDiv.append("div")
 		.attr("class", classPrefix + "barChartsDiv");
 
@@ -108,15 +116,6 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
 	const titleDivCbpf = barChartsDivCbpf.append("div")
 		.attr("class", classPrefix + "titleDivCbpf")
 		.html("CBPF");
-
-	const selectionChartDivCbpf = barChartsDivCbpf.append("div")
-		.attr("class", classPrefix + "selectionChartDivCbpf");
-
-	const selectionChartDivTitle = selectionChartDivCbpf.append("div")
-		.attr("class", classPrefix + "selectionChartDivTitle");
-
-	const selectionChartDivContent = selectionChartDivCbpf.append("div")
-		.attr("class", classPrefix + "selectionChartDivContent");
 
 	const headerRowDivCbpf = barChartsDivCbpf.append("div")
 		.attr("class", classPrefix + "headerRowDivCbpf");
@@ -151,6 +150,17 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
 		}
 	};
 
+	const xScaleCbpf = d3.scaleLinear();
+
+	const xScaleCbpfLabels = d3.scalePoint()
+		.padding(0.5);
+
+	const xAxisCbpf = d3.axisTop(xScaleCbpf)
+		.ticks(4)
+		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"))
+		.tickSizeOuter(0)
+		.tickSizeInner(-(selectionBarHeight + 2 * (selectionBarPadding)));
+
 	function draw(originalData, resetYear, firstTime) {
 
 		if (firstTime) {
@@ -174,8 +184,8 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
 		drawTopFigures(data.topFigures, topRowDiv, colors, syncedTransition);
 		recalculateDivWidth(data, barChartsDivCerf, barChartsDivCbpf);
 		if (chartState.selectedFund !== "cerf") {
-			drawSelectionChart(data.cbpfDataAggregated, selectionChartDivCbpf, syncedTransition, colors, tooltipDiv, container, lists);
-			reselectCards(selectionChartDivCbpf);
+			drawSelectionChart(data.dataAggregated, selectionChartDiv, xScaleCbpf, xScaleCbpfLabels, xAxisCbpf, syncedTransition, colors, tooltipDiv, container, lists);
+			reselectLabels(selectionChartDiv);
 		};
 		drawTable(data.cerfData, null, partnersDivCerf, container, lists, colors, "cerf", syncedTransition, tooltipDiv);
 		drawTable(data.cbpfData, null, partnersDivCbpf, container, lists, colors, "cbpf", syncedTransition, tooltipDiv);
@@ -189,36 +199,26 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
 			draw(originalData, true, true);
 		});
 
-		function reselectCards(container) {
-			const cards = container.selectAll(`.${classPrefix}partnersCard`);
-			const title = container.select(`.${classPrefix}selectionChartDivTitle`);
+		function reselectLabels(container) {
+			const labels = container.selectAll(`.${classPrefix}labels`);
+			const bars = container.selectAll(`.${classPrefix}bars`);
+			const polylines = container.selectAll(`.${classPrefix}polylines`);
 
-			cards.style("background-color", null)
-				.each(d => d.click = false);
-
-			cards.selectAll("div")
-				.style("color", null);
-
-			cards.on("click", redraw);
+			labels.on("click", redraw);
+			bars.on("click", redraw);
+			polylines.on("click", redraw);
 
 			function redraw(event, d) {
 				d.clicked = !d.clicked;
-
-				tooltipDiv.style("display", "none")
-					.html(null);
-
 				if (!d.clicked) {
-					cards.style("background-color", null);
-					cards.selectAll("div")
-						.style("color", null);
-					title.html("Click for filtering by partner type:");
+					bars.style("opacity", 1);
+					labels.style("opacity", 1);
+					polylines.style("opacity", 1);
 					drawTable(data.cbpfData, null, partnersDivCbpf, container, lists, colors, "cbpf", null, tooltipDiv);
 				} else {
-					cards.style("background-color", e => e.partnerType === d.partnerType ? unBlue : null)
-						.each((d, i, n) => d.clicked = n[i] === event.currentTarget);
-					cards.selectAll("div")
-						.style("color", e => e.partnerType === d.partnerType ? "white" : null);
-					title.html("Click the selected partner for removing the filter:");
+					bars.style("opacity", e => e.partnerType === d.partnerType ? 1 : fadeOpacity);
+					labels.style("opacity", e => e.partnerType === d.partnerType ? 1 : fadeOpacity);
+					polylines.style("opacity", e => e.partnerType === d.partnerType ? 1 : fadeOpacity);
 					drawTable(data.cbpfData, d.partnerType, partnersDivCbpf, container, lists, colors, "cbpf", null, tooltipDiv);
 				};
 			};
@@ -229,7 +229,7 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
 
 	return draw;
 
-	//end of createCountryProfileByPartner
+	//end of createCountryProfileByPartnerAndSector
 };
 
 function createButtonsPanel(originalData, yearsArrayCerf, yearsArrayCbpf, svg, buttonsPanel, tooltip, container, draw) {
@@ -567,57 +567,158 @@ function createHeaderRow(...containers) {
 	});
 };
 
-function drawSelectionChart(data, container, syncedTransition, colors, tooltip, containerDiv, lists) {
+function drawSelectionChart(data, container, xScaleCbpf, xScaleCbpfLabels, xAxisCbpf, syncedTransition, colors, tooltip, containerDiv, lists) {
+
+	const selectionChartDivSize = container.node().getBoundingClientRect();
+	selectionSvgWidth = selectionChartDivSize.width;
+
+	let selectionSvg = container.selectAll(`.${classPrefix}selectionSvg`)
+		.data([true]);
+
+	selectionSvg = selectionSvg.enter()
+		.append("svg")
+		.attr("class", classPrefix + "selectionSvg")
+		.merge(selectionSvg)
+		.attr("width", selectionSvgWidth)
+		.attr("height", selectionSvgHeight)
+		.style("background-color", "white");
 
 	const total = d3.sum(data, d => d.value);
-	const maxValue = d3.max(data, d => d.value);
 
-	const titleDiv = container.select(`.${classPrefix}selectionChartDivTitle`);
+	xScaleCbpf.domain([0, total])
+		.range([selectionSvgPadding[3], selectionSvgWidth - selectionSvgPadding[1] - (data.length - 1) * selectionBarSpace]);
 
-	titleDiv.html("Click for filtering by partner type:");
+	xScaleCbpfLabels.domain(data.map(e => e.partnerType))
+		.range([selectionSvgPadding[3], selectionSvgWidth - selectionSvgPadding[1] - (data.length - 1) * selectionBarSpace])
 
-	const cardContainer = container.select(`.${classPrefix}selectionChartDivContent`);
+	let xAxisCbpfGroup = selectionSvg.selectAll(`.${classPrefix}xAxisGroupcbpf`)
+		.data([true]);
 
-	let partnersCard = cardContainer.selectAll(`.${classPrefix}partnersCard`)
+	xAxisCbpfGroup = xAxisCbpfGroup.enter()
+		.append("g")
+		.attr("class", classPrefix + "xAxisGroupcbpf")
+		.merge(xAxisCbpfGroup)
+		.attr("transform", `translate(0,${selectionSvgPadding[0]})`);
+
+	xAxisCbpfGroup.transition(syncedTransition)
+		.call(xAxisCbpf)
+		.on("start", (_, i, n) => {
+			d3.select(n[i]).selectAll(".tick")
+				.filter(e => e === 0)
+				.remove();
+		});
+
+	let bars = selectionSvg.selectAll(`.${classPrefix}bars`)
 		.data(data, d => d.partnerType);
 
-	const partnersCardExit = partnersCard.exit()
+	const barsExit = bars.exit()
+		.transition(syncedTransition)
+		.style("width", 0)
 		.remove();
 
-	const partnersCardEnter = partnersCard.enter()
-		.append("div")
-		.attr("class", classPrefix + "partnersCard");
+	const barsEnter = bars.enter()
+		.append("rect")
+		.attr("class", classPrefix + "bars")
+		.style("fill", (_, i, n) => colors.cbpfAnalogous[n.length - (i + 1)])
+		.attr("height", selectionBarHeight)
+		.attr("width", 0)
+		.attr("y", selectionSvgPadding[0] + selectionBarPadding)
+		.attr("x", selectionSvgPadding[3])
+		.style("cursor", "pointer");
 
-	const partnersCardNameDiv = partnersCardEnter.append("div")
-		.attr("class", classPrefix + "partnersCardNameDiv");
+	bars = barsEnter.merge(bars);
 
-	const partnersCardValueDiv = partnersCardEnter.append("div")
-		.attr("class", classPrefix + "partnersCardValueDiv");
+	bars.order();
 
-	const partnersCardBarDiv = partnersCardEnter.append("div")
-		.attr("class", classPrefix + "partnersCardBarDiv");
+	bars.transition(syncedTransition)
+		.style("fill", (_, i, n) => colors.cbpfAnalogous[n.length - (i + 1)])
+		.attr("width", d => xScaleCbpf(d.value) - selectionSvgPadding[3])
+		.attr("x", (d, i, n) => {
+			if (!i) {
+				localVariable.set(n[i], d.value);
+				return selectionSvgPadding[3];
+			} else {
+				const previous = localVariable.get(n[i].previousSibling);
+				localVariable.set(n[i], previous + d.value);
+				return xScaleCbpf(previous) + i * selectionBarSpace;
+			};
+		});
 
-	partnersCardNameDiv.html(d => lists.partnersList[d.partnerType]);
+	let labels = selectionSvg.selectAll(`.${classPrefix}labels`)
+		.data(data, d => d.partnerType);
 
-	partnersCardValueDiv.html(d => `${formatSIFloat(d.value)} (${formatPercent1Decimal(d.value/total)})`);
-
-	const partnersCardBar = partnersCardBarDiv.append("div")
-		.attr("class", classPrefix + "partnersCardBar")
-		.style("background-color", colors.cbpf)
-		.style("width", "0%");
-
-	partnersCard = partnersCardEnter.merge(partnersCard);
-
-	partnersCard.order();
-
-	partnersCard.select(`.${classPrefix}partnersCardValueDiv`)
-		.html(d => `${formatSIFloat(d.value)} (${formatPercent1Decimal(d.value/total)})`);
-
-	partnersCard.select(`.${classPrefix}partnersCardBar`)
+	const labelsExit = labels.exit()
 		.transition(syncedTransition)
-		.style("width", d => formatPercent1Decimal(d.value / maxValue));
+		.style("opacity", 0)
+		.remove();
 
-	partnersCard.on("mouseover", mouseOverSelection)
+	const labelsEnter = labels.enter()
+		.append("text")
+		.attr("class", classPrefix + "labels")
+		.attr("y", selectionSvgHeight - selectionSvgPadding[2])
+		.attr("x", selectionSvgPadding[3])
+		.style("opacity", 0)
+		.text(d => partnersShortNames[d.partnerType]);
+
+	labels = labelsEnter.merge(labels);
+
+	labels.transition(syncedTransition)
+		.style("opacity", 1)
+		.attr("x", d => xScaleCbpfLabels(d.partnerType));
+
+	let polylines = selectionSvg.selectAll(`.${classPrefix}polylines`)
+		.data(data, d => d.partnerType);
+
+	const polylinesExit = polylines.exit()
+		.transition(syncedTransition)
+		.style("opacity", 0)
+		.remove();
+
+	const polylinesEnter = polylines.enter()
+		.append("polyline")
+		.attr("class", classPrefix + "polylines")
+		.style("opacity", 0)
+		.attr("points", (d, i, n) => {
+			let previous = 0;
+			if (!i) {
+				localVariable.set(n[i], d.value);
+			} else {
+				previous = localVariable.get(n[i].previousSibling);
+				localVariable.set(n[i], previous + d.value);
+			};
+			return `${xScaleCbpf(previous + d.value/2)},${selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight} 
+			${xScaleCbpf(previous + d.value/2)},${(selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight)/2 + n.length - i * 3 +(selectionSvgHeight - selectionSvgPadding[2] - polylinePadding)/2} 
+			${xScaleCbpfLabels(d.partnerType)},${(selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight)/2 + n.length - i * 3 +(selectionSvgHeight - selectionSvgPadding[2] - polylinePadding)/2} 
+			${xScaleCbpfLabels(d.partnerType)},${selectionSvgHeight - selectionSvgPadding[2] - polylinePadding}`;
+		});
+
+	polylines = polylinesEnter.merge(polylines);
+
+	polylines.order();
+
+	polylines.transition(syncedTransition)
+		.style("opacity", 1)
+		.attr("points", (d, i, n) => {
+			let previous = 0;
+			if (!i) {
+				localVariable.set(n[i], d.value);
+			} else {
+				previous = localVariable.get(n[i].previousSibling);
+				localVariable.set(n[i], previous + d.value);
+			};
+			return `${xScaleCbpf(previous + d.value/2)},${selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight} 
+			${xScaleCbpf(previous + d.value/2)},${(selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight)/2 + n.length - i * 3 +(selectionSvgHeight - selectionSvgPadding[2] - polylinePadding)/2} 
+			${xScaleCbpfLabels(d.partnerType)},${(selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight)/2 + n.length - i * 3 +(selectionSvgHeight - selectionSvgPadding[2] - polylinePadding)/2} 
+			${xScaleCbpfLabels(d.partnerType)},${selectionSvgHeight - selectionSvgPadding[2] - polylinePadding}`;
+		});
+
+	bars.on("mouseover", mouseOverSelection)
+		.on("mouseout", () => mouseOut(tooltip));
+
+	labels.on("mouseover", mouseOverSelection)
+		.on("mouseout", () => mouseOut(tooltip));
+
+	polylines.on("mouseover", mouseOverSelection)
 		.on("mouseout", () => mouseOut(tooltip));
 
 	function mouseOverSelection(event, datum) {
@@ -665,6 +766,7 @@ function drawSelectionChart(data, container, syncedTransition, colors, tooltip, 
 			.attr("class", classPrefix + "clickText")
 			.html(datum.clicked ? "Click for removing the filter" : "Click for filtering the partners list, showing only " + lists.partnersList[datum.partnerType] + " partners. Click again for removing the filter");
 
+
 		positionTooltip(tooltip, containerDiv, event, "top");
 	};
 
@@ -681,7 +783,8 @@ function drawTable(data, partnerType, containerDiv, container, lists, colors, fu
 
 	const namesList = fundType === "cerf" ? lists.unAgenciesNamesList : lists.partnersNamesList;
 
-	const filteredData = JSON.parse(JSON.stringify(!partnerType ? data : data.filter(partner => partner.partnerType === partnerType)));
+	const filteredData = !partnerType ? data :
+		data.filter(partner => partner.partnerType === partnerType);
 
 	const maxValue = d3.max(filteredData, d => d.value);
 
@@ -692,6 +795,7 @@ function drawTable(data, partnerType, containerDiv, container, lists, colors, fu
 		.attr("class", classPrefix + "rowDiv" + capitalize(fundType))
 		.style("background-color", (_, i) => !(i % 2) ? "#fff" : "#eee")
 		.style("max-height", partnerRowHeight + "em")
+		.style("min-height", partnerRowMinHeight + "em")
 		.style("line-height", (partnerRowHeight / 2) + "em");
 
 	const partnerNameDiv = rowDiv.append("div")
@@ -825,28 +929,34 @@ function processData(originalData, lists) {
 			total: 0
 		},
 		cbpfData: [],
-		cbpfDataAggregated: [],
+		dataAggregated: [],
 		cerfData: []
 	};
 
-	if (chartState.selectedFund !== "cbpf") originalData.cerf.forEach(row => processRow(row, data.cerfData, true));
-	if (chartState.selectedFund !== "cerf") {
-		originalData.cbpfAggregated.forEach(row => processRow(row, data.cbpfDataAggregated, true));
-		originalData.cbpf.forEach(row => processRow(row, data.cbpfData, false))
-	};
+	if (chartState.selectedFund !== "cbpf") originalData.cerf.forEach(row => processRow(row, data.cerfData));
+	if (chartState.selectedFund !== "cerf") originalData.cbpf.forEach(row => processRow(row, data.cbpfData));
 
-	function processRow(row, target, addTotal) {
+	function processRow(row, target) {
 		if (chartState.selectedYear === row.year) {
 			row.values.forEach(innerRow => {
 				target.push(innerRow);
-				if (addTotal) data.topFigures.total += innerRow.value;
+				data.topFigures.total += innerRow.value;
+				const foundSector = data.dataAggregated.find(e => e.sector === innerRow.sector);
+				if (foundSector) {
+					foundSector.value += innerRow.value;
+				} else {
+					data.dataAggregated.push({
+						sector: innerRow.sector,
+						value: innerRow.value
+					});
+				};
 			});
 		};
 	};
 
 	data.cerfData.sort((a, b) => b.value - a.value);
 	data.cbpfData.sort((a, b) => b.value - a.value);
-	data.cbpfDataAggregated.sort((a, b) => b.value - a.value);
+	data.dataAggregated.sort((a, b) => a.value - b.value);
 
 	return data;
 
@@ -1003,4 +1113,4 @@ function reverseFormat(s) {
 	return returnValue;
 };
 
-export { createCountryProfileByPartner };
+export { createCountryProfileByPartnerAndSector };

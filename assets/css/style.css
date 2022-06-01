@@ -2453,16 +2453,62 @@ a.video-tutorial{color:#333;}
 }
 
 .pfbicpbypartnerselectionChartDivCbpf {
-  width: 92%;
-  margin-bottom: 1.2em;
+  width: 96%;
+  margin-bottom: 1em;
+  min-height: 10vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.pfbicpbypartnerpolylines {
-  fill:  none;
-  stroke: #888;
-  stroke-width: 1px;
+.pfbicpbypartnerselectionChartDivTitle {
+  font-size: 0.8em;
+  padding-left: 5px;
+  margin-bottom: 6px;
+}
+
+.pfbicpbypartnerselectionChartDivContent {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: row;
+}
+
+.pfbicpbypartnerpartnersCard {
+  display: flex;
+  flex-direction: column;
+  margin-right: 5px;
+  margin-left: 5px;
+  border-radius: 3px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  justify-content: space-between;
+  flex: 1 1 0px;
   cursor: pointer;
 }
+
+.pfbicpbypartnerpartnersCardNameDiv {
+  font-family: "Arial", sans-serif;
+  font-size: 0.9em;
+  color: #444;
+  padding-left: 6px;
+} 
+
+.pfbicpbypartnerpartnersCardValueDiv {
+  font-family: "Arial", sans-serif;
+  font-size: 0.7em;
+  color: #444;
+  font-weight: 700;
+  padding-left: 6px;
+} 
+
+.pfbicpbypartnerpartnersCardBarDiv {
+  background-color: #ddd;
+  height: 8px;
+  width:  100%;
+} 
+
+.pfbicpbypartnerpartnersCardBar {
+  height: 8px;
+  border-radius: 0px 0px 0px 2px;
+} 
 
 .pfbicpbypartnerrowDivCerf, .pfbicpbypartnerrowDivCbpf {
   width: 92%;
@@ -2507,6 +2553,9 @@ a.video-tutorial{color:#333;}
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow-y: scroll;
+  flex-grow: 1;
+  flex-basis: 0;
 }
 
 .pfbicpbypartnertitleDivCerf, .pfbicpbypartnertitleDivCbpf {
@@ -2577,33 +2626,6 @@ a.video-tutorial{color:#333;}
   pointer-events: none;
 }
 
-.pfbicpbypartnerxAxisGroupcerf line, .pfbicpbypartneryAxisGroupcerf line, .pfbicpbypartnerxAxisGroupcbpf line, .pfbicpbypartneryAxisGroupcbpf line {
-  stroke: darkslategray;
-}
-
-.pfbicpbypartnerxAxisGroupcerf path, .pfbicpbypartneryAxisGroupcerf path, .pfbicpbypartnerxAxisGroupcbpf path, .pfbicpbypartneryAxisGroupcbpf path {
-  stroke: none;
-}
-
-.pfbicpbypartneryAxisGroupcerf text, .pfbicpbypartneryAxisGroupcbpf text {
-  font-family: "Roboto", sans-serif;
-  font-size: 11px;
-  fill: #333;
-  pointer-events: none;
-}
-
-.pfbicpbypartnerxAxisGroupcerf text, .pfbicpbypartnerxAxisGroupcbpf text {
-  font-family: "Roboto", sans-serif;
-  font-size: 10px;
-  fill: #999;
-  pointer-events: none;
-}
-
-.pfbicpbypartnerxAxisGroupcerf line, .pfbicpbypartnerxAxisGroupcbpf line {
-  stroke: #ddd;
-  stroke-dasharray: 2, 2;
-}
-
 .pfbicpbypartnerlabels {
   font-family: "Roboto", sans-serif;
   font-size: 12px;
@@ -2611,33 +2633,6 @@ a.video-tutorial{color:#333;}
   text-anchor: middle;
   dominant-baseline: hanging;
   cursor: pointer;
-}
-
-.pfbicpbypartnerxAxisGroupPartnerscerf line, .pfbicpbypartneryAxisGroupPartnerscerf line, .pfbicpbypartnerxAxisGroupPartnerscbpf line, .pfbicpbypartneryAxisGroupPartnerscbpf line {
-  stroke: darkslategray;
-}
-
-.pfbicpbypartnerxAxisGroupPartnerscerf path, .pfbicpbypartneryAxisGroupPartnerscerf path, .pfbicpbypartnerxAxisGroupPartnerscbpf path, .pfbicpbypartneryAxisGroupPartnerscbpf path {
-  stroke: none;
-}
-
-.pfbicpbypartneryAxisGroupPartnerscerf text, .pfbicpbypartneryAxisGroupPartnerscbpf text {
-  font-family: "Roboto", sans-serif;
-  font-size: 11px;
-  fill: #333;
-  pointer-events: none;
-}
-
-.pfbicpbypartnerxAxisGroupPartnerscerf text, .pfbicpbypartnerxAxisGroupPartnerscbpf text {
-  font-family: "Roboto", sans-serif;
-  font-size: 10px;
-  fill: #999;
-  pointer-events: none;
-}
-
-.pfbicpbypartnerxAxisGroupPartnerscerf line, .pfbicpbypartnerxAxisGroupPartnerscbpf line {
-  stroke: #ddd;
-  stroke-dasharray: 2, 2;
 }
 
 /*By sectors tab, code:pfbicpbysector*/
@@ -2796,4 +2791,318 @@ a.video-tutorial{color:#333;}
   margin-left: 6px;
   cursor: pointer;
   font-size: 1.4em;
+}
+
+/*By partners and sectors tab, code:pfbicpps*/
+.pfbicppsouterDiv {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  --unColor:  #65A8DC;
+}
+
+.pfbicppstopDiv {
+  width: 100%;
+  display: flex;
+  height:  5vh;
+}
+
+.pfbicppstitleDiv {
+  width: 50%;
+  font-family: "Roboto", sans-serif;
+  font-size: 1.4em;
+  color: darkslategray;
+  font-weight: 500;
+}
+
+.pfbicppsbuttonsOuterDiv {
+  width: 50%;
+  right: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: 1rem;
+}
+
+.pfbicppsbuttonsDiv button {
+  margin: 0px 0px 0px 8px;
+  display: inline-flex;
+  align-items: center; 
+  white-space: pre;
+  z-index: 1000;
+  border: 1px solid #BCBEC0;
+  font-size: 0.8rem;
+  padding: 0 10px 0 0;
+  border-radius: 3px;
+  background-color: #eee;
+  line-height: normal;
+  transition: all 0.2s linear;
+  outline: 0;
+}
+
+.pfbicppsbuttonsDiv button .icon-circle {
+  background-color: #fff;
+  padding: 5px;
+  display: inline-flex;
+  margin-right: 5px;
+  border-radius: 3px 0 0 3px;
+}
+
+.pfbicppsbuttonsDiv button:hover{background-color: #3289C9; color:#fff; border-color:#3289C9;}
+.pfbicppsbuttonsDiv button.active{background-color: #3289C9; color:#fff; border-color:#3289C9;}
+
+.pfbicppstitleDiv p {
+  margin: 0.2em 0 0.2em 0.8em;
+}
+
+.pfbicppschartsDiv {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.pfbicppstopRowDiv {
+  display: flex;
+  flex-direction: row;
+}
+
+.pfbicppsbarChartsDiv {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.pfbicppsyearsButtonsDiv {
+  width: 100%;
+}
+
+.pfbicppsbarChartsDivCerf, .pfbicppsbarChartsDivCbpf {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  height: 100%;
+  align-items: center;
+}
+
+.pfbicppsheaderRowDivCerf, .pfbicppsheaderRowDivCbpf {
+  width: 92%;
+  display: flex;
+  flex-direction: row;
+  border-bottom: 2px solid black;
+  font-family: "Roboto", sans-serif;
+  font-size: 0.8em;
+  font-weight: 500;
+  color: #222;
+  margin-top: 0.2em;
+  align-items: center;
+  cursor: pointer;
+}
+
+.pfbicppsheaderName, .pfbicppsheaderType, .pfbicppsheaderValue {
+  position: relative;
+}
+
+.pfbicppsiconDiv {
+  position: absolute;
+  right: 10%;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  font-size: 1.2em;
+}
+
+.pfbicppsselectionChartDivCbpf {
+  width: 92%;
+  margin-bottom: 1.2em;
+}
+
+.pfbicppspolylines {
+  fill:  none;
+  stroke: #888;
+  stroke-width: 1px;
+  cursor: pointer;
+}
+
+.pfbicppsrowDivCerf, .pfbicppsrowDivCbpf {
+  width: 92%;
+  display: flex;
+  flex-direction: row;
+  font-family: "Roboto", sans-serif;
+  font-size: 0.8em;
+  font-weight: 400;
+  color: #444;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  align-items: center;
+}
+
+.pfbicppspartnerNameDiv {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  max-height: inherit;
+  text-overflow: ellipsis;
+}
+
+.pfbicppsbarDivContainer {
+  position: relative;
+}
+
+.pfbicppsbarDiv {
+  height: 1.4em;
+}
+
+.pfbicppsbarLabel {
+  font-family: "Roboto", sans-serif;
+  font-size: 0.8em;
+  font-weight: 500;
+  color: #222;
+  padding-right: 0.5em;
+  position: absolute;
+  top: 0%;
+}
+
+.pfbicppspartnersDivCerf, .pfbicppspartnersDivCbpf {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pfbicppstitleDivCerf, .pfbicppstitleDivCbpf {
+  width: 100%;
+  font-size: 1.2em;
+  font-family: "Roboto", sans-serif;
+  font-weight: 300;
+  text-align: center;
+  color: #444;
+  margin-top: 0.8em;
+}
+
+.pfbicppspartnersTitleDivCerf, .pfbicppspartnersTitleDivCbpf {
+  width: 100%;
+  font-size: 1em;
+  font-family: "Roboto", sans-serif;
+  text-align: center;
+  color: #444;
+}
+
+.pfbicppsallocationsValue {
+  font-size: 3.2em;
+}
+
+.pfbicppsallocationsUnit {
+  font-size: 1.8em;
+  color: dimgray;
+  padding-left: 0.2em;
+  padding-right: 0.8em;
+}
+
+.pfbicppsdescriptionDiv {
+  color: dimgray;
+  font-size: 1.2em;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.2;
+  max-width: 50%;
+}
+
+.pfbicppsallocationsDiv {
+  padding-left: 1.6em;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  width: 45%;
+}
+
+.pfbicppsvaluePlusUnit {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+}
+
+.pfbicppsbuttonsText {
+  font-family: "Roboto", sans-serif;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.pfbicppschartTitle {
+  font-family: "Roboto", sans-serif;
+  font-size: 20px;
+  fill: #444;
+  font-weight: 300;
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.pfbicppsxAxisGroupcerf line, .pfbicppsyAxisGroupcerf line, .pfbicppsxAxisGroupcbpf line, .pfbicppsyAxisGroupcbpf line {
+  stroke: darkslategray;
+}
+
+.pfbicppsxAxisGroupcerf path, .pfbicppsyAxisGroupcerf path, .pfbicppsxAxisGroupcbpf path, .pfbicppsyAxisGroupcbpf path {
+  stroke: none;
+}
+
+.pfbicppsyAxisGroupcerf text, .pfbicppsyAxisGroupcbpf text {
+  font-family: "Roboto", sans-serif;
+  font-size: 11px;
+  fill: #333;
+  pointer-events: none;
+}
+
+.pfbicppsxAxisGroupcerf text, .pfbicppsxAxisGroupcbpf text {
+  font-family: "Roboto", sans-serif;
+  font-size: 10px;
+  fill: #999;
+  pointer-events: none;
+}
+
+.pfbicppsxAxisGroupcerf line, .pfbicppsxAxisGroupcbpf line {
+  stroke: #ddd;
+  stroke-dasharray: 2, 2;
+}
+
+.pfbicppslabels {
+  font-family: "Roboto", sans-serif;
+  font-size: 12px;
+  fill: #333;
+  text-anchor: middle;
+  dominant-baseline: hanging;
+  cursor: pointer;
+}
+
+.pfbicppsxAxisGroupPartnerscerf line, .pfbicppsyAxisGroupPartnerscerf line, .pfbicppsxAxisGroupPartnerscbpf line, .pfbicppsyAxisGroupPartnerscbpf line {
+  stroke: darkslategray;
+}
+
+.pfbicppsxAxisGroupPartnerscerf path, .pfbicppsyAxisGroupPartnerscerf path, .pfbicppsxAxisGroupPartnerscbpf path, .pfbicppsyAxisGroupPartnerscbpf path {
+  stroke: none;
+}
+
+.pfbicppsyAxisGroupPartnerscerf text, .pfbicppsyAxisGroupPartnerscbpf text {
+  font-family: "Roboto", sans-serif;
+  font-size: 11px;
+  fill: #333;
+  pointer-events: none;
+}
+
+.pfbicppsxAxisGroupPartnerscerf text, .pfbicppsxAxisGroupPartnerscbpf text {
+  font-family: "Roboto", sans-serif;
+  font-size: 10px;
+  fill: #999;
+  pointer-events: none;
+}
+
+.pfbicppsxAxisGroupPartnerscerf line, .pfbicppsxAxisGroupPartnerscbpf line {
+  stroke: #ddd;
+  stroke-dasharray: 2, 2;
+}
+
+.pfbicppsselectionChartDiv {
+  width: 100%;
+  margin-bottom: 0.8em;
+  margin-top: 0.8em;
 }
