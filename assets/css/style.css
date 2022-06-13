@@ -650,6 +650,10 @@ a.video-tutorial{color:#333;}
   padding: 8px;
 }
 
+#pfbicppsinnerTooltipDiv > div:not(:first-child) {
+  padding: 8px;
+}
+
 #pfbicctooltipDiv{
 	padding: 8px !important;
 }
@@ -668,7 +672,7 @@ a.video-tutorial{color:#333;}
   padding-bottom: 8px !important;
 }
 
-.pfbialtooltipTitleDiv, .pfbicdtooltipTitleDiv, .pfbicpoverviewtooltipTitleDiv, .pfbicpbypartnertooltipTitleDiv {
+.pfbialtooltipTitleDiv, .pfbicdtooltipTitleDiv, .pfbicpoverviewtooltipTitleDiv, .pfbicpbypartnertooltipTitleDiv, .pfbicppstooltipTitleDiv {
 	margin-bottom: 3px !important;
     background-color: #3189c9;
     padding: 8px 8px;
@@ -744,7 +748,7 @@ a.video-tutorial{color:#333;}
 	font-weight: 600;
 }
 
-.pfbialtooltipValues, .pfbialtooltipKeys, .pfbicctooltipValues, .pfbicctooltipYears, .pfbicpbypartnertooltipKeys, .pfbicpbypartnertooltipValues {
+.pfbialtooltipValues, .pfbialtooltipKeys, .pfbicctooltipValues, .pfbicctooltipYears, .pfbicpbypartnertooltipKeys, .pfbicpbypartnertooltipValues, .pfbicppstooltipKeys, .pfbicppstooltipValues {
   flex: 1 0 auto;
 }
 
@@ -752,13 +756,13 @@ a.video-tutorial{color:#333;}
 	font-weight: 600;
 }
 
-.pfbialtooltipLeader, .pfbicctooltipLeader, .pfbicpbypartnertooltipLeader {
+.pfbialtooltipLeader, .pfbicctooltipLeader, .pfbicpbypartnertooltipLeader, .pfbicppstooltipLeader {
   flex: 0 1 auto;
   overflow: hidden;
   color: #ccc;
 }
 
-.pfbialtooltipLeader::before, .pfbicctooltipLeader::before, .pfbicpbypartnertooltipLeader:before {
+.pfbialtooltipLeader::before, .pfbicctooltipLeader::before, .pfbicpbypartnertooltipLeader:before, .pfbicppstooltipLeader:before {
    display: block;
    overflow: hidden;
    text-overflow: clip;
@@ -2913,17 +2917,69 @@ a.video-tutorial{color:#333;}
   font-size: 1.2em;
 }
 
-.pfbicppsselectionChartDivCbpf {
-  width: 92%;
-  margin-bottom: 1.2em;
+.pfbicppsselectionChartDiv {
+  width: 96%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 1em;
+  min-height: 10vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.pfbicppspolylines {
-  fill:  none;
-  stroke: #888;
-  stroke-width: 1px;
+.pfbicppsselectionChartDivTitle {
+  font-size: 0.8em;
+  padding-left: 5px;
+  margin-bottom: 6px;
+}
+
+.pfbicppsselectionChartDivContent {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: row;
+}
+
+.pfbicppspartnersCard {
+  display: flex;
+  flex-direction: column;
+  margin-right: 5px;
+  margin-left: 5px;
+  border-radius: 3px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  justify-content: space-between;
+  flex: 1 1 0px;
   cursor: pointer;
 }
+
+.pfbicppspartnersCardIconDiv {
+  padding-left: 6px;
+} 
+
+.pfbicppspartnersCardNameDiv {
+  font-family: "Arial", sans-serif;
+  font-size: 0.8em;
+  color: #444;
+  padding-left: 6px;
+} 
+
+.pfbicppspartnersCardValueDiv {
+  font-family: "Arial", sans-serif;
+  font-size: 0.7em;
+  color: #444;
+  font-weight: 700;
+  padding-left: 6px;
+} 
+
+.pfbicppspartnersCardBarDiv {
+  background-color: #ddd;
+  height: 8px;
+  width:  100%;
+} 
+
+.pfbicppspartnersCardBar {
+  height: 8px;
+  border-radius: 0px 0px 0px 2px;
+} 
 
 .pfbicppsrowDivCerf, .pfbicppsrowDivCbpf {
   width: 92%;
@@ -2968,6 +3024,9 @@ a.video-tutorial{color:#333;}
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow-y: scroll;
+  flex-grow: 1;
+  flex-basis: 0;
 }
 
 .pfbicppstitleDivCerf, .pfbicppstitleDivCbpf {
@@ -2977,7 +3036,7 @@ a.video-tutorial{color:#333;}
   font-weight: 300;
   text-align: center;
   color: #444;
-  margin-top: 0.8em;
+  margin-top: 0.2em;
 }
 
 .pfbicppspartnersTitleDivCerf, .pfbicppspartnersTitleDivCbpf {
@@ -3038,33 +3097,6 @@ a.video-tutorial{color:#333;}
   pointer-events: none;
 }
 
-.pfbicppsxAxisGroupcerf line, .pfbicppsyAxisGroupcerf line, .pfbicppsxAxisGroupcbpf line, .pfbicppsyAxisGroupcbpf line {
-  stroke: darkslategray;
-}
-
-.pfbicppsxAxisGroupcerf path, .pfbicppsyAxisGroupcerf path, .pfbicppsxAxisGroupcbpf path, .pfbicppsyAxisGroupcbpf path {
-  stroke: none;
-}
-
-.pfbicppsyAxisGroupcerf text, .pfbicppsyAxisGroupcbpf text {
-  font-family: "Roboto", sans-serif;
-  font-size: 11px;
-  fill: #333;
-  pointer-events: none;
-}
-
-.pfbicppsxAxisGroupcerf text, .pfbicppsxAxisGroupcbpf text {
-  font-family: "Roboto", sans-serif;
-  font-size: 10px;
-  fill: #999;
-  pointer-events: none;
-}
-
-.pfbicppsxAxisGroupcerf line, .pfbicppsxAxisGroupcbpf line {
-  stroke: #ddd;
-  stroke-dasharray: 2, 2;
-}
-
 .pfbicppslabels {
   font-family: "Roboto", sans-serif;
   font-size: 12px;
@@ -3072,37 +3104,4 @@ a.video-tutorial{color:#333;}
   text-anchor: middle;
   dominant-baseline: hanging;
   cursor: pointer;
-}
-
-.pfbicppsxAxisGroupPartnerscerf line, .pfbicppsyAxisGroupPartnerscerf line, .pfbicppsxAxisGroupPartnerscbpf line, .pfbicppsyAxisGroupPartnerscbpf line {
-  stroke: darkslategray;
-}
-
-.pfbicppsxAxisGroupPartnerscerf path, .pfbicppsyAxisGroupPartnerscerf path, .pfbicppsxAxisGroupPartnerscbpf path, .pfbicppsyAxisGroupPartnerscbpf path {
-  stroke: none;
-}
-
-.pfbicppsyAxisGroupPartnerscerf text, .pfbicppsyAxisGroupPartnerscbpf text {
-  font-family: "Roboto", sans-serif;
-  font-size: 11px;
-  fill: #333;
-  pointer-events: none;
-}
-
-.pfbicppsxAxisGroupPartnerscerf text, .pfbicppsxAxisGroupPartnerscbpf text {
-  font-family: "Roboto", sans-serif;
-  font-size: 10px;
-  fill: #999;
-  pointer-events: none;
-}
-
-.pfbicppsxAxisGroupPartnerscerf line, .pfbicppsxAxisGroupPartnerscbpf line {
-  stroke: #ddd;
-  stroke-dasharray: 2, 2;
-}
-
-.pfbicppsselectionChartDiv {
-  width: 100%;
-  margin-bottom: 0.8em;
-  margin-top: 0.8em;
 }

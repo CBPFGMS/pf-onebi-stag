@@ -668,6 +668,7 @@ function drawSelectionChart(data, container, syncedTransition, colors, tooltip, 
 		positionTooltip(tooltip, containerDiv, event, "top");
 	};
 
+	//end of drawSelectionChart
 };
 
 function drawTable(data, partnerType, containerDiv, container, lists, colors, fundType, syncedTransitionOriginal, tooltip) {

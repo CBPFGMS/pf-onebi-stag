@@ -1,4 +1,5 @@
 import { chartState } from "./chartstate.js";
+import { clustersIconsData } from "./clustersiconsdata.js";
 
 //|constants
 const padding = [4, 8, 4, 8],
@@ -6,11 +7,6 @@ const padding = [4, 8, 4, 8],
 	paddingCbpf = [10, 52, 30, 118],
 	paddingPartnersCerf = [30, 52, 10, 118],
 	paddingPartnersCbpf = [30, 52, 10, 118],
-	selectionSvgHeight = 80,
-	selectionSvgPadding = [20, 18, 14, 18],
-	selectionBarHeight = 14,
-	selectionBarPadding = 6,
-	selectionBarSpace = 2,
 	buttonsPanelHeight = 30,
 	panelHorizontalPadding = 8,
 	panelVerticalPadding = 8,
@@ -21,11 +17,13 @@ const padding = [4, 8, 4, 8],
 	innerTooltipDivWidth = 290,
 	classPrefix = "pfbicpps",
 	formatPercent = d3.format(".0%"),
+	formatPercent1Decimal = d3.format(".1%"),
 	formatSIaxes = d3.format("~s"),
 	formatMoney0Decimals = d3.format(",.0f"),
 	currentDate = new Date(),
 	localVariable = d3.local(),
 	unBlue = "#1F69B3",
+	lightUnBlue = d3.color(unBlue),
 	currentYear = currentDate.getFullYear(),
 	separator = "##",
 	duration = 1000,
@@ -56,9 +54,10 @@ const padding = [4, 8, 4, 8],
 let yearsArrayCerf,
 	yearsArrayCbpf,
 	totalWidth,
-	selectionSvgWidth,
 	sortedRow = "value",
 	activeTransition = false;
+
+lightUnBlue.opacity = 0.2;
 
 function createCountryProfileByPartnerAndSector(container, lists, colors, tooltipDiv) {
 
@@ -93,6 +92,12 @@ function createCountryProfileByPartnerAndSector(container, lists, colors, toolti
 
 	const selectionChartDiv = chartsDiv.append("div")
 		.attr("class", classPrefix + "selectionChartDiv");
+
+	const selectionChartDivTitle = selectionChartDiv.append("div")
+		.attr("class", classPrefix + "selectionChartDivTitle");
+
+	const selectionChartDivContent = selectionChartDiv.append("div")
+		.attr("class", classPrefix + "selectionChartDivContent");
 
 	const barChartsDiv = chartsDiv.append("div")
 		.attr("class", classPrefix + "barChartsDiv");
@@ -150,17 +155,6 @@ function createCountryProfileByPartnerAndSector(container, lists, colors, toolti
 		}
 	};
 
-	const xScaleCbpf = d3.scaleLinear();
-
-	const xScaleCbpfLabels = d3.scalePoint()
-		.padding(0.5);
-
-	const xAxisCbpf = d3.axisTop(xScaleCbpf)
-		.ticks(4)
-		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"))
-		.tickSizeOuter(0)
-		.tickSizeInner(-(selectionBarHeight + 2 * (selectionBarPadding)));
-
 	function draw(originalData, resetYear, firstTime) {
 
 		if (firstTime) {
@@ -184,8 +178,9 @@ function createCountryProfileByPartnerAndSector(container, lists, colors, toolti
 		drawTopFigures(data.topFigures, topRowDiv, colors, syncedTransition);
 		recalculateDivWidth(data, barChartsDivCerf, barChartsDivCbpf);
 		if (chartState.selectedFund !== "cerf") {
-			drawSelectionChart(data.dataAggregated, selectionChartDiv, xScaleCbpf, xScaleCbpfLabels, xAxisCbpf, syncedTransition, colors, tooltipDiv, container, lists);
-			reselectLabels(selectionChartDiv);
+			//CHANGE SELECTION CHART!
+			drawSelectionChart(data.dataAggregated, selectionChartDiv, syncedTransition, colors, tooltipDiv, container, lists);
+			reselectCards(selectionChartDiv);
 		};
 		drawTable(data.cerfData, null, partnersDivCerf, container, lists, colors, "cerf", syncedTransition, tooltipDiv);
 		drawTable(data.cbpfData, null, partnersDivCbpf, container, lists, colors, "cbpf", syncedTransition, tooltipDiv);
@@ -199,27 +194,35 @@ function createCountryProfileByPartnerAndSector(container, lists, colors, toolti
 			draw(originalData, true, true);
 		});
 
-		function reselectLabels(container) {
-			const labels = container.selectAll(`.${classPrefix}labels`);
-			const bars = container.selectAll(`.${classPrefix}bars`);
-			const polylines = container.selectAll(`.${classPrefix}polylines`);
+		function reselectCards(container) {
+			const cards = container.selectAll(`.${classPrefix}partnersCard`);
+			const title = container.select(`.${classPrefix}selectionChartDivTitle`);
 
-			labels.on("click", redraw);
-			bars.on("click", redraw);
-			polylines.on("click", redraw);
+			cards.style("background-color", null)
+				.each(d => d.click = false);
+
+			cards.selectAll("div")
+				.style("color", null);
+
+			cards.on("click", redraw);
 
 			function redraw(event, d) {
 				d.clicked = !d.clicked;
+
+				tooltipDiv.style("display", "none")
+					.html(null);
+
 				if (!d.clicked) {
-					bars.style("opacity", 1);
-					labels.style("opacity", 1);
-					polylines.style("opacity", 1);
+					cards.style("background-color", null);
+					title.html("Click for filtering by partner type:");
+					drawTable(data.cerfData, null, partnersDivCbpf, container, lists, colors, "cerf", null, tooltipDiv);
 					drawTable(data.cbpfData, null, partnersDivCbpf, container, lists, colors, "cbpf", null, tooltipDiv);
 				} else {
-					bars.style("opacity", e => e.partnerType === d.partnerType ? 1 : fadeOpacity);
-					labels.style("opacity", e => e.partnerType === d.partnerType ? 1 : fadeOpacity);
-					polylines.style("opacity", e => e.partnerType === d.partnerType ? 1 : fadeOpacity);
-					drawTable(data.cbpfData, d.partnerType, partnersDivCbpf, container, lists, colors, "cbpf", null, tooltipDiv);
+					cards.style("background-color", e => e.sector === d.sector ? lightUnBlue : null)
+						.each((d, i, n) => d.clicked = n[i] === event.currentTarget);
+					title.html("Click the selected partner for removing the filter:");
+					drawTable(data.cerfData, d.sector, partnersDivCbpf, container, lists, colors, "cerf", null, tooltipDiv);
+					drawTable(data.cbpfData, d.sector, partnersDivCbpf, container, lists, colors, "cbpf", null, tooltipDiv);
 				};
 			};
 		};
@@ -548,7 +551,7 @@ function createHeaderRow(...containers) {
 			.attr("class", classPrefix + "headerType")
 			.style("flex", `0 ${formatPercent(typeWidth)}`)
 			.datum({ type: "type" })
-			.html("Type")
+			.html("Sector")
 			.append("div")
 			.style("display", "none")
 			.attr("class", classPrefix + "iconDiv")
@@ -567,158 +570,65 @@ function createHeaderRow(...containers) {
 	});
 };
 
-function drawSelectionChart(data, container, xScaleCbpf, xScaleCbpfLabels, xAxisCbpf, syncedTransition, colors, tooltip, containerDiv, lists) {
-
-	const selectionChartDivSize = container.node().getBoundingClientRect();
-	selectionSvgWidth = selectionChartDivSize.width;
-
-	let selectionSvg = container.selectAll(`.${classPrefix}selectionSvg`)
-		.data([true]);
-
-	selectionSvg = selectionSvg.enter()
-		.append("svg")
-		.attr("class", classPrefix + "selectionSvg")
-		.merge(selectionSvg)
-		.attr("width", selectionSvgWidth)
-		.attr("height", selectionSvgHeight)
-		.style("background-color", "white");
+function drawSelectionChart(data, container, syncedTransition, colors, tooltip, containerDiv, lists) {
 
 	const total = d3.sum(data, d => d.value);
+	const maxValue = d3.max(data, d => d.value);
 
-	xScaleCbpf.domain([0, total])
-		.range([selectionSvgPadding[3], selectionSvgWidth - selectionSvgPadding[1] - (data.length - 1) * selectionBarSpace]);
+	const titleDiv = container.select(`.${classPrefix}selectionChartDivTitle`);
 
-	xScaleCbpfLabels.domain(data.map(e => e.partnerType))
-		.range([selectionSvgPadding[3], selectionSvgWidth - selectionSvgPadding[1] - (data.length - 1) * selectionBarSpace])
+	titleDiv.html("Click for filtering by partner type:");
 
-	let xAxisCbpfGroup = selectionSvg.selectAll(`.${classPrefix}xAxisGroupcbpf`)
-		.data([true]);
+	const cardContainer = container.select(`.${classPrefix}selectionChartDivContent`);
 
-	xAxisCbpfGroup = xAxisCbpfGroup.enter()
-		.append("g")
-		.attr("class", classPrefix + "xAxisGroupcbpf")
-		.merge(xAxisCbpfGroup)
-		.attr("transform", `translate(0,${selectionSvgPadding[0]})`);
-
-	xAxisCbpfGroup.transition(syncedTransition)
-		.call(xAxisCbpf)
-		.on("start", (_, i, n) => {
-			d3.select(n[i]).selectAll(".tick")
-				.filter(e => e === 0)
-				.remove();
-		});
-
-	let bars = selectionSvg.selectAll(`.${classPrefix}bars`)
+	let partnersCard = cardContainer.selectAll(`.${classPrefix}partnersCard`)
 		.data(data, d => d.partnerType);
 
-	const barsExit = bars.exit()
-		.transition(syncedTransition)
-		.style("width", 0)
+	const partnersCardExit = partnersCard.exit()
 		.remove();
 
-	const barsEnter = bars.enter()
-		.append("rect")
-		.attr("class", classPrefix + "bars")
-		.style("fill", (_, i, n) => colors.cbpfAnalogous[n.length - (i + 1)])
-		.attr("height", selectionBarHeight)
-		.attr("width", 0)
-		.attr("y", selectionSvgPadding[0] + selectionBarPadding)
-		.attr("x", selectionSvgPadding[3])
-		.style("cursor", "pointer");
+	const partnersCardEnter = partnersCard.enter()
+		.append("div")
+		.attr("class", classPrefix + "partnersCard");
 
-	bars = barsEnter.merge(bars);
+	const partnersCardIconDiv = partnersCardEnter.append("div")
+		.attr("class", classPrefix + "partnersCardIconDiv");
 
-	bars.order();
+	const partnersCardNameDiv = partnersCardEnter.append("div")
+		.attr("class", classPrefix + "partnersCardNameDiv");
 
-	bars.transition(syncedTransition)
-		.style("fill", (_, i, n) => colors.cbpfAnalogous[n.length - (i + 1)])
-		.attr("width", d => xScaleCbpf(d.value) - selectionSvgPadding[3])
-		.attr("x", (d, i, n) => {
-			if (!i) {
-				localVariable.set(n[i], d.value);
-				return selectionSvgPadding[3];
-			} else {
-				const previous = localVariable.get(n[i].previousSibling);
-				localVariable.set(n[i], previous + d.value);
-				return xScaleCbpf(previous) + i * selectionBarSpace;
-			};
-		});
+	const partnersCardValueDiv = partnersCardEnter.append("div")
+		.attr("class", classPrefix + "partnersCardValueDiv");
 
-	let labels = selectionSvg.selectAll(`.${classPrefix}labels`)
-		.data(data, d => d.partnerType);
+	const partnersCardBarDiv = partnersCardEnter.append("div")
+		.attr("class", classPrefix + "partnersCardBarDiv");
 
-	const labelsExit = labels.exit()
+	partnersCardIconDiv.append("img")
+		.style("width", "2em")
+		.style("height", "2em")
+		.attr("src", d => clustersIconsData[d.sector]);
+
+	partnersCardNameDiv.html(d => lists.clustersList[d.sector]);
+
+	partnersCardValueDiv.html(d => `${formatSIFloat(d.value)} (${formatPercent1Decimal(d.value/total)})`);
+
+	const partnersCardBar = partnersCardBarDiv.append("div")
+		.attr("class", classPrefix + "partnersCardBar")
+		.style("background-color", unBlue)
+		.style("width", "0%");
+
+	partnersCard = partnersCardEnter.merge(partnersCard);
+
+	partnersCard.order();
+
+	partnersCard.select(`.${classPrefix}partnersCardValueDiv`)
+		.html(d => `${formatSIFloat(d.value)} (${formatPercent1Decimal(d.value/total)})`);
+
+	partnersCard.select(`.${classPrefix}partnersCardBar`)
 		.transition(syncedTransition)
-		.style("opacity", 0)
-		.remove();
+		.style("width", d => formatPercent1Decimal(d.value / maxValue));
 
-	const labelsEnter = labels.enter()
-		.append("text")
-		.attr("class", classPrefix + "labels")
-		.attr("y", selectionSvgHeight - selectionSvgPadding[2])
-		.attr("x", selectionSvgPadding[3])
-		.style("opacity", 0)
-		.text(d => partnersShortNames[d.partnerType]);
-
-	labels = labelsEnter.merge(labels);
-
-	labels.transition(syncedTransition)
-		.style("opacity", 1)
-		.attr("x", d => xScaleCbpfLabels(d.partnerType));
-
-	let polylines = selectionSvg.selectAll(`.${classPrefix}polylines`)
-		.data(data, d => d.partnerType);
-
-	const polylinesExit = polylines.exit()
-		.transition(syncedTransition)
-		.style("opacity", 0)
-		.remove();
-
-	const polylinesEnter = polylines.enter()
-		.append("polyline")
-		.attr("class", classPrefix + "polylines")
-		.style("opacity", 0)
-		.attr("points", (d, i, n) => {
-			let previous = 0;
-			if (!i) {
-				localVariable.set(n[i], d.value);
-			} else {
-				previous = localVariable.get(n[i].previousSibling);
-				localVariable.set(n[i], previous + d.value);
-			};
-			return `${xScaleCbpf(previous + d.value/2)},${selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight} 
-			${xScaleCbpf(previous + d.value/2)},${(selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight)/2 + n.length - i * 3 +(selectionSvgHeight - selectionSvgPadding[2] - polylinePadding)/2} 
-			${xScaleCbpfLabels(d.partnerType)},${(selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight)/2 + n.length - i * 3 +(selectionSvgHeight - selectionSvgPadding[2] - polylinePadding)/2} 
-			${xScaleCbpfLabels(d.partnerType)},${selectionSvgHeight - selectionSvgPadding[2] - polylinePadding}`;
-		});
-
-	polylines = polylinesEnter.merge(polylines);
-
-	polylines.order();
-
-	polylines.transition(syncedTransition)
-		.style("opacity", 1)
-		.attr("points", (d, i, n) => {
-			let previous = 0;
-			if (!i) {
-				localVariable.set(n[i], d.value);
-			} else {
-				previous = localVariable.get(n[i].previousSibling);
-				localVariable.set(n[i], previous + d.value);
-			};
-			return `${xScaleCbpf(previous + d.value/2)},${selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight} 
-			${xScaleCbpf(previous + d.value/2)},${(selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight)/2 + n.length - i * 3 +(selectionSvgHeight - selectionSvgPadding[2] - polylinePadding)/2} 
-			${xScaleCbpfLabels(d.partnerType)},${(selectionSvgPadding[0] + polylinePadding + selectionBarPadding + selectionBarHeight)/2 + n.length - i * 3 +(selectionSvgHeight - selectionSvgPadding[2] - polylinePadding)/2} 
-			${xScaleCbpfLabels(d.partnerType)},${selectionSvgHeight - selectionSvgPadding[2] - polylinePadding}`;
-		});
-
-	bars.on("mouseover", mouseOverSelection)
-		.on("mouseout", () => mouseOut(tooltip));
-
-	labels.on("mouseover", mouseOverSelection)
-		.on("mouseout", () => mouseOut(tooltip));
-
-	polylines.on("mouseover", mouseOverSelection)
+	partnersCard.on("mouseover", mouseOverSelection)
 		.on("mouseout", () => mouseOut(tooltip));
 
 	function mouseOverSelection(event, datum) {
@@ -735,7 +645,7 @@ function drawSelectionChart(data, container, xScaleCbpf, xScaleCbpfLabels, xAxis
 
 		titleDiv.append("strong")
 			.style("font-size", "16px")
-			.html(lists.partnersList[datum.partnerType]);
+			.html(lists.clustersList[datum.sector]);
 
 		const innerDiv = innerTooltipDiv.append("div")
 			.style("display", "flex")
@@ -766,13 +676,15 @@ function drawSelectionChart(data, container, xScaleCbpf, xScaleCbpfLabels, xAxis
 			.attr("class", classPrefix + "clickText")
 			.html(datum.clicked ? "Click for removing the filter" : "Click for filtering the partners list, showing only " + lists.partnersList[datum.partnerType] + " partners. Click again for removing the filter");
 
-
 		positionTooltip(tooltip, containerDiv, event, "top");
 	};
 
+	//end of drawSelectionChart
 };
 
-function drawTable(data, partnerType, containerDiv, container, lists, colors, fundType, syncedTransitionOriginal, tooltip) {
+function drawTable(data, sector, containerDiv, container, lists, colors, fundType, syncedTransitionOriginal, tooltip) {
+
+	console.log(data)
 
 	containerDiv.selectChildren().remove();
 
@@ -783,19 +695,17 @@ function drawTable(data, partnerType, containerDiv, container, lists, colors, fu
 
 	const namesList = fundType === "cerf" ? lists.unAgenciesNamesList : lists.partnersNamesList;
 
-	const filteredData = !partnerType ? data :
-		data.filter(partner => partner.partnerType === partnerType);
+	const filteredData = JSON.parse(JSON.stringify(!sector ? data : data.filter(e => e.sector === sector)));
 
 	const maxValue = d3.max(filteredData, d => d.value);
 
 	const rowDiv = containerDiv.selectAll(null)
-		.data(filteredData, d => d.partner)
+		.data(filteredData, d => d.partner + separator + d.sector)
 		.enter()
 		.append("div")
 		.attr("class", classPrefix + "rowDiv" + capitalize(fundType))
 		.style("background-color", (_, i) => !(i % 2) ? "#fff" : "#eee")
 		.style("max-height", partnerRowHeight + "em")
-		.style("min-height", partnerRowMinHeight + "em")
 		.style("line-height", (partnerRowHeight / 2) + "em");
 
 	const partnerNameDiv = rowDiv.append("div")
@@ -803,9 +713,12 @@ function drawTable(data, partnerType, containerDiv, container, lists, colors, fu
 		.style("flex", `0 ${formatPercent(partnerNameWidth)}`)
 		.html(d => namesList[d.partner]);
 
-	const partnerTypeDiv = rowDiv.append("div")
+	const sectorDiv = rowDiv.append("div")
 		.style("flex", `0 ${formatPercent(typeWidth)}`)
-		.html(d => partnersShortNames[d.partnerType]);
+		.style("height", "100%")
+		.append("img")
+		.attr("height", "100%")
+		.attr("src", d => clustersIconsData[d.sector]);
 
 	const barDivContainer = rowDiv.append("div")
 		.attr("class", classPrefix + "barDivContainer")
@@ -956,7 +869,7 @@ function processData(originalData, lists) {
 
 	data.cerfData.sort((a, b) => b.value - a.value);
 	data.cbpfData.sort((a, b) => b.value - a.value);
-	data.dataAggregated.sort((a, b) => a.value - b.value);
+	data.dataAggregated.sort((a, b) => b.value - a.value);
 
 	return data;
 
