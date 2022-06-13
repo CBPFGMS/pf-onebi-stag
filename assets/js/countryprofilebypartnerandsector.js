@@ -35,7 +35,7 @@ const padding = [4, 8, 4, 8],
 	typeWidth = 0.1,
 	barWidth = 1 - partnerNameWidth - typeWidth,
 	maxRowWidth = 98,
-	partnerRowHeight = 3.2,
+	partnerRowHeight = 3.6,
 	partnerRowMinHeight = 2.4,
 	namePadding = 1,
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
@@ -215,13 +215,13 @@ function createCountryProfileByPartnerAndSector(container, lists, colors, toolti
 				if (!d.clicked) {
 					cards.style("background-color", null);
 					title.html("Click for filtering by partner type:");
-					drawTable(data.cerfData, null, partnersDivCbpf, container, lists, colors, "cerf", null, tooltipDiv);
+					drawTable(data.cerfData, null, partnersDivCerf, container, lists, colors, "cerf", null, tooltipDiv);
 					drawTable(data.cbpfData, null, partnersDivCbpf, container, lists, colors, "cbpf", null, tooltipDiv);
 				} else {
 					cards.style("background-color", e => e.sector === d.sector ? lightUnBlue : null)
 						.each((d, i, n) => d.clicked = n[i] === event.currentTarget);
 					title.html("Click the selected partner for removing the filter:");
-					drawTable(data.cerfData, d.sector, partnersDivCbpf, container, lists, colors, "cerf", null, tooltipDiv);
+					drawTable(data.cerfData, d.sector, partnersDivCerf, container, lists, colors, "cerf", null, tooltipDiv);
 					drawTable(data.cbpfData, d.sector, partnersDivCbpf, container, lists, colors, "cbpf", null, tooltipDiv);
 				};
 			};
@@ -684,8 +684,6 @@ function drawSelectionChart(data, container, syncedTransition, colors, tooltip, 
 
 function drawTable(data, sector, containerDiv, container, lists, colors, fundType, syncedTransitionOriginal, tooltip) {
 
-	console.log(data)
-
 	containerDiv.selectChildren().remove();
 
 	const syncedTransition = syncedTransitionOriginal || d3.transition()
@@ -715,9 +713,9 @@ function drawTable(data, sector, containerDiv, container, lists, colors, fundTyp
 
 	const sectorDiv = rowDiv.append("div")
 		.style("flex", `0 ${formatPercent(typeWidth)}`)
-		.style("height", "100%")
 		.append("img")
-		.attr("height", "100%")
+		.attr("height", "32px")
+		.attr("width", "32px")
 		.attr("src", d => clustersIconsData[d.sector]);
 
 	const barDivContainer = rowDiv.append("div")
@@ -776,9 +774,9 @@ function drawTable(data, sector, containerDiv, container, lists, colors, fundTyp
 	function sortRows(sortType) {
 		sortedRow = sortType;
 		filteredData.sort((a, b) => sortType === "name" ? namesList[a.partner].localeCompare(namesList[b.partner]) :
-			sortType === "type" ? partnersShortNames[a.partnerType].localeCompare(partnersShortNames[b.partnerType]) :
+			sortType === "type" ? lists.clustersList[a.sector].localeCompare(lists.clustersList[b.sector]) :
 			b.value - a.value);
-		rowDiv.data(filteredData, d => d.partner)
+		rowDiv.data(filteredData, d => d.partner + separator + d.sector)
 			.order()
 			.each((_, i, n) => d3.select(n[i]).style("background-color", !(i % 2) ? "#fff" : "#eee"));
 	};
