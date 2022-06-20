@@ -6,6 +6,7 @@ import { createCountryProfileOverview } from "./countryprofileoverview.js";
 import { createCountryProfileByPartner } from "./countryprofilebypartner.js";
 import { createCountryProfileBySector } from "./countryprofilebysector.js";
 import { createCountryProfileByPartnerAndSector } from "./countryprofilebypartnerandsector.js";
+import { createCountryProfileContributions } from "./countryprofilecontributions.js";
 
 //|constants
 const classPrefix = "pfcpmain",
@@ -21,6 +22,7 @@ let selectedTab = tabsData[0],
 	byPartnerData,
 	bySectorData,
 	byPartnerAndSectorData,
+	contributionsData,
 	drawOverview,
 	cerfId,
 	cbpfId;
@@ -109,7 +111,7 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv) {
 
 function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv) {
 
-	processAllData(rawAllocationsData, adminLevel1Data, lists);
+	processAllData(rawAllocationsData, rawContributionsData, adminLevel1Data, lists);
 
 	outerDiv.selectChildren().remove();
 
@@ -160,7 +162,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 		if (+event.currentTarget.value === chartState.selectedCountryProfile) return;
 		chartState.selectedCountryProfile = +event.currentTarget.value;
 		breadcrumb.secondBreadcrumbSpan.html(lists.fundNamesList[chartState.selectedCountryProfile]);
-		processAllData(rawAllocationsData, adminLevel1Data, lists);
+		processAllData(rawAllocationsData, rawContributionsData, adminLevel1Data, lists);
 		chartDiv.selectChildren("div:not(#" + classPrefix + "tooltipDiv)").remove();
 		setCallFunctions();
 		callDrawingFunction();
@@ -189,6 +191,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 		if (selectedTab === tabsData[1]) tabsCallingFunctions.find(d => d.name === tabsData[1]).callingFunction = createCountryProfileByPartner(chartDiv, lists, colorsObject, tooltipDiv);
 		if (selectedTab === tabsData[2]) tabsCallingFunctions.find(d => d.name === tabsData[2]).callingFunction = createCountryProfileBySector(chartDiv, lists, colorsObject, tooltipDiv);
 		if (selectedTab === tabsData[3]) tabsCallingFunctions.find(d => d.name === tabsData[3]).callingFunction = createCountryProfileByPartnerAndSector(chartDiv, lists, colorsObject, tooltipDiv);
+		if (selectedTab === tabsData[4]) tabsCallingFunctions.find(d => d.name === tabsData[3]).callingFunction = createCountryProfileContributions(chartDiv, lists, colorsObject, tooltipDiv);
 	};
 
 	function callDrawingFunction() {
@@ -196,6 +199,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 		if (selectedTab === tabsData[1]) tabsCallingFunctions.find(d => d.name === tabsData[1]).callingFunction(byPartnerData, true, true);
 		if (selectedTab === tabsData[2]) tabsCallingFunctions.find(d => d.name === tabsData[2]).callingFunction(bySectorData, true, true);
 		if (selectedTab === tabsData[3]) tabsCallingFunctions.find(d => d.name === tabsData[3]).callingFunction(byPartnerAndSectorData, true, true);
+		if (selectedTab === tabsData[4]) tabsCallingFunctions.find(d => d.name === tabsData[3]).callingFunction(contributionsData, true, true);
 	};
 
 };
@@ -415,21 +419,6 @@ function processDataForCountryProfileBySector(rawAllocationsData, lists) {
 
 function processDataForCountryProfileByPartnerAndSector(rawAllocationsData, lists) {
 
-	//Object:
-	// {
-	// 	"AllocationYear": 2006,
-	// 	"PooledFundId": 1,
-	// 	"PartnerCode": 2,
-	// 	"OrganizatinonId": 3,
-	// 	"ClusterId": 6,
-	// 	"FundId": 1,
-	// 	"AllocationSourceId": 3,
-	// 	"ProjList": "299##97",
-	// 	"NumbofProj": 2,
-	// 	"ClusterBudget": 27231270,
-	// 	"AllocationSurceId": 3
-	// }
-
 	const data = {
 		cerf: [],
 		cbpf: []
@@ -474,6 +463,56 @@ function processDataForCountryProfileByPartnerAndSector(rawAllocationsData, list
 
 };
 
+function processDataForCountryProfileContributions(rawContributionsData, lists) {
+	//object:
+	// {
+	// 	"FiscalYear": 2021,
+	// 	"PledgePaidDate": "12-2021",
+	// 	"DonorId": 193,
+	// 	"PooledFundId": 109,
+	// 	"PledgeAmt": 2392,
+	// 	"PaidAmt": 0
+	// }
+
+	const data = [];
+
+	rawContributionsData.forEach(row => {
+		if (row.PooledFundId === chartState.selectedCountryProfile) {
+			const foundYear = data.find(e => e.year === row.FiscalYear);
+			if (foundYear) {
+				const foundDonor = foundYear.values.find(e => e.donor === row.DonorId);
+				if (foundDonor) {
+					foundDonor.total += (row.PledgeAmt + row.PaidAmt);
+					foundDonor.paid += row.PaidAmt;
+					foundDonor.pledge += row.PledgeAmt;
+				} else {
+					foundYear.values.push({
+						donor: row.DonorId,
+						total: (row.PledgeAmt + row.PaidAmt),
+						pledge: row.PledgeAmt,
+						paid: row.PaidAmt
+					});
+				};
+			} else {
+				data.push({
+					year: row.FiscalYear,
+					values: [{
+						donor: row.DonorId,
+						total: (row.PledgeAmt + row.PaidAmt),
+						pledge: row.PledgeAmt,
+						paid: row.PaidAmt
+					}]
+				});
+			};
+		};
+	});
+
+	data.sort((a, b) => a.year - b.year);
+
+	return data;
+
+};
+
 function pushCbpfOrCerf(obj, row, lists) {
 	if (row.FundId === cbpfId) {
 		obj.cbpf += +row.ClusterBudget;
@@ -486,12 +525,13 @@ function pushCbpfOrCerf(obj, row, lists) {
 	obj[`type${separator}${row.AllocationSurceId}${separator}total`] += +row.ClusterBudget;;
 };
 
-function processAllData(rawAllocationsData, adminLevel1Data, lists) {
+function processAllData(rawAllocationsData, rawContributionsData, adminLevel1Data, lists) {
 	overviewData = processDataForCountryProfileOverview(rawAllocationsData, lists);
 	overviewAdminLevel1Data = processAdminLevel1DataForCountryProfileOverview(adminLevel1Data);
 	byPartnerData = processDataForCountryProfileByPartner(rawAllocationsData, lists);
 	bySectorData = processDataForCountryProfileBySector(rawAllocationsData, lists);
 	byPartnerAndSectorData = processDataForCountryProfileByPartnerAndSector(rawAllocationsData, lists);
+	contributionsData = processDataForCountryProfileContributions(rawContributionsData, lists);
 };
 
 export { createCountryProfile };
