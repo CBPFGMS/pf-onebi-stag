@@ -14,6 +14,7 @@ const padding = [40, 60, 20, 196],
 	unBlue = "#1F69B3",
 	currentYear = currentDate.getFullYear(),
 	separator = "##",
+	darkerValue = 0.2,
 	duration = 1000;
 
 let yearsArrayCbpf,
@@ -110,10 +111,6 @@ function createCountryProfileContributions(container, lists, colors, tooltipDiv)
 
 		const data = processData(originalData, lists);
 
-
-		console.log(data);
-		return;
-
 		//is the title necessary???
 		// title.html(`${lists.fundNamesList[chartState.selectedCountryProfile]}, ${chartState.selectedYear}`);
 
@@ -122,7 +119,7 @@ function createCountryProfileContributions(container, lists, colors, tooltipDiv)
 			.on("start", () => activeTransition = true)
 			.on("end", () => activeTransition = false);
 
-		createButtonsPanel(originalData, yearsArrayCerf, yearsArrayCbpf, buttonsSvg, buttonsPanel, tooltipDiv, container, draw);
+		//createButtonsPanel(originalData, yearsArrayCerf, yearsArrayCbpf, buttonsSvg, buttonsPanel, tooltipDiv, container, draw);
 		drawTopFigures(data.topFigures, topRowDiv, colors, syncedTransition);
 
 		//end of draw
@@ -368,7 +365,6 @@ function drawTopFigures(data, container, colors, syncedTransition) {
 
 	container.select(`.${classPrefix}contributionsValue`)
 		.transition(syncedTransition)
-		.call(applyColors, colors)
 		.tween("html", (_, i, n) => {
 			const interpolator = d3.interpolate(localVariable.get(n[i]) || 0, data.total);
 			localVariable.set(n[i], data.total);
@@ -386,6 +382,44 @@ function drawTopFigures(data, container, colors, syncedTransition) {
 			return unit === "k" ? "Thousand" : unit === "M" ? "Million" : unit === "G" ? "Billion" : "";
 		});
 
+	container.select(`.${classPrefix}paidValueDiv`)
+		.transition(syncedTransition)
+		.tween("html", (_, i, n) => {
+			const interpolator = d3.interpolate(localVariable.get(n[i]) || 0, data.paid);
+			localVariable.set(n[i], data.paid);
+			const finalValue = formatSIFloat(data.paid);
+			if (+finalValue.slice(-1) === +finalValue.slice(-1)) {
+				return t => n[i].textContent = "$" + formatSIFloat(interpolator(t));
+			} else {
+				return t => n[i].textContent = "$" + formatSIFloat(interpolator(t)).slice(0, -1);
+			};
+		});
+
+	container.select(`.${classPrefix}paidUnitDiv`)
+		.html(() => {
+			const unit = formatSIFloat(data.paid).slice(-1);
+			return +unit === +unit ? null : unit;
+		});
+
+	container.select(`.${classPrefix}pledgeValueDiv`)
+		.transition(syncedTransition)
+		.tween("html", (_, i, n) => {
+			const interpolator = d3.interpolate(localVariable.get(n[i]) || 0, data.pledge);
+			localVariable.set(n[i], data.pledge);
+			const finalValue = formatSIFloat(data.pledge);
+			if (+finalValue.slice(-1) === +finalValue.slice(-1)) {
+				return t => n[i].textContent = "$" + formatSIFloat(interpolator(t));
+			} else {
+				return t => n[i].textContent = "$" + formatSIFloat(interpolator(t)).slice(0, -1);
+			};
+		});
+
+	container.select(`.${classPrefix}pledgeUnitDiv`)
+		.html(() => {
+			const unit = formatSIFloat(data.pledge).slice(-1);
+			return +unit === +unit ? null : unit;
+		});
+
 	//end of drawTopFigures
 };
 
@@ -398,7 +432,7 @@ function createTopFiguresDiv(container, colors, lists) {
 		.attr("class", classPrefix + "descriptionDiv");
 
 	descriptionDiv.append("span")
-		.html(`Allocated in ${lists.fundNamesList[chartState.selectedCountryProfile]}`)
+		.html(`Contributions for ${lists.fundNamesList[chartState.selectedCountryProfile]}`)
 	descriptionDiv.append("span")
 		.attr("class", classPrefix + "spanYearValue")
 		.html(`in ${chartState.selectedYear}`);
@@ -413,6 +447,51 @@ function createTopFiguresDiv(container, colors, lists) {
 
 	const contributionsUnit = contributionsValuePlusUnit.append("span")
 		.attr("class", classPrefix + "contributionsUnit");
+
+	const paidAndPledgeDiv = container.append("div")
+		.attr("class", classPrefix + "paidAndPledgeDiv");
+
+	const paidDiv = paidAndPledgeDiv.append("div")
+		.attr("class", classPrefix + "paidDiv");
+
+	const pledgeDiv = paidAndPledgeDiv.append("div")
+		.attr("class", classPrefix + "pledgeDiv");
+
+	const paidValueDiv = paidDiv.append("div")
+		.attr("class", classPrefix + "paidValueDiv")
+		.html("$0")
+		.call(applyColors, colors);
+
+	const paidUnitDiv = paidDiv.append("div")
+		.attr("class", classPrefix + "paidUnitDiv");
+
+	const paidTextDiv = paidDiv.append("div")
+		.attr("class", classPrefix + "paidTextDiv")
+		.html("paid contributions");
+
+	const pledgeValueDiv = pledgeDiv.append("div")
+		.attr("class", classPrefix + "pledgeValueDiv")
+		.html("$0")
+		.call(applyColors, colors);
+
+	const pledgeUnitDiv = pledgeDiv.append("div")
+		.attr("class", classPrefix + "pledgeUnitDiv");
+
+	const pledgeTextDiv = pledgeDiv.append("div")
+		.attr("class", classPrefix + "pledgeTextDiv")
+		.html("pledged contributions");
+
+	const donorsDiv = container.append("div")
+		.attr("class", classPrefix + "donorsDiv");
+
+	const donorsValueDiv = donorsDiv.append("div")
+		.attr("class", classPrefix + "donorsValueDiv")
+		.html("0")
+		.call(applyColors, colors);
+
+	const donorsTextDiv = donorsDiv.append("div")
+		.attr("class", classPrefix + "donorsTextDiv")
+		.html("donors");
 
 };
 
@@ -538,8 +617,7 @@ function createYearsArray(originalData) {
 };
 
 function applyColors(selection, colors) {
-	selection.style("color", chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ?
-		colors.total : d3.color(colors[chartState.selectedFund]).darker(darkerValue));
+	selection.style("color", d3.color(colors.cbpf).darker(darkerValue));
 };
 
 function capitalize(str) {

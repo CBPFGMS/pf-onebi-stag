@@ -3176,6 +3176,7 @@ a.video-tutorial{color:#333;}
 .pfbicpcontrtopRowDiv {
   display: flex;
   flex-direction: row;
+  width: 100%;
 }
 
 .pfbicpcontrbarChartsDiv {
@@ -3218,6 +3219,10 @@ a.video-tutorial{color:#333;}
   max-width: 50%;
 }
 
+.pfbicpcontrdescriptionDiv span {
+  padding-right: 0.8em;
+}
+
 .pfbicpcontrcontributionsDiv {
   padding-left: 1.6em;
   display: flex;
@@ -3255,3 +3260,71 @@ a.video-tutorial{color:#333;}
   dominant-baseline: hanging;
   cursor: pointer;
 }
+
+.pfbicpcontrpaidAndPledgeDiv {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 25%;
+  color: dimgray;
+}
+
+.pfbicpcontrpaidDiv, .pfbicpcontrpledgeDiv {
+  width: 100%;
+  font-size: 1em;
+  display: flex;
+  flex-direction: row;
+}
+
+.pfbicpcontrpaidDiv {
+  margin-bottom: 0.3em;
+}
+
+.pfbicpcontrpaidValueDiv, .pfbicpcontrpledgeValueDiv {
+  text-align: right;
+  font-weight: 500;
+}
+
+.pfbicpcontrpaidUnitDiv, .pfbicpcontrpledgeUnitDiv {
+  padding-right: 0.2em;
+  text-align: right;
+}
+
+.pfbicpcontrpaidTextDiv, .pfbicpcontrpledgeTextDiv {
+  width: 70%;
+  padding-left: 0.2em;
+  text-align: left;
+}
+
+.pfbicpcontrdonorsDiv {
+  width: 35%;
+  display: flex;
+  flex-direction: row;
+  color: dimgray;
+  align-items: baseline;
+}
+
+.pfbicpcontrdonorsValueDiv {
+  width: 40%;
+  padding-right: 0.2em;
+  text-align: right;
+  font-size: 3.2em;
+}
+
+.pfbicpcontrdonorsTextDiv {
+  width: 60%;
+  padding-left: 0.2em;
+  text-align: left;
+  font-size: 1.2em;
+}
+
+
+
+
+
+
+
+
+
+
+
