@@ -21,6 +21,7 @@ const padding = [40, 60, 20, 196],
 	donorDivHeight = 2, //value in "em"
 	barHeightFactor = 0.7,
 	maxRowWidth = 98,
+	textMinPadding = 8,
 	valueTypes = ["total", "paid", "pledge"],
 	duration = 1000;
 
@@ -129,7 +130,7 @@ function createCountryProfileContributions(container, lists, colors, tooltipDiv)
 			.on("start", () => activeTransition = true)
 			.on("end", () => activeTransition = false);
 
-		createButtonsPanel(originalData, yearsArrayCbpf, buttonsSvg, buttonsPanel, tooltipDiv, container, draw);
+		if (firstTime) createButtonsPanel(originalData, yearsArrayCbpf, buttonsSvg, buttonsPanel, tooltipDiv, container, draw);
 		drawTopFigures(data.topFigures, topRowDiv, colors, syncedTransition);
 
 		drawTable(data.cbpfData, chartContentCbpf, lists, colors, syncedTransition, tooltipDiv, headerRowDivCbpf);
@@ -434,7 +435,15 @@ function createButtonsPanel(originalData, yearsArray, svg, buttonsPanel, tooltip
 	};
 
 	function clickButtonsContributionsRects(event, d) {
-		//LISTENER HERE
+		selectedType = d;
+
+		d3.selectAll(`.${classPrefix}buttonsContributionsRects`)
+			.style("fill", e => selectedType === e ? unBlue : "#eaeaea");
+
+		d3.selectAll(`.${classPrefix}buttonsContributionsText`)
+			.style("fill", e => selectedType === e ? "white" : "#444");
+
+		draw(originalData, false, false);
 	};
 
 	function clickButtonsRects(event, d) {
@@ -616,7 +625,7 @@ function drawTable(data, containerDiv, lists, colors, syncedTransitionOriginal, 
 		.on("start", () => activeTransition = true)
 		.on("end", () => activeTransition = false);
 
-	let rowDiv = containerDiv.selectAll(`${classPrefix}rowDiv`)
+	let rowDiv = containerDiv.selectAll(`.${classPrefix}rowDiv`)
 		.data(data, d => d.donor);
 
 	rowDiv.exit()
@@ -664,7 +673,7 @@ function drawTable(data, containerDiv, lists, colors, syncedTransitionOriginal, 
 
 	rowDiv.select(`.${classPrefix}barDiv`)
 		.transition(syncedTransition)
-		.style("width", d => (maxRowWidth * d[selectedType] / maxValue) + "%");
+		.style("width", d => maxValue === 0 ? "0%" : (maxRowWidth * d[selectedType] / maxValue) + "%");
 
 	rowDiv.select(`.${classPrefix}barLabel`)
 		.transition(syncedTransition)
@@ -677,7 +686,7 @@ function drawTable(data, containerDiv, lists, colors, syncedTransitionOriginal, 
 			return () => {
 				const textWidth = n[i].getBoundingClientRect().width;
 				const barWidth = n[i].previousSibling.getBoundingClientRect().width;
-				return textWidth > barWidth ?
+				return textWidth + textMinPadding > barWidth ?
 					0.99 * containerWidth - barWidth - textWidth + "px" :
 					containerWidth - barWidth + "px";
 			};
@@ -782,7 +791,7 @@ function processData(originalData, lists) {
 		};
 	});
 
-	data.cbpfData.sort((a, b) => b.total - a.total);
+	data.cbpfData.sort((a, b) => b[selectedType] - a[selectedType]);
 
 	return data;
 

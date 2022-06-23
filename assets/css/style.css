@@ -2447,7 +2447,7 @@ a.video-tutorial{color:#333;}
   position: relative;
 }
 
-.pfbicpbypartnericonDiv {
+.pfbicpbypartnericonDiv, .pfbicpcontriconDiv {
   position: absolute;
   right: 10%;
   top: 50%;
