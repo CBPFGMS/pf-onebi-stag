@@ -15,11 +15,18 @@ const padding = [40, 60, 20, 196],
 	currentYear = currentDate.getFullYear(),
 	separator = "##",
 	darkerValue = 0.2,
+	donorNameWidth = 0.25,
+	flagWidth = 0.05,
+	barWidth = 1 - donorNameWidth - flagWidth,
+	donorDivHeight = 2, //value in "em"
+	barHeightFactor = 0.7,
+	maxRowWidth = 98,
+	valueTypes = ["total", "paid", "pledge"],
 	duration = 1000;
 
 let yearsArrayCbpf,
-	svgWidth,
-	svgHeight,
+	sortedRow = "value",
+	selectedType = valueTypes[0],
 	activeTransition = false;
 
 function createCountryProfileContributions(container, lists, colors, tooltipDiv) {
@@ -50,25 +57,42 @@ function createCountryProfileContributions(container, lists, colors, tooltipDiv)
 	const yearsButtonsDiv = chartsDiv.append("div")
 		.attr("class", classPrefix + "yearsButtonsDiv");
 
-	const chartDiv = chartsDiv.append("div")
-		.attr("class", classPrefix + "chartDiv");
+	const chartsContainerDiv = chartsDiv.append("div")
+		.attr("class", classPrefix + "chartsContainerDiv");
+
+	const chartDivCerf = chartsContainerDiv.append("div")
+		.attr("class", classPrefix + "chartDivCerf");
+
+	const chartTitleCerf = chartDivCerf.append("div")
+		.attr("class", classPrefix + "chartTitleCerf")
+		.html("CERF");
+
+	const chartContentCerf = chartDivCerf.append("div")
+		.attr("class", classPrefix + "chartContentCerf");
+
+	const chartDivCbpf = chartsContainerDiv.append("div")
+		.attr("class", classPrefix + "chartDivCbpf");
+
+	const chartTitleCbpf = chartDivCbpf.append("div")
+		.attr("class", classPrefix + "chartTitleCbpf")
+		.html("CBPF");
+
+	const headerRowDivCbpf = chartDivCbpf.append("div")
+		.attr("class", classPrefix + "headerRowDivCbpf");
+
+	const chartContentCbpf = chartDivCbpf.append("div")
+		.attr("class", classPrefix + "chartContentCbpf");
 
 	createTopFiguresDiv(topRowDiv, colors, lists);
+	createHeaderRow(headerRowDivCbpf);
+
+	const yearsButtonsDivSize = yearsButtonsDiv.node().getBoundingClientRect();
 
 	const cerfId = +Object.keys(lists.fundTypesList).find(e => lists.fundTypesList[e] === "cerf");
 	const cbpfId = +Object.keys(lists.fundTypesList).find(e => lists.fundTypesList[e] === "cbpf");
 
-	const yearsButtonsDivSize = yearsButtonsDiv.node().getBoundingClientRect();
-	const chartsDivSize = chartsDiv.node().getBoundingClientRect();
-	svgWidth = chartsDivSize.width;
-	svgHeight = chartsDivSize.height;
-
 	const buttonsSvg = yearsButtonsDiv.append("svg")
 		.attr("viewBox", `0 0 ${yearsButtonsDivSize.width} ${buttonsPanelHeight}`)
-		.style("background-color", "white");
-
-	const svg = chartsDiv.append("svg")
-		.attr("viewBox", `0 0 ${svgWidth} ${svgHeight}`)
 		.style("background-color", "white");
 
 	const buttonsPanel = {
@@ -80,26 +104,12 @@ function createCountryProfileContributions(container, lists, colors, tooltipDiv)
 		buttonVerticalPadding: 4,
 		buttonsMargin: 4,
 		arrowPadding: 18,
+		typePadding: 240,
+		typeWidth: 76,
 		get buttonsNumber() {
-			return Math.floor((this.width - this.padding[1] - this.padding[3] - 2 * this.arrowPadding) / (this.buttonWidth + this.buttonPadding))
+			return Math.floor((this.width - this.typePadding - this.padding[1] - this.padding[3] - 2 * this.arrowPadding) / (this.buttonWidth + this.buttonPadding))
 		}
 	};
-
-	const xScale = d3.scaleLinear()
-		.range([padding[3], chartsDivSize.width - padding[1]]);
-
-	const yScale = d3.scaleBand()
-		.paddingInner(0.5)
-		.paddingOuter(0.5);
-
-	const xAxis = d3.axisBottom(xScale)
-		.ticks(4)
-		.tickFormat(d => "$" + formatSIaxes(d).replace("G", "B"))
-		.tickSizeOuter(0);
-
-	const yAxis = d3.axisLeft(yScale)
-		.tickSizeOuter(0)
-		.tickSizeInner(0);
 
 	function draw(originalData, resetYear, firstTime) {
 
@@ -119,8 +129,10 @@ function createCountryProfileContributions(container, lists, colors, tooltipDiv)
 			.on("start", () => activeTransition = true)
 			.on("end", () => activeTransition = false);
 
-		//createButtonsPanel(originalData, yearsArrayCerf, yearsArrayCbpf, buttonsSvg, buttonsPanel, tooltipDiv, container, draw);
+		createButtonsPanel(originalData, yearsArrayCbpf, buttonsSvg, buttonsPanel, tooltipDiv, container, draw);
 		drawTopFigures(data.topFigures, topRowDiv, colors, syncedTransition);
+
+		drawTable(data.cbpfData, chartContentCbpf, lists, colors, syncedTransition, tooltipDiv, headerRowDivCbpf);
 
 		//end of draw
 	};
@@ -130,10 +142,35 @@ function createCountryProfileContributions(container, lists, colors, tooltipDiv)
 	//end of createCountryProfileContributions
 };
 
-function createButtonsPanel(originalData, yearsArrayCerf, yearsArrayCbpf, svg, buttonsPanel, tooltip, container, draw) {
+function createHeaderRow(container) {
+	container.append("div")
+		.attr("class", classPrefix + "headerName")
+		.style("flex", `0 ${formatPercent(donorNameWidth)}`)
+		.datum({ type: "name" })
+		.html("Donor")
+		.append("div")
+		.style("display", "none")
+		.attr("class", classPrefix + "iconDiv")
+		.append("i")
+		.attr("class", "fas fa-sort-alpha-down");
+	container.append("div")
+		.attr("class", classPrefix + "headerFlag")
+		.style("flex", `0 ${formatPercent(flagWidth)}`)
+		.datum({ type: "type" })
+		.html(null);
+	container.append("div")
+		.attr("class", classPrefix + "headerValue")
+		.style("flex", `0 ${formatPercent(barWidth)}`)
+		.datum({ type: "value" })
+		.html("Contribution Amount")
+		.append("div")
+		.style("display", "none")
+		.attr("class", classPrefix + "iconDiv")
+		.append("i")
+		.attr("class", "fas fa-sort-amount-down");
+};
 
-	const yearsArray = chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? [...new Set(yearsArrayCerf.concat(yearsArrayCbpf))].sort((a, b) => a - b) :
-		chartState.selectedFund === "cerf" ? yearsArrayCerf : yearsArrayCbpf;
+function createButtonsPanel(originalData, yearsArray, svg, buttonsPanel, tooltip, container, draw) {
 
 	const clipPath = svg.append("clipPath")
 		.attr("id", classPrefix + "clipButtons")
@@ -177,6 +214,49 @@ function createButtonsPanel(originalData, yearsArrayCerf, yearsArrayCbpf, svg, b
 		.style("fill", d => chartState.selectedYear === d ? "white" : "#444")
 		.text(d => d);
 
+	const buttonsContributionsGroup = svg.append("g")
+		.attr("class", classPrefix + "buttonsContributionsGroup")
+		.attr("transform", "translate(" + (buttonsPanel.width - buttonsPanel.padding[1] - buttonsPanel.typePadding) + ",0)")
+		.style("cursor", "pointer");
+
+	const buttonsContributionsRects = buttonsContributionsGroup.selectAll(null)
+		.data(valueTypes)
+		.enter()
+		.append("rect")
+		.attr("rx", "2px")
+		.attr("ry", "2px")
+		.attr("class", classPrefix + "buttonsContributionsRects")
+		.attr("width", buttonsPanel.typeWidth - buttonsPanel.buttonPadding)
+		.attr("height", buttonsPanel.height - buttonsPanel.buttonVerticalPadding * 2)
+		.attr("y", buttonsPanel.buttonVerticalPadding)
+		.attr("x", function(_, i) {
+			return i * buttonsPanel.typeWidth + buttonsPanel.buttonPadding / 2;
+		})
+		.style("fill", function(d) {
+			return d === selectedType ? unBlue : "#eaeaea";
+		});
+
+	const buttonsContributionsText = buttonsContributionsGroup.selectAll(null)
+		.data(valueTypes)
+		.enter()
+		.append("text")
+		.attr("text-anchor", "middle")
+		.attr("class", classPrefix + "buttonsContributionsText")
+		.attr("y", buttonsPanel.height / 1.6)
+		.attr("x", function(_, i) {
+			return i * buttonsPanel.typeWidth + buttonsPanel.typeWidth / 2;
+		})
+		.style("fill", function(d) {
+			return d === selectedType ? "white" : "#444";
+		})
+		.text(function(d) {
+			if (d === "pledge") {
+				return "Pledged"
+			} else {
+				return capitalize(d);
+			};
+		});
+
 	const leftArrow = svg.append("g")
 		.attr("class", classPrefix + "LeftArrowGroup")
 		.style("opacity", 0)
@@ -219,6 +299,10 @@ function createButtonsPanel(originalData, yearsArrayCerf, yearsArrayCbpf, svg, b
 	buttonsRects.on("mouseover", mouseOverButtonsRects)
 		.on("mouseout", mouseOutButtonsRects)
 		.on("click", clickButtonsRects);
+
+	buttonsContributionsRects.on("mouseover", mouseOverButtonsContributionsRects)
+		.on("mouseout", mouseOutButtonsContributionsRects)
+		.on("click", clickButtonsContributionsRects);
 
 	if (yearsArray.length > buttonsPanel.buttonsNumber) {
 
@@ -336,6 +420,23 @@ function createButtonsPanel(originalData, yearsArrayCerf, yearsArrayCbpf, svg, b
 			.style("fill", "#444");
 	};
 
+	function mouseOverButtonsContributionsRects(event, d) {
+		d3.select(this).style("fill", unBlue);
+		buttonsContributionsText.filter(e => e === d)
+			.style("fill", "white");
+	};
+
+	function mouseOutButtonsContributionsRects(event, d) {
+		if (selectedType === d) return;
+		d3.select(this).style("fill", "#eaeaea");
+		buttonsContributionsText.filter(e => e === d)
+			.style("fill", "#444");
+	};
+
+	function clickButtonsContributionsRects(event, d) {
+		//LISTENER HERE
+	};
+
 	function clickButtonsRects(event, d) {
 
 		if (activeTransition) return;
@@ -420,6 +521,17 @@ function drawTopFigures(data, container, colors, syncedTransition) {
 			return +unit === +unit ? null : unit;
 		});
 
+	container.select(`.${classPrefix}donorsValueDiv`)
+		.transition(syncedTransition)
+		.tween("html", (_, i, n) => {
+			const interpolator = d3.interpolateRound(localVariable.get(n[i]) || 0, data.donors.size);
+			localVariable.set(n[i], data.donors.size);
+			return t => n[i].textContent = interpolator(t);
+		});
+
+	container.select(`.${classPrefix}donorsTextDiv`)
+		.html(data.donors.size > 1 ? "donors" : "donor");
+
 	//end of drawTopFigures
 };
 
@@ -495,6 +607,122 @@ function createTopFiguresDiv(container, colors, lists) {
 
 };
 
+function drawTable(data, containerDiv, lists, colors, syncedTransitionOriginal, tooltipDiv, header) {
+
+	const maxValue = d3.max(data, d => d[selectedType]);
+
+	const syncedTransition = syncedTransitionOriginal || d3.transition()
+		.duration(duration)
+		.on("start", () => activeTransition = true)
+		.on("end", () => activeTransition = false);
+
+	let rowDiv = containerDiv.selectAll(`${classPrefix}rowDiv`)
+		.data(data, d => d.donor);
+
+	rowDiv.exit()
+		.remove();
+
+	const rowDivEnter = rowDiv.enter()
+		.append("div")
+		.attr("class", classPrefix + "rowDiv")
+		.style("height", donorDivHeight + "em", "important")
+		.style("top", (_, i) => (donorDivHeight * i) + "em");
+
+	const rowDivName = rowDivEnter.append("div")
+		.attr("class", classPrefix + "rowDivName")
+		.style("flex", `0 ${formatPercent(donorNameWidth)}`)
+		.html(d => lists.donorNamesList[d.donor])
+
+	const rowDivFlag = rowDivEnter.append("div")
+		.attr("class", classPrefix + "rowDivFlag")
+		.style("flex", `0 ${formatPercent(flagWidth)}`)
+		.append("img")
+		.attr("height", "24px")
+		.attr("width", "24px")
+		.attr("src", d => donorsFlagsData[lists.donorIsoCodesList[d.donor].toLowerCase()]);
+
+	const barDivContainer = rowDivEnter.append("div")
+		.attr("class", classPrefix + "barDivContainer")
+		.style("flex", `0 ${formatPercent(barWidth)}`);
+
+	const barDiv = barDivContainer.append("div")
+		.attr("class", classPrefix + "barDiv")
+		.style("width", "0%")
+		.style("height", (donorDivHeight * barHeightFactor) + "em")
+		.style("background-color", colors.cbpf);
+
+	const barLabel = barDivContainer.append("span")
+		.attr("class", classPrefix + "barLabel")
+		.style("right", "95%");
+
+	rowDiv = rowDivEnter.merge(rowDiv);
+
+	rowDiv.order();
+
+	rowDiv.transition(syncedTransition)
+		.style("top", (_, i) => (donorDivHeight * i) + "em");
+
+	rowDiv.select(`.${classPrefix}barDiv`)
+		.transition(syncedTransition)
+		.style("width", d => (maxRowWidth * d[selectedType] / maxValue) + "%");
+
+	rowDiv.select(`.${classPrefix}barLabel`)
+		.transition(syncedTransition)
+		.textTween((d, i, n) => {
+			const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, d[selectedType]);
+			return t => d[selectedType] ? formatSIFloat(interpolator(t)).replace("G", "B") : 0;
+		})
+		.styleTween("right", (d, i, n) => {
+			const containerWidth = n[i].parentNode.getBoundingClientRect().width;
+			return () => {
+				const textWidth = n[i].getBoundingClientRect().width;
+				const barWidth = n[i].previousSibling.getBoundingClientRect().width;
+				return textWidth > barWidth ?
+					0.99 * containerWidth - barWidth - textWidth + "px" :
+					containerWidth - barWidth + "px";
+			};
+		});
+
+	const headerName = header.select(`.${classPrefix}headerName`);
+	const headerValue = header.select(`.${classPrefix}headerValue`);
+
+	headerName.on("mouseover", mouseOverHeader)
+		.on("mouseout", mouseOutHeader)
+		.on("click", () => sortRows("name"));
+
+	headerValue.on("mouseover", mouseOverHeader)
+		.on("mouseout", mouseOutHeader)
+		.on("click", () => sortRows("value"));
+
+	headerValue.dispatch("mouseover");
+
+	function sortRows(sortType) {
+		sortedRow = sortType;
+		data.sort((a, b) => sortType === "name" ? lists.donorNamesList[a.donor].localeCompare(lists.donorNamesList[b.donor]) :
+			b[selectedType] - a[selectedType]);
+		rowDiv.data(data, d => d.donor)
+			.order()
+			.transition()
+			.duration(duration)
+			.style("top", (_, i) => (donorDivHeight * i) + "em");
+	};
+
+	function mouseOverHeader(event) {
+		d3.select(event.currentTarget.parentNode)
+			.selectAll("div")
+			.select(`.${classPrefix}iconDiv`)
+			.style("display", (_, i, n) => n[i].parentNode === event.currentTarget ? "block" : "none");
+	};
+
+	function mouseOutHeader(event) {
+		d3.select(event.currentTarget.parentNode)
+			.selectAll("div")
+			.select(`.${classPrefix}iconDiv`)
+			.style("display", d => d.type === sortedRow ? "block" : "none");
+	};
+
+	//end of drawTable
+};
 
 function mouseOut(tooltip) {
 	tooltip.html(null)
