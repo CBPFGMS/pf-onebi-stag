@@ -3393,3 +3393,15 @@ a.video-tutorial{color:#333;}
   top: 50%;
   transform: translateY(-50%);
 }
+
+.pfbicpcontrchartContentCerf {
+  font-family: "Roboto", sans-serif;
+  font-size: 1em;
+  font-weight: 300;
+  color: #444;
+  padding-top: 2em;
+  padding-left: 4em;
+  padding-right: 4em;
+}
+
+

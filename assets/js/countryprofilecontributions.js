@@ -23,7 +23,8 @@ const padding = [40, 60, 20, 196],
 	maxRowWidth = 98,
 	textMinPadding = 8,
 	valueTypes = ["total", "paid", "pledge"],
-	duration = 1000;
+	duration = 1000,
+	cerfText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi nunc tellus, volutpat a laoreet sit amet, rhoncus cursus leo. Fusce velit lorem, interdum eu dui in, luctus ultrices eros. Nullam eu odio in lectus ullamcorper vulputate et a mauris. Nullam nulla lectus, porttitor non interdum vitae, facilisis iaculis urna.";
 
 let yearsArrayCbpf,
 	sortedRow = "value",
@@ -69,7 +70,8 @@ function createCountryProfileContributions(container, lists, colors, tooltipDiv)
 		.html("CERF");
 
 	const chartContentCerf = chartDivCerf.append("div")
-		.attr("class", classPrefix + "chartContentCerf");
+		.attr("class", classPrefix + "chartContentCerf")
+		.html(cerfText);
 
 	const chartDivCbpf = chartsContainerDiv.append("div")
 		.attr("class", classPrefix + "chartDivCbpf");
