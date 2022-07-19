@@ -150,17 +150,18 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 	setCallFunctions()
 	callDrawingFunction();
 
-	dropdown.on("change", (event, d) => {
-		if (event.currentTarget.value === backToMenu) {
+	dropdown.list.on("click", (_, d) => {
+		dropdown.container.classed("active", d => d.clicked = false);
+		if (d.name === backToMenu) {
 			const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv);
-			countries.on("click", (event, d) => {
+			countries.on("click", (_, d) => {
 				chartState.selectedCountryProfile = d;
 				drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv);
 			});
 			return;
 		};
-		if (+event.currentTarget.value === chartState.selectedCountryProfile) return;
-		chartState.selectedCountryProfile = +event.currentTarget.value;
+		if (d.name === chartState.selectedCountryProfile) return;
+		chartState.selectedCountryProfile = d.name;
 		breadcrumb.secondBreadcrumbSpan.html(lists.fundNamesList[chartState.selectedCountryProfile]);
 		processAllData(rawAllocationsData, rawContributionsData, adminLevel1Data, lists);
 		chartDiv.selectChildren("div:not(#" + classPrefix + "tooltipDiv)").remove();
@@ -206,24 +207,52 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 
 function createDropdown(container, pooledFundsInData, lists) {
 
-	//IMPORTANT: change <select> for <div> elements
+	const data = pooledFundsInData.reduce((acc, curr) => {
+		acc.push({ type: "region", name: curr.region });
+		curr.funds.forEach(e => acc.push({ type: "fund", name: e }));
+		return acc;
+	}, []);
 
-	const data = pooledFundsInData.flatMap(d => d.funds).sort((a, b) => lists.fundNamesList[a].localeCompare(lists.fundNamesList[b]));
+	data.unshift({ type: "backmenu", name: backToMenu });
 
-	data.unshift(backToMenu);
-	data.unshift(selectAnOption);
+	const dropdownContainer = container.append("div")
+		.datum({
+			clicked: false
+		})
+		.attr("class", classPrefix + "dropdownContainer");
 
-	const select = container.append("select");
+	const dropdownTitleDiv = dropdownContainer.append("div")
+		.attr("class", classPrefix + "dropdownTitleDiv");
 
-	const options = select.selectAll(null)
+	const dropdownTitle = dropdownTitleDiv.append("div")
+		.attr("class", classPrefix + "dropdownTitle")
+		.html(selectAnOption);
+
+	const dropdownArrow = dropdownTitleDiv.append("div")
+		.attr("class", classPrefix + "dropdownArrow");
+
+	dropdownArrow.append("i")
+		.attr("class", "fa fa-angle-down");
+
+	const dropdownList = dropdownContainer.append("div")
+		.attr("class", classPrefix + "dropdownList");
+
+	const items = dropdownList.selectAll(null)
 		.data(data)
 		.enter()
-		.append("option")
-		.property("disabled", (_, i) => !i)
-		.attr("value", d => d)
-		.html((d, i) => i > 1 ? lists.fundNamesList[d] : d);
+		.append("span")
+		.attr("class", d => d.type)
+		.html(d => d.type === "fund" ? lists.fundNamesList[d.name] : d.name);
 
-	return select;
+	dropdownTitleDiv.on("click", () => {
+		dropdownContainer.classed("active", d => d.clicked = !d.clicked);
+	});
+
+	dropdownContainer.on("mouseleave", () => dropdownContainer.classed("active", d => d.clicked = false));
+
+	const countries = items.filter(d => d.tyope !== "region");
+
+	return { list: countries, container: dropdownContainer };
 
 };
 

@@ -695,8 +695,15 @@ function preProcessData(rawAllocationsData, rawContributionsData) {
 	const yearsSetContributionsCbpf = new Set();
 	const yearsSetContributionsCerf = new Set();
 
+	//Temporary fix for non-numerical IDs in the allocations data
+	let allocIndex = rawAllocationsData.length - 1;
+	while (allocIndex) {
+		if (!+rawAllocationsData[allocIndex].PooledFundId) rawAllocationsData.splice(allocIndex, 1);
+		allocIndex -= 1;
+	};
+
 	rawAllocationsData.forEach(row => {
-		row.AllocationSurceId = row.AllocationSourceId;//REMOVE THIS: TEMPORARY FIX
+		row.AllocationSurceId = row.AllocationSourceId; //REMOVE THIS: TEMPORARY FIX
 		yearsSetAllocations.add(+row.AllocationYear);
 		if (fundTypesList[row.FundId] === "cerf") {
 			yearsSetAllocationsCerf.add(+row.AllocationYear);

@@ -1440,12 +1440,116 @@ a.video-tutorial{color:#333;}
 
 .pfcpmaindropdownDiv {
   width: 100%;
-  min-height: 5vh;
+  height: 5vh;
   padding: 0 15px;
   display: flex;
   align-items: center;
   font-size: 0.8rem;
 }
+
+/*dropdown*/
+
+.pfcpmaindropdownContainer {
+  height: 100%;
+  width:  100%;
+  position: relative;
+  margin-right: 0.8rem;
+}
+
+.pfcpmaindropdownTitleDiv {
+  display: flex;
+  align-items: center;
+  height: 50%;
+  top: 25%;
+  width: fit-content;
+  background: #f2f4f4; 
+  border: 1px solid #ccc; 
+  border-radius: 4px;
+  padding: 2px 12px 2px 16px;
+  cursor: pointer;
+  position: relative;
+}
+
+.pfcpmaindropdownTitle {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.pfcpmaindropdownArrow {
+  margin-left: 0.4rem;
+  font-weight: bold;
+  transition: transform 0.25s ease-in-out;
+}
+
+.pfcpmaindropdownList {
+  position: relative;
+  top: 32%;
+  padding: 8px 16px 8px 16px;
+  background: #f2f4f4; 
+  border: 1px solid #ccc; 
+  border-radius: 4px;
+  min-height: 70vh;
+  width: auto;
+  font-family: "Roboto", sans-serif;
+  transform-origin: 50% 0;
+  transform: scale(1, 0);
+  transition: transform 0.25s ease-in-out;
+  z-index: 1000;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  writing-mode: vertical-lr;
+  text-orientation: upright;
+  align-content: flex-start;
+}
+
+.pfcpmaindropdownList span {
+  writing-mode: horizontal-tb;
+  white-space: nowrap;
+}
+
+.pfcpmaindropdownContainer.active .pfcpmaindropdownList {
+  transform: scale(1, 1);
+}
+
+.pfcpmaindropdownContainer.active .pfcpmaindropdownArrow {
+  transform: rotate(180deg);
+}
+
+.pfcpmaindropdownList span.region {
+    font-size: 14px;
+    font-weight: 500;
+    color: #222;    
+    margin-bottom: 8px;
+    margin-top: 12px;
+}
+
+.pfcpmaindropdownList span.backmenu {
+    font-size: 14px;
+    font-weight: 500;
+    color: #222;    
+    margin-bottom: 0px;
+    margin-top: 8px;
+}
+
+.pfcpmaindropdownList span.fund {
+    padding-left: 10px;
+    font-size: 12px;
+    color:#333;
+    line-height: normal;
+    margin-bottom: 5px;
+}
+
+.pfcpmaindropdownList span.fund, .pfcpmaindropdownList span.backmenu {
+  cursor: pointer;
+}
+
+.pfcpmaindropdownList span.fund:hover, .pfcpmaindropdownList span.backmenu:hover {
+    color:#3289c9;
+}
+
+/*dropdown*/
 
 .pfcpmaintabsOuterDiv {
   width: 100%;
