@@ -7,17 +7,17 @@
 	1. d3
 	2. jQuery
 	3. topojson
-	5. bootstrap
-	6. font awesome
-	7. jspdf
+	4. bootstrap
+	5. font awesome
+	6. jspdf
 	
 	Bootstrap is not being checked because it depends on jQuery.
 	Fontawesome is not being checked because it changes CSS only
 
 	CSS external resources used:
 	1. Bootstrap
+	2. Font Awesome
 	*/
-
 
 	const head = document.getElementsByTagName('head')[0];
 
