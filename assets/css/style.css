@@ -1438,13 +1438,33 @@ a.video-tutorial{color:#333;}
   height: 100%;
 }
 
-.pfcpmaindropdownDiv {
+.pfcpmaindropdownAndButtonsDiv {
   width: 100%;
   height: 5vh;
   padding: 0 15px;
   display: flex;
   align-items: center;
   font-size: 0.8rem;
+  justify-content: space-between;
+  flex-direction: row;
+}
+
+.pfcpmaindropdownDiv {
+  max-width: 20%;
+  background-color: green;
+  height: 100%;
+}
+
+.pfcpmainyearsButtonsDiv {
+  flex: 0 60%;
+  background-color: red;
+  height: 100%;
+}
+
+.pfcpmainfundsButtonsDiv {
+  flex: 0 20%;
+  background-color: yellow;
+  height: 100%;
 }
 
 /*dropdown*/

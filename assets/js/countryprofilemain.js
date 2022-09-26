@@ -127,8 +127,17 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 
 	createLinks(topButtonsDiv);
 
-	const dropdownDiv = outerDiv.append("div")
+	const dropdownAndButtonsDiv = outerDiv.append("div")
+		.attr("class", classPrefix + "dropdownAndButtonsDiv");
+
+	const dropdownDiv = dropdownAndButtonsDiv.append("div")
 		.attr("class", classPrefix + "dropdownDiv");
+
+	const yearsButtonsDiv = dropdownAndButtonsDiv.append("div")
+		.attr("class", classPrefix + "yearsButtonsDiv");
+
+	const fundsButtonsDiv = dropdownAndButtonsDiv.append("div")
+		.attr("class", classPrefix + "fundsButtonsDiv");
 
 	const tabsOuterDiv = outerDiv.append("div")
 		.attr("class", classPrefix + "tabsOuterDiv");
@@ -144,6 +153,10 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 		.style("display", "none");
 
 	const dropdown = createDropdown(dropdownDiv, pooledFundsInData, lists);
+
+	//const yearsButtons = createYearsButtons(yearsButtonsDiv, etc...);
+
+	//const fundsButtons = createFundsButtons(fundsButtonsDiv, etc...);
 
 	const tabs = createTabs(tabsDiv, tabsData);
 
