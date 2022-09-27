@@ -67,7 +67,7 @@ let bubbleLegendValue,
 	bubbleLegendGroup,
 	allocationsWithoutCoordsDisclaimer;
 
-function createCountryProfileOverview(container, lists, colors, mapData, tooltipDiv) {
+function createCountryProfileOverview(container, lists, colors, mapData, tooltipDiv, fundButtons) {
 
 	const outerDiv = container.append("div")
 		.attr("class", classPrefix + "outerDiv");
@@ -77,12 +77,6 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 
 	const titleDiv = topDiv.append("div")
 		.attr("class", classPrefix + "titleDiv");
-
-	const buttonsOuterDiv = topDiv.append("div")
-		.attr("class", classPrefix + "buttonsOuterDiv");
-
-	const buttonsDiv = buttonsOuterDiv.append("div")
-		.attr("class", classPrefix + "buttonsDiv");
 
 	const title = titleDiv.append("p");
 
@@ -260,8 +254,6 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 	const cerfId = +Object.keys(lists.fundTypesList).find(e => lists.fundTypesList[e] === "cerf");
 	const cbpfId = +Object.keys(lists.fundTypesList).find(e => lists.fundTypesList[e] === "cbpf");
 
-	createFundButtons(buttonsDiv, colors);
-
 	function draw(originalData, originalAdminLevel1Data, resetYear, drawMap) {
 
 		if (resetYear) setDefaultYear(originalData);
@@ -281,8 +273,6 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		drawTopFigures(data.topFigures, syncedTransition);
 		drawBarChart(data.stackedBarData, syncedTransition, originalData, originalAdminLevel1Data);
 		drawDonutChart(data.donutChartData, syncedTransition);
-
-		const fundButtons = buttonsDiv.selectAll("button");
 
 		fundButtons.on("click", (event, d) => {
 			chartState.selectedFund = d;
@@ -1078,23 +1068,6 @@ function createTopFigures(container, colors, lists) {
 		.attr("class", classPrefix + "partnersText")
 		.html("Partners");
 
-};
-
-function createFundButtons(container, colors) {
-	const buttons = container.selectAll(null)
-		.data(buttonsList)
-		.enter()
-		.append("button")
-		.classed("active", d => chartState.selectedFund === d);
-
-	const bullet = buttons.append("span")
-		.attr("class", "icon-circle")
-		.append("i")
-		.attr("class", (_, i) => i === 1 ? "fas fa-adjust fa-xs" : "fas fa-circle fa-xs")
-		.style("color", (d, i) => i !== 1 ? colors[d] : null);
-
-	const title = buttons.append("span")
-		.html(d => " " + (d === "total" ? capitalize(d) : d.toUpperCase()));
 };
 
 function processData(originalData, lists) {

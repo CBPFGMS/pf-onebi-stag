@@ -36,7 +36,6 @@ const padding = [4, 8, 4, 8],
 	partnerRowHeight = 3.2,
 	partnerRowMinHeight = 2.4,
 	namePadding = 1,
-	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	allocationTypes = {
 		cbpf: ["1", "2"],
 		cerf: ["3", "4"]
@@ -55,7 +54,7 @@ let yearsArrayCerf,
 	sortedRow = "value",
 	activeTransition = false;
 
-function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
+function createCountryProfileByPartner(container, lists, colors, tooltipDiv, fundButtons) {
 
 	const cerfId = +Object.keys(lists.fundTypesList).find(e => lists.fundTypesList[e] === "cerf");
 	const cbpfId = +Object.keys(lists.fundTypesList).find(e => lists.fundTypesList[e] === "cbpf");
@@ -68,12 +67,6 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
 
 	const titleDiv = topDiv.append("div")
 		.attr("class", classPrefix + "titleDiv");
-
-	const buttonsOuterDiv = topDiv.append("div")
-		.attr("class", classPrefix + "buttonsOuterDiv");
-
-	const buttonsDiv = buttonsOuterDiv.append("div")
-		.attr("class", classPrefix + "buttonsDiv");
 
 	const title = titleDiv.append("p");
 
@@ -126,7 +119,6 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
 
 	createTopFiguresDiv(topRowDiv, colors, lists);
 	createHeaderRow(headerRowDivCerf, headerRowDivCbpf);
-	createFundButtons(buttonsDiv, colors);
 
 	const yearsButtonsDivSize = yearsButtonsDiv.node().getBoundingClientRect();
 	const barChartsDivSize = barChartsDiv.node().getBoundingClientRect();
@@ -179,8 +171,6 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv) {
 		};
 		drawTable(data.cerfData, null, partnersDivCerf, container, lists, colors, "cerf", syncedTransition, tooltipDiv);
 		drawTable(data.cbpfData, null, partnersDivCbpf, container, lists, colors, "cbpf", syncedTransition, tooltipDiv);
-
-		const fundButtons = buttonsDiv.selectAll("button");
 
 		fundButtons.on("click", (event, d) => {
 			chartState.selectedFund = d;
@@ -486,23 +476,6 @@ function drawTopFigures(data, container, colors, syncedTransition) {
 		});
 
 	//end of drawTopFigures
-};
-
-function createFundButtons(container, colors) {
-	const buttons = container.selectAll(null)
-		.data(buttonsList)
-		.enter()
-		.append("button")
-		.classed("active", d => chartState.selectedFund === d);
-
-	const bullet = buttons.append("span")
-		.attr("class", "icon-circle")
-		.append("i")
-		.attr("class", (_, i) => i === 1 ? "fas fa-adjust fa-xs" : "fas fa-circle fa-xs")
-		.style("color", (d, i) => i !== 1 ? colors[d] : null);
-
-	const title = buttons.append("span")
-		.html(d => " " + (d === "total" ? capitalize(d) : d.toUpperCase()));
 };
 
 function createTopFiguresDiv(container, colors, lists) {

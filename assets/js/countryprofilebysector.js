@@ -22,7 +22,6 @@ const padding = [40, 60, 20, 196],
 	clusterIconPadding = 4,
 	labelsPadding = 2,
 	titlePadding = 10,
-	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	stackKeys = ["total", "cerf", "cbpf"],
 	allocationTypes = {
 		cbpf: ["1", "2"],
@@ -36,7 +35,7 @@ let yearsArrayCerf,
 	svgHeight,
 	activeTransition = false;
 
-function createCountryProfileBySector(container, lists, colors, tooltipDiv) {
+function createCountryProfileBySector(container, lists, colors, tooltipDiv, fundButtons) {
 
 	const outerDiv = container.append("div")
 		.attr("class", classPrefix + "outerDiv");
@@ -46,12 +45,6 @@ function createCountryProfileBySector(container, lists, colors, tooltipDiv) {
 
 	const titleDiv = topDiv.append("div")
 		.attr("class", classPrefix + "titleDiv");
-
-	const buttonsOuterDiv = topDiv.append("div")
-		.attr("class", classPrefix + "buttonsOuterDiv");
-
-	const buttonsDiv = buttonsOuterDiv.append("div")
-		.attr("class", classPrefix + "buttonsDiv");
 
 	const title = titleDiv.append("p");
 
@@ -71,8 +64,6 @@ function createCountryProfileBySector(container, lists, colors, tooltipDiv) {
 
 	const cerfId = +Object.keys(lists.fundTypesList).find(e => lists.fundTypesList[e] === "cerf");
 	const cbpfId = +Object.keys(lists.fundTypesList).find(e => lists.fundTypesList[e] === "cbpf");
-
-	createFundButtons(buttonsDiv, colors);
 
 	const yearsButtonsDivSize = yearsButtonsDiv.node().getBoundingClientRect();
 	const chartsDivSize = chartsDiv.node().getBoundingClientRect();
@@ -161,8 +152,6 @@ function createCountryProfileBySector(container, lists, colors, tooltipDiv) {
 		};
 
 		drawStackedChart(argumentsObject);
-
-		const fundButtons = buttonsDiv.selectAll("button");
 
 		fundButtons.on("click", (event, d) => {
 			chartState.selectedFund = d;
@@ -643,23 +632,6 @@ function drawStackedChart({
 	};
 
 	//end of drawStackedChart
-};
-
-function createFundButtons(container, colors) {
-	const buttons = container.selectAll(null)
-		.data(buttonsList)
-		.enter()
-		.append("button")
-		.classed("active", d => chartState.selectedFund === d);
-
-	const bullet = buttons.append("span")
-		.attr("class", "icon-circle")
-		.append("i")
-		.attr("class", (_, i) => i === 1 ? "fas fa-adjust fa-xs" : "fas fa-circle fa-xs")
-		.style("color", (d, i) => i !== 1 ? colors[d] : null);
-
-	const title = buttons.append("span")
-		.html(d => " " + (d === "total" ? capitalize(d) : d.toUpperCase()));
 };
 
 function createTopFiguresDiv(container, colors, lists) {
