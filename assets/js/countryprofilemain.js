@@ -14,6 +14,7 @@ const classPrefix = "pfcpmain",
 	backToMenu = "Back to main menu",
 	selectAnOption = "Select Fund",
 	separator = "##",
+	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	menuIntroText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi nunc tellus, volutpat a laoreet sit amet, rhoncus cursus leo. Fusce velit lorem, interdum eu dui in, luctus ultrices eros. Nullam eu odio in lectus ullamcorper vulputate et a mauris. Nullam nulla lectus, porttitor non interdum vitae, facilisis iaculis urna. Morbi cursus sit amet nibh non rutrum. Etiam in sodales ipsum. Etiam id est magna. Cras ut leo et mi egestas pharetra. Cras et tortor vitae quam fermentum condimentum. Morbi pharetra, est eu viverra tincidunt, mi massa laoreet felis, nec fringilla massa quam at arcu. Donec urna enim, luctus sed blandit ac, vehicula vitae ipsum. Donec in dui non nisl rutrum ornare. Sed sed porttitor massa, id hendrerit mi. Nullam vitae volutpat nulla. Donec elit justo, convallis sed erat ut, elementum aliquam sem.";
 
 let selectedTab = tabsData[0],
@@ -156,7 +157,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 
 	//const yearsButtons = createYearsButtons(yearsButtonsDiv, etc...);
 
-	//const fundsButtons = createFundsButtons(fundsButtonsDiv, etc...);
+	const fundsButtons = createFundsButtons(fundsButtonsDiv, colorsObject);
 
 	const tabs = createTabs(tabsDiv, tabsData);
 
@@ -247,6 +248,11 @@ function createDropdown(container, pooledFundsInData, lists) {
 	dropdownArrow.append("i")
 		.attr("class", "fa fa-angle-down");
 
+	const titleWidth = dropdownTitleDiv.node().getBoundingClientRect().width;
+
+	//'24' is the padding of the dropdown
+	container.style("max-width", (titleWidth + 24) + "px");
+
 	const dropdownList = dropdownContainer.append("div")
 		.attr("class", classPrefix + "dropdownList");
 
@@ -267,6 +273,25 @@ function createDropdown(container, pooledFundsInData, lists) {
 
 	return { list: countries, container: dropdownContainer };
 
+};
+
+function createFundsButtons(container, colors) {
+	const buttons = container.selectAll(null)
+		.data(buttonsList)
+		.enter()
+		.append("button")
+		.classed("active", d => chartState.selectedFund === d);
+
+	const bullet = buttons.append("span")
+		.attr("class", "icon-circle")
+		.append("i")
+		.attr("class", (_, i) => i === 1 ? "fas fa-adjust fa-xs" : "fas fa-circle fa-xs")
+		.style("color", (d, i) => i !== 1 ? colors[d] : null);
+
+	const title = buttons.append("span")
+		.html(d => " " + (d === "total" ? capitalize(d) : d.toUpperCase()));
+
+	return buttons;
 };
 
 function createTabs(container, data) {
@@ -574,6 +599,10 @@ function processAllData(rawAllocationsData, rawContributionsData, adminLevel1Dat
 	bySectorData = processDataForCountryProfileBySector(rawAllocationsData, lists);
 	byPartnerAndSectorData = processDataForCountryProfileByPartnerAndSector(rawAllocationsData, lists);
 	contributionsData = processDataForCountryProfileContributions(rawContributionsData, lists);
+};
+
+function capitalize(str) {
+	return str[0].toUpperCase() + str.substring(1)
 };
 
 export { createCountryProfile };
