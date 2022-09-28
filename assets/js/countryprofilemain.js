@@ -14,6 +14,8 @@ const classPrefix = "pfcpmain",
 	backToMenu = "Back to main menu",
 	selectAnOption = "Select Fund",
 	separator = "##",
+	fadeOpacity = 0.1,
+	duration = 1000,
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	menuIntroText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi nunc tellus, volutpat a laoreet sit amet, rhoncus cursus leo. Fusce velit lorem, interdum eu dui in, luctus ultrices eros. Nullam eu odio in lectus ullamcorper vulputate et a mauris. Nullam nulla lectus, porttitor non interdum vitae, facilisis iaculis urna. Morbi cursus sit amet nibh non rutrum. Etiam in sodales ipsum. Etiam id est magna. Cras ut leo et mi egestas pharetra. Cras et tortor vitae quam fermentum condimentum. Morbi pharetra, est eu viverra tincidunt, mi massa laoreet felis, nec fringilla massa quam at arcu. Donec urna enim, luctus sed blandit ac, vehicula vitae ipsum. Donec in dui non nisl rutrum ornare. Sed sed porttitor massa, id hendrerit mi. Nullam vitae volutpat nulla. Donec elit justo, convallis sed erat ut, elementum aliquam sem.";
 
@@ -27,6 +29,9 @@ let selectedTab = tabsData[0],
 	drawOverview,
 	cerfId,
 	cbpfId;
+
+const yearsSetAllocations = new Set(),
+	yearsSetContributions = new Set();
 
 const tabsCallingFunctions = tabsData.map(d => ({
 	name: d,
@@ -155,7 +160,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 
 	const dropdown = createDropdown(dropdownDiv, pooledFundsInData, lists);
 
-	//const yearsButtons = createYearsButtons(yearsButtonsDiv, etc...);
+	const yearsButtons = createYearsButtons(yearsButtonsDiv, selectedTab === tabsData[tabsData.length - 1] ? yearsSetContributions : yearsSetAllocations);
 
 	const fundsButtons = createFundsButtons(fundsButtonsDiv, colorsObject);
 
@@ -186,9 +191,10 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 	tabs.on("click", (event, d) => {
 		if (selectedTab === d) return;
 		selectedTab = d;
-		fundsButtons.style("display", d === tabsData[tabsData.length - 1] ? "none" : null);
+		fundsButtons.style("display", e => d === tabsData[tabsData.length - 1] || ((d === tabsData[1] || d === tabsData[3]) && e === "cerf/cbpf") ? "none" : null);
 		tabs.classed("active", (_, i, n) => n[i] === event.currentTarget);
 		chartDiv.selectChildren("div:not(#" + classPrefix + "tooltipDiv)").remove();
+		repositionYearsButtons(yearsButtonsDiv);
 		setCallFunctions();
 		callDrawingFunction();
 	});
@@ -203,11 +209,11 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 	});
 
 	function setCallFunctions() {
-		if (selectedTab === tabsData[0]) tabsCallingFunctions.find(d => d.name === tabsData[0]).callingFunction = createCountryProfileOverview(chartDiv, lists, colorsObject, worldMap, tooltipDiv, fundsButtons);
-		if (selectedTab === tabsData[1]) tabsCallingFunctions.find(d => d.name === tabsData[1]).callingFunction = createCountryProfileByPartner(chartDiv, lists, colorsObject, tooltipDiv, fundsButtons);
-		if (selectedTab === tabsData[2]) tabsCallingFunctions.find(d => d.name === tabsData[2]).callingFunction = createCountryProfileBySector(chartDiv, lists, colorsObject, tooltipDiv, fundsButtons);
-		if (selectedTab === tabsData[3]) tabsCallingFunctions.find(d => d.name === tabsData[3]).callingFunction = createCountryProfileByPartnerAndSector(chartDiv, lists, colorsObject, tooltipDiv, fundsButtons);
-		if (selectedTab === tabsData[4]) tabsCallingFunctions.find(d => d.name === tabsData[3]).callingFunction = createCountryProfileContributions(chartDiv, lists, colorsObject, tooltipDiv);
+		if (selectedTab === tabsData[0]) tabsCallingFunctions.find(d => d.name === tabsData[0]).callingFunction = createCountryProfileOverview(chartDiv, lists, colorsObject, worldMap, tooltipDiv, fundsButtons, yearsButtons);
+		if (selectedTab === tabsData[1]) tabsCallingFunctions.find(d => d.name === tabsData[1]).callingFunction = createCountryProfileByPartner(chartDiv, lists, colorsObject, tooltipDiv, fundsButtons, yearsButtons);
+		if (selectedTab === tabsData[2]) tabsCallingFunctions.find(d => d.name === tabsData[2]).callingFunction = createCountryProfileBySector(chartDiv, lists, colorsObject, tooltipDiv, fundsButtons, yearsButtons);
+		if (selectedTab === tabsData[3]) tabsCallingFunctions.find(d => d.name === tabsData[3]).callingFunction = createCountryProfileByPartnerAndSector(chartDiv, lists, colorsObject, tooltipDiv, fundsButtons, yearsButtons);
+		if (selectedTab === tabsData[4]) tabsCallingFunctions.find(d => d.name === tabsData[3]).callingFunction = createCountryProfileContributions(chartDiv, lists, colorsObject, tooltipDiv, yearsButtons);
 	};
 
 	function callDrawingFunction() {
@@ -295,6 +301,104 @@ function createFundsButtons(container, colors) {
 	return buttons;
 };
 
+function createYearsButtons(container, yearsDataSet) {
+
+	container.selectChildren().remove();
+
+	const yearsData = Array.from(yearsDataSet).sort((a, b) => a - b);
+
+	const yearLeftArrow = container.append("div")
+		.attr("class", classPrefix + "yearLeftArrow")
+		.style("cursor", "pointer");
+
+	const yearButtonsContainerDiv = container.append("div")
+		.attr("class", classPrefix + "yearButtonsContainerDiv");
+
+	const yearButtonsContainer = yearButtonsContainerDiv.append("div")
+		.attr("class", classPrefix + "yearButtonsContainer");
+
+	const yearRightArrow = container.append("div")
+		.attr("class", classPrefix + "yearRightArrow")
+		.style("opacity", fadeOpacity)
+		.style("cursor", "default");
+
+	yearLeftArrow.append("i")
+		.attr("class", "fas fa-angle-left");
+
+	yearRightArrow.append("i")
+		.attr("class", "fas fa-angle-right");
+
+	const yearsButtons = yearButtonsContainer.selectAll(null)
+		.data(yearsData)
+		.enter()
+		.append("button")
+		.html(d => d);
+
+	let yearButtonsSize,
+		yearButtonsContainerSize;
+
+	setTimeout(function() {
+		yearButtonsSize = ~~yearButtonsContainer.node().scrollWidth;
+		yearButtonsContainerSize = ~~yearButtonsContainerDiv.node().getBoundingClientRect().width;
+
+		if (yearButtonsSize <= yearButtonsContainerSize) {
+			yearLeftArrow.style("display", "none");
+			yearRightArrow.style("display", "none");
+		};
+
+		yearButtonsContainer.style("left", -1 * (yearButtonsSize - yearButtonsContainerSize) + "px");
+	}, duration / 10);
+
+	yearLeftArrow.on("click", () => {
+		const thisLeft = parseInt(yearButtonsContainer.style("left"), 10);
+		yearRightArrow.style("opacity", 1)
+			.style("cursor", "pointer");
+		yearButtonsContainer.transition()
+			.duration(duration)
+			.style("left", Math.min(thisLeft + yearButtonsContainerSize, 0) + "px")
+			.on("end", () => {
+				if (parseInt(yearButtonsContainer.style("left"), 10) === 0) {
+					yearLeftArrow.style("opacity", fadeOpacity)
+						.style("cursor", "default");
+				};
+			});
+	});
+
+	yearRightArrow.on("click", () => {
+		const thisLeft = parseInt(yearButtonsContainer.style("left"), 10);
+		yearLeftArrow.style("opacity", 1)
+			.style("cursor", "pointer");
+		yearButtonsContainer.transition()
+			.duration(duration)
+			.style("left", Math.max(thisLeft - yearButtonsContainerSize, -1 * (yearButtonsSize - yearButtonsContainerSize)) + "px")
+			.on("end", () => {
+				if (parseInt(yearButtonsContainer.style("left"), 10) === -1 * (yearButtonsSize - yearButtonsContainerSize)) {
+					yearRightArrow.style("opacity", fadeOpacity)
+						.style("cursor", "default");
+				};
+			});
+	});
+
+	//MAKE THIS LIST CHANGING ACCORDING TO THE TAB
+	//MAKE THIS LIST CHANGING ACCORDING TO THE COUNTRY SELECTED
+
+	return yearsButtons;
+};
+
+function repositionYearsButtons(container) {
+	const yearButtonsContainerDiv = container.select(`.${classPrefix}yearButtonsContainerDiv`),
+		yearButtonsContainer = container.select(`.${classPrefix}yearButtonsContainer`);
+	const yearButtonsSize = ~~yearButtonsContainer.node().scrollWidth,
+		yearButtonsContainerSize = ~~yearButtonsContainerDiv.node().getBoundingClientRect().width;
+
+	if (yearButtonsSize <= yearButtonsContainerSize) {
+		yearLeftArrow.style("display", "none");
+		yearRightArrow.style("display", "none");
+	};
+
+	yearButtonsContainer.style("left", -1 * (yearButtonsSize - yearButtonsContainerSize) + "px");
+};
+
 function createTabs(container, data) {
 
 	const ul = container.append("ul")
@@ -343,6 +447,7 @@ function processDataForCountryProfileOverview(rawAllocationsData, lists) {
 	const data = [];
 	rawAllocationsData.forEach(row => {
 		if (row.PooledFundId === chartState.selectedCountryProfile) {
+			yearsSetAllocations.add(row.AllocationYear);
 			const foundYear = data.find(d => d.year === row.AllocationYear);
 			if (foundYear) {
 				foundYear.allocationsList.push(row);
@@ -546,6 +651,7 @@ function processDataForCountryProfileContributions(rawContributionsData, lists) 
 
 	rawContributionsData.forEach(row => {
 		if (row.PooledFundId === chartState.selectedCountryProfile) {
+			yearsSetContributions.add(row.FiscalYear);
 			const foundYear = data.find(e => e.year === row.FiscalYear);
 			if (foundYear) {
 				const foundDonor = foundYear.values.find(e => e.donor === row.DonorId);

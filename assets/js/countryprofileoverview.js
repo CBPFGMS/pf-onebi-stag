@@ -22,7 +22,6 @@ const topRowPercentage = 0.45,
 	localVariable = d3.local(),
 	currentYear = currentDate.getFullYear(),
 	separator = "##",
-	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	stackKeys = ["total", "cerf", "cbpf"],
 	allocationTypes = {
 		cbpf: ["1", "2"],
@@ -67,7 +66,7 @@ let bubbleLegendValue,
 	bubbleLegendGroup,
 	allocationsWithoutCoordsDisclaimer;
 
-function createCountryProfileOverview(container, lists, colors, mapData, tooltipDiv, fundButtons) {
+function createCountryProfileOverview(container, lists, colors, mapData, tooltipDiv, fundButtons, yearsButtons) {
 
 	const outerDiv = container.append("div")
 		.attr("class", classPrefix + "outerDiv");
@@ -258,6 +257,8 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 
 		if (resetYear) setDefaultYear(originalData);
 
+		yearsButtons.classed("active", d => chartState.selectedYear === d);
+
 		if (drawMap) createMap(mapData, mapLayer, mapDivSize, lists, mapDiv);
 
 		const data = processData(originalData, lists);
@@ -402,17 +403,6 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		yearRect.style("opacity", data.length ? 1 : 0)
 			.attr("x", xScale(chartState.selectedYear) - 12 + xScale.bandwidth() / 2)
 			.style("fill", chartState.selectedFund === "cerf/cbpf" ? "url(#yearRectGradient)" : colors[chartState.selectedFund]);
-
-		let legend = svgBarChart.selectAll(`.${classPrefix}barChartLegend`)
-			.data([true]);
-
-		legend = legend.enter()
-			.append("text")
-			.attr("class", classPrefix + "barChartLegend")
-			.attr("x", barChartWidth / 2)
-			.attr("y", barChartHeight - barChartLegendPadding)
-			.merge(legend)
-			.text(`Yearly allocations for ${lists.fundNamesList[chartState.selectedCountryProfile]}. Click on a bar for selecting a year.`);
 
 		let noData = svgBarChart.selectAll(`.${classPrefix}noData`)
 			.data([true]);
@@ -1129,7 +1119,7 @@ function setDefaultYear(originalData) {
 	let index = years.length;
 	while (--index >= 0) {
 		const thisFund = chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? "total" : chartState.selectedFund;
-		if (originalData[index][chartState.selectedFund]) {
+		if (originalData[index][thisFund]) {
 			chartState.selectedYear = years[index];
 			break;
 		};
