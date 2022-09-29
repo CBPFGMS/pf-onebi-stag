@@ -26,7 +26,7 @@ let selectedTab = tabsData[0],
 	bySectorData,
 	byPartnerAndSectorData,
 	contributionsData,
-	drawOverview,
+	yearsButtons,
 	cerfId,
 	cbpfId;
 
@@ -160,7 +160,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 
 	const dropdown = createDropdown(dropdownDiv, pooledFundsInData, lists);
 
-	const yearsButtons = createYearsButtons(yearsButtonsDiv, selectedTab === tabsData[tabsData.length - 1] ? yearsSetContributions : yearsSetAllocations);
+	yearsButtons = createYearsButtons(yearsButtonsDiv, selectedTab === tabsData[tabsData.length - 1] ? yearsSetContributions : yearsSetAllocations);
 
 	const fundsButtons = createFundsButtons(fundsButtonsDiv, colorsObject);
 
@@ -184,12 +184,16 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 		breadcrumb.secondBreadcrumbSpan.html(lists.fundNamesList[chartState.selectedCountryProfile]);
 		processAllData(rawAllocationsData, rawContributionsData, adminLevel1Data, lists);
 		chartDiv.selectChildren("div:not(#" + classPrefix + "tooltipDiv)").remove();
+		yearsButtons = createYearsButtons(yearsButtonsDiv, d === tabsData[tabsData.length - 1] ? yearsSetContributions : yearsSetAllocations);
 		setCallFunctions();
 		callDrawingFunction();
 	});
 
 	tabs.on("click", (event, d) => {
 		if (selectedTab === d) return;
+		if (d.includes("Contributions") || selectedTab.includes("Contributions")) {
+			yearsButtons = createYearsButtons(yearsButtonsDiv, d === tabsData[tabsData.length - 1] ? yearsSetContributions : yearsSetAllocations);
+		};
 		selectedTab = d;
 		fundsButtons.style("display", e => d === tabsData[tabsData.length - 1] || ((d === tabsData[1] || d === tabsData[3]) && e === "cerf/cbpf") ? "none" : null);
 		tabs.classed("active", (_, i, n) => n[i] === event.currentTarget);
@@ -257,8 +261,7 @@ function createDropdown(container, pooledFundsInData, lists) {
 
 	const titleWidth = dropdownTitleDiv.node().getBoundingClientRect().width;
 
-	//'24' is the padding of the dropdown
-	container.style("max-width", (titleWidth + 24) + "px");
+	container.style("max-width", (titleWidth + 24) + "px"); //'24' is the padding of the dropdown
 
 	const dropdownList = dropdownContainer.append("div")
 		.attr("class", classPrefix + "dropdownList");
@@ -379,21 +382,26 @@ function createYearsButtons(container, yearsDataSet) {
 			});
 	});
 
-	//MAKE THIS LIST CHANGING ACCORDING TO THE TAB
-	//MAKE THIS LIST CHANGING ACCORDING TO THE COUNTRY SELECTED
-
 	return yearsButtons;
 };
 
 function repositionYearsButtons(container) {
 	const yearButtonsContainerDiv = container.select(`.${classPrefix}yearButtonsContainerDiv`),
-		yearButtonsContainer = container.select(`.${classPrefix}yearButtonsContainer`);
-	const yearButtonsSize = ~~yearButtonsContainer.node().scrollWidth,
+		yearButtonsContainer = container.select(`.${classPrefix}yearButtonsContainer`),
+		yearLeftArrow = container.select(`.${classPrefix}yearLeftArrow`),
+		yearRightArrow = container.select(`.${classPrefix}yearRightArrow`);
+
+	let yearButtonsSize = ~~yearButtonsContainer.node().scrollWidth,
 		yearButtonsContainerSize = ~~yearButtonsContainerDiv.node().getBoundingClientRect().width;
 
 	if (yearButtonsSize <= yearButtonsContainerSize) {
 		yearLeftArrow.style("display", "none");
 		yearRightArrow.style("display", "none");
+	} else {
+		yearLeftArrow.style("display", null);
+		yearRightArrow.style("display", null);
+		yearButtonsSize = ~~yearButtonsContainer.node().scrollWidth;
+		yearButtonsContainerSize = ~~yearButtonsContainerDiv.node().getBoundingClientRect().width;
 	};
 
 	yearButtonsContainer.style("left", -1 * (yearButtonsSize - yearButtonsContainerSize) + "px");
@@ -445,6 +453,7 @@ function processAdminLevel1DataForCountryProfileOverview(rawAdminLevel1Data) {
 
 function processDataForCountryProfileOverview(rawAllocationsData, lists) {
 	const data = [];
+	yearsSetAllocations.clear();
 	rawAllocationsData.forEach(row => {
 		if (row.PooledFundId === chartState.selectedCountryProfile) {
 			yearsSetAllocations.add(row.AllocationYear);
@@ -637,17 +646,9 @@ function processDataForCountryProfileByPartnerAndSector(rawAllocationsData, list
 };
 
 function processDataForCountryProfileContributions(rawContributionsData, lists) {
-	//object:
-	// {
-	// 	"FiscalYear": 2021,
-	// 	"PledgePaidDate": "12-2021",
-	// 	"DonorId": 193,
-	// 	"PooledFundId": 109,
-	// 	"PledgeAmt": 2392,
-	// 	"PaidAmt": 0
-	// }
 
 	const data = [];
+	yearsSetContributions.clear();
 
 	rawContributionsData.forEach(row => {
 		if (row.PooledFundId === chartState.selectedCountryProfile) {
