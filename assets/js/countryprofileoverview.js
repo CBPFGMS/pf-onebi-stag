@@ -254,6 +254,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 	const cbpfId = +Object.keys(lists.fundTypesList).find(e => lists.fundTypesList[e] === "cbpf");
 
 	function draw(originalData, originalAdminLevel1Data, resetYear, drawMap) {
+		console.log("resetYear", resetYear);
 
 		if (resetYear) setDefaultYear(originalData);
 
@@ -281,6 +282,12 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 			draw(originalData, originalAdminLevel1Data, true, false);
 			drawBubbleMap(adminLevel1Data, d3.transition()
 				.duration(duration));
+		});
+
+		yearsButtons.on("click", (event, d) => {
+			if (chartState.selectedYear === d) return;
+			chartState.selectedYear = d;
+			draw(originalData, originalAdminLevel1Data, false, false);
 		});
 
 		//end of draw
@@ -510,10 +517,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 			.attr("width", xScale.step())
 			.attr("x", d => xScale(d.year) - xScale.bandwidth() / 2);
 
-		barsTooltipRectangles.on("click", (event, d) => {
-				chartState.selectedYear = d.year;
-				draw(originalData, originalAdminLevel1Data, false, false);
-			}).on("mouseover", (event, d) => mouseoverBars(event, d, tooltipDiv, container))
+		barsTooltipRectangles.on("mouseover", (event, d) => mouseoverBars(event, d, tooltipDiv, container))
 			.on("mouseout", () => mouseOut(tooltipDiv));
 
 		yAxis.tickSizeInner(-(xScale.range()[1] - barChartPadding[3]));
