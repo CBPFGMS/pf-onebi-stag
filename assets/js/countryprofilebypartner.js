@@ -153,7 +153,6 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv, fun
 		fundButtons.on("click", (event, d) => {
 			chartState.selectedFund = d;
 			fundButtons.classed("active", e => e === chartState.selectedFund);
-			buttonsSvg.selectChildren().remove();
 			draw(originalData, true, true);
 		});
 
