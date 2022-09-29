@@ -3,7 +3,6 @@ import { donorsFlagsData } from "./donorsflagsdata.js";
 
 //|constants
 const padding = [40, 60, 20, 196],
-	buttonsPanelHeight = 30,
 	tooltipVerticalPadding = 6,
 	tooltipHorizontalPadding = 6,
 	classPrefix = "pfbicpcontr",
@@ -31,7 +30,7 @@ let yearsArrayCbpf,
 	selectedType = valueTypes[0],
 	activeTransition = false;
 
-function createCountryProfileContributions(container, lists, colors, tooltipDiv) {
+function createCountryProfileContributions(container, lists, colors, tooltipDiv, yearsButtons) {
 
 	const outerDiv = container.append("div")
 		.attr("class", classPrefix + "outerDiv");
@@ -55,9 +54,6 @@ function createCountryProfileContributions(container, lists, colors, tooltipDiv)
 
 	const topRowDiv = chartsDiv.append("div")
 		.attr("class", classPrefix + "topRowDiv");
-
-	const yearsButtonsDiv = chartsDiv.append("div")
-		.attr("class", classPrefix + "yearsButtonsDiv");
 
 	const chartsContainerDiv = chartsDiv.append("div")
 		.attr("class", classPrefix + "chartsContainerDiv");
@@ -89,30 +85,8 @@ function createCountryProfileContributions(container, lists, colors, tooltipDiv)
 	createTopFiguresDiv(topRowDiv, colors, lists);
 	createHeaderRow(headerRowDivCbpf);
 
-	const yearsButtonsDivSize = yearsButtonsDiv.node().getBoundingClientRect();
-
 	const cerfId = +Object.keys(lists.fundTypesList).find(e => lists.fundTypesList[e] === "cerf");
 	const cbpfId = +Object.keys(lists.fundTypesList).find(e => lists.fundTypesList[e] === "cbpf");
-
-	const buttonsSvg = yearsButtonsDiv.append("svg")
-		.attr("viewBox", `0 0 ${yearsButtonsDivSize.width} ${buttonsPanelHeight}`)
-		.style("background-color", "white");
-
-	const buttonsPanel = {
-		width: yearsButtonsDivSize.width,
-		height: buttonsPanelHeight,
-		padding: [0, 0, 0, 14],
-		buttonWidth: 52,
-		buttonPadding: 4,
-		buttonVerticalPadding: 4,
-		buttonsMargin: 4,
-		arrowPadding: 18,
-		typePadding: 240,
-		typeWidth: 76,
-		get buttonsNumber() {
-			return Math.floor((this.width - this.typePadding - this.padding[1] - this.padding[3] - 2 * this.arrowPadding) / (this.buttonWidth + this.buttonPadding))
-		}
-	};
 
 	function draw(originalData, resetYear, firstTime) {
 
@@ -121,6 +95,8 @@ function createCountryProfileContributions(container, lists, colors, tooltipDiv)
 		};
 
 		if (resetYear) setDefaultYear(originalData, yearsArrayCbpf);
+
+		yearsButtons.classed("active", d => chartState.selectedYear === d);
 
 		const data = processData(originalData, lists);
 
@@ -132,7 +108,13 @@ function createCountryProfileContributions(container, lists, colors, tooltipDiv)
 			.on("start", () => activeTransition = true)
 			.on("end", () => activeTransition = false);
 
-		if (firstTime) createButtonsPanel(originalData, yearsArrayCbpf, buttonsSvg, buttonsPanel, tooltipDiv, container, draw);
+		yearsButtons.on("click", (event, d) => {
+			if (activeTransition) return;
+			tooltipDiv.style("display", "none");
+			chartState.selectedYear = d;
+			draw(originalData, false, false);
+		});
+
 		drawTopFigures(data.topFigures, topRowDiv, colors, syncedTransition);
 
 		drawTable(data.cbpfData, chartContentCbpf, lists, colors, syncedTransition, tooltipDiv, headerRowDivCbpf);
@@ -171,303 +153,6 @@ function createHeaderRow(container) {
 		.attr("class", classPrefix + "iconDiv")
 		.append("i")
 		.attr("class", "fas fa-sort-amount-down");
-};
-
-function createButtonsPanel(originalData, yearsArray, svg, buttonsPanel, tooltip, container, draw) {
-
-	const clipPath = svg.append("clipPath")
-		.attr("id", classPrefix + "clipButtons")
-		.append("rect")
-		.attr("width", buttonsPanel.buttonsNumber * buttonsPanel.buttonWidth)
-		.attr("height", buttonsPanel.height);
-
-	const extraPadding = yearsArray.length > buttonsPanel.buttonsNumber ? buttonsPanel.arrowPadding : -2;
-
-	const clipPathGroup = svg.append("g")
-		.attr("class", classPrefix + "ClipPathGroup")
-		.attr("transform", "translate(" + (buttonsPanel.padding[3] + extraPadding) + ",0)")
-		.attr("clip-path", `url(#${classPrefix}clipButtons)`);
-
-	const buttonsGroup = clipPathGroup.append("g")
-		.attr("class", classPrefix + "buttonsGroup")
-		.attr("transform", "translate(0,0)")
-		.style("cursor", "pointer");
-
-	const buttonsRects = buttonsGroup.selectAll(null)
-		.data(yearsArray)
-		.enter()
-		.append("rect")
-		.attr("rx", "2px")
-		.attr("ry", "2px")
-		.attr("class", classPrefix + "buttonsRects")
-		.attr("width", buttonsPanel.buttonWidth - buttonsPanel.buttonsMargin)
-		.attr("height", buttonsPanel.height - buttonsPanel.buttonVerticalPadding * 2)
-		.attr("y", buttonsPanel.buttonVerticalPadding)
-		.attr("x", (_, i) => i * buttonsPanel.buttonWidth + buttonsPanel.buttonsMargin / 2)
-		.style("fill", d => chartState.selectedYear === d ? unBlue : "#eaeaea");
-
-	const buttonsText = buttonsGroup.selectAll(null)
-		.data(yearsArray)
-		.enter()
-		.append("text")
-		.attr("text-anchor", "middle")
-		.attr("class", classPrefix + "buttonsText")
-		.attr("y", buttonsPanel.height / 1.6)
-		.attr("x", (_, i) => i * buttonsPanel.buttonWidth + buttonsPanel.buttonWidth / 2)
-		.style("fill", d => chartState.selectedYear === d ? "white" : "#444")
-		.text(d => d);
-
-	const buttonsContributionsGroup = svg.append("g")
-		.attr("class", classPrefix + "buttonsContributionsGroup")
-		.attr("transform", "translate(" + (buttonsPanel.width - buttonsPanel.padding[1] - buttonsPanel.typePadding) + ",0)")
-		.style("cursor", "pointer");
-
-	const buttonsContributionsRects = buttonsContributionsGroup.selectAll(null)
-		.data(valueTypes)
-		.enter()
-		.append("rect")
-		.attr("rx", "2px")
-		.attr("ry", "2px")
-		.attr("class", classPrefix + "buttonsContributionsRects")
-		.attr("width", buttonsPanel.typeWidth - buttonsPanel.buttonPadding)
-		.attr("height", buttonsPanel.height - buttonsPanel.buttonVerticalPadding * 2)
-		.attr("y", buttonsPanel.buttonVerticalPadding)
-		.attr("x", function(_, i) {
-			return i * buttonsPanel.typeWidth + buttonsPanel.buttonPadding / 2;
-		})
-		.style("fill", function(d) {
-			return d === selectedType ? unBlue : "#eaeaea";
-		});
-
-	const buttonsContributionsText = buttonsContributionsGroup.selectAll(null)
-		.data(valueTypes)
-		.enter()
-		.append("text")
-		.attr("text-anchor", "middle")
-		.attr("class", classPrefix + "buttonsContributionsText")
-		.attr("y", buttonsPanel.height / 1.6)
-		.attr("x", function(_, i) {
-			return i * buttonsPanel.typeWidth + buttonsPanel.typeWidth / 2;
-		})
-		.style("fill", function(d) {
-			return d === selectedType ? "white" : "#444";
-		})
-		.text(function(d) {
-			if (d === "pledge") {
-				return "Pledged"
-			} else {
-				return capitalize(d);
-			};
-		});
-
-	const leftArrow = svg.append("g")
-		.attr("class", classPrefix + "LeftArrowGroup")
-		.style("opacity", 0)
-		.attr("pointer-events", "none")
-		.style("cursor", "pointer")
-		.attr("transform", "translate(" + buttonsPanel.padding[3] + ",0)");
-
-	const leftArrowRect = leftArrow.append("rect")
-		.style("fill", "white")
-		.attr("width", buttonsPanel.arrowPadding)
-		.attr("height", buttonsPanel.height);
-
-	const leftArrowText = leftArrow.append("text")
-		.attr("class", classPrefix + "leftArrowText")
-		.attr("x", 0)
-		.attr("y", buttonsPanel.height - buttonsPanel.buttonVerticalPadding * 2.1)
-		.style("fill", "#666")
-		.text("\u25c4");
-
-	const rightArrow = svg.append("g")
-		.attr("class", classPrefix + "RightArrowGroup")
-		.style("opacity", 0)
-		.attr("pointer-events", "none")
-		.style("cursor", "pointer")
-		.attr("transform", "translate(" + (buttonsPanel.padding[3] + buttonsPanel.arrowPadding +
-			(buttonsPanel.buttonsNumber * buttonsPanel.buttonWidth)) + ",0)");
-
-	const rightArrowRect = rightArrow.append("rect")
-		.style("fill", "white")
-		.attr("width", buttonsPanel.arrowPadding)
-		.attr("height", buttonsPanel.height);
-
-	const rightArrowText = rightArrow.append("text")
-		.attr("class", classPrefix + "rightArrowText")
-		.attr("x", -1)
-		.attr("y", buttonsPanel.height - buttonsPanel.buttonVerticalPadding * 2.1)
-		.style("fill", "#666")
-		.text("\u25ba");
-
-	buttonsRects.on("mouseover", mouseOverButtonsRects)
-		.on("mouseout", mouseOutButtonsRects)
-		.on("click", clickButtonsRects);
-
-	buttonsContributionsRects.on("mouseover", mouseOverButtonsContributionsRects)
-		.on("mouseout", mouseOutButtonsContributionsRects)
-		.on("click", clickButtonsContributionsRects);
-
-	if (yearsArray.length > buttonsPanel.buttonsNumber) {
-
-		rightArrow.style("opacity", 1)
-			.attr("pointer-events", "all");
-
-		leftArrow.style("opacity", 1)
-			.attr("pointer-events", "all");
-
-		repositionButtonsGroup();
-
-		checkCurrentTranslate();
-
-		leftArrow.on("click", () => {
-			leftArrow.attr("pointer-events", "none");
-			const currentTranslate = parseTransform(buttonsGroup.attr("transform"))[0];
-			rightArrow.select("text").style("fill", "#666");
-			rightArrow.attr("pointer-events", "all");
-			buttonsGroup.transition()
-				.duration(duration)
-				.attr("transform", "translate(" + Math.min(0, (currentTranslate + buttonsPanel.buttonsNumber * buttonsPanel.buttonWidth)) + ",0)")
-				.on("end", checkArrows);
-		});
-
-		rightArrow.on("click", () => {
-			rightArrow.attr("pointer-events", "none");
-			const currentTranslate = parseTransform(buttonsGroup.attr("transform"))[0];
-			leftArrow.select("text").style("fill", "#666");
-			leftArrow.attr("pointer-events", "all");
-			buttonsGroup.transition()
-				.duration(duration)
-				.attr("transform", "translate(" + Math.max(-((yearsArray.length - buttonsPanel.buttonsNumber) * buttonsPanel.buttonWidth),
-					(-(Math.abs(currentTranslate) + buttonsPanel.buttonsNumber * buttonsPanel.buttonWidth))) + ",0)")
-				.on("end", checkArrows);
-		});
-
-	};
-
-	function checkArrows() {
-
-		const currentTranslate = parseTransform(buttonsGroup.attr("transform"))[0];
-
-		if (currentTranslate === 0) {
-			leftArrow.select("text").style("fill", "#ccc");
-			leftArrow.attr("pointer-events", "none");
-		} else {
-			leftArrow.select("text").style("fill", "#666");
-			leftArrow.attr("pointer-events", "all");
-		};
-
-		if (Math.abs(currentTranslate) >= ((yearsArray.length - buttonsPanel.buttonsNumber) * buttonsPanel.buttonWidth)) {
-			rightArrow.select("text").style("fill", "#ccc");
-			rightArrow.attr("pointer-events", "none");
-		} else {
-			rightArrow.select("text").style("fill", "#666");
-			rightArrow.attr("pointer-events", "all");
-		}
-
-	};
-
-	function checkCurrentTranslate() {
-
-		const currentTranslate = parseTransform(buttonsGroup.attr("transform"))[0];
-
-		if (currentTranslate === 0) {
-			leftArrow.select("text").style("fill", "#ccc")
-			leftArrow.attr("pointer-events", "none");
-		};
-
-		if (Math.abs(currentTranslate) >= ((yearsArray.length - buttonsPanel.buttonsNumber) * buttonsPanel.buttonWidth)) {
-			rightArrow.select("text").style("fill", "#ccc")
-			rightArrow.attr("pointer-events", "none");
-		};
-
-	};
-
-	function repositionButtonsGroup() {
-
-		const firstYearIndex = yearsArray.indexOf(chartState.selectedYear) < buttonsPanel.buttonsNumber / 2 ? 0 :
-			yearsArray.indexOf(chartState.selectedYear) > yearsArray.length - (buttonsPanel.buttonsNumber / 2) ?
-			Math.max(yearsArray.length - buttonsPanel.buttonsNumber, 0) :
-			yearsArray.indexOf(yearsArray.indexOf(chartState.selectedYear)) - (buttonsPanel.buttonsNumber / 2);
-
-		buttonsGroup.attr("transform", "translate(" +
-			(-(buttonsPanel.buttonWidth * firstYearIndex)) +
-			",0)");
-
-	};
-
-	function mouseOverButtonsRects(event, d) {
-
-		d3.select(this).style("fill", unBlue);
-		buttonsText.filter(e => e === d)
-			.style("fill", "white");
-
-		tooltip.style("display", "block")
-			.html(null)
-
-		const innerTooltip = tooltip.append("div")
-			.style("max-width", "200px")
-			.attr("id", classPrefix + "innerTooltipDiv")
-			.style("padding", "8px");
-
-		innerTooltip.html("Click for selecting a year");
-
-		positionTooltip(tooltip, container, event, "bottom")
-
-	};
-
-	function mouseOutButtonsRects(event, d) {
-		tooltip.style("display", "none");
-		if (chartState.selectedYear === d) return;
-		d3.select(this).style("fill", "#eaeaea");
-		buttonsText.filter(e => e === d)
-			.style("fill", "#444");
-	};
-
-	function mouseOverButtonsContributionsRects(event, d) {
-		d3.select(this).style("fill", unBlue);
-		buttonsContributionsText.filter(e => e === d)
-			.style("fill", "white");
-	};
-
-	function mouseOutButtonsContributionsRects(event, d) {
-		if (selectedType === d) return;
-		d3.select(this).style("fill", "#eaeaea");
-		buttonsContributionsText.filter(e => e === d)
-			.style("fill", "#444");
-	};
-
-	function clickButtonsContributionsRects(event, d) {
-		selectedType = d;
-
-		d3.selectAll(`.${classPrefix}buttonsContributionsRects`)
-			.style("fill", e => selectedType === e ? unBlue : "#eaeaea");
-
-		d3.selectAll(`.${classPrefix}buttonsContributionsText`)
-			.style("fill", e => selectedType === e ? "white" : "#444");
-
-		draw(originalData, false, false);
-	};
-
-	function clickButtonsRects(event, d) {
-
-		if (activeTransition) return;
-
-		tooltip.style("display", "none");
-
-		chartState.selectedYear = d;
-
-		d3.selectAll(`.${classPrefix}buttonsRects`)
-			.style("fill", e => chartState.selectedYear === e ? unBlue : "#eaeaea");
-
-		d3.selectAll(`.${classPrefix}buttonsText`)
-			.style("fill", e => chartState.selectedYear === e ? "white" : "#444");
-
-		draw(originalData, false, false);
-
-		//end of clickButtonsRects
-	};
-
-	//end of createButtonsPanel
 };
 
 function drawTopFigures(data, container, colors, syncedTransition) {
