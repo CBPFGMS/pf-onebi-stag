@@ -254,7 +254,6 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 	const cbpfId = +Object.keys(lists.fundTypesList).find(e => lists.fundTypesList[e] === "cbpf");
 
 	function draw(originalData, originalAdminLevel1Data, resetYear, drawMap) {
-		console.log("resetYear", resetYear);
 
 		if (resetYear) setDefaultYear(originalData);
 
