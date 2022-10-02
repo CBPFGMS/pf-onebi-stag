@@ -10,12 +10,15 @@ import { createCountryProfileContributions } from "./countryprofilecontributions
 
 //|constants
 const classPrefix = "pfcpmain",
+	generalClassPrefix = "pfbihp",
 	tabsData = ["Overview", "Allocations by Partner", "Allocations by Sector", "Allocations by Partner/Sector", "Contributions by Donor"],
 	backToMenu = "Back to main menu",
-	selectAnOption = "Select Fund",
+	selectAnOption = "Change Country",
 	separator = "##",
 	fadeOpacity = 0.1,
 	duration = 1000,
+	currentDate = new Date(),
+	currentYear = currentDate.getFullYear(),
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	menuIntroText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi nunc tellus, volutpat a laoreet sit amet, rhoncus cursus leo. Fusce velit lorem, interdum eu dui in, luctus ultrices eros. Nullam eu odio in lectus ullamcorper vulputate et a mauris. Nullam nulla lectus, porttitor non interdum vitae, facilisis iaculis urna. Morbi cursus sit amet nibh non rutrum. Etiam in sodales ipsum. Etiam id est magna. Cras ut leo et mi egestas pharetra. Cras et tortor vitae quam fermentum condimentum. Morbi pharetra, est eu viverra tincidunt, mi massa laoreet felis, nec fringilla massa quam at arcu. Donec urna enim, luctus sed blandit ac, vehicula vitae ipsum. Donec in dui non nisl rutrum ornare. Sed sed porttitor massa, id hendrerit mi. Nullam vitae volutpat nulla. Donec elit justo, convallis sed erat ut, elementum aliquam sem.";
 
@@ -38,7 +41,7 @@ const tabsCallingFunctions = tabsData.map(d => ({
 	callingFunction: null
 }));
 
-function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists) {
+function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, yearDropdown, yearsArrayTotal) {
 
 	const pooledFundsInData = rawAllocationsData.reduce((acc, curr) => {
 		const foundRegion = acc.find(e => e.region === lists.fundRegionsList[curr.PooledFundId]);
@@ -65,7 +68,7 @@ function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData
 
 	countries.on("click", (event, d) => {
 		chartState.selectedCountryProfile = d;
-		drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv);
+		drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearDropdown, yearsArrayTotal);
 	});
 
 };
@@ -115,9 +118,14 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv) {
 
 };
 
-function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv) {
+function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearDropdown, yearsArrayTotal) {
 
 	processAllData(rawAllocationsData, rawContributionsData, adminLevel1Data, lists);
+
+	const mergedYears = Array.from(new Set([...yearsSetAllocations, ...yearsSetContributions]));
+	mergedYears.sort((a, b) => a - b);
+
+	createDisabledOption(yearDropdown, mergedYears);
 
 	outerDiv.selectChildren().remove();
 
@@ -172,10 +180,11 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 	dropdown.list.on("click", (_, d) => {
 		dropdown.container.classed("active", d => d.clicked = false);
 		if (d.name === backToMenu) {
+			createDisabledOption(yearDropdown, yearsArrayTotal);
 			const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv);
 			countries.on("click", (_, d) => {
 				chartState.selectedCountryProfile = d;
-				drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv);
+				drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearDropdown, yearsArrayTotal);
 			});
 			return;
 		};
@@ -183,6 +192,9 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 		chartState.selectedCountryProfile = d.name;
 		breadcrumb.secondBreadcrumbSpan.html(lists.fundNamesList[chartState.selectedCountryProfile]);
 		processAllData(rawAllocationsData, rawContributionsData, adminLevel1Data, lists);
+		const mergedYears = Array.from(new Set([...yearsSetAllocations, ...yearsSetContributions]));
+		mergedYears.sort((a, b) => a - b);
+		createDisabledOption(yearDropdown, mergedYears);
 		chartDiv.selectChildren("div:not(#" + classPrefix + "tooltipDiv)").remove();
 		yearsButtons = createYearsButtons(yearsButtonsDiv, d === tabsData[tabsData.length - 1] ? yearsSetContributions : yearsSetAllocations);
 		setCallFunctions();
@@ -207,7 +219,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 		const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv);
 		countries.on("click", (event, d) => {
 			chartState.selectedCountryProfile = d;
-			drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv);
+			drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearDropdown, yearsArrayTotal);
 		});
 		return;
 	});
@@ -707,6 +719,21 @@ function processAllData(rawAllocationsData, rawContributionsData, adminLevel1Dat
 	bySectorData = processDataForCountryProfileBySector(rawAllocationsData, lists);
 	byPartnerAndSectorData = processDataForCountryProfileByPartnerAndSector(rawAllocationsData, lists);
 	contributionsData = processDataForCountryProfileContributions(rawContributionsData, lists);
+};
+
+function createDisabledOption(dropdownContainer, yearsArray) {
+	dropdownContainer.attr("disabled", "disabled");
+
+	let disabledOption = dropdownContainer.selectAll("#" + generalClassPrefix + "disabledOption")
+		.data([true]);
+
+	disabledOption = disabledOption.enter()
+		.append("option")
+		.attr("id", generalClassPrefix + "disabledOption")
+		.merge(disabledOption)
+		.property("selected", true)
+		.property("disabled", true)
+		.html(yearsArray[0] + " - " + Math.min(yearsArray[yearsArray.length - 1], currentYear));
 };
 
 function capitalize(str) {

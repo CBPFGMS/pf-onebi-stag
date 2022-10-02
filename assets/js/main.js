@@ -376,7 +376,7 @@ function controlCharts([worldMap,
 		$(selections.moreTab.node()).click();
 		selections.navlinkCountryProfile.classed("menuactive", true);
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
-		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, generalClassPrefix);
+		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, selections.yearDropdown, yearsArrayContributions);
 	};
 
 	//|event listeners
@@ -397,7 +397,7 @@ function controlCharts([worldMap,
 		if (buttonsObject.playing) stopTimer();
 		if (chartState.selectedChart === "allocationsByCountry") return;
 		if (chartState.selectedYear === allYears) {
-			chartState.selectedYear = defaultValues.year
+			chartState.selectedYear = defaultValues.year;
 			allocationsData = processDataAllocations(rawAllocationsData);
 		};
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
@@ -408,6 +408,7 @@ function controlCharts([worldMap,
 			clearDisabledOption(selections.yearDropdown);
 			selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
 			chartState.selectedChart = "allocationsByCountry";
+			allocationsData = processDataAllocations(rawAllocationsData);
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
 		chartState.selectedChart = "allocationsByCountry";
@@ -446,6 +447,7 @@ function controlCharts([worldMap,
 			clearDisabledOption(selections.yearDropdown);
 			selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
 			chartState.selectedChart = "allocationsBySector";
+			allocationsData = processDataAllocations(rawAllocationsData);
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
 		chartState.selectedChart = "allocationsBySector";
@@ -484,6 +486,7 @@ function controlCharts([worldMap,
 			clearDisabledOption(selections.yearDropdown);
 			selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
 			chartState.selectedChart = "allocationsByType";
+			allocationsData = processDataAllocations(rawAllocationsData);
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
 		chartState.selectedChart = "allocationsByType";
@@ -572,7 +575,7 @@ function controlCharts([worldMap,
 		if (buttonsObject.playing) stopTimer();
 		if (chartState.selectedChart === "countryProfile") {
 			selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
-			createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists);
+			createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, selections.yearDropdown, yearsArrayContributions);
 			return;
 		};
 		if (chartState.selectedChart !== "contributionsByDonor") {
@@ -584,7 +587,7 @@ function controlCharts([worldMap,
 		chartState.selectedChart = "countryProfile";
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
 		selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
-		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists);
+		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, selections.yearDropdown, yearsArrayContributions);
 		highlightNavLinks();
 		queryStringValues.delete("year");
 		queryStringValues.delete("contributionYear");
@@ -1171,7 +1174,7 @@ function createDisabledOption(dropdownContainer, yearsArray) {
 		.merge(disabledOption)
 		.property("selected", true)
 		.property("disabled", true)
-		.html((chartState.selectedChart === "contributionsByDonor" || chartState.selectedChart === "countryProfile") ? yearsArray[0] + " - " + (currentYear - 1) :
+		.html((chartState.selectedChart === "contributionsByDonor" || chartState.selectedChart === "countryProfile") ? yearsArray[0] + " - " + currentYear :
 			(chartState.selectedYear === allYears ? "All" : chartState.selectedYear));
 };
 
