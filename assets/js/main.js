@@ -1186,7 +1186,7 @@ function createDisabledOption(dropdownContainer, yearsArray) {
 		.merge(disabledOption)
 		.property("selected", true)
 		.property("disabled", true)
-		.html((chartState.selectedChart === "contributionsByDonor" || chartState.selectedChart === "countryProfile") ? yearsArray[0] + " - " + currentYear :
+		.html(chartState.selectedChart === "contributionsByDonor" ? yearsArray[0] + " - " + (currentYear - 1) :
 			(chartState.selectedYear === allYears ? "All" : chartState.selectedYear));
 };
 
