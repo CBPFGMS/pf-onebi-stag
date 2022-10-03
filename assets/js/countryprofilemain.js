@@ -34,14 +34,18 @@ let selectedTab = tabsData[0],
 	cbpfId;
 
 const yearsSetAllocations = new Set(),
-	yearsSetContributions = new Set();
+	yearsSetContributions = new Set(),
+	topValues = {
+		allocations: 0,
+		projects: new Set()
+	};
 
 const tabsCallingFunctions = tabsData.map(d => ({
 	name: d,
 	callingFunction: null
 }));
 
-function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, yearDropdown, yearsArrayTotal) {
+function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, yearsArrayTotal) {
 
 	const pooledFundsInData = rawAllocationsData.reduce((acc, curr) => {
 		const foundRegion = acc.find(e => e.region === lists.fundRegionsList[curr.PooledFundId]);
@@ -64,16 +68,22 @@ function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData
 	const outerDiv = selections.chartContainerDiv.append("div")
 		.attr("class", classPrefix + "outerDiv");
 
-	const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv);
+	const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal);
 
 	countries.on("click", (event, d) => {
 		chartState.selectedCountryProfile = d;
-		drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearDropdown, yearsArrayTotal);
+		drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearsArrayTotal);
 	});
 
 };
 
-function createListMenu(selections, lists, pooledFundsInData, outerDiv) {
+function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal) {
+
+	createDisabledOption(selections.yearDropdown, yearsArrayTotal);
+
+	topValues.allocations = 0;
+	topValues.projects.clear();
+	updateTopValues(topValues, selections);
 
 	selectedTab = tabsData[0];
 
@@ -118,14 +128,16 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv) {
 
 };
 
-function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearDropdown, yearsArrayTotal) {
+function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearsArrayTotal) {
 
 	processAllData(rawAllocationsData, rawContributionsData, adminLevel1Data, lists);
 
 	const mergedYears = Array.from(new Set([...yearsSetAllocations, ...yearsSetContributions]));
 	mergedYears.sort((a, b) => a - b);
 
-	createDisabledOption(yearDropdown, mergedYears);
+	createDisabledOption(selections.yearDropdown, mergedYears);
+
+	updateTopValues(topValues, selections);
 
 	outerDiv.selectChildren().remove();
 
@@ -180,11 +192,10 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 	dropdown.list.on("click", (_, d) => {
 		dropdown.container.classed("active", d => d.clicked = false);
 		if (d.name === backToMenu) {
-			createDisabledOption(yearDropdown, yearsArrayTotal);
-			const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv);
+			const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal);
 			countries.on("click", (_, d) => {
 				chartState.selectedCountryProfile = d;
-				drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearDropdown, yearsArrayTotal);
+				drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearsArrayTotal);
 			});
 			return;
 		};
@@ -194,7 +205,8 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 		processAllData(rawAllocationsData, rawContributionsData, adminLevel1Data, lists);
 		const mergedYears = Array.from(new Set([...yearsSetAllocations, ...yearsSetContributions]));
 		mergedYears.sort((a, b) => a - b);
-		createDisabledOption(yearDropdown, mergedYears);
+		createDisabledOption(selections.yearDropdown, mergedYears);
+		updateTopValues(topValues, selections);
 		chartDiv.selectChildren("div:not(#" + classPrefix + "tooltipDiv)").remove();
 		yearsButtons = createYearsButtons(yearsButtonsDiv, d === tabsData[tabsData.length - 1] ? yearsSetContributions : yearsSetAllocations);
 		setCallFunctions();
@@ -216,10 +228,10 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 	});
 
 	breadcrumb.firstBreadcrumb.on("click", (event, d) => {
-		const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv);
+		const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal);
 		countries.on("click", (event, d) => {
 			chartState.selectedCountryProfile = d;
-			drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearDropdown, yearsArrayTotal);
+			drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearsArrayTotal);
 		});
 		return;
 	});
@@ -466,9 +478,13 @@ function processAdminLevel1DataForCountryProfileOverview(rawAdminLevel1Data) {
 function processDataForCountryProfileOverview(rawAllocationsData, lists) {
 	const data = [];
 	yearsSetAllocations.clear();
+	topValues.allocations = 0;
+	topValues.projects.clear();
 	rawAllocationsData.forEach(row => {
 		if (row.PooledFundId === chartState.selectedCountryProfile) {
 			yearsSetAllocations.add(row.AllocationYear);
+			topValues.allocations += +row.ClusterBudget;
+			row.ProjList.toString().split(separator).forEach(e => topValues.projects.add(e));
 			const foundYear = data.find(d => d.year === row.AllocationYear);
 			if (foundYear) {
 				foundYear.allocationsList.push(row);
@@ -736,8 +752,69 @@ function createDisabledOption(dropdownContainer, yearsArray) {
 		.html(yearsArray[0] + " - " + Math.min(yearsArray[yearsArray.length - 1], currentYear));
 };
 
+function updateTopValues(topValues, selections) {
+
+	const updateTransition = d3.transition()
+		.duration(duration);
+
+	selections.contributionsTopFigure.text("--");
+
+	selections.allocationsTopFigure.transition(updateTransition)
+		.textTween((_, i, n) => {
+			const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, topValues.allocations);
+			return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
+		});
+
+	selections.donorsTopFigure.text("--");
+
+	selections.projectsTopFigure.transition(updateTransition)
+		.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, topValues.projects.size));
+
+};
+
 function capitalize(str) {
 	return str[0].toUpperCase() + str.substring(1)
+};
+
+function formatSIFloat(value) {
+	const length = (~~Math.log10(value) + 1) % 3;
+	const digits = length === 1 ? 2 : length === 2 ? 1 : 0;
+	return d3.formatPrefix("." + digits, value)(value);
+};
+
+function reverseFormat(s) {
+	if (+s === 0) return 0;
+	let returnValue;
+	const transformation = {
+		Y: Math.pow(10, 24),
+		Z: Math.pow(10, 21),
+		E: Math.pow(10, 18),
+		P: Math.pow(10, 15),
+		T: Math.pow(10, 12),
+		G: Math.pow(10, 9),
+		B: Math.pow(10, 9),
+		M: Math.pow(10, 6),
+		k: Math.pow(10, 3),
+		h: Math.pow(10, 2),
+		da: Math.pow(10, 1),
+		d: Math.pow(10, -1),
+		c: Math.pow(10, -2),
+		m: Math.pow(10, -3),
+		μ: Math.pow(10, -6),
+		n: Math.pow(10, -9),
+		p: Math.pow(10, -12),
+		f: Math.pow(10, -15),
+		a: Math.pow(10, -18),
+		z: Math.pow(10, -21),
+		y: Math.pow(10, -24)
+	};
+	Object.keys(transformation).some(k => {
+		if (s.indexOf(k) > 0) {
+			returnValue = parseFloat(s.split(k)[0]) * transformation[k];
+			return true;
+		}
+	});
+	return returnValue;
 };
 
 export { createCountryProfile };

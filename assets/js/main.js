@@ -314,7 +314,7 @@ function controlCharts([worldMap,
 
 	spinnerContainer.remove();
 
-	updateTopValues(topValues, selections);
+	if (chartState.selectedChart !== "countryProfile") updateTopValues(topValues, selections);
 
 	populateYearDropdown(yearsArrayAllocations, selections.yearDropdown);
 
@@ -376,7 +376,7 @@ function controlCharts([worldMap,
 		$(selections.moreTab.node()).click();
 		selections.navlinkCountryProfile.classed("menuactive", true);
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
-		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, selections.yearDropdown, yearsArrayContributions);
+		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, yearsArrayContributions);
 	};
 
 	//|event listeners
@@ -412,6 +412,8 @@ function controlCharts([worldMap,
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
 		chartState.selectedChart = "allocationsByCountry";
+		selections.contributionsTopFigurePanel.style("pointer-events", "all");
+		selections.allocationsTopFigurePanel.style("pointer-events", "all");
 		chartState.selectedRegion = [];
 		chartState.selectedCluster = [];
 		chartState.selectedType = [];
@@ -451,6 +453,8 @@ function controlCharts([worldMap,
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
 		chartState.selectedChart = "allocationsBySector";
+		selections.contributionsTopFigurePanel.style("pointer-events", "all");
+		selections.allocationsTopFigurePanel.style("pointer-events", "all");
 		chartState.selectedRegion = [];
 		chartState.selectedCluster = [];
 		chartState.selectedType = [];
@@ -490,6 +494,8 @@ function controlCharts([worldMap,
 			drawAllocations = createAllocations(selections, colorsObject, worldMap, lists);
 		};
 		chartState.selectedChart = "allocationsByType";
+		selections.contributionsTopFigurePanel.style("pointer-events", "all");
+		selections.allocationsTopFigurePanel.style("pointer-events", "all");
 		chartState.selectedRegion = [];
 		chartState.selectedCluster = [];
 		chartState.selectedType = [];
@@ -514,6 +520,8 @@ function controlCharts([worldMap,
 		if (buttonsObject.playing) stopTimer();
 		if (chartState.selectedChart === "allocationsByMonth") return;
 		chartState.selectedChart = "allocationsByMonth";
+		selections.contributionsTopFigurePanel.style("pointer-events", "all");
+		selections.allocationsTopFigurePanel.style("pointer-events", "all");
 		if (!queryStringValues.has("year")) {
 			chartState.selectedYear = allYears;
 			resetTopValues(topValues);
@@ -535,6 +543,8 @@ function controlCharts([worldMap,
 		if (buttonsObject.playing) stopTimer();
 		if (chartState.selectedChart === "contributionsByCerfCbpf") return;
 		chartState.selectedChart = "contributionsByCerfCbpf";
+		selections.contributionsTopFigurePanel.style("pointer-events", "all");
+		selections.allocationsTopFigurePanel.style("pointer-events", "all");
 		if (!queryStringValues.has("year")) {
 			chartState.selectedYear = allYears;
 			resetTopValues(topValues);
@@ -556,6 +566,8 @@ function controlCharts([worldMap,
 		if (buttonsObject.playing) stopTimer();
 		if (chartState.selectedChart === "contributionsByDonor") return;
 		chartState.selectedChart = "contributionsByDonor";
+		selections.contributionsTopFigurePanel.style("pointer-events", "all");
+		selections.allocationsTopFigurePanel.style("pointer-events", "all");
 		resetTopValues(topValues);
 		processAllocationsYearData(rawAllocationsData);
 		processContributionsYearData(rawContributionsData);
@@ -575,19 +587,15 @@ function controlCharts([worldMap,
 		if (buttonsObject.playing) stopTimer();
 		if (chartState.selectedChart === "countryProfile") {
 			selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
-			createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, selections.yearDropdown, yearsArrayContributions);
+			createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, yearsArrayContributions);
 			return;
 		};
-		if (chartState.selectedChart !== "contributionsByDonor") {
-			resetTopValues(topValues);
-			processAllocationsYearData(rawAllocationsData);
-			processContributionsYearData(rawContributionsData);
-			updateTopValues(topValues, selections);
-		};
 		chartState.selectedChart = "countryProfile";
+		selections.contributionsTopFigurePanel.style("pointer-events", "none");
+		selections.allocationsTopFigurePanel.style("pointer-events", "none");
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
 		selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
-		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, selections.yearDropdown, yearsArrayContributions);
+		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, yearsArrayContributions);
 		highlightNavLinks();
 		queryStringValues.delete("year");
 		queryStringValues.delete("contributionYear");
@@ -986,7 +994,8 @@ function updateTopValues(topValues, selections) {
 
 	selections.contributionsTopFigure.transition(updateTransition)
 		.textTween((_, i, n) => {
-			const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, topValues.contributions);
+			const thisTextContent = n[i].textContent === "--" ? "$0" : n[i].textContent;
+			const interpolator = d3.interpolate(reverseFormat(thisTextContent.split("$")[1]) || 0, topValues.contributions);
 			return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
 		});
 
@@ -997,7 +1006,10 @@ function updateTopValues(topValues, selections) {
 		});
 
 	selections.donorsTopFigure.transition(updateTransition)
-		.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, topValues.donors.size));
+		.textTween((_, i, n) => {
+			const thisTextContent = n[i].textContent === "--" ? "0" : n[i].textContent;
+			return d3.interpolateRound(thisTextContent || 0, topValues.donors.size)
+		});
 
 	selections.projectsTopFigure.transition(updateTransition)
 		.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, topValues.projects.size));
