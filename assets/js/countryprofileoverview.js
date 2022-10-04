@@ -806,6 +806,9 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 				.attr("class", classPrefix + type + "DonutText")
 				.attr("x", (d, i) => d.data.percentage < 1 ? arcGeneratorCerf.centroid(d)[0] : 0)
 				.attr("y", (d, i) => d.data.percentage < 1 ? arcGeneratorCerf.centroid(d)[1] : 0)
+				.style("stroke", d=> d.data.percentage < 1 ? null : "none")
+				.style("font-weight", d=> d.data.percentage < 1 ? null : "600")
+				.style("fill", d=> d.data.percentage < 1 ? null : "#444")
 				.text(d => formatPercent(d.data.percentage));
 
 			lateralDonutText = lateralDonutTextEnter.merge(lateralDonutText);
@@ -816,6 +819,9 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 				.style("opacity", d => d.data.value ? 1 : 0)
 				.attr("x", (d, i) => d.data.percentage < 1 ? arcGeneratorCerf.centroid(d)[0] : 0)
 				.attr("y", (d, i) => d.data.percentage < 1 ? arcGeneratorCerf.centroid(d)[1] : 0)
+				.style("stroke", d=> d.data.percentage < 1 ? null : "none")
+				.style("font-weight", d=> d.data.percentage < 1 ? null : "600")
+				.style("fill", d=> d.data.percentage < 1 ? null : "#444")
 				.textTween((d, i, n) => {
 					const interpolator = d3.interpolate(+(n[i].textContent.split("%")[0]) / 100, d.data.percentage);
 					return t => formatPercent(interpolator(t));
