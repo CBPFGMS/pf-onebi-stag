@@ -2220,14 +2220,7 @@ a.video-tutorial{color:#333;}
   --unColor:  #65A8DC;
 }
 
-.pfbicpoverviewtopDiv {
-  width: 100%;
-  display: flex;
-  height:  5vh;
-}
-
 .pfbicpoverviewtitleDiv {
-  width: 50%;
   font-family: "Roboto", sans-serif;
   font-size: 1.4em;
   color: darkslategray;
@@ -2346,18 +2339,35 @@ a.video-tutorial{color:#333;}
   justify-content: center;
 }
 
-.pfbicpoverviewallocationsDiv, .pfbicpoverviewdescriptionDiv, .pfbicpoverviewprojectsDiv, .pfbicpoverviewpartnersDiv {
-  padding-left: 1.6em;
+.pfbicpoverviewallocationsDiv, .pfbicpoverviewdescriptionDiv, .pfbicpoverviewprojectsDiv, .pfbicpoverviewpartnersDiv, .pfbicpoverviewsectorsDiv, .pfbicpoverviewtitleDiv {
+  padding-left: 1.2em;
+}
+
+.pfbicpoverviewallocationsDiv {
+  display: flex;
+  flex-direction: row;
 }
 
 .pfbicpoverviewallocationsValue {
   font-size: 3.2em;
 }
 
-.pfbicpoverviewallocationsUnit {
-  font-size: 1.8em;
+.pfbicpoverviewallocationsUnitContainer {
+  font-size: 1.2em;
   color: dimgray;
   padding-left: 0.4em;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.pfbicpoverviewallocationsUnit {
+  margin-bottom: -0.1em;
+}
+
+.pfbicpoverviewallocationsUnitValue {
+  font-size: 0.8em;
+  margin-top: -0.1em;
 }
 
 .pfbicpoverviewdescriptionDiv {
@@ -2366,11 +2376,11 @@ a.video-tutorial{color:#333;}
   padding-bottom: 1em;
 }
 
-.pfbicpoverviewprojectsValue, .pfbicpoverviewpartnersValue {
+.pfbicpoverviewprojectsValue, .pfbicpoverviewpartnersValue, .pfbicpoverviewsectorsValue {
   font-size: 1.8em;
 }
 
-.pfbicpoverviewprojectsText, .pfbicpoverviewpartnersText {
+.pfbicpoverviewprojectsText, .pfbicpoverviewpartnersText, .pfbicpoverviewsectorsText {
   font-size: 1.2em;
   color: dimgray;
   padding-left: 0.4em;

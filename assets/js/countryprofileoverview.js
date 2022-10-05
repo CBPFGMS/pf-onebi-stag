@@ -71,14 +71,6 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 	const outerDiv = container.append("div")
 		.attr("class", classPrefix + "outerDiv");
 
-	const topDiv = outerDiv.append("div")
-		.attr("class", classPrefix + "topDiv");
-
-	const titleDiv = topDiv.append("div")
-		.attr("class", classPrefix + "titleDiv");
-
-	const title = titleDiv.append("p");
-
 	const chartsDiv = outerDiv.append("div")
 		.attr("class", classPrefix + "chartsDiv");
 
@@ -264,8 +256,6 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		const data = processData(originalData, lists);
 		const adminLevel1Object = originalAdminLevel1Data.find(e => e.year === chartState.selectedYear);
 		const adminLevel1Data = adminLevel1Object ? adminLevel1Object.adminLevel1List : [];
-
-		title.html(`${lists.fundNamesList[chartState.selectedCountryProfile]}, ${chartState.selectedYear}`);
 
 		const syncedTransition = d3.transition()
 			.duration(duration);
@@ -914,9 +904,8 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 
 	function drawTopFigures(data, syncedTransition) {
 
-		topFiguresDiv.select(`.${classPrefix}descriptionDiv`)
-			.select("span")
-			.html(`${chartState.selectedYear}`);
+		topFiguresDiv.select(`.${classPrefix}titleDiv`)
+			.html(`${lists.fundNamesList[chartState.selectedCountryProfile]}, ${chartState.selectedYear}`);
 
 		topFiguresDiv.select(`.${classPrefix}allocationsValue`)
 			.transition(syncedTransition)
@@ -1020,22 +1009,26 @@ function createMap(mapData, mapLayer, mapDivSize, lists, mapDiv) {
 
 function createTopFigures(container, colors, lists) {
 
+	const titleDiv = container.append("div")
+		.attr("class", classPrefix + "titleDiv");
+
 	const allocationsDiv = container.append("div")
 		.attr("class", classPrefix + "allocationsDiv");
 
-	const allocationsValue = allocationsDiv.append("span")
+	const allocationsValue = allocationsDiv.append("div")
 		.attr("class", classPrefix + "allocationsValue")
 		.html("$0")
 		.call(applyColors, colors);
 
-	const allocationsUnit = allocationsDiv.append("span")
+	const allocationsUnitContainer = allocationsDiv.append("div")
+		.attr("class", classPrefix + "allocationsUnitContainer");
+
+	const allocationsUnit = allocationsUnitContainer.append("div")
 		.attr("class", classPrefix + "allocationsUnit");
 
-	const descriptionDiv = container.append("div")
-		.attr("class", classPrefix + "descriptionDiv")
-		.html(`Allocated in ${lists.fundNamesList[chartState.selectedCountryProfile]} in `)
-		.append("span")
-		.html(`${chartState.selectedYear}`);
+	const allocationsUnitValue = allocationsUnitContainer.append("div")
+		.attr("class", classPrefix + "allocationsUnitValue")
+		.html("Allocated");
 
 	const projectsDiv = container.append("div")
 		.attr("class", classPrefix + "projectsDiv");
@@ -1060,6 +1053,18 @@ function createTopFigures(container, colors, lists) {
 	const partnersText = partnersDiv.append("span")
 		.attr("class", classPrefix + "partnersText")
 		.html("Partners");
+
+	const sectorsDiv = container.append("div")
+		.attr("class", classPrefix + "sectorsDiv");
+
+	const sectorsValue = sectorsDiv.append("span")
+		.attr("class", classPrefix + "sectorsValue")
+		.html("0")
+		.call(applyColors, colors);
+
+	const sectorsText = sectorsDiv.append("span")
+		.attr("class", classPrefix + "sectorsText")
+		.html("Sectors");
 
 };
 
