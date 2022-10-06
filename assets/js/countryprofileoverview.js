@@ -312,12 +312,12 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 
 		//Create disclaimer for admin lv1 without coords
 
-		radiusScale.domain([0, d3.max(adminLevel1Data, d => d.AdminLocation1Budget) || 0]);
-
 		const adminLevel1DataCerf = chartState.selectedFund !== "cbpf" ? adminLevel1Data.filter(d => d.FundType === cerfId &&
 			d.AdminLocation1Latitude !== null && d.AdminLocation1Longitude !== null) : [];
 		const adminLevel1DataCbpf = chartState.selectedFund !== "cerf" ? adminLevel1Data.filter(d => d.FundType === cbpfId &&
 			d.AdminLocation1Latitude !== null && d.AdminLocation1Longitude !== null) : [];
+
+		radiusScale.domain([0, d3.max(adminLevel1DataCbpf, d => d.AdminLocation1Budget) || 0]);
 
 		let markers = markersLayer.selectAll(`.${classPrefix}markers`)
 			.data(adminLevel1DataCerf, d => d.AdminLocation1 + d.AdminLocation1Latitude.toFixed(6) + d.AdminLocation1Longitude.toFixed(6));
@@ -384,7 +384,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 			}).on("end", (_, i, n) => localVariable.set(bubbleLegendValue.node(), radiusScale.domain()[1]));
 
 		bubbleLegendGroup.transition(syncedTransition)
-			.style("opacity", adminLevel1Data.length ? 1 : 0);
+			.style("opacity", adminLevel1DataCbpf.length ? 1 : 0);
 
 		allocationsWithoutCoordsDisclaimer.datum(adminLevel1WithoutCoordinates)
 			.transition(syncedTransition)
@@ -985,9 +985,9 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		//end of drawTopFigures
 	};
 
-	function drawPartnerFigures(dataObject, container, syncedTransition, colors, lists) {
+	function drawPartnerFigures(data, container, syncedTransition, colors, lists) {
 
-		const data = Object.entries(dataObject).map(d => ({ partner: partnersShortNames[d[0]], value: +d[1] }));
+		data.forEach(d => d.partner = partnersShortNames[d.partner]);
 
 		data.sort((a, b) => b.value - a.value);
 
@@ -1012,6 +1012,9 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 			.attr("class", classPrefix + "partnerUnit")
 			.html("Allocated");
 
+		const partnerSymbol = partnerDivEnter.append("div")
+			.attr("class", classPrefix + "partnerSymbol");
+
 		partnerDiv = partnerDivEnter.merge(partnerDiv);
 
 		partnerDiv.order();
@@ -1035,6 +1038,12 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 				const unit = formatSIFloat(d.value).slice(-1);
 				return (unit === "k" ? "Thousand" : unit === "M" ? "Million" : unit === "G" ? "Billion" : "") + " Allocated";
 			});
+
+		partnerDiv.select(`.${classPrefix}partnerSymbol`)
+			.each((_, i, n) => d3.select(n[i]).selectChildren().remove())
+			.append("i")
+			.attr("class", d => d.fund.size > 1 ? "fas fa-adjust fa-xs" : "fas fa-circle fa-xs")
+			.style("color", d => d.fund.size > 1 ? null : colors[lists.fundTypesList[Array.from(d.fund)[0]]]);
 
 		// partnerFiguresDiv.on("mouseover", event => mouseoverTopFigures(event, data, tooltipDiv, container))
 		// 	.on("mouseout", () => mouseOut(tooltipDiv));
@@ -1171,7 +1180,7 @@ function processData(originalData, lists) {
 			partners: new Set(),
 			sectors: new Set()
 		},
-		partnerFigures: {},
+		partnerFigures: [],
 		donutChartData: {}
 	};
 
@@ -1210,7 +1219,19 @@ function processData(originalData, lists) {
 					allocation.ProjList.toString().split(separator).forEach(e => data.topFigures.projects.add(e));
 					data.topFigures.partners.add(allocation.PartnerCode);
 					data.topFigures.sectors.add(allocation.ClusterId);
-					data.partnerFigures[allocation.OrganizatinonId] = (data.partnerFigures[allocation.OrganizatinonId] || 0) + allocation.ClusterBudget;
+					const foundPartner = data.partnerFigures.find(e => e.partner === allocation.OrganizatinonId);
+					if (foundPartner) {
+						foundPartner.value += allocation.ClusterBudget;
+						foundPartner.fund.add(allocation.FundId);
+					} else {
+						const fundSet = new Set();
+						fundSet.add(allocation.FundId);
+						data.partnerFigures.push({
+							partner: allocation.OrganizatinonId,
+							value: +allocation.ClusterBudget,
+							fund: fundSet
+						});
+					};
 				};
 			});
 		};

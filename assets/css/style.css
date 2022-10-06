@@ -2367,6 +2367,11 @@ a.video-tutorial{color:#333;}
   color: dimgray;
 }
 
+.pfbicpoverviewpartnerSymbol {
+  font-size: 1.2em;
+  padding-left: 0.2em;
+}
+
 .pfbicpoverviewtopFiguresDiv {
   width: 100%;
   height: 100%;
