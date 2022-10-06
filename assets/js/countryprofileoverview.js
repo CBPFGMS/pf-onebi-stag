@@ -4,8 +4,9 @@ import { chartState } from "./chartstate.js";
 const topRowPercentage = 0.45,
 	donutsRowPercentage = 1 - topRowPercentage,
 	mapDivWidth = 0.3,
-	barChartDivWidth = 0.45,
-	topFiguresDivWidth = 1 - mapDivWidth - barChartDivWidth,
+	barChartDivWidth = 0.40,
+	middleDivWidth = 1 - mapDivWidth - barChartDivWidth,
+	minContainerWidth = 1240,
 	innerTooltipDivWidth = 290,
 	duration = 1000,
 	darkerValue = 0.2,
@@ -23,6 +24,12 @@ const topRowPercentage = 0.45,
 	currentYear = currentDate.getFullYear(),
 	separator = "##",
 	stackKeys = ["total", "cerf", "cbpf"],
+	partnersShortNames = {
+		1: "INGO",
+		2: "NNGO",
+		3: "UN",
+		4: "Other"
+	},
 	allocationTypes = {
 		cbpf: ["1", "2"],
 		cerf: ["3", "4"]
@@ -68,6 +75,8 @@ let bubbleLegendValue,
 
 function createCountryProfileOverview(container, lists, colors, mapData, tooltipDiv, fundButtons, yearsButtons) {
 
+	const containerWidth = container.node().getBoundingClientRect().width;
+
 	const outerDiv = container.append("div")
 		.attr("class", classPrefix + "outerDiv");
 
@@ -103,9 +112,21 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		.attr("class", classPrefix + "mapDiv")
 		.style("flex", "0 " + formatPercent(mapDivWidth));
 
-	const topFiguresDiv = topRowDiv.append("div")
+	const middleDiv = topRowDiv.append("div")
+		.attr("class", classPrefix + "middleDiv")
+		.style("flex", "0 " + formatPercent(middleDivWidth))
+		.style("flex-direction", containerWidth < minContainerWidth ? "column" : "row");
+
+	const topFiguresDiv = middleDiv.append("div")
 		.attr("class", classPrefix + "topFiguresDiv")
-		.style("flex", "0 " + formatPercent(topFiguresDivWidth));
+		.style("flex", containerWidth < minContainerWidth ? "0 65%" : "0 50%")
+		.style("justify-content", containerWidth < minContainerWidth ? "space-between" : "center");
+
+	const partnerFiguresDiv = middleDiv.append("div")
+		.attr("class", classPrefix + "partnerFiguresDiv")
+		.style("flex", containerWidth < minContainerWidth ? "0 35%" : "0 50%")
+		.style("justify-content", containerWidth < minContainerWidth ? "center" : "center")
+		.style("font-size", containerWidth < minContainerWidth ? "1vw" : "0.75vw");
 
 	const barChartDiv = topRowDiv.append("div")
 		.attr("class", classPrefix + "barChartDiv")
@@ -262,6 +283,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 
 		drawBubbleMap(adminLevel1Data, syncedTransition);
 		drawTopFigures(data.topFigures, syncedTransition);
+		drawPartnerFigures(data.partnerFigures, partnerFiguresDiv, syncedTransition, colors, lists);
 		drawBarChart(data.stackedBarData, syncedTransition, originalData, originalAdminLevel1Data);
 		drawDonutChart(data.donutChartData, syncedTransition);
 
@@ -796,9 +818,9 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 				.attr("class", classPrefix + type + "DonutText")
 				.attr("x", (d, i) => d.data.percentage < 1 ? arcGeneratorCerf.centroid(d)[0] : 0)
 				.attr("y", (d, i) => d.data.percentage < 1 ? arcGeneratorCerf.centroid(d)[1] : 0)
-				.style("stroke", d=> d.data.percentage < 1 ? null : "none")
-				.style("font-weight", d=> d.data.percentage < 1 ? null : "600")
-				.style("fill", d=> d.data.percentage < 1 ? null : "#444")
+				.style("stroke", d => d.data.percentage < 1 ? null : "none")
+				.style("font-weight", d => d.data.percentage < 1 ? null : "600")
+				.style("fill", d => d.data.percentage < 1 ? null : "#444")
 				.text(d => formatPercent(d.data.percentage));
 
 			lateralDonutText = lateralDonutTextEnter.merge(lateralDonutText);
@@ -809,9 +831,9 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 				.style("opacity", d => d.data.value ? 1 : 0)
 				.attr("x", (d, i) => d.data.percentage < 1 ? arcGeneratorCerf.centroid(d)[0] : 0)
 				.attr("y", (d, i) => d.data.percentage < 1 ? arcGeneratorCerf.centroid(d)[1] : 0)
-				.style("stroke", d=> d.data.percentage < 1 ? null : "none")
-				.style("font-weight", d=> d.data.percentage < 1 ? null : "600")
-				.style("fill", d=> d.data.percentage < 1 ? null : "#444")
+				.style("stroke", d => d.data.percentage < 1 ? null : "none")
+				.style("font-weight", d => d.data.percentage < 1 ? null : "600")
+				.style("fill", d => d.data.percentage < 1 ? null : "#444")
 				.textTween((d, i, n) => {
 					const interpolator = d3.interpolate(+(n[i].textContent.split("%")[0]) / 100, d.data.percentage);
 					return t => formatPercent(interpolator(t));
@@ -949,10 +971,75 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 				return t => n[i].textContent = interpolator(t);
 			});
 
+		topFiguresDiv.select(`.${classPrefix}sectorsValue`)
+			.transition(syncedTransition)
+			.call(applyColors, colors)
+			.tween("html", (_, i, n) => {
+				const interpolator = d3.interpolateRound(n[i].textContent || 0, data.sectors.size);
+				return t => n[i].textContent = interpolator(t);
+			});
+
 		topFiguresDiv.on("mouseover", event => mouseoverTopFigures(event, data, tooltipDiv, container))
 			.on("mouseout", () => mouseOut(tooltipDiv));
 
 		//end of drawTopFigures
+	};
+
+	function drawPartnerFigures(dataObject, container, syncedTransition, colors, lists) {
+
+		const data = Object.entries(dataObject).map(d => ({ partner: partnersShortNames[d[0]], value: +d[1] }));
+
+		data.sort((a, b) => b.value - a.value);
+
+		let partnerDiv = container.selectAll(`.${classPrefix}partnerDiv`)
+			.data(data, d => d.partner);
+
+		partnerDiv.exit().remove();
+
+		const partnerDivEnter = partnerDiv.enter()
+			.append("div")
+			.attr("class", classPrefix + "partnerDiv");
+
+		const partnerName = partnerDivEnter.append("div")
+			.attr("class", classPrefix + "partnerName")
+			.html(d => d.partner + ":");
+
+		const partnerValue = partnerDivEnter.append("div")
+			.attr("class", classPrefix + "partnerValue")
+			.html("$0")
+
+		const partnerUnit = partnerDivEnter.append("div")
+			.attr("class", classPrefix + "partnerUnit")
+			.html("Allocated");
+
+		partnerDiv = partnerDivEnter.merge(partnerDiv);
+
+		partnerDiv.order();
+
+		partnerDiv.select(`.${classPrefix}partnerValue`)
+			.transition(syncedTransition)
+			.call(applyColors, colors)
+			.tween("html", (d, i, n) => {
+				const interpolator = d3.interpolate(localVariable.get(n[i]) || 0, d.value);
+				localVariable.set(n[i], d.value);
+				const finalValue = formatSIFloat(d.value);
+				if (+finalValue.slice(-1) === +finalValue.slice(-1)) {
+					return t => n[i].textContent = "$" + formatSIFloat(interpolator(t));
+				} else {
+					return t => n[i].textContent = "$" + formatSIFloat(interpolator(t)).slice(0, -1);
+				};
+			});
+
+		partnerDiv.select(`.${classPrefix}partnerUnit`)
+			.html(d => {
+				const unit = formatSIFloat(d.value).slice(-1);
+				return (unit === "k" ? "Thousand" : unit === "M" ? "Million" : unit === "G" ? "Billion" : "") + " Allocated";
+			});
+
+		// partnerFiguresDiv.on("mouseover", event => mouseoverTopFigures(event, data, tooltipDiv, container))
+		// 	.on("mouseout", () => mouseOut(tooltipDiv));
+
+		//end of drawPartnerFigures
 	};
 
 	return draw;
@@ -1081,8 +1168,10 @@ function processData(originalData, lists) {
 		topFigures: {
 			total: 0,
 			projects: new Set(),
-			partners: new Set()
+			partners: new Set(),
+			sectors: new Set()
 		},
+		partnerFigures: {},
 		donutChartData: {}
 	};
 
@@ -1120,6 +1209,8 @@ function processData(originalData, lists) {
 					chartState.selectedFund === lists.fundTypesList[allocation.FundId]) {
 					allocation.ProjList.toString().split(separator).forEach(e => data.topFigures.projects.add(e));
 					data.topFigures.partners.add(allocation.PartnerCode);
+					data.topFigures.sectors.add(allocation.ClusterId);
+					data.partnerFigures[allocation.OrganizatinonId] = (data.partnerFigures[allocation.OrganizatinonId] || 0) + allocation.ClusterBudget;
 				};
 			});
 		};
