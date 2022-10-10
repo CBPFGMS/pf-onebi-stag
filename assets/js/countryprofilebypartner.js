@@ -61,14 +61,6 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv, fun
 	const outerDiv = container.append("div")
 		.attr("class", classPrefix + "outerDiv");
 
-	const topDiv = outerDiv.append("div")
-		.attr("class", classPrefix + "topDiv");
-
-	const titleDiv = topDiv.append("div")
-		.attr("class", classPrefix + "titleDiv");
-
-	const title = titleDiv.append("p");
-
 	const chartsDiv = outerDiv.append("div")
 		.attr("class", classPrefix + "chartsDiv");
 
@@ -131,17 +123,14 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv, fun
 
 		yearsButtons.classed("active", d => chartState.selectedYear === d);
 
-		const data = processData(originalData, lists);
-
-		//is the title necessary???
-		// title.html(`${lists.fundNamesList[chartState.selectedCountryProfile]}, ${chartState.selectedYear}`);
+		const data = processData(originalData, lists, cerfId, cbpfId);
 
 		const syncedTransition = d3.transition()
 			.duration(duration)
 			.on("start", () => activeTransition = true)
 			.on("end", () => activeTransition = false);
 
-		drawTopFigures(data.topFigures, topRowDiv, colors, syncedTransition);
+		drawTopFigures(data.topFigures, topRowDiv, colors, syncedTransition, lists);
 		recalculateDivWidth(data, barChartsDivCerf, barChartsDivCbpf);
 		if (chartState.selectedFund !== "cerf") {
 			drawSelectionChart(data.cbpfDataAggregated, selectionChartDivCbpf, syncedTransition, colors, tooltipDiv, container, lists);
@@ -206,7 +195,7 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv, fun
 	//end of createCountryProfileByPartner
 };
 
-function drawTopFigures(data, container, colors, syncedTransition) {
+function drawTopFigures(data, container, colors, syncedTransition, lists) {
 
 	container.select(`.${classPrefix}spanYearValue`)
 		.html(`in ${chartState.selectedYear}`);
@@ -231,12 +220,92 @@ function drawTopFigures(data, container, colors, syncedTransition) {
 			return unit === "k" ? "Thousand" : unit === "M" ? "Million" : unit === "G" ? "Billion" : "";
 		});
 
+	container.select(`.${classPrefix}projectsValue`)
+		.transition(syncedTransition)
+		.call(applyColors, colors)
+		.tween("html", (_, i, n) => {
+			const interpolator = d3.interpolateRound(n[i].textContent || 0, data.projects.size);
+			return t => n[i].textContent = interpolator(t);
+		});
+
+	container.select(`.${classPrefix}partnersValue`)
+		.transition(syncedTransition)
+		.call(applyColors, colors)
+		.tween("html", (_, i, n) => {
+			const interpolator = d3.interpolateRound(n[i].textContent || 0, data.partners.size);
+			return t => n[i].textContent = interpolator(t);
+		});
+
+	data.partnerFigures.forEach(d => d.partner = partnersShortNames[d.partner]);
+
+	data.partnerFigures.sort((a, b) => b.value - a.value);
+
+	let partnerFigures = container.select(`.${classPrefix}partnerFiguresDiv`)
+		.selectAll(`.${classPrefix}partnerFigures`)
+		.data(data.partnerFigures, d => d.partner);
+
+	partnerFigures.exit().remove();
+
+	const partnerFiguresEnter = partnerFigures.enter()
+		.append("div")
+		.attr("class", classPrefix + "partnerFigures");
+
+	const partnerName = partnerFiguresEnter.append("div")
+		.attr("class", classPrefix + "partnerName")
+		.html(d => d.partner + ":");
+
+	const partnerValue = partnerFiguresEnter.append("div")
+		.attr("class", classPrefix + "partnerValue")
+		.html("$0")
+
+	const partnerUnit = partnerFiguresEnter.append("div")
+		.attr("class", classPrefix + "partnerUnit")
+		.html("Allocated");
+
+	const partnerSymbol = partnerFiguresEnter.append("div")
+		.attr("class", classPrefix + "partnerSymbol");
+
+	partnerFigures = partnerFiguresEnter.merge(partnerFigures);
+
+	partnerFigures.order();
+
+	partnerFigures.select(`.${classPrefix}partnerValue`)
+		.transition(syncedTransition)
+		.call(applyColors, colors)
+		.tween("html", (d, i, n) => {
+			const interpolator = d3.interpolate(localVariable.get(n[i]) || 0, d.value);
+			localVariable.set(n[i], d.value);
+			const finalValue = formatSIFloat(d.value);
+			if (+finalValue.slice(-1) === +finalValue.slice(-1)) {
+				return t => n[i].textContent = "$" + formatSIFloat(interpolator(t));
+			} else {
+				return t => n[i].textContent = "$" + formatSIFloat(interpolator(t)).slice(0, -1);
+			};
+		});
+
+	partnerFigures.select(`.${classPrefix}partnerUnit`)
+		.html(d => {
+			const unit = formatSIFloat(d.value).slice(-1);
+			return (unit === "k" ? "Thousand" : unit === "M" ? "Million" : unit === "G" ? "Billion" : "") + " Allocated";
+		});
+
+	partnerFigures.select(`.${classPrefix}partnerSymbol`)
+		.each((_, i, n) => d3.select(n[i]).selectChildren().remove())
+		.append("i")
+		.attr("class", d => d.fund.size > 1 ? "fas fa-adjust fa-xs" : "fas fa-circle fa-xs")
+		.style("color", d => d.fund.size > 1 ? null : colors[lists.fundTypesList[Array.from(d.fund)[0]]]);
+
+
+
 	//end of drawTopFigures
 };
 
 function createTopFiguresDiv(container, colors, lists) {
 
-	const allocationsDiv = container.append("div")
+	const allocationsDivWrapper = container.append("div")
+		.attr("class", classPrefix + "allocationsDivWrapper");
+
+	const allocationsDiv = allocationsDivWrapper.append("div")
 		.attr("class", classPrefix + "allocationsDiv");
 
 	const descriptionDiv = allocationsDiv.append("div")
@@ -258,6 +327,42 @@ function createTopFiguresDiv(container, colors, lists) {
 
 	const allocationsUnit = allocationsValuePlusUnit.append("span")
 		.attr("class", classPrefix + "allocationsUnit");
+
+	const projectsAndPartnersDivWrapper = container.append("div")
+		.attr("class", classPrefix + "projectsAndPartnersDivWrapper");
+
+	const projectsAndPartnersDiv = projectsAndPartnersDivWrapper.append("div")
+		.attr("class", classPrefix + "projectsAndPartnersDiv");
+
+	const projectsDiv = projectsAndPartnersDiv.append("div")
+		.attr("class", classPrefix + "projectsDiv");
+
+	const projectsValue = projectsDiv.append("span")
+		.attr("class", classPrefix + "projectsValue")
+		.html("0")
+		.call(applyColors, colors);
+
+	const projectsText = projectsDiv.append("span")
+		.attr("class", classPrefix + "projectsText")
+		.html("Projects");
+
+	const partnersDiv = projectsAndPartnersDiv.append("div")
+		.attr("class", classPrefix + "partnersDiv");
+
+	const partnersValue = partnersDiv.append("span")
+		.attr("class", classPrefix + "partnersValue")
+		.html("0")
+		.call(applyColors, colors);
+
+	const partnersText = partnersDiv.append("span")
+		.attr("class", classPrefix + "partnersText")
+		.html("Partners");
+
+	const partnerFiguresDivWrapper = container.append("div")
+		.attr("class", classPrefix + "partnerFiguresDivWrapper");
+
+	const partnerFiguresDiv = partnerFiguresDivWrapper.append("div")
+		.attr("class", classPrefix + "partnerFiguresDiv");
 
 };
 
@@ -548,28 +653,48 @@ function positionTooltip(tooltip, container, event, position) {
 		.style("left", left);
 };
 
-function processData(originalData, lists) {
+function processData(originalData, lists, cerfId, cbpfId) {
 
 	const data = {
 		topFigures: {
-			total: 0
+			total: 0,
+			projects: new Set(),
+			partners: new Set(),
+			partnerFigures: []
 		},
 		cbpfData: [],
 		cbpfDataAggregated: [],
 		cerfData: []
 	};
 
-	if (chartState.selectedFund !== "cbpf") originalData.cerf.forEach(row => processRow(row, data.cerfData, true));
+	if (chartState.selectedFund !== "cbpf") originalData.cerf.forEach(row => processRow(row, data.cerfData, true, true, cerfId));
 	if (chartState.selectedFund !== "cerf") {
-		originalData.cbpfAggregated.forEach(row => processRow(row, data.cbpfDataAggregated, true));
-		originalData.cbpf.forEach(row => processRow(row, data.cbpfData, false))
+		originalData.cbpfAggregated.forEach(row => processRow(row, data.cbpfDataAggregated, true, false));
+		originalData.cbpf.forEach(row => processRow(row, data.cbpfData, false, true, cbpfId))
 	};
 
-	function processRow(row, target, addTotal) {
+	function processRow(row, target, addTotal, countProjectsAndPartners, fundType) {
 		if (chartState.selectedYear === row.year) {
 			row.values.forEach(innerRow => {
 				target.push(innerRow);
 				if (addTotal) data.topFigures.total += innerRow.value;
+				if (countProjectsAndPartners) {
+					data.topFigures.partners.add(innerRow.partner);
+					innerRow.projects.toString().split(separator).forEach(e => data.topFigures.projects.add(e));
+					const foundPartnerTopFigure = data.topFigures.partnerFigures.find(e => e.partner === innerRow.partnerType);
+					if (foundPartnerTopFigure) {
+						foundPartnerTopFigure.value += innerRow.value;
+						foundPartnerTopFigure.fund.add(fundType);
+					} else {
+						const fundSet = new Set();
+						fundSet.add(fundType);
+						data.topFigures.partnerFigures.push({
+							partner: innerRow.partnerType,
+							value: +innerRow.value,
+							fund: fundSet
+						});
+					};
+				};
 			});
 		};
 	};

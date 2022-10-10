@@ -555,11 +555,13 @@ function processDataForCountryProfileByPartner(rawAllocationsData, lists) {
 			const foundPartner = foundYear.values.find(e => e.partner === row.PartnerCode);
 			if (foundPartner) {
 				foundPartner.value += row.ClusterBudget;
+				foundPartner.projects += separator + row.ProjList;
 			} else {
 				foundYear.values.push({
 					partner: row.PartnerCode,
 					partnerType: row.OrganizatinonId,
-					value: row.ClusterBudget
+					value: row.ClusterBudget,
+					projects: row.ProjList
 				});
 			};
 		} else {
@@ -568,7 +570,8 @@ function processDataForCountryProfileByPartner(rawAllocationsData, lists) {
 				values: [{
 					partner: row.PartnerCode,
 					partnerType: row.OrganizatinonId,
-					value: row.ClusterBudget
+					value: row.ClusterBudget,
+					projects: row.ProjList
 				}]
 			});
 		};

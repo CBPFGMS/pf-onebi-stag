@@ -2344,7 +2344,20 @@ a.video-tutorial{color:#333;}
   justify-content: center;
 }
 
+.pfbicpbypartnerpartnerFiguresDiv {
+  display: flex;
+  flex-direction: column;
+  padding-left: 0.5em;
+  justify-content: center;
+}
+
 .pfbicpoverviewpartnerDiv {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+}
+
+.pfbicpbypartnerpartnerFigures {
   display: flex;
   flex-direction: row;
   align-items: baseline;
@@ -2368,6 +2381,28 @@ a.video-tutorial{color:#333;}
 }
 
 .pfbicpoverviewpartnerSymbol {
+  font-size: 1.2em;
+  padding-left: 0.2em;
+}
+
+.pfbicpbypartnerpartnerName {
+  font-weight: bold;
+  font-size: 1em;
+  color: #222;
+}
+
+.pfbicpbypartnerpartnerValue {
+  padding-left: 0.2em;
+  font-size: 1.2em;
+}
+
+.pfbicpbypartnerpartnerUnit {
+  font-size: 1em;
+  padding-left: 0.2em;
+  color: dimgray;
+}
+
+.pfbicpbypartnerpartnerSymbol {
   font-size: 1.2em;
   padding-left: 0.2em;
 }
@@ -2423,6 +2458,16 @@ a.video-tutorial{color:#333;}
 }
 
 .pfbicpoverviewprojectsText, .pfbicpoverviewpartnersText, .pfbicpoverviewsectorsText {
+  font-size: 1.2em;
+  color: dimgray;
+  padding-left: 0.4em;
+}
+
+.pfbicpbypartnerprojectsValue, .pfbicpbypartnerpartnersValue, .pfbicpbypartnersectorsValue {
+  font-size: 1.8em;
+}
+
+.pfbicpbypartnerprojectsText, .pfbicpbypartnerpartnersText, .pfbicpbypartnersectorsText {
   font-size: 1.2em;
   color: dimgray;
   padding-left: 0.4em;
@@ -2648,6 +2693,8 @@ a.video-tutorial{color:#333;}
 .pfbicpbypartnertopRowDiv {
   display: flex;
   flex-direction: row;
+  min-height: 10vh;
+  justify-content: space-around;
 }
 
 .pfbicpbypartnerbarChartsDiv {
@@ -2838,7 +2885,20 @@ a.video-tutorial{color:#333;}
   flex-direction: column;
   justify-content: center;
   line-height: 1.2;
-  max-width: 50%;
+}
+
+.pfbicpbypartnerprojectsAndPartnersDivWrapper, .pfbicpbypartnerpartnerFiguresDivWrapper {
+  flex: 0 30%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pfbicpbypartnerallocationsDivWrapper {
+  flex: 0 40%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .pfbicpbypartnerallocationsDiv {
@@ -2846,13 +2906,19 @@ a.video-tutorial{color:#333;}
   display: flex;
   flex-direction: row-reverse;
   align-items: center;
-  width: 45%;
+}
+
+.pfbicpbypartnerprojectsAndPartnersDiv {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .pfbicpbypartnervaluePlusUnit {
   display: flex;
   flex-direction: row;
   align-items: baseline;
+  justify-content: flex-end;
 }
 
 .pfbicpbypartnerbuttonsText {
