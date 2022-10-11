@@ -1617,7 +1617,6 @@ a.video-tutorial{color:#333;}
   padding: 5px 15px 0px 15px;
   width: 100%;
   min-height: 5vh;
-  margin-bottom: -1px;
   font-size: 0.8rem;
 }
 
@@ -2225,7 +2224,6 @@ a.video-tutorial{color:#333;}
   font-size: 1.4em;
   color: darkslategray;
   font-weight: 500;
-  margin-bottom: 1em;
 }
 
 .pfbicpoverviewbuttonsOuterDiv {
@@ -2417,7 +2415,7 @@ a.video-tutorial{color:#333;}
 }
 
 .pfbicpoverviewallocationsDiv, .pfbicpoverviewdescriptionDiv, .pfbicpoverviewprojectsDiv, .pfbicpoverviewpartnersDiv, .pfbicpoverviewsectorsDiv, .pfbicpoverviewtitleDiv {
-  padding-left: 1.2em;
+  padding-left: 1%;
 }
 
 .pfbicpoverviewallocationsDiv {
@@ -2439,12 +2437,11 @@ a.video-tutorial{color:#333;}
 }
 
 .pfbicpoverviewallocationsUnit {
-  margin-bottom: -0.1em;
+  margin-bottom: -0.2em;
 }
 
 .pfbicpoverviewallocationsUnitValue {
-  font-size: 0.8em;
-  margin-top: -0.1em;
+  margin-top: -0.2em;
 }
 
 .pfbicpoverviewdescriptionDiv {
@@ -2454,7 +2451,7 @@ a.video-tutorial{color:#333;}
 }
 
 .pfbicpoverviewprojectsValue, .pfbicpoverviewpartnersValue, .pfbicpoverviewsectorsValue {
-  font-size: 1.8em;
+  font-size: 1.5em;
 }
 
 .pfbicpoverviewprojectsText, .pfbicpoverviewpartnersText, .pfbicpoverviewsectorsText {
@@ -2476,8 +2473,10 @@ a.video-tutorial{color:#333;}
 .pfbicpoverviewbarChartDiv {
   width: 100%;
   height: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
 }
-
 
 .pfbicpoverviewxAxisGroup line {
   stroke: darkslategray;
@@ -2693,7 +2692,7 @@ a.video-tutorial{color:#333;}
 .pfbicpbypartnertopRowDiv {
   display: flex;
   flex-direction: row;
-  min-height: 10vh;
+  min-height: 14vh;
   justify-content: space-around;
 }
 
@@ -2888,14 +2887,14 @@ a.video-tutorial{color:#333;}
 }
 
 .pfbicpbypartnerprojectsAndPartnersDivWrapper, .pfbicpbypartnerpartnerFiguresDivWrapper {
-  flex: 0 30%;
+  flex: 0 27.5%;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .pfbicpbypartnerallocationsDivWrapper {
-  flex: 0 40%;
+  flex: 0 45%;
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -2912,6 +2911,19 @@ a.video-tutorial{color:#333;}
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.pfbicpbypartnerprojectsDiv {
+  margin-bottom: -0.2em;
+}
+
+.pfbicpbypartnerpartnersDiv {
+  margin-top: -0.2em;
+}
+
+.pfbicpbypartnerpartnerFigures > div {
+  margin-bottom: -0.2em;
+  margin-top: -0.2em;
 }
 
 .pfbicpbypartnervaluePlusUnit {

@@ -115,6 +115,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 	const middleDiv = topRowDiv.append("div")
 		.attr("class", classPrefix + "middleDiv")
 		.style("flex", "0 " + formatPercent(middleDivWidth))
+		.style("font-size", containerWidth < minContainerWidth ? "0.9vw" : "0.75vw")
 		.style("flex-direction", containerWidth < minContainerWidth ? "column" : "row");
 
 	const topFiguresDiv = middleDiv.append("div")
@@ -126,7 +127,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		.attr("class", classPrefix + "partnerFiguresDiv")
 		.style("flex", containerWidth < minContainerWidth ? "0 35%" : "0 50%")
 		.style("justify-content", containerWidth < minContainerWidth ? "center" : "center")
-		.style("font-size", containerWidth < minContainerWidth ? "1vw" : "0.75vw");
+		.style("padding-left", containerWidth < minContainerWidth ? "1%" : null);
 
 	const barChartDiv = topRowDiv.append("div")
 		.attr("class", classPrefix + "barChartDiv")
