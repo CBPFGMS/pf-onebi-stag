@@ -373,7 +373,6 @@ function createTopFiguresDiv(container, colors, lists) {
 	const partnerFiguresDiv = partnersFiguresDivWrapper.append("div")
 		.attr("class", classPrefix + "partnerFiguresDiv");
 
-
 	const sectorsDivWrapper = container.append("div")
 		.attr("class", classPrefix + "sectorsDivWrapper");
 
