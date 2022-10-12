@@ -39,14 +39,6 @@ function createCountryProfileBySector(container, lists, colors, tooltipDiv, fund
 	const outerDiv = container.append("div")
 		.attr("class", classPrefix + "outerDiv");
 
-	const topDiv = outerDiv.append("div")
-		.attr("class", classPrefix + "topDiv");
-
-	const titleDiv = topDiv.append("div")
-		.attr("class", classPrefix + "titleDiv");
-
-	const title = titleDiv.append("p");
-
 	const chartsDiv = outerDiv.append("div")
 		.attr("class", classPrefix + "chartsDiv");
 
@@ -103,9 +95,6 @@ function createCountryProfileBySector(container, lists, colors, tooltipDiv, fund
 		yearsButtons.classed("active", d => chartState.selectedYear === d);
 
 		const data = processData(originalData, lists);
-
-		//is the title necessary???
-		// title.html(`${lists.fundNamesList[chartState.selectedCountryProfile]}, ${chartState.selectedYear}`);
 
 		const syncedTransition = d3.transition()
 			.duration(duration)
@@ -175,6 +164,30 @@ function drawTopFigures(data, container, colors, syncedTransition) {
 		.html(() => {
 			const unit = formatSIFloat(data.total).slice(-1);
 			return unit === "k" ? "Thousand" : unit === "M" ? "Million" : unit === "G" ? "Billion" : "";
+		});
+
+	container.select(`.${classPrefix}projectsValue`)
+		.transition(syncedTransition)
+		.call(applyColors, colors)
+		.tween("html", (_, i, n) => {
+			const interpolator = d3.interpolateRound(n[i].textContent || 0, data.projects.size);
+			return t => n[i].textContent = interpolator(t);
+		});
+
+	container.select(`.${classPrefix}partnersValue`)
+		.transition(syncedTransition)
+		.call(applyColors, colors)
+		.tween("html", (_, i, n) => {
+			const interpolator = d3.interpolateRound(n[i].textContent || 0, data.partners.size);
+			return t => n[i].textContent = interpolator(t);
+		});
+
+	container.select(`.${classPrefix}sectorsValue`)
+		.transition(syncedTransition)
+		.call(applyColors, colors)
+		.tween("html", (_, i, n) => {
+			const interpolator = d3.interpolateRound(n[i].textContent || 0, data.sectors.size);
+			return t => n[i].textContent = interpolator(t);
 		});
 
 	//end of drawTopFigures
@@ -392,7 +405,10 @@ function drawStackedChart({
 
 function createTopFiguresDiv(container, colors, lists) {
 
-	const allocationsDiv = container.append("div")
+	const allocationsDivWrapper = container.append("div")
+		.attr("class", classPrefix + "allocationsDivWrapper");
+
+	const allocationsDiv = allocationsDivWrapper.append("div")
 		.attr("class", classPrefix + "allocationsDiv");
 
 	const descriptionDiv = allocationsDiv.append("div")
@@ -414,6 +430,51 @@ function createTopFiguresDiv(container, colors, lists) {
 
 	const allocationsUnit = allocationsValuePlusUnit.append("span")
 		.attr("class", classPrefix + "allocationsUnit");
+
+	const projectsAndPartnersDivWrapper = container.append("div")
+		.attr("class", classPrefix + "projectsAndPartnersDivWrapper");
+
+	const projectsAndPartnersDiv = projectsAndPartnersDivWrapper.append("div")
+		.attr("class", classPrefix + "projectsAndPartnersDiv");
+
+	const projectsDiv = projectsAndPartnersDiv.append("div")
+		.attr("class", classPrefix + "projectsDiv");
+
+	const projectsValue = projectsDiv.append("span")
+		.attr("class", classPrefix + "projectsValue")
+		.html("0")
+		.call(applyColors, colors);
+
+	const projectsText = projectsDiv.append("span")
+		.attr("class", classPrefix + "projectsText")
+		.html("Projects");
+
+	const partnersDiv = projectsAndPartnersDiv.append("div")
+		.attr("class", classPrefix + "partnersDiv");
+
+	const partnersValue = partnersDiv.append("span")
+		.attr("class", classPrefix + "partnersValue")
+		.html("0")
+		.call(applyColors, colors);
+
+	const partnersText = partnersDiv.append("span")
+		.attr("class", classPrefix + "partnersText")
+		.html("Partners");
+
+	const sectorsDivWrapper = container.append("div")
+		.attr("class", classPrefix + "sectorsDivWrapper");
+
+	const sectorsDiv = sectorsDivWrapper.append("div")
+		.attr("class", classPrefix + "sectorsDiv");
+
+	const sectorsValue = sectorsDiv.append("span")
+		.attr("class", classPrefix + "sectorsValue")
+		.html("0")
+		.call(applyColors, colors);
+
+	const sectorsText = sectorsDiv.append("span")
+		.attr("class", classPrefix + "sectorsText")
+		.html("Sectors");
 
 };
 
@@ -456,7 +517,10 @@ function processData(originalData, lists) {
 
 	const data = {
 		topFigures: {
-			total: 0
+			total: 0,
+			projects: new Set(),
+			partners: new Set(),
+			sectors: new Set()
 		},
 		stack: []
 	};
@@ -468,6 +532,9 @@ function processData(originalData, lists) {
 			} else {
 				data.topFigures.total += row[chartState.selectedFund];
 			};
+			data.topFigures.sectors.add(row.sector);
+			row.projects.toString().split(separator).forEach(e => data.topFigures.projects.add(e));
+			row.partner.toString().split(separator).forEach(e => data.topFigures.partners.add(e));
 			const copiedRow = Object.assign({}, row);
 			copiedRow.total = chartState.selectedFund === "total" ? copiedRow.total : 0;
 			copiedRow.cerf = chartState.selectedFund === "cerf" || chartState.selectedFund === "cerf/cbpf" ? copiedRow.cerf : 0;

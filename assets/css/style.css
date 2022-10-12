@@ -2460,12 +2460,32 @@ a.video-tutorial{color:#333;}
   padding-left: 0.4em;
 }
 
-.pfbicpbypartnerprojectsValue, .pfbicpbypartnerpartnersValue, .pfbicpbypartnersectorsValue {
+.pfbicpbypartnerprojectsValue, .pfbicpbypartnerpartnersValue {
   font-size: 1.8em;
 }
 
-.pfbicpbypartnerprojectsText, .pfbicpbypartnerpartnersText, .pfbicpbypartnersectorsText {
+.pfbicpbypartnerprojectsText, .pfbicpbypartnerpartnersText {
   font-size: 1.2em;
+  color: dimgray;
+  padding-left: 0.4em;
+}
+
+.pfbicpbysectorprojectsValue, .pfbicpbysectorpartnersValue {
+  font-size: 1.8em;
+}
+
+.pfbicpbysectorprojectsText, .pfbicpbysectorpartnersText {
+  font-size: 1.2em;
+  color: dimgray;
+  padding-left: 0.4em;
+}
+
+.pfbicpbysectorsectorsValue {
+  font-size: 2em;
+}
+
+.pfbicpbysectorsectorsText {
+  font-size: 1.4em;
   color: dimgray;
   padding-left: 0.4em;
 }
@@ -2692,7 +2712,7 @@ a.video-tutorial{color:#333;}
 .pfbicpbypartnertopRowDiv {
   display: flex;
   flex-direction: row;
-  min-height: 14vh;
+  min-height: 10vh;
   justify-content: space-around;
 }
 
@@ -2887,13 +2907,33 @@ a.video-tutorial{color:#333;}
 }
 
 .pfbicpbypartnerprojectsAndPartnersDivWrapper, .pfbicpbypartnerpartnerFiguresDivWrapper {
-  flex: 0 27.5%;
+  flex: 0 30%;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .pfbicpbypartnerallocationsDivWrapper {
+  flex: 0 40%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/*@media (min-width: 1240px) {
+  .pfbicpbypartnerprojectsAndPartnersDivWrapper, .pfbicpbypartnerpartnerFiguresDivWrapper, .pfbicpbypartnerallocationsDivWrapper {
+    flex: 0 33.3%;
+  }
+}*/
+
+.pfbicpbysectorprojectsAndPartnersDivWrapper, .pfbicpbysectorsectorsDivWrapper {
+  flex: 0 27.5%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pfbicpbysectorallocationsDivWrapper {
   flex: 0 45%;
   display: flex;
   justify-content: flex-end;
@@ -2907,7 +2947,7 @@ a.video-tutorial{color:#333;}
   align-items: center;
 }
 
-.pfbicpbypartnerprojectsAndPartnersDiv {
+.pfbicpbypartnerprojectsAndPartnersDiv, .pfbicpbysectorprojectsAndPartnersDiv {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -2921,9 +2961,24 @@ a.video-tutorial{color:#333;}
   margin-top: -0.2em;
 }
 
+.pfbicpbysectorprojectsDiv {
+  margin-bottom: -0.2em;
+}
+
+.pfbicpbysectorpartnersDiv {
+  margin-top: -0.2em;
+}
+
 .pfbicpbypartnerpartnerFigures > div {
   margin-bottom: -0.2em;
   margin-top: -0.2em;
+}
+
+@media (min-width: 1240px) {
+  .pfbicpbypartnerpartnerFigures > div {
+    margin-bottom: 0;
+    margin-top: 0;
+  }
 }
 
 .pfbicpbypartnervaluePlusUnit {
@@ -3029,6 +3084,8 @@ a.video-tutorial{color:#333;}
 .pfbicpbysectortopRowDiv {
   display: flex;
   flex-direction: row;
+  justify-content: space-around;
+  width: 100%;
 }
 
 /*.pfbicpbysectorchartDiv {
@@ -3065,7 +3122,6 @@ a.video-tutorial{color:#333;}
   display: flex;
   flex-direction: row-reverse;
   align-items: center;
-  width: 45%;
 }
 
 .pfbicpbysectorvaluePlusUnit {

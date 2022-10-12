@@ -596,10 +596,14 @@ function processDataForCountryProfileBySector(rawAllocationsData, lists) {
 				if (foundYearAndSector) {
 					foundYearAndSector.total += row.ClusterBudget;
 					foundYearAndSector.cerf += row.ClusterBudget;
+					foundYearAndSector.projects += separator + row.ProjList;
+					foundYearAndSector.partner += separator + row.PartnerCode;
 				} else {
 					data.push({
 						year: row.AllocationYear,
 						sector: row.ClusterId,
+						projects: row.ProjList,
+						partner: row.PartnerCode,
 						total: row.ClusterBudget,
 						cerf: row.ClusterBudget,
 						cbpf: 0
@@ -612,10 +616,14 @@ function processDataForCountryProfileBySector(rawAllocationsData, lists) {
 					if (foundYearAndSector) {
 						foundYearAndSector.total += row.ClusterBudget;
 						foundYearAndSector.cbpf += row.ClusterBudget;
+						foundYearAndSector.projects += separator + row.ProjList;
+						foundYearAndSector.partner += separator + row.PartnerCode;
 					} else {
 						data.push({
 							year: row.AllocationYear,
 							sector: row.ClusterId,
+							projects: row.ProjList,
+							partner: row.PartnerCode,
 							total: row.ClusterBudget,
 							cerf: 0,
 							cbpf: row.ClusterBudget
