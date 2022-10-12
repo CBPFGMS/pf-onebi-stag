@@ -2349,6 +2349,13 @@ a.video-tutorial{color:#333;}
   justify-content: center;
 }
 
+.pfbicppspartnerFiguresDiv {
+  display: flex;
+  flex-direction: column;
+  padding-left: 0.5em;
+  justify-content: center;
+}
+
 .pfbicpoverviewpartnerDiv {
   display: flex;
   flex-direction: row;
@@ -2356,6 +2363,12 @@ a.video-tutorial{color:#333;}
 }
 
 .pfbicpbypartnerpartnerFigures {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+}
+
+.pfbicppspartnerFigures {
   display: flex;
   flex-direction: row;
   align-items: baseline;
@@ -2379,6 +2392,28 @@ a.video-tutorial{color:#333;}
 }
 
 .pfbicpoverviewpartnerSymbol {
+  font-size: 1.2em;
+  padding-left: 0.2em;
+}
+
+.pfbicppspartnerName {
+  font-weight: bold;
+  font-size: 1em;
+  color: #222;
+}
+
+.pfbicppspartnerValue {
+  padding-left: 0.2em;
+  font-size: 1.2em;
+}
+
+.pfbicppspartnerUnit {
+  font-size: 1em;
+  padding-left: 0.2em;
+  color: dimgray;
+}
+
+.pfbicppspartnerSymbol {
   font-size: 1.2em;
   padding-left: 0.2em;
 }
@@ -2480,11 +2515,36 @@ a.video-tutorial{color:#333;}
   padding-left: 0.4em;
 }
 
+.pfbicppsprojectsValue, .pfbicppspartnersValue {
+  font-size: 1.8em;
+}
+
+.pfbicppsprojectsText, .pfbicppspartnersText {
+  font-size: 1.2em;
+  color: dimgray;
+  padding-left: 0.4em;
+}
+
 .pfbicpbysectorsectorsValue {
   font-size: 2em;
 }
 
 .pfbicpbysectorsectorsText {
+  font-size: 1.4em;
+  color: dimgray;
+  padding-left: 0.4em;
+}
+
+.pfbicppssectorsDivTitle {
+  font-size: 1em;
+  color: dimgray;
+}
+
+.pfbicppssectorsValue {
+  font-size: 2em;
+}
+
+.pfbicppssectorsText {
   font-size: 1.4em;
   color: dimgray;
   padding-left: 0.4em;
@@ -2940,6 +3000,28 @@ a.video-tutorial{color:#333;}
   align-items: center;
 }
 
+.pfbicppsprojectsAndPartnersDivWrapper, .pfbicppssectorsDivWrapper {
+  flex: 0 15%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pfbicppsallocationsDivWrapper {
+  flex: 0 40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pfbicppspartnersFiguresDivWrapper {
+  flex: 0 30%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
 .pfbicpbypartnerallocationsDiv {
   padding-left: 1.6em;
   display: flex;
@@ -2966,6 +3048,14 @@ a.video-tutorial{color:#333;}
 }
 
 .pfbicpbysectorpartnersDiv {
+  margin-top: -0.2em;
+}
+
+.pfbicppsprojectsDiv {
+  margin-bottom: -0.2em;
+}
+
+.pfbicppspartnersDiv {
   margin-top: -0.2em;
 }
 
@@ -3085,7 +3175,7 @@ a.video-tutorial{color:#333;}
   display: flex;
   flex-direction: row;
   justify-content: space-around;
-  width: 100%;
+  min-height: 10vh;
 }
 
 /*.pfbicpbysectorchartDiv {
@@ -3243,6 +3333,8 @@ a.video-tutorial{color:#333;}
 .pfbicppstopRowDiv {
   display: flex;
   flex-direction: row;
+  min-height: 10vh;
+  justify-content: space-around;
 }
 
 .pfbicppsbarChartsDiv {
@@ -3445,7 +3537,6 @@ a.video-tutorial{color:#333;}
   display: flex;
   flex-direction: row-reverse;
   align-items: center;
-  width: 45%;
 }
 
 .pfbicppsvaluePlusUnit {

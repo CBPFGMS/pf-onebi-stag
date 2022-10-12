@@ -532,9 +532,17 @@ function processData(originalData, lists) {
 			} else {
 				data.topFigures.total += row[chartState.selectedFund];
 			};
-			data.topFigures.sectors.add(row.sector);
-			row.projects.toString().split(separator).forEach(e => data.topFigures.projects.add(e));
-			row.partner.toString().split(separator).forEach(e => data.topFigures.partners.add(e));
+			if (chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf") {
+				data.topFigures.sectors.add(row.sector);
+				if (row.projectsCerf) row.projectsCerf.toString().split(separator).forEach(e => data.topFigures.projects.add(e));
+				if (row.partnersCerf) row.partnersCerf.toString().split(separator).forEach(e => data.topFigures.partners.add(e));
+				if (row.projectsCbpf) row.projectsCbpf.toString().split(separator).forEach(e => data.topFigures.projects.add(e));
+				if (row.partnersCbpf) row.partnersCbpf.toString().split(separator).forEach(e => data.topFigures.partners.add(e));
+			} else {
+				if (row[chartState.selectedFund]) data.topFigures.sectors.add(row.sector);
+				if (row[`projects${capitalize(chartState.selectedFund)}`]) row[`projects${capitalize(chartState.selectedFund)}`].toString().split(separator).forEach(e => data.topFigures.projects.add(e));
+				if (row[`partners${capitalize(chartState.selectedFund)}`]) row[`partners${capitalize(chartState.selectedFund)}`].toString().split(separator).forEach(e => data.topFigures.partners.add(e));
+			};
 			const copiedRow = Object.assign({}, row);
 			copiedRow.total = chartState.selectedFund === "total" ? copiedRow.total : 0;
 			copiedRow.cerf = chartState.selectedFund === "cerf" || chartState.selectedFund === "cerf/cbpf" ? copiedRow.cerf : 0;

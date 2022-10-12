@@ -65,14 +65,6 @@ function createCountryProfileByPartnerAndSector(container, lists, colors, toolti
 	const outerDiv = container.append("div")
 		.attr("class", classPrefix + "outerDiv");
 
-	const topDiv = outerDiv.append("div")
-		.attr("class", classPrefix + "topDiv");
-
-	const titleDiv = topDiv.append("div")
-		.attr("class", classPrefix + "titleDiv");
-
-	const title = titleDiv.append("p");
-
 	const chartsDiv = outerDiv.append("div")
 		.attr("class", classPrefix + "chartsDiv");
 
@@ -136,9 +128,6 @@ function createCountryProfileByPartnerAndSector(container, lists, colors, toolti
 		yearsButtons.classed("active", d => chartState.selectedYear === d);
 
 		const data = processData(originalData, lists);
-
-		//is the title necessary???
-		// title.html(`${lists.fundNamesList[chartState.selectedCountryProfile]}, ${chartState.selectedYear}`);
 
 		const syncedTransition = d3.transition()
 			.duration(duration)
@@ -234,12 +223,98 @@ function drawTopFigures(data, container, colors, syncedTransition) {
 			return unit === "k" ? "Thousand" : unit === "M" ? "Million" : unit === "G" ? "Billion" : "";
 		});
 
+	container.select(`.${classPrefix}projectsValue`)
+		.transition(syncedTransition)
+		.call(applyColors, colors)
+		.tween("html", (_, i, n) => {
+			const interpolator = d3.interpolateRound(n[i].textContent || 0, data.projects.size);
+			return t => n[i].textContent = interpolator(t);
+		});
+
+	container.select(`.${classPrefix}partnersValue`)
+		.transition(syncedTransition)
+		.call(applyColors, colors)
+		.tween("html", (_, i, n) => {
+			const interpolator = d3.interpolateRound(n[i].textContent || 0, data.partners.size);
+			return t => n[i].textContent = interpolator(t);
+		});
+
+	container.select(`.${classPrefix}sectorsValue`)
+		.transition(syncedTransition)
+		.call(applyColors, colors)
+		.tween("html", (_, i, n) => {
+			const interpolator = d3.interpolateRound(n[i].textContent || 0, data.sectors.size);
+			return t => n[i].textContent = interpolator(t);
+		});
+
+	data.partnerFigures.forEach(d => d.partner = partnersShortNames[d.partner]);
+
+	data.partnerFigures.sort((a, b) => b.value - a.value);
+
+	let partnerFigures = container.select(`.${classPrefix}partnerFiguresDiv`)
+		.selectAll(`.${classPrefix}partnerFigures`)
+		.data(data.partnerFigures, d => d.partner);
+
+	partnerFigures.exit().remove();
+
+	const partnerFiguresEnter = partnerFigures.enter()
+		.append("div")
+		.attr("class", classPrefix + "partnerFigures");
+
+	const partnerName = partnerFiguresEnter.append("div")
+		.attr("class", classPrefix + "partnerName")
+		.html(d => d.partner + ":");
+
+	const partnerValue = partnerFiguresEnter.append("div")
+		.attr("class", classPrefix + "partnerValue")
+		.html("$0")
+
+	const partnerUnit = partnerFiguresEnter.append("div")
+		.attr("class", classPrefix + "partnerUnit")
+		.html("Allocated");
+
+	const partnerSymbol = partnerFiguresEnter.append("div")
+		.attr("class", classPrefix + "partnerSymbol");
+
+	partnerFigures = partnerFiguresEnter.merge(partnerFigures);
+
+	partnerFigures.order();
+
+	partnerFigures.select(`.${classPrefix}partnerValue`)
+		.transition(syncedTransition)
+		.call(applyColors, colors)
+		.tween("html", (d, i, n) => {
+			const interpolator = d3.interpolate(localVariable.get(n[i]) || 0, d.value);
+			localVariable.set(n[i], d.value);
+			const finalValue = formatSIFloat(d.value);
+			if (+finalValue.slice(-1) === +finalValue.slice(-1)) {
+				return t => n[i].textContent = "$" + formatSIFloat(interpolator(t));
+			} else {
+				return t => n[i].textContent = "$" + formatSIFloat(interpolator(t)).slice(0, -1);
+			};
+		});
+
+	partnerFigures.select(`.${classPrefix}partnerUnit`)
+		.html(d => {
+			const unit = formatSIFloat(d.value).slice(-1);
+			return (unit === "k" ? "Thousand" : unit === "M" ? "Million" : unit === "G" ? "Billion" : "") + " Allocated";
+		});
+
+	partnerFigures.select(`.${classPrefix}partnerSymbol`)
+		.each((_, i, n) => d3.select(n[i]).selectChildren().remove())
+		.append("i")
+		.attr("class", d => d.fund.size > 1 ? "fas fa-adjust fa-xs" : "fas fa-circle fa-xs")
+		.style("color", d => d.fund.size > 1 ? null : colors[Array.from(d.fund)[0]]);
+
 	//end of drawTopFigures
 };
 
 function createTopFiguresDiv(container, colors, lists) {
 
-	const allocationsDiv = container.append("div")
+	const allocationsDivWrapper = container.append("div")
+		.attr("class", classPrefix + "allocationsDivWrapper");
+
+	const allocationsDiv = allocationsDivWrapper.append("div")
 		.attr("class", classPrefix + "allocationsDiv");
 
 	const descriptionDiv = allocationsDiv.append("div")
@@ -261,6 +336,62 @@ function createTopFiguresDiv(container, colors, lists) {
 
 	const allocationsUnit = allocationsValuePlusUnit.append("span")
 		.attr("class", classPrefix + "allocationsUnit");
+
+	const projectsAndPartnersDivWrapper = container.append("div")
+		.attr("class", classPrefix + "projectsAndPartnersDivWrapper");
+
+	const projectsAndPartnersDiv = projectsAndPartnersDivWrapper.append("div")
+		.attr("class", classPrefix + "projectsAndPartnersDiv");
+
+	const projectsDiv = projectsAndPartnersDiv.append("div")
+		.attr("class", classPrefix + "projectsDiv");
+
+	const projectsValue = projectsDiv.append("span")
+		.attr("class", classPrefix + "projectsValue")
+		.html("0")
+		.call(applyColors, colors);
+
+	const projectsText = projectsDiv.append("span")
+		.attr("class", classPrefix + "projectsText")
+		.html("Projects");
+
+	const partnersDiv = projectsAndPartnersDiv.append("div")
+		.attr("class", classPrefix + "partnersDiv");
+
+	const partnersValue = partnersDiv.append("span")
+		.attr("class", classPrefix + "partnersValue")
+		.html("0")
+		.call(applyColors, colors);
+
+	const partnersText = partnersDiv.append("span")
+		.attr("class", classPrefix + "partnersText")
+		.html("Partners");
+
+	const partnersFiguresDivWrapper = container.append("div")
+		.attr("class", classPrefix + "partnersFiguresDivWrapper");
+
+	const partnerFiguresDiv = partnersFiguresDivWrapper.append("div")
+		.attr("class", classPrefix + "partnerFiguresDiv");
+
+
+	const sectorsDivWrapper = container.append("div")
+		.attr("class", classPrefix + "sectorsDivWrapper");
+
+	const sectorsDiv = sectorsDivWrapper.append("div")
+		.attr("class", classPrefix + "sectorsDiv");
+
+	const sectorsDivTitle = sectorsDiv.append("div")
+		.attr("class", classPrefix + "sectorsDivTitle")
+		.html("Allocated in");
+
+	const sectorsValue = sectorsDiv.append("span")
+		.attr("class", classPrefix + "sectorsValue")
+		.html("0")
+		.call(applyColors, colors);
+
+	const sectorsText = sectorsDiv.append("span")
+		.attr("class", classPrefix + "sectorsText")
+		.html("Sectors");
 
 };
 
@@ -564,23 +695,32 @@ function positionTooltip(tooltip, container, event, position) {
 
 function processData(originalData, lists) {
 
+	console.log(originalData)
+
 	const data = {
 		topFigures: {
-			total: 0
+			total: 0,
+			projects: new Set(),
+			partners: new Set(),
+			sectors: new Set(),
+			partnerFigures: []
 		},
 		cbpfData: [],
 		dataAggregated: [],
 		cerfData: []
 	};
 
-	if (chartState.selectedFund !== "cbpf") originalData.cerf.forEach(row => processRow(row, data.cerfData));
-	if (chartState.selectedFund !== "cerf") originalData.cbpf.forEach(row => processRow(row, data.cbpfData));
+	if (chartState.selectedFund !== "cbpf") originalData.cerf.forEach(row => processRow(row, data.cerfData, "cerf"));
+	if (chartState.selectedFund !== "cerf") originalData.cbpf.forEach(row => processRow(row, data.cbpfData, "cbpf"));
 
-	function processRow(row, target) {
+	function processRow(row, target, fundType) {
 		if (chartState.selectedYear === row.year) {
 			row.values.forEach(innerRow => {
 				target.push(innerRow);
 				data.topFigures.total += innerRow.value;
+				data.topFigures.partners.add(innerRow.partner);
+				data.topFigures.sectors.add(innerRow.sector);
+				innerRow.projects.toString().split(separator).forEach(e => data.topFigures.projects.add(e));
 				const foundSector = data.dataAggregated.find(e => e.sector === innerRow.sector);
 				if (foundSector) {
 					foundSector.value += innerRow.value;
@@ -588,6 +728,19 @@ function processData(originalData, lists) {
 					data.dataAggregated.push({
 						sector: innerRow.sector,
 						value: innerRow.value
+					});
+				};
+				const foundPartner = data.topFigures.partnerFigures.find(e => e.partner === innerRow.partnerType);
+				if (foundPartner) {
+					foundPartner.value += innerRow.value;
+					foundPartner.fund.add(fundType);
+				} else {
+					const fundSet = new Set();
+					fundSet.add(fundType);
+					data.topFigures.partnerFigures.push({
+						partner: innerRow.partnerType,
+						value: innerRow.value,
+						fund: fundSet
 					});
 				};
 			});

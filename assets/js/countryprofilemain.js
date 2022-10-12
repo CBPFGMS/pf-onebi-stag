@@ -596,14 +596,16 @@ function processDataForCountryProfileBySector(rawAllocationsData, lists) {
 				if (foundYearAndSector) {
 					foundYearAndSector.total += row.ClusterBudget;
 					foundYearAndSector.cerf += row.ClusterBudget;
-					foundYearAndSector.projects += separator + row.ProjList;
-					foundYearAndSector.partner += separator + row.PartnerCode;
+					foundYearAndSector.projectsCerf += (foundYearAndSector.projectsCerf === "" ? "" : separator) + row.ProjList;
+					foundYearAndSector.partnersCerf += (foundYearAndSector.partnersCerf === "" ? "" : separator) + row.PartnerCode;
 				} else {
 					data.push({
 						year: row.AllocationYear,
 						sector: row.ClusterId,
-						projects: row.ProjList,
-						partner: row.PartnerCode,
+						projectsCerf: row.ProjList,
+						partnersCerf: row.PartnerCode,
+						projectsCbpf: "",
+						partnersCbpf: "",
 						total: row.ClusterBudget,
 						cerf: row.ClusterBudget,
 						cbpf: 0
@@ -616,14 +618,16 @@ function processDataForCountryProfileBySector(rawAllocationsData, lists) {
 					if (foundYearAndSector) {
 						foundYearAndSector.total += row.ClusterBudget;
 						foundYearAndSector.cbpf += row.ClusterBudget;
-						foundYearAndSector.projects += separator + row.ProjList;
-						foundYearAndSector.partner += separator + row.PartnerCode;
+						foundYearAndSector.projectsCbpf += (foundYearAndSector.projectsCbpf === "" ? "" : separator) + row.ProjList;
+						foundYearAndSector.partnersCbpf += (foundYearAndSector.partnersCbpf === "" ? "" : separator) + row.PartnerCode;
 					} else {
 						data.push({
 							year: row.AllocationYear,
 							sector: row.ClusterId,
-							projects: row.ProjList,
-							partner: row.PartnerCode,
+							projectsCerf: "",
+							partnersCerf: "",
+							projectsCbpf: row.ProjList,
+							partnersCbpf: row.PartnerCode,
 							total: row.ClusterBudget,
 							cerf: 0,
 							cbpf: row.ClusterBudget
@@ -658,9 +662,12 @@ function processDataForCountryProfileByPartnerAndSector(rawAllocationsData, list
 			const foundPartnerAndSector = foundYear.values.find(e => e.partner === row.PartnerCode && e.sector === row.ClusterId);
 			if (foundPartnerAndSector) {
 				foundPartnerAndSector.value += row.ClusterBudget;
+				foundPartnerAndSector.projects += separator + row.ProjList;
 			} else {
 				foundYear.values.push({
 					partner: row.PartnerCode,
+					partnerType: row.OrganizatinonId,
+					projects: row.ProjList,
 					sector: row.ClusterId,
 					value: row.ClusterBudget
 				});
@@ -670,6 +677,8 @@ function processDataForCountryProfileByPartnerAndSector(rawAllocationsData, list
 				year: row.AllocationYear,
 				values: [{
 					partner: row.PartnerCode,
+					partnerType: row.OrganizatinonId,
+					projects: row.ProjList,
 					sector: row.ClusterId,
 					value: row.ClusterBudget
 				}]
