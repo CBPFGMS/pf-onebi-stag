@@ -35,20 +35,6 @@ function createCountryProfileContributions(container, lists, colors, tooltipDiv,
 	const outerDiv = container.append("div")
 		.attr("class", classPrefix + "outerDiv");
 
-	const topDiv = outerDiv.append("div")
-		.attr("class", classPrefix + "topDiv");
-
-	const titleDiv = topDiv.append("div")
-		.attr("class", classPrefix + "titleDiv");
-
-	const buttonsOuterDiv = topDiv.append("div")
-		.attr("class", classPrefix + "buttonsOuterDiv");
-
-	const buttonsDiv = buttonsOuterDiv.append("div")
-		.attr("class", classPrefix + "buttonsDiv");
-
-	const title = titleDiv.append("p");
-
 	const chartsDiv = outerDiv.append("div")
 		.attr("class", classPrefix + "chartsDiv");
 
@@ -99,9 +85,6 @@ function createCountryProfileContributions(container, lists, colors, tooltipDiv,
 		yearsButtons.classed("active", d => chartState.selectedYear === d);
 
 		const data = processData(originalData, lists);
-
-		//is the title necessary???
-		// title.html(`${lists.fundNamesList[chartState.selectedCountryProfile]}, ${chartState.selectedYear}`);
 
 		const syncedTransition = d3.transition()
 			.duration(duration)
