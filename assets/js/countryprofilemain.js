@@ -45,7 +45,7 @@ const tabsCallingFunctions = tabsData.map(d => ({
 	callingFunction: null
 }));
 
-function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, yearsArrayTotal) {
+function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, yearsArrayTotal, queryStringObject) {
 
 	const pooledFundsInData = rawAllocationsData.reduce((acc, curr) => {
 		const foundRegion = acc.find(e => e.region === lists.fundRegionsList[curr.PooledFundId]);
@@ -72,8 +72,14 @@ function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData
 
 	countries.on("click", (event, d) => {
 		chartState.selectedCountryProfile = d;
+		setQueryString("country", chartState.selectedCountryProfile, lists);
 		drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearsArrayTotal);
 	});
+
+	if (queryStringObject && queryStringObject.country) {
+		chartState.selectedCountryProfile = +queryStringObject.country;
+		drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearsArrayTotal);
+	};
 
 };
 
@@ -184,6 +190,10 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 
 	const fundsButtons = createFundsButtons(fundsButtonsDiv, colorsObject);
 
+	fundsButtons.on("click.main", (event, d) => {
+		setQueryString("fund", d, lists);
+	});
+
 	const tabs = createTabs(tabsDiv, tabsData);
 
 	setCallFunctions()
@@ -195,12 +205,14 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 			const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal);
 			countries.on("click", (_, d) => {
 				chartState.selectedCountryProfile = d;
+				setQueryString("country", chartState.selectedCountryProfile, lists);
 				drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearsArrayTotal);
 			});
 			return;
 		};
 		if (d.name === chartState.selectedCountryProfile) return;
 		chartState.selectedCountryProfile = d.name;
+		setQueryString("country", chartState.selectedCountryProfile, lists);
 		breadcrumb.secondBreadcrumbSpan.html(lists.fundNamesList[chartState.selectedCountryProfile]);
 		processAllData(rawAllocationsData, rawContributionsData, adminLevel1Data, lists);
 		const mergedYears = Array.from(new Set([...yearsSetAllocations, ...yearsSetContributions]));
@@ -231,6 +243,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 		const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal);
 		countries.on("click", (event, d) => {
 			chartState.selectedCountryProfile = d;
+			setQueryString("country", chartState.selectedCountryProfile, lists);
 			drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearsArrayTotal);
 		});
 		return;
@@ -800,6 +813,16 @@ function formatSIFloat(value) {
 	const length = (~~Math.log10(value) + 1) % 3;
 	const digits = length === 1 ? 2 : length === 2 ? 1 : 0;
 	return d3.formatPrefix("." + digits, value)(value);
+};
+
+function setQueryString(key, value, lists) {
+	if (lists.queryStringValues.has(key)) {
+		lists.queryStringValues.set(key, value);
+	} else {
+		lists.queryStringValues.append(key, value);
+	};
+	const newURL = window.location.origin + window.location.pathname + "?" + lists.queryStringValues.toString();
+	window.history.replaceState(null, "", newURL);
 };
 
 function reverseFormat(s) {

@@ -188,6 +188,7 @@ const queryStringObject = {
 	chart: queryStringValues.get("chart"),
 	year: queryStringValues.get("year"),
 	fund: queryStringValues.get("fund"),
+	country: queryStringValues.get("country"),
 	contributionYear: queryStringValues.get("contributionYear")
 };
 
@@ -376,7 +377,7 @@ function controlCharts([worldMap,
 		$(selections.moreTab.node()).click();
 		selections.navlinkCountryProfile.classed("menuactive", true);
 		createDisabledOption(selections.yearDropdown, yearsArrayContributions);
-		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, yearsArrayContributions);
+		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, yearsArrayContributions, queryStringObject);
 	};
 
 	//|event listeners
@@ -419,6 +420,7 @@ function controlCharts([worldMap,
 		chartState.selectedType = [];
 		queryStringValues.delete("contributionYear");
 		queryStringValues.delete("value");
+		queryStringValues.delete("country");
 		setQueryString("chart", chartState.selectedChart);
 		if (chartState.selectedYear !== defaultValues.year) {
 			if (yearsArrayAllocations.includes(chartState.selectedYear)) {
@@ -460,6 +462,7 @@ function controlCharts([worldMap,
 		chartState.selectedType = [];
 		queryStringValues.delete("contributionYear");
 		queryStringValues.delete("value");
+		queryStringValues.delete("country");
 		setQueryString("chart", chartState.selectedChart);
 		if (chartState.selectedYear !== defaultValues.year) {
 			if (yearsArrayAllocations.includes(chartState.selectedYear)) {
@@ -501,6 +504,7 @@ function controlCharts([worldMap,
 		chartState.selectedType = [];
 		queryStringValues.delete("contributionYear");
 		queryStringValues.delete("value");
+		queryStringValues.delete("country");
 		setQueryString("chart", chartState.selectedChart);
 		if (chartState.selectedYear !== defaultValues.year) {
 			if (yearsArrayAllocations.includes(chartState.selectedYear)) {
@@ -536,6 +540,7 @@ function controlCharts([worldMap,
 		highlightNavLinks();
 		queryStringValues.delete("year");
 		queryStringValues.delete("fund");
+		queryStringValues.delete("country");
 		setQueryString("chart", chartState.selectedChart);
 	});
 
@@ -559,6 +564,7 @@ function controlCharts([worldMap,
 		highlightNavLinks();
 		queryStringValues.delete("year");
 		queryStringValues.delete("fund");
+		queryStringValues.delete("country");
 		setQueryString("chart", chartState.selectedChart);
 	});
 
@@ -580,6 +586,7 @@ function controlCharts([worldMap,
 		queryStringValues.delete("year");
 		queryStringValues.delete("contributionYear");
 		queryStringValues.delete("value");
+		queryStringValues.delete("country");
 		setQueryString("chart", chartState.selectedChart);
 	});
 
@@ -600,6 +607,7 @@ function controlCharts([worldMap,
 		queryStringValues.delete("year");
 		queryStringValues.delete("contributionYear");
 		queryStringValues.delete("value");
+		queryStringValues.delete("country");
 		setQueryString("chart", chartState.selectedChart);
 	});
 
