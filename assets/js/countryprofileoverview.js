@@ -516,7 +516,6 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 			.append("rect")
 			.attr("class", classPrefix + "barsTooltipRectangles")
 			.attr("pointer-events", "all")
-			.style("cursor", "pointer")
 			.style("opacity", 0)
 			.attr("y", barChartPadding[0])
 			.attr("height", barChartHeight - barChartPadding[0] - barChartPadding[2])
