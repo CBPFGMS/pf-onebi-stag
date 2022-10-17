@@ -16,6 +16,7 @@ const topRowPercentage = 0.45,
 	classPrefix = "pfbicpoverview",
 	formatPercent = d3.format(".0%"),
 	formatSIaxes = d3.format("~s"),
+	formatMoneyComma = d3.format(",.0f"),
 	mapProjection = d3.geoEquirectangular(),
 	mapPath = d3.geoPath().projection(mapProjection),
 	currentDate = new Date(),
@@ -394,7 +395,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		markers.on("mouseover", (event, d) => mouseoverMarkers(event, d, tooltipDiv, container))
 			.on("mouseout", () => mouseOut(tooltipDiv));
 
-		bubbles.on("mouseover", (event, d) => mouseoverBubbles(event, d, tooltipDiv, container))
+		bubbles.on("mouseover", (event, d) => mouseoverBubbles(event, d, tooltipDiv, container, colors))
 			.on("mouseout", () => mouseOut(tooltipDiv));
 
 	};
@@ -979,7 +980,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 				return t => n[i].textContent = interpolator(t);
 			});
 
-		topFiguresDiv.on("mouseover", event => mouseoverTopFigures(event, data, tooltipDiv, container))
+		topFiguresDiv.on("mouseover", event => mouseoverTopFigures(event, data, tooltipDiv, container, colors))
 			.on("mouseout", () => mouseOut(tooltipDiv));
 
 		//end of drawTopFigures
@@ -1269,7 +1270,7 @@ function mouseoverMarkers(event, datum, tooltip, container) {
 
 	titleDiv.append("strong")
 		.style("font-size", "16px")
-		.html("Tooltip title");
+		.html(datum.AdminLocation1);
 
 	innerTooltipDiv.append("div")
 		.html("Tooltip text here");
@@ -1277,7 +1278,7 @@ function mouseoverMarkers(event, datum, tooltip, container) {
 	positionTooltip(tooltip, container, event, "right");
 };
 
-function mouseoverBubbles(event, datum, tooltip, container) {
+function mouseoverBubbles(event, datum, tooltip, container, colors) {
 
 	setChartStateTooltip(event, tooltip);
 
@@ -1294,15 +1295,23 @@ function mouseoverBubbles(event, datum, tooltip, container) {
 
 	titleDiv.append("strong")
 		.style("font-size", "16px")
-		.html("Tooltip title");
+		.html(datum.AdminLocation1);
 
-	innerTooltipDiv.append("div")
-		.html("Tooltip text here");
+	const innerDiv = innerTooltipDiv.append("div");
+
+	innerDiv.append("span")
+		.attr("class", classPrefix + "mapAllocationsText")
+		.html(`${chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? "Total" : chartState.selectedFund.toUpperCase()} Allocations: `);
+
+	innerDiv.append("span")
+		.attr("class", classPrefix + "mapAllocationsValue")
+		.call(applyColors, colors)
+		.html("$" + formatMoneyComma(datum.AdminLocation1Budget));
 
 	positionTooltip(tooltip, container, event, "right");
 };
 
-function mouseoverTopFigures(event, data, tooltip, container) {
+function mouseoverTopFigures(event, data, tooltip, container, colors) {
 
 	setChartStateTooltip(event, tooltip);
 
@@ -1313,18 +1322,18 @@ function mouseoverTopFigures(event, data, tooltip, container) {
 		.style("max-width", innerTooltipDivWidth + "px")
 		.attr("id", classPrefix + "innerTooltipDiv");
 
-	const titleDiv = innerTooltipDiv.append("div")
-		.attr("class", classPrefix + "tooltipTitleDiv")
-		.style("margin-bottom", "18px");
+	const innerDiv = innerTooltipDiv.append("div")
+		.style("padding", "8px");
 
-	titleDiv.append("strong")
-		.style("font-size", "16px")
-		.html("Tooltip title");
+	innerDiv.append("span")
+		.html(`${chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? "Total" : chartState.selectedFund.toUpperCase()} Allocations: `);
 
-	innerTooltipDiv.append("div")
-		.html("Tooltip text here");
+	innerDiv.append("span")
+		.attr("class", classPrefix + "topFiguresAllocationsValue")
+		.call(applyColors, colors)
+		.html("$" + formatMoneyComma(data.total));
 
-	positionTooltip(tooltip, container, event, "right");
+	positionTooltip(tooltip, container, event, "top");
 
 };
 
