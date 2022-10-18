@@ -1322,6 +1322,14 @@ function mouseoverTopFigures(event, data, tooltip, container, colors) {
 		.style("max-width", innerTooltipDivWidth + "px")
 		.attr("id", classPrefix + "innerTooltipDiv");
 
+	const titleDiv = innerTooltipDiv.append("div")
+		.attr("class", classPrefix + "tooltipTitleDiv")
+		.style("margin-bottom", "18px");
+
+	titleDiv.append("strong")
+		.style("font-size", "16px")
+		.html("Summary");
+
 	const innerDiv = innerTooltipDiv.append("div")
 		.style("padding", "8px");
 
@@ -1333,7 +1341,7 @@ function mouseoverTopFigures(event, data, tooltip, container, colors) {
 		.call(applyColors, colors)
 		.html("$" + formatMoneyComma(data.total));
 
-	positionTooltip(tooltip, container, event, "top");
+	positionTooltip(tooltip, container, event, "center");
 
 };
 
@@ -1406,18 +1414,32 @@ function positionTooltip(tooltip, container, event, position) {
 		tooltipSize = tooltip.node().getBoundingClientRect(),
 		elementSize = event.currentTarget.getBoundingClientRect();
 
+	const verticalTop = () => Math.max(0, elementSize.top - containerSize.top - tooltipSize.height - tooltipVerticalPadding) + "px",
+		verticalCenter = () => elementSize.top - containerSize.top + (elementSize.height / 2) - (tooltipSize.height / 2) + "px",
+		verticalBottom = () => Math.min(containerSize.height - tooltipSize.height, elementSize.bottom - containerSize.top + tooltipVerticalPadding) + "px",
+		horizontalLeft = () => Math.max(0, elementSize.left - tooltipSize.width - containerSize.left - tooltipHorizontalPadding) + "px",
+		horizontalCenter = () => Math.max(0, Math.min(containerSize.width - tooltipSize.width - tooltipHorizontalPadding,
+			elementSize.left - containerSize.left + (elementSize.width / 2) - (tooltipSize.width / 2))) + "px",
+		horizontalRight = () => elementSize.right + tooltipHorizontalPadding + tooltipSize.width - containerSize.left > containerSize.width ?
+		elementSize.left - tooltipSize.width - containerSize.left - tooltipHorizontalPadding + "px" :
+		elementSize.right - containerSize.left + tooltipHorizontalPadding + "px";
+
 	if (position === "right") {
-		top = elementSize.top - containerSize.top + (elementSize.height / 2) - (tooltipSize.height / 2) + "px";
-		left = elementSize.right + tooltipHorizontalPadding + tooltipSize.width - containerSize.left > containerSize.width ?
-			elementSize.left - tooltipSize.width - containerSize.left - tooltipHorizontalPadding + "px" :
-			elementSize.right - containerSize.left + tooltipHorizontalPadding + "px";
-	} else if (position === "top") {
-		top = Math.max(0, elementSize.top - containerSize.top - tooltipSize.height - tooltipVerticalPadding) + "px";
-		left = Math.max(0, Math.min(containerSize.width - tooltipSize.width - tooltipHorizontalPadding,
-			elementSize.left - containerSize.left + (elementSize.width / 2) - (tooltipSize.width / 2))) + "px";
+		top = verticalCenter();
+		left = horizontalRight();
+	} else
+	if (position === "top") {
+		top = verticalTop();
+		left = horizontalCenter();
 	} else if (position === "left") {
-		top = elementSize.top - containerSize.top + (elementSize.height / 2) - (tooltipSize.height / 2) + "px";
-		left = Math.max(0, elementSize.left - tooltipSize.width - containerSize.left - tooltipHorizontalPadding) + "px";
+		top = verticalCenter();
+		left = horizontalLeft();
+	} else if (position === "bottom") {
+		top = verticalBottom();
+		left = horizontalCenter();
+	} else if (position === "center") {
+		top = verticalCenter();
+		left = horizontalCenter();
 	};
 
 	tooltip.style("top", top)
