@@ -702,8 +702,6 @@ function mouseoverPartnerFigures(event, data, tooltip, container, colors) {
 
 function mouseoverRow(event, data, tooltip, container, colors, fundType, namesList) {
 
-	console.log(data)
-
 	setChartStateTooltip(event, tooltip);
 
 	tooltip.style("display", "block")
