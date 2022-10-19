@@ -1,5 +1,6 @@
 import { chartState } from "./chartstate.js";
 import { clustersIconsData } from "./clustersiconsdata.js";
+import { positionTooltip } from "./positiontooltip.js";
 
 //|constants
 const padding = [40, 60, 20, 196],
@@ -9,10 +10,12 @@ const padding = [40, 60, 20, 196],
 	classPrefix = "pfbicpbysector",
 	formatPercent = d3.format(".0%"),
 	formatSIaxes = d3.format("~s"),
+	formatMoney0Decimals = d3.format(",.0f"),
 	currentDate = new Date(),
 	localVariable = d3.local(),
 	unBlue = "#1F69B3",
 	currentYear = currentDate.getFullYear(),
+	innerTooltipDivWidth = 290,
 	separator = "##",
 	duration = 1000,
 	darkerValue = 0.2,
@@ -101,7 +104,7 @@ function createCountryProfileBySector(container, lists, colors, tooltipDiv, fund
 			.on("start", () => activeTransition = true)
 			.on("end", () => activeTransition = false);
 
-		drawTopFigures(data.topFigures, topRowDiv, colors, syncedTransition);
+		drawTopFigures(data.topFigures, topRowDiv, colors, syncedTransition, tooltipDiv);
 
 		const argumentsObject = {
 			data: data.stack,
@@ -141,7 +144,7 @@ function createCountryProfileBySector(container, lists, colors, tooltipDiv, fund
 	//end of createCountryProfileBySector
 };
 
-function drawTopFigures(data, container, colors, syncedTransition) {
+function drawTopFigures(data, container, colors, syncedTransition, tooltipDiv) {
 
 	container.select(`.${classPrefix}spanYearValue`)
 		.html(`in ${chartState.selectedYear}`);
@@ -189,6 +192,10 @@ function drawTopFigures(data, container, colors, syncedTransition) {
 			const interpolator = d3.interpolateRound(n[i].textContent || 0, data.sectors.size);
 			return t => n[i].textContent = interpolator(t);
 		});
+
+	container.select(`.${classPrefix}allocationsDiv`)
+		.on("mouseover", event => mouseoverTopFigures(event, data, tooltipDiv, container, colors))
+		.on("mouseout", () => mouseOut(tooltipDiv));
 
 	//end of drawTopFigures
 };
@@ -374,7 +381,6 @@ function drawStackedChart({
 		.append("rect")
 		.attr("class", classPrefix + "barsTooltipRectangles")
 		.attr("pointer-events", "all")
-		.style("cursor", "pointer")
 		.style("opacity", 0)
 		.attr("x", 0)
 		.attr("width", svgWidth)
@@ -399,6 +405,9 @@ function drawStackedChart({
 			.attrTween("x", null)
 			.tween("text", null);
 	};
+
+	barsTooltipRectangles.on("mouseover", (event, d) => mouseoverBars(event, d, tooltipDiv, container, colors, lists))
+		.on("mouseout", () => mouseOut(tooltipDiv));
 
 	//end of drawStackedChart
 };
@@ -478,39 +487,94 @@ function createTopFiguresDiv(container, colors, lists) {
 
 };
 
+function mouseoverTopFigures(event, data, tooltip, container, colors) {
+
+	setChartStateTooltip(event, tooltip);
+
+	tooltip.style("display", "block")
+		.html(null);
+
+	const innerTooltipDiv = tooltip.append("div")
+		.style("max-width", innerTooltipDivWidth + "px")
+		.attr("id", classPrefix + "innerTooltipDiv");
+
+	const titleDiv = innerTooltipDiv.append("div")
+		.attr("class", classPrefix + "tooltipTitleDiv")
+		.style("margin-bottom", "18px");
+
+	titleDiv.append("strong")
+		.style("font-size", "16px")
+		.html("Summary");
+
+	const innerDiv = innerTooltipDiv.append("div");
+
+	innerDiv.append("span")
+		.html(`${chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? "Total" : chartState.selectedFund.toUpperCase()} Allocations: `);
+
+	innerDiv.append("span")
+		.attr("class", classPrefix + "topFiguresAllocationsValue")
+		.call(applyColors, colors)
+		.html("$" + formatMoney0Decimals(data.total));
+
+	positionTooltip(tooltip, container, event, "right");
+
+};
+
+function mouseoverBars(event, data, tooltip, container, colors, lists) {
+
+	setChartStateTooltip(event, tooltip);
+
+	tooltip.style("display", "block")
+		.html(null);
+
+	const innerTooltipDiv = tooltip.append("div")
+		.style("max-width", innerTooltipDivWidth + "px")
+		.attr("id", classPrefix + "innerTooltipDiv");
+
+	const titleDiv = innerTooltipDiv.append("div")
+		.attr("class", classPrefix + "tooltipTitleDiv")
+		.style("margin-bottom", "18px");
+
+	titleDiv.append("strong")
+		.style("font-size", "16px")
+		.html(lists.clustersList[data.sector]);
+
+	const innerDiv = innerTooltipDiv.append("div");
+
+	if (chartState.selectedFund === "cerf/cbpf") {
+		["cerf", "cbpf"].forEach(fund => {
+			const fundDiv = innerDiv.append("div");
+
+			fundDiv.append("span")
+				.html(`${fund.toUpperCase()} Allocations: `);
+
+			fundDiv.append("span")
+				.attr("class", classPrefix + "topFiguresAllocationsValue")
+				.style("color", d3.color(colors[fund]).darker(darkerValue))
+				.html("$" + formatMoney0Decimals(data[fund]));
+		});
+	} else {
+		innerDiv.append("span")
+			.html(`${chartState.selectedFund === "total" ? "Total" : chartState.selectedFund.toUpperCase()} Allocations: `);
+
+		innerDiv.append("span")
+			.attr("class", classPrefix + "topFiguresAllocationsValue")
+			.call(applyColors, colors)
+			.html("$" + formatMoney0Decimals(data[chartState.selectedFund]));
+	};
+
+	positionTooltip(tooltip, container, event, "top");
+
+};
 
 function mouseOut(tooltip) {
 	tooltip.html(null)
 		.style("display", "none");
 };
 
-function positionTooltip(tooltip, container, event, position) {
-	let top, left;
-
-	const containerSize = container.node().getBoundingClientRect(),
-		tooltipSize = tooltip.node().getBoundingClientRect(),
-		elementSize = event.currentTarget.getBoundingClientRect();
-
-	if (position === "right") {
-		top = elementSize.top - containerSize.top + (elementSize.height / 2) - (tooltipSize.height / 2) + "px";
-		left = elementSize.right + tooltipHorizontalPadding + tooltipSize.width - containerSize.left > containerSize.width ?
-			elementSize.left - tooltipSize.width - containerSize.left - tooltipHorizontalPadding + "px" :
-			elementSize.right - containerSize.left + tooltipHorizontalPadding + "px";
-	} else if (position === "top") {
-		top = Math.max(0, elementSize.top - containerSize.top - tooltipSize.height - tooltipVerticalPadding) + "px";
-		left = Math.max(0, Math.min(containerSize.width - tooltipSize.width - tooltipHorizontalPadding,
-			elementSize.left - containerSize.left + (elementSize.width / 2) - (tooltipSize.width / 2))) + "px";
-	} else if (position === "left") {
-		top = elementSize.top - containerSize.top + (elementSize.height / 2) - (tooltipSize.height / 2) + "px";
-		left = Math.max(0, elementSize.left - tooltipSize.width - containerSize.left - tooltipHorizontalPadding) + "px";
-	} else if (position === "bottom") {
-		top = Math.min(containerSize.height - tooltipSize.height - tooltipVerticalPadding, elementSize.top - containerSize.top + elementSize.height + tooltipVerticalPadding) + "px";
-		left = Math.max(0, Math.min(containerSize.width - tooltipSize.width - tooltipHorizontalPadding,
-			elementSize.left - containerSize.left + (elementSize.width / 2) - (tooltipSize.width / 2))) + "px";
-	};
-
-	tooltip.style("top", top)
-		.style("left", left);
+function setChartStateTooltip(event, tooltip) {
+	chartState.currentHoveredElement = event.currentTarget;
+	chartState.currentTooltip = tooltip;
 };
 
 function processData(originalData, lists) {

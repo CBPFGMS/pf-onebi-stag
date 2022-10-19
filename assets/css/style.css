@@ -650,6 +650,10 @@ a.video-tutorial{color:#333;}
   padding: 8px;
 }
 
+#pfbicpbysectorinnerTooltipDiv > div:not(:first-child) {
+  padding: 8px;
+}
+
 #pfbicppsinnerTooltipDiv > div:not(:first-child) {
   padding: 8px;
 }
@@ -672,7 +676,7 @@ a.video-tutorial{color:#333;}
   padding-bottom: 8px !important;
 }
 
-.pfbialtooltipTitleDiv, .pfbicdtooltipTitleDiv, .pfbicpoverviewtooltipTitleDiv, .pfbicpbypartnertooltipTitleDiv, .pfbicppstooltipTitleDiv {
+.pfbialtooltipTitleDiv, .pfbicdtooltipTitleDiv, .pfbicpoverviewtooltipTitleDiv, .pfbicpbypartnertooltipTitleDiv, .pfbicpbysectortooltipTitleDiv, .pfbicppstooltipTitleDiv {
 	margin-bottom: 3px !important;
     background-color: #3189c9;
     padding: 8px 8px;
@@ -3870,6 +3874,6 @@ a.video-tutorial{color:#333;}
 }
 
 /*Country profile tooltips*/
-.pfbicpoverviewmapAllocationsValue, .pfbicpoverviewtopFiguresAllocationsValue, .pfbicpoverviewpartnerFiguresAllocationsValue, .pfbicpbypartnertopFiguresAllocationsValue, .pfbicpbypartnerpartnerFiguresAllocationsValue {
+.pfbicpoverviewmapAllocationsValue, .pfbicpoverviewtopFiguresAllocationsValue, .pfbicpoverviewpartnerFiguresAllocationsValue, .pfbicpbypartnertopFiguresAllocationsValue, .pfbicpbysectortopFiguresAllocationsValue, .pfbicpbypartnerpartnerFiguresAllocationsValue {
   font-weight: bold;
 }
