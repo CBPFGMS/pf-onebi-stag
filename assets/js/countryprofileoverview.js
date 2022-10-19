@@ -1,4 +1,5 @@
 import { chartState } from "./chartstate.js";
+import { positionTooltip } from "./positiontooltip.js";
 
 //|constants
 const topRowPercentage = 0.45,
@@ -66,9 +67,7 @@ const topRowPercentage = 0.45,
 	strokeOpacityValue = 0.8,
 	fillOpacityValue = 0.5,
 	bubbleLegendPadding = 6,
-	xAxisTextSize = 12,
-	tooltipHorizontalPadding = 6,
-	tooltipVerticalPadding = 6;
+	xAxisTextSize = 12;
 
 let bubbleLegendValue,
 	bubbleLegendGroup,
@@ -529,9 +528,6 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 			.attr("width", xScale.step())
 			.attr("x", d => xScale(d.year) - xScale.bandwidth() / 2);
 
-		barsTooltipRectangles.on("mouseover", (event, d) => mouseoverBars(event, d, tooltipDiv, container))
-			.on("mouseout", () => mouseOut(tooltipDiv));
-
 		yAxis.tickSizeInner(-(xScale.range()[1] - barChartPadding[3]));
 
 		xAxisGroup.transition(syncedTransition)
@@ -554,6 +550,9 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		yAxisGroup.selectAll(".tick")
 			.filter(d => d === 0)
 			.remove();
+
+		barsTooltipRectangles.on("mouseover", (event, d) => mouseoverBars(event, d, tooltipDiv, container, colors))
+			.on("mouseout", () => mouseOut(tooltipDiv));
 
 		//end of drawBarChart
 	};
@@ -767,7 +766,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		drawLateralDonut("cerf", svgDonutsCerf, donutDataCerf);
 		drawLateralDonut("cbpf", svgDonutsCbpf, donutDataCbpf);
 
-		mainDonut.on("mouseover", (event, d) => mouseoverDonut(event, d, tooltipDiv, container))
+		mainDonutGroup.on("mouseover", event => mouseoverMainDonut(event, donutData, tooltipDiv, container, lists, colors))
 			.on("mouseout", () => mouseOut(tooltipDiv));
 
 		function drawLateralDonut(type, donutContainer, fundData) {
@@ -881,7 +880,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 				.attr("x", 0)
 				.text(d => type === "cerf" ? lists.allocationTypesList[d.data.key].split(" ")[1] : "Allocations");
 
-			lateralDonut.on("mouseover", (event, d) => mouseoverDonut(event, d, tooltipDiv, container))
+			lateralDonut.on("mouseover", (event, d) => mouseoverDonut(event, d, tooltipDiv, container, lists, colors))
 				.on("mouseout", () => mouseOut(tooltipDiv));
 
 		};
@@ -986,13 +985,13 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		//end of drawTopFigures
 	};
 
-	function drawPartnerFigures(data, container, syncedTransition, colors, lists) {
+	function drawPartnerFigures(data, figuresContainer, syncedTransition, colors, lists) {
 
 		data.forEach(d => d.partner = partnersShortNames[d.partner]);
 
 		data.sort((a, b) => b.value - a.value);
 
-		let partnerDiv = container.selectAll(`.${classPrefix}partnerDiv`)
+		let partnerDiv = figuresContainer.selectAll(`.${classPrefix}partnerDiv`)
 			.data(data, d => d.partner);
 
 		partnerDiv.exit().remove();
@@ -1046,8 +1045,8 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 			.attr("class", d => d.fund.size > 1 ? "fas fa-adjust fa-xs" : "fas fa-circle fa-xs")
 			.style("color", d => d.fund.size > 1 ? null : colors[lists.fundTypesList[Array.from(d.fund)[0]]]);
 
-		// partnerFiguresDiv.on("mouseover", event => mouseoverTopFigures(event, data, tooltipDiv, container))
-		// 	.on("mouseout", () => mouseOut(tooltipDiv));
+		figuresContainer.on("mouseenter", event => mouseoverPartnerFigures(event, data, tooltipDiv, container, colors))
+			.on("mouseleave", () => mouseOut(tooltipDiv));
 
 		//end of drawPartnerFigures
 	};
@@ -1272,8 +1271,8 @@ function mouseoverMarkers(event, datum, tooltip, container) {
 		.style("font-size", "16px")
 		.html(datum.AdminLocation1);
 
-	innerTooltipDiv.append("div")
-		.html("Tooltip text here");
+	// innerTooltipDiv.append("div")
+	// 	.html("Tooltip text here");
 
 	positionTooltip(tooltip, container, event, "right");
 };
@@ -1330,8 +1329,7 @@ function mouseoverTopFigures(event, data, tooltip, container, colors) {
 		.style("font-size", "16px")
 		.html("Summary");
 
-	const innerDiv = innerTooltipDiv.append("div")
-		.style("padding", "8px");
+	const innerDiv = innerTooltipDiv.append("div");
 
 	innerDiv.append("span")
 		.html(`${chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? "Total" : chartState.selectedFund.toUpperCase()} Allocations: `);
@@ -1345,7 +1343,7 @@ function mouseoverTopFigures(event, data, tooltip, container, colors) {
 
 };
 
-function mouseoverBars(event, data, tooltip, container) {
+function mouseoverPartnerFigures(event, data, tooltip, container, colors) {
 
 	setChartStateTooltip(event, tooltip);
 
@@ -1362,16 +1360,78 @@ function mouseoverBars(event, data, tooltip, container) {
 
 	titleDiv.append("strong")
 		.style("font-size", "16px")
-		.html("Tooltip title");
+		.html("Summary");
 
-	innerTooltipDiv.append("div")
-		.html("Tooltip text here");
+	const innerDiv = innerTooltipDiv.append("div");
+
+	data.forEach(datum => {
+
+		const partnerDiv = innerDiv.append("div");
+
+		partnerDiv.append("span")
+			.html(`${datum.partner} ${chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? "Total" : chartState.selectedFund.toUpperCase()} allocations: `);
+
+		partnerDiv.append("span")
+			.attr("class", classPrefix + "partnerFiguresAllocationsValue")
+			.call(applyColors, colors)
+			.html("$" + formatMoneyComma(datum.value));
+
+	});
+
+	positionTooltip(tooltip, container, event, "center");
+
+};
+
+function mouseoverBars(event, data, tooltip, container, colors) {
+
+	setChartStateTooltip(event, tooltip);
+
+	tooltip.style("display", "block")
+		.html(null);
+
+	const innerTooltipDiv = tooltip.append("div")
+		.style("max-width", innerTooltipDivWidth + "px")
+		.attr("id", classPrefix + "innerTooltipDiv");
+
+	const titleDiv = innerTooltipDiv.append("div")
+		.attr("class", classPrefix + "tooltipTitleDiv")
+		.style("margin-bottom", "18px");
+
+	titleDiv.append("strong")
+		.style("font-size", "16px")
+		.html(data.year);
+
+	const innerDiv = innerTooltipDiv.append("div");
+
+	if (chartState.selectedFund === "cerf/cbpf") {
+		["cerf", "cbpf"].forEach(fund => {
+			const fundDiv = innerDiv.append("div");
+
+			fundDiv.append("span")
+				.html(`${fund.toUpperCase()} Allocations: `);
+
+			fundDiv.append("span")
+				.attr("class", classPrefix + "topFiguresAllocationsValue")
+				.style("color", d3.color(colors[fund]).darker(darkerValue))
+				.html("$" + formatMoneyComma(data[fund]));
+		});
+	} else {
+		innerDiv.append("span")
+			.html(`${chartState.selectedFund === "total" ? "Total" : chartState.selectedFund.toUpperCase()} Allocations: `);
+
+		innerDiv.append("span")
+			.attr("class", classPrefix + "topFiguresAllocationsValue")
+			.call(applyColors, colors)
+			.html("$" + formatMoneyComma(data[chartState.selectedFund]));
+	};
 
 	positionTooltip(tooltip, container, event, "left");
 
 };
 
-function mouseoverDonut(event, data, tooltip, container) {
+function mouseoverDonut(event, data, tooltip, container, lists, colors) {
+
+	const thisFund = Object.entries(allocationTypes).find(d => d[1].includes(data.data.key))[0];
 
 	setChartStateTooltip(event, tooltip);
 
@@ -1388,10 +1448,63 @@ function mouseoverDonut(event, data, tooltip, container) {
 
 	titleDiv.append("strong")
 		.style("font-size", "16px")
-		.html("Tooltip title");
+		.html(lists.allocationTypesList[data.data.key]);
 
 	innerTooltipDiv.append("div")
-		.html("Tooltip text here");
+		.style("color", d3.color(colors[thisFund]).darker(darkerValue))
+		.style("font-weight", "bold")
+		.html("$" + formatMoneyComma(data.value));
+
+	positionTooltip(tooltip, container, event, "top");
+
+};
+
+function mouseoverMainDonut(event, data, tooltip, container, lists, colors) {
+
+	setChartStateTooltip(event, tooltip);
+
+	tooltip.style("display", "block")
+		.html(null);
+
+	const innerTooltipDiv = tooltip.append("div")
+		.style("max-width", innerTooltipDivWidth + "px")
+		.attr("id", classPrefix + "innerTooltipDiv");
+
+	const titleDiv = innerTooltipDiv.append("div")
+		.attr("class", classPrefix + "tooltipTitleDiv")
+		.style("margin-bottom", "18px");
+
+	titleDiv.append("strong")
+		.style("font-size", "16px")
+		.html("Summary");
+
+	const innerDiv = innerTooltipDiv.append("div");
+
+	innerDiv.append("span")
+		.html("Total allocations: ");
+
+	const sumAllocations = d3.sum(data, d => d.value);
+
+	innerDiv.append("span")
+		.attr("class", classPrefix + "topFiguresAllocationsValue")
+		.call(applyColors, colors)
+		.html("$" + formatMoneyComma(sumAllocations));
+
+	const filteredData = data.filter(d => d.value).sort((a, b) => b.value - a.value);
+
+	filteredData.forEach(datum => {
+		const thisFund = +datum.data.key === +datum.data.key ? Object.entries(allocationTypes).find(d => d[1].includes(datum.data.key))[0] : datum.data.key;
+
+		const rowDiv = innerDiv.append("div");
+
+		rowDiv.append("span")
+			.html(`${+datum.data.key === +datum.data.key ? lists.allocationTypesList[datum.data.key] : datum.data.key.toUpperCase()} Allocations: `);
+
+		rowDiv.append("span")
+			.attr("class", classPrefix + "topFiguresAllocationsValue")
+			.style("color", d3.color(colors[thisFund]).darker(darkerValue))
+			.html("$" + formatMoneyComma(datum.value));
+	});
 
 	positionTooltip(tooltip, container, event, "top");
 
@@ -1405,45 +1518,6 @@ function setChartStateTooltip(event, tooltip) {
 function mouseOut(tooltip) {
 	tooltip.html(null)
 		.style("display", "none");
-};
-
-function positionTooltip(tooltip, container, event, position) {
-	let top, left;
-
-	const containerSize = container.node().getBoundingClientRect(),
-		tooltipSize = tooltip.node().getBoundingClientRect(),
-		elementSize = event.currentTarget.getBoundingClientRect();
-
-	const verticalTop = () => Math.max(0, elementSize.top - containerSize.top - tooltipSize.height - tooltipVerticalPadding) + "px",
-		verticalCenter = () => elementSize.top - containerSize.top + (elementSize.height / 2) - (tooltipSize.height / 2) + "px",
-		verticalBottom = () => Math.min(containerSize.height - tooltipSize.height, elementSize.bottom - containerSize.top + tooltipVerticalPadding) + "px",
-		horizontalLeft = () => Math.max(0, elementSize.left - tooltipSize.width - containerSize.left - tooltipHorizontalPadding) + "px",
-		horizontalCenter = () => Math.max(0, Math.min(containerSize.width - tooltipSize.width - tooltipHorizontalPadding,
-			elementSize.left - containerSize.left + (elementSize.width / 2) - (tooltipSize.width / 2))) + "px",
-		horizontalRight = () => elementSize.right + tooltipHorizontalPadding + tooltipSize.width - containerSize.left > containerSize.width ?
-		elementSize.left - tooltipSize.width - containerSize.left - tooltipHorizontalPadding + "px" :
-		elementSize.right - containerSize.left + tooltipHorizontalPadding + "px";
-
-	if (position === "right") {
-		top = verticalCenter();
-		left = horizontalRight();
-	} else
-	if (position === "top") {
-		top = verticalTop();
-		left = horizontalCenter();
-	} else if (position === "left") {
-		top = verticalCenter();
-		left = horizontalLeft();
-	} else if (position === "bottom") {
-		top = verticalBottom();
-		left = horizontalCenter();
-	} else if (position === "center") {
-		top = verticalCenter();
-		left = horizontalCenter();
-	};
-
-	tooltip.style("top", top)
-		.style("left", left);
 };
 
 function applyColors(selection, colors) {
