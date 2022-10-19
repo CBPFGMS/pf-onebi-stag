@@ -542,17 +542,19 @@ function mouseoverBars(event, data, tooltip, container, colors, lists) {
 	const innerDiv = innerTooltipDiv.append("div");
 
 	if (chartState.selectedFund === "cerf/cbpf") {
-		["cerf", "cbpf"].forEach(fund => {
-			const fundDiv = innerDiv.append("div");
+		["cerf", "cbpf"].sort((a, b) => data[b] - data[a])
+			.filter(d => data[d])
+			.forEach(fund => {
+				const fundDiv = innerDiv.append("div");
 
-			fundDiv.append("span")
-				.html(`${fund.toUpperCase()} Allocations: `);
+				fundDiv.append("span")
+					.html(`${fund.toUpperCase()} Allocations: `);
 
-			fundDiv.append("span")
-				.attr("class", classPrefix + "topFiguresAllocationsValue")
-				.style("color", d3.color(colors[fund]).darker(darkerValue))
-				.html("$" + formatMoney0Decimals(data[fund]));
-		});
+				fundDiv.append("span")
+					.attr("class", classPrefix + "topFiguresAllocationsValue")
+					.style("color", d3.color(colors[fund]).darker(darkerValue))
+					.html("$" + formatMoney0Decimals(data[fund]));
+			});
 	} else {
 		innerDiv.append("span")
 			.html(`${chartState.selectedFund === "total" ? "Total" : chartState.selectedFund.toUpperCase()} Allocations: `);
