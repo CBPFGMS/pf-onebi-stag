@@ -1,5 +1,6 @@
 import { chartState } from "./chartstate.js";
 import { donorsFlagsData } from "./donorsflagsdata.js";
+import { positionTooltip } from "./positiontooltip.js";
 
 //|constants
 const padding = [40, 60, 20, 196],
@@ -8,6 +9,8 @@ const padding = [40, 60, 20, 196],
 	classPrefix = "pfbicpcontr",
 	formatPercent = d3.format(".0%"),
 	formatSIaxes = d3.format("~s"),
+	formatMoney0Decimals = d3.format(",.0f"),
+	innerTooltipDivWidth = 290,
 	currentDate = new Date(),
 	localVariable = d3.local(),
 	unBlue = "#1F69B3",
@@ -98,9 +101,9 @@ function createCountryProfileContributions(container, lists, colors, tooltipDiv,
 			draw(originalData, false, false);
 		});
 
-		drawTopFigures(data.topFigures, topRowDiv, colors, syncedTransition);
+		drawTopFigures(data.topFigures, topRowDiv, colors, syncedTransition, tooltipDiv);
 
-		drawTable(data.cbpfData, chartContentCbpf, lists, colors, syncedTransition, tooltipDiv, headerRowDivCbpf);
+		drawTable(data.cbpfData, chartContentCbpf, container, lists, colors, syncedTransition, tooltipDiv, headerRowDivCbpf);
 
 		//end of draw
 	};
@@ -138,7 +141,7 @@ function createHeaderRow(container) {
 		.attr("class", "fas fa-sort-amount-down");
 };
 
-function drawTopFigures(data, container, colors, syncedTransition) {
+function drawTopFigures(data, container, colors, syncedTransition, tooltipDiv) {
 
 	container.select(`.${classPrefix}spanYearValue`)
 		.html(`in ${chartState.selectedYear}`);
@@ -210,6 +213,14 @@ function drawTopFigures(data, container, colors, syncedTransition) {
 
 	container.select(`.${classPrefix}donorsTextDiv`)
 		.html(data.donors.size > 1 ? "donors" : "donor");
+
+	container.select(`.${classPrefix}contributionsDiv`)
+		.on("mouseover", event => mouseoverTopFigures(event, data, tooltipDiv, container, colors))
+		.on("mouseout", () => mouseOut(tooltipDiv));
+
+	container.select(`.${classPrefix}paidAndPledgeDiv`)
+		.on("mouseover", event => mouseoverPaidPledge(event, data, tooltipDiv, container, colors))
+		.on("mouseout", () => mouseOut(tooltipDiv));
 
 	//end of drawTopFigures
 };
@@ -286,7 +297,7 @@ function createTopFiguresDiv(container, colors, lists) {
 
 };
 
-function drawTable(data, containerDiv, lists, colors, syncedTransitionOriginal, tooltipDiv, header) {
+function drawTable(data, containerDiv, container, lists, colors, syncedTransitionOriginal, tooltipDiv, header) {
 
 	const maxValue = d3.max(data, d => d[selectedType]);
 
@@ -400,7 +411,154 @@ function drawTable(data, containerDiv, lists, colors, syncedTransitionOriginal, 
 			.style("display", d => d.type === sortedRow ? "block" : "none");
 	};
 
+	rowDiv.on("mouseenter", (event, d) => mouseoverRow(event, d, tooltipDiv, container, colors, lists))
+		.on("mouseleave", () => mouseOut(tooltipDiv));
+
 	//end of drawTable
+};
+
+function mouseoverTopFigures(event, data, tooltip, container, colors) {
+
+	setChartStateTooltip(event, tooltip);
+
+	tooltip.style("display", "block")
+		.html(null);
+
+	const innerTooltipDiv = tooltip.append("div")
+		.style("max-width", innerTooltipDivWidth + "px")
+		.attr("id", classPrefix + "innerTooltipDiv");
+
+	const titleDiv = innerTooltipDiv.append("div")
+		.attr("class", classPrefix + "tooltipTitleDiv")
+		.style("margin-bottom", "18px");
+
+	titleDiv.append("strong")
+		.style("font-size", "16px")
+		.html("Summary");
+
+	const innerDiv = innerTooltipDiv.append("div");
+
+	innerDiv.append("span")
+		.html("Total Contributions: ");
+
+	innerDiv.append("span")
+		.attr("class", classPrefix + "topFiguresContributionsValue")
+		.call(applyColors, colors)
+		.html("$" + formatMoney0Decimals(data.total));
+
+	positionTooltip(tooltip, container, event, "right");
+
+};
+
+function mouseoverPaidPledge(event, data, tooltip, container, colors) {
+
+	setChartStateTooltip(event, tooltip);
+
+	tooltip.style("display", "block")
+		.html(null);
+
+	const innerTooltipDiv = tooltip.append("div")
+		.style("max-width", innerTooltipDivWidth + "px")
+		.attr("id", classPrefix + "innerTooltipDiv");
+
+	const titleDiv = innerTooltipDiv.append("div")
+		.attr("class", classPrefix + "tooltipTitleDiv")
+		.style("margin-bottom", "18px");
+
+	titleDiv.append("strong")
+		.style("font-size", "16px")
+		.html("Summary");
+
+	const innerDiv = innerTooltipDiv.append("div");
+
+	const paidDiv = innerDiv.append("div");
+
+	paidDiv.append("span")
+		.html("Total paid: ");
+
+	paidDiv.append("span")
+		.attr("class", classPrefix + "topFiguresContributionsValue")
+		.call(applyColors, colors)
+		.html("$" + formatMoney0Decimals(data.paid));
+
+	const pledgeDiv = innerDiv.append("div");
+
+	pledgeDiv.append("span")
+		.html("Total pledged: ");
+
+	pledgeDiv.append("span")
+		.attr("class", classPrefix + "topFiguresContributionsValue")
+		.call(applyColors, colors)
+		.html("$" + formatMoney0Decimals(data.pledge));
+
+	positionTooltip(tooltip, container, event, "left");
+
+};
+
+function mouseoverRow(event, data, tooltip, container, colors, lists) {
+
+	setChartStateTooltip(event, tooltip);
+
+	tooltip.style("display", "block")
+		.html(null);
+
+	const innerTooltipDiv = tooltip.append("div")
+		.style("max-width", innerTooltipDivWidth + "px")
+		.attr("id", classPrefix + "innerTooltipDiv");
+
+	const titleDiv = innerTooltipDiv.append("div")
+		.attr("class", classPrefix + "tooltipTitleDiv")
+		.style("display", "flex")
+		.style("align-items", "center")
+		.style("margin-bottom", "18px");
+
+	titleDiv.append("div")
+		.append("strong")
+		.style("font-size", "16px")
+		.html(lists.donorNamesList[data.donor]);
+
+	titleDiv.append("div")
+		.attr("class", classPrefix + "rowDivFlag")
+		.style("margin-left", "6px")
+		.append("img")
+		.attr("height", "24px")
+		.attr("width", "24px")
+		.attr("src", d => donorsFlagsData[lists.donorIsoCodesList[data.donor].toLowerCase()]);
+
+	const innerDiv = innerTooltipDiv.append("div");
+
+	const valueDiv = innerDiv.append("div");
+
+	valueDiv.append("span")
+		.html("Contribution amount: ");
+
+	valueDiv.append("span")
+		.attr("class", classPrefix + "topFiguresContributionsValue")
+		.style("color", d3.color(colors.cbpf).darker(darkerValue))
+		.html("$" + formatMoney0Decimals(data.total));
+
+	const paidDiv = innerDiv.append("div");
+
+	paidDiv.append("span")
+		.html("Paid amount: ");
+
+	paidDiv.append("span")
+		.attr("class", classPrefix + "topFiguresContributionsValue")
+		.style("color", d3.color(colors.cbpf).darker(darkerValue))
+		.html("$" + formatMoney0Decimals(data.paid));
+
+	const pledgeDiv = innerDiv.append("div");
+
+	pledgeDiv.append("span")
+		.html("Pledged amount: ");
+
+	pledgeDiv.append("span")
+		.attr("class", classPrefix + "topFiguresContributionsValue")
+		.style("color", d3.color(colors.cbpf).darker(darkerValue))
+		.html("$" + formatMoney0Decimals(data.pledge));
+
+	positionTooltip(tooltip, container, event, "left");
+
 };
 
 function mouseOut(tooltip) {
@@ -408,33 +566,9 @@ function mouseOut(tooltip) {
 		.style("display", "none");
 };
 
-function positionTooltip(tooltip, container, event, position) {
-	let top, left;
-
-	const containerSize = container.node().getBoundingClientRect(),
-		tooltipSize = tooltip.node().getBoundingClientRect(),
-		elementSize = event.currentTarget.getBoundingClientRect();
-
-	if (position === "right") {
-		top = elementSize.top - containerSize.top + (elementSize.height / 2) - (tooltipSize.height / 2) + "px";
-		left = elementSize.right + tooltipHorizontalPadding + tooltipSize.width - containerSize.left > containerSize.width ?
-			elementSize.left - tooltipSize.width - containerSize.left - tooltipHorizontalPadding + "px" :
-			elementSize.right - containerSize.left + tooltipHorizontalPadding + "px";
-	} else if (position === "top") {
-		top = Math.max(0, elementSize.top - containerSize.top - tooltipSize.height - tooltipVerticalPadding) + "px";
-		left = Math.max(0, Math.min(containerSize.width - tooltipSize.width - tooltipHorizontalPadding,
-			elementSize.left - containerSize.left + (elementSize.width / 2) - (tooltipSize.width / 2))) + "px";
-	} else if (position === "left") {
-		top = elementSize.top - containerSize.top + (elementSize.height / 2) - (tooltipSize.height / 2) + "px";
-		left = Math.max(0, elementSize.left - tooltipSize.width - containerSize.left - tooltipHorizontalPadding) + "px";
-	} else if (position === "bottom") {
-		top = Math.min(containerSize.height - tooltipSize.height - tooltipVerticalPadding, elementSize.top - containerSize.top + elementSize.height + tooltipVerticalPadding) + "px";
-		left = Math.max(0, Math.min(containerSize.width - tooltipSize.width - tooltipHorizontalPadding,
-			elementSize.left - containerSize.left + (elementSize.width / 2) - (tooltipSize.width / 2))) + "px";
-	};
-
-	tooltip.style("top", top)
-		.style("left", left);
+function setChartStateTooltip(event, tooltip) {
+	chartState.currentHoveredElement = event.currentTarget;
+	chartState.currentTooltip = tooltip;
 };
 
 function processData(originalData, lists) {

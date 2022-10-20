@@ -658,6 +658,10 @@ a.video-tutorial{color:#333;}
   padding: 8px;
 }
 
+#pfbicpcontrinnerTooltipDiv > div:not(:first-child) {
+  padding: 8px;
+}
+
 #pfbicctooltipDiv{
 	padding: 8px !important;
 }
@@ -676,7 +680,7 @@ a.video-tutorial{color:#333;}
   padding-bottom: 8px !important;
 }
 
-.pfbialtooltipTitleDiv, .pfbicdtooltipTitleDiv, .pfbicpoverviewtooltipTitleDiv, .pfbicpbypartnertooltipTitleDiv, .pfbicpbysectortooltipTitleDiv, .pfbicppstooltipTitleDiv {
+.pfbialtooltipTitleDiv, .pfbicdtooltipTitleDiv, .pfbicpoverviewtooltipTitleDiv, .pfbicpbypartnertooltipTitleDiv, .pfbicpbysectortooltipTitleDiv, .pfbicppstooltipTitleDiv, .pfbicpcontrtooltipTitleDiv {
 	margin-bottom: 3px !important;
     background-color: #3189c9;
     padding: 8px 8px;
@@ -3851,6 +3855,7 @@ a.video-tutorial{color:#333;}
   font-size: 1em;
   color: dimgray;
   text-align: right;
+  line-height: 1.2;
 }
 
 .pfbicpcontrbarLabel {
@@ -3875,6 +3880,6 @@ a.video-tutorial{color:#333;}
 }
 
 /*Country profile tooltips*/
-.pfbicpoverviewmapAllocationsValue, .pfbicpoverviewtopFiguresAllocationsValue, .pfbicpoverviewpartnerFiguresAllocationsValue, .pfbicpbypartnertopFiguresAllocationsValue, .pfbicpbysectortopFiguresAllocationsValue, .pfbicppstopFiguresAllocationsValue, .pfbicpbypartnerpartnerFiguresAllocationsValue, .pfbicppspartnerFiguresAllocationsValue {
+.pfbicpoverviewmapAllocationsValue, .pfbicpoverviewtopFiguresAllocationsValue, .pfbicpcontrtopFiguresContributionsValue, .pfbicpoverviewpartnerFiguresAllocationsValue, .pfbicpbypartnertopFiguresAllocationsValue, .pfbicpbysectortopFiguresAllocationsValue, .pfbicppstopFiguresAllocationsValue, .pfbicpbypartnerpartnerFiguresAllocationsValue, .pfbicppspartnerFiguresAllocationsValue {
   font-weight: bold;
 }
