@@ -131,7 +131,7 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv, fun
 			.on("start", () => activeTransition = true)
 			.on("end", () => activeTransition = false);
 
-		drawTopFigures(data.topFigures, topRowDiv, colors, syncedTransition, lists, tooltipDiv, colors);
+		drawTopFigures(data.topFigures, topRowDiv, colors, syncedTransition, lists, tooltipDiv);
 		recalculateDivWidth(data, barChartsDivCerf, barChartsDivCbpf);
 		if (chartState.selectedFund !== "cerf") {
 			drawSelectionChart(data.cbpfDataAggregated, selectionChartDivCbpf, syncedTransition, colors, tooltipDiv, container, lists);
@@ -740,7 +740,7 @@ function mouseoverRow(event, data, tooltip, container, colors, fundType, namesLi
 		.style("color", d3.color(colors[fundType]).darker(darkerValue))
 		.html(`${numberofProjects} Project${numberofProjects > 1 ? "s" : ""}`);
 
-	const thisPosition = fundType === "cerf" ? "right" : "left";
+	const thisPosition = fundType === "cerf" || (chartState.selectedFund !=="total" && chartState.selectedFund !== "cerf/cbpf") ? "right" : "left";
 
 	positionTooltip(tooltip, container, event, thisPosition);
 

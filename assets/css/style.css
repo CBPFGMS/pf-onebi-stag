@@ -3471,6 +3471,8 @@ a.video-tutorial{color:#333;}
 
 .pfbicppsbarDivContainer {
   position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .pfbicppsbarDiv {
@@ -3484,7 +3486,6 @@ a.video-tutorial{color:#333;}
   color: #222;
   padding-right: 0.5em;
   position: absolute;
-  top: 0%;
 }
 
 .pfbicppspartnersDivCerf, .pfbicppspartnersDivCbpf {
@@ -3874,6 +3875,6 @@ a.video-tutorial{color:#333;}
 }
 
 /*Country profile tooltips*/
-.pfbicpoverviewmapAllocationsValue, .pfbicpoverviewtopFiguresAllocationsValue, .pfbicpoverviewpartnerFiguresAllocationsValue, .pfbicpbypartnertopFiguresAllocationsValue, .pfbicpbysectortopFiguresAllocationsValue, .pfbicpbypartnerpartnerFiguresAllocationsValue {
+.pfbicpoverviewmapAllocationsValue, .pfbicpoverviewtopFiguresAllocationsValue, .pfbicpoverviewpartnerFiguresAllocationsValue, .pfbicpbypartnertopFiguresAllocationsValue, .pfbicpbysectortopFiguresAllocationsValue, .pfbicppstopFiguresAllocationsValue, .pfbicpbypartnerpartnerFiguresAllocationsValue, .pfbicppspartnerFiguresAllocationsValue {
   font-weight: bold;
 }

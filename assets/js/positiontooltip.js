@@ -14,7 +14,7 @@ function positionTooltip(tooltip, container, event, position) {
 		horizontalCenter = () => Math.max(0, Math.min(containerSize.width - tooltipSize.width - tooltipHorizontalPadding,
 			elementSize.left - containerSize.left + (elementSize.width / 2) - (tooltipSize.width / 2))) + "px",
 		horizontalRight = () => elementSize.right + tooltipHorizontalPadding + tooltipSize.width - containerSize.left > containerSize.width ?
-		elementSize.left - tooltipSize.width - containerSize.left - tooltipHorizontalPadding + "px" :
+		elementSize.right - tooltipSize.width - containerSize.left - tooltipHorizontalPadding + "px" :
 		elementSize.right - containerSize.left + tooltipHorizontalPadding + "px";
 
 	const top = position === "top" ? verticalTop() : position === "bottom" ? verticalBottom() : verticalCenter();

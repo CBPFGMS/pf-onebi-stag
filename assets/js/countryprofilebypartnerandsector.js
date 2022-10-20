@@ -1,5 +1,6 @@
 import { chartState } from "./chartstate.js";
 import { clustersIconsData } from "./clustersiconsdata.js";
+import { positionTooltip } from "./positiontooltip.js";
 
 //|constants
 const padding = [4, 8, 4, 8],
@@ -134,7 +135,7 @@ function createCountryProfileByPartnerAndSector(container, lists, colors, toolti
 			.on("start", () => activeTransition = true)
 			.on("end", () => activeTransition = false);
 
-		drawTopFigures(data.topFigures, topRowDiv, colors, syncedTransition);
+		drawTopFigures(data.topFigures, topRowDiv, colors, syncedTransition, lists, tooltipDiv);
 		recalculateDivWidth(data, barChartsDivCerf, barChartsDivCbpf);
 		if (chartState.selectedFund !== "cerf") {
 			//CHANGE SELECTION CHART!
@@ -198,7 +199,7 @@ function createCountryProfileByPartnerAndSector(container, lists, colors, toolti
 	//end of createCountryProfileByPartnerAndSector
 };
 
-function drawTopFigures(data, container, colors, syncedTransition) {
+function drawTopFigures(data, container, colors, syncedTransition, lists, tooltipDiv) {
 
 	container.select(`.${classPrefix}spanYearValue`)
 		.html(`in ${chartState.selectedYear}`);
@@ -246,6 +247,10 @@ function drawTopFigures(data, container, colors, syncedTransition) {
 			const interpolator = d3.interpolateRound(n[i].textContent || 0, data.sectors.size);
 			return t => n[i].textContent = interpolator(t);
 		});
+
+	container.select(`.${classPrefix}allocationsDiv`)
+		.on("mouseover", event => mouseoverTopFigures(event, data, tooltipDiv, container, colors))
+		.on("mouseout", () => mouseOut(tooltipDiv));
 
 	data.partnerFigures.forEach(d => d.partner = partnersShortNames[d.partner]);
 
@@ -305,6 +310,10 @@ function drawTopFigures(data, container, colors, syncedTransition) {
 		.append("i")
 		.attr("class", d => d.fund.size > 1 ? "fas fa-adjust fa-xs" : "fas fa-circle fa-xs")
 		.style("color", d => d.fund.size > 1 ? null : colors[Array.from(d.fund)[0]]);
+
+	container.select(`.${classPrefix}partnerFiguresDiv`)
+		.on("mouseover", event => mouseoverPartnerFigures(event, data.partnerFigures, tooltipDiv, container, colors))
+		.on("mouseout", () => mouseOut(tooltipDiv));
 
 	//end of drawTopFigures
 };
@@ -654,42 +663,138 @@ function drawTable(data, sector, containerDiv, container, lists, colors, fundTyp
 			.style("display", d => d.type === sortedRow ? "block" : "none");
 	};
 
+	rowDiv.on("mouseenter", (event, d) => mouseoverRow(event, d, tooltip, container, colors, fundType, namesList))
+		.on("mouseleave", () => mouseOut(tooltip));
 
 	//end of drawTable
+};
+
+function mouseoverTopFigures(event, data, tooltip, container, colors) {
+
+	setChartStateTooltip(event, tooltip);
+
+	tooltip.style("display", "block")
+		.html(null);
+
+	const innerTooltipDiv = tooltip.append("div")
+		.style("max-width", innerTooltipDivWidth + "px")
+		.attr("id", classPrefix + "innerTooltipDiv");
+
+	const titleDiv = innerTooltipDiv.append("div")
+		.attr("class", classPrefix + "tooltipTitleDiv")
+		.style("margin-bottom", "18px");
+
+	titleDiv.append("strong")
+		.style("font-size", "16px")
+		.html("Summary");
+
+	const innerDiv = innerTooltipDiv.append("div");
+
+	innerDiv.append("span")
+		.html(`${chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? "Total" : chartState.selectedFund.toUpperCase()} Allocations: `);
+
+	innerDiv.append("span")
+		.attr("class", classPrefix + "topFiguresAllocationsValue")
+		.call(applyColors, colors)
+		.html("$" + formatMoney0Decimals(data.total));
+
+	positionTooltip(tooltip, container, event, "right");
+
+};
+
+function mouseoverPartnerFigures(event, data, tooltip, container, colors) {
+
+	setChartStateTooltip(event, tooltip);
+
+	tooltip.style("display", "block")
+		.html(null);
+
+	const innerTooltipDiv = tooltip.append("div")
+		.style("max-width", innerTooltipDivWidth + "px")
+		.attr("id", classPrefix + "innerTooltipDiv");
+
+	const titleDiv = innerTooltipDiv.append("div")
+		.attr("class", classPrefix + "tooltipTitleDiv")
+		.style("margin-bottom", "18px");
+
+	titleDiv.append("strong")
+		.style("font-size", "16px")
+		.html("Summary");
+
+	const innerDiv = innerTooltipDiv.append("div");
+
+	data.forEach(datum => {
+
+		const partnerDiv = innerDiv.append("div");
+
+		partnerDiv.append("span")
+			.html(`${datum.partner} ${chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? "Total" : chartState.selectedFund.toUpperCase()} allocations: `);
+
+		partnerDiv.append("span")
+			.attr("class", classPrefix + "partnerFiguresAllocationsValue")
+			.call(applyColors, colors)
+			.html("$" + formatMoney0Decimals(datum.value));
+
+	});
+
+	positionTooltip(tooltip, container, event, "left");
+
+};
+
+function mouseoverRow(event, data, tooltip, container, colors, fundType, namesList) {
+
+	setChartStateTooltip(event, tooltip);
+
+	tooltip.style("display", "block")
+		.html(null);
+
+	const innerTooltipDiv = tooltip.append("div")
+		.style("max-width", innerTooltipDivWidth + "px")
+		.attr("id", classPrefix + "innerTooltipDiv");
+
+	const titleDiv = innerTooltipDiv.append("div")
+		.attr("class", classPrefix + "tooltipTitleDiv")
+		.style("margin-bottom", "18px");
+
+	titleDiv.append("strong")
+		.style("font-size", "16px")
+		.html(namesList[data.partner]);
+
+	const innerDiv = innerTooltipDiv.append("div");
+
+	const valueDiv = innerDiv.append("div");
+
+	valueDiv.append("span")
+		.html("Allocation amount: ");
+
+	valueDiv.append("span")
+		.attr("class", classPrefix + "topFiguresAllocationsValue")
+		.style("color", d3.color(colors[fundType]).darker(darkerValue))
+		.html("$" + formatMoney0Decimals(data.value));
+
+	const projectsDiv = innerDiv.append("div");
+
+	const numberofProjects = typeof data.projects === "number" ? 1 : data.projects.split(separator).length;
+
+	projectsDiv.append("span")
+		.attr("class", classPrefix + "topFiguresAllocationsValue")
+		.style("color", d3.color(colors[fundType]).darker(darkerValue))
+		.html(`${numberofProjects} Project${numberofProjects > 1 ? "s" : ""}`);
+
+	const thisPosition = fundType === "cerf" || (chartState.selectedFund !=="total" && chartState.selectedFund !== "cerf/cbpf") ? "right" : "left";
+
+	positionTooltip(tooltip, container, event, thisPosition);
+
+};
+
+function setChartStateTooltip(event, tooltip) {
+	chartState.currentHoveredElement = event.currentTarget;
+	chartState.currentTooltip = tooltip;
 };
 
 function mouseOut(tooltip) {
 	tooltip.html(null)
 		.style("display", "none");
-};
-
-function positionTooltip(tooltip, container, event, position) {
-	let top, left;
-
-	const containerSize = container.node().getBoundingClientRect(),
-		tooltipSize = tooltip.node().getBoundingClientRect(),
-		elementSize = event.currentTarget.getBoundingClientRect();
-
-	if (position === "right") {
-		top = elementSize.top - containerSize.top + (elementSize.height / 2) - (tooltipSize.height / 2) + "px";
-		left = elementSize.right + tooltipHorizontalPadding + tooltipSize.width - containerSize.left > containerSize.width ?
-			elementSize.left - tooltipSize.width - containerSize.left - tooltipHorizontalPadding + "px" :
-			elementSize.right - containerSize.left + tooltipHorizontalPadding + "px";
-	} else if (position === "top") {
-		top = Math.max(0, elementSize.top - containerSize.top - tooltipSize.height - tooltipVerticalPadding) + "px";
-		left = Math.max(0, Math.min(containerSize.width - tooltipSize.width - tooltipHorizontalPadding,
-			elementSize.left - containerSize.left + (elementSize.width / 2) - (tooltipSize.width / 2))) + "px";
-	} else if (position === "left") {
-		top = elementSize.top - containerSize.top + (elementSize.height / 2) - (tooltipSize.height / 2) + "px";
-		left = Math.max(0, elementSize.left - tooltipSize.width - containerSize.left - tooltipHorizontalPadding) + "px";
-	} else if (position === "bottom") {
-		top = Math.min(containerSize.height - tooltipSize.height - tooltipVerticalPadding, elementSize.top - containerSize.top + elementSize.height + tooltipVerticalPadding) + "px";
-		left = Math.max(0, Math.min(containerSize.width - tooltipSize.width - tooltipHorizontalPadding,
-			elementSize.left - containerSize.left + (elementSize.width / 2) - (tooltipSize.width / 2))) + "px";
-	};
-
-	tooltip.style("top", top)
-		.style("left", left);
 };
 
 function processData(originalData, lists) {
