@@ -31,7 +31,8 @@ let selectedTab = tabsData[0],
 	contributionsData,
 	yearsButtons,
 	cerfId,
-	cbpfId;
+	cbpfId,
+	resetYear = true;
 
 const yearsSetAllocations = new Set(),
 	yearsSetContributions = new Set(),
@@ -78,6 +79,11 @@ function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData
 
 	if (queryStringObject && queryStringObject.country) {
 		chartState.selectedCountryProfile = +queryStringObject.country;
+		if (queryStringObject.year) {
+			chartState.selectedYear = +queryStringObject.year;
+			resetYear = false;
+		};
+		if (queryStringObject.fund) chartState.selectedFund = queryStringObject.fund;
 		drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearsArrayTotal);
 	};
 
@@ -188,11 +194,11 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 
 	yearsButtons = createYearsButtons(yearsButtonsDiv, selectedTab === tabsData[tabsData.length - 1] ? yearsSetContributions : yearsSetAllocations);
 
+	yearsButtons.on("click.main", (_, d) => setQueryString("year", d, lists));
+
 	const fundsButtons = createFundsButtons(fundsButtonsDiv, colorsObject);
 
-	fundsButtons.on("click.main", (event, d) => {
-		setQueryString("fund", d, lists);
-	});
+	fundsButtons.on("click.main", (event, d) => setQueryString("fund", d, lists));
 
 	const tabs = createTabs(tabsDiv, tabsData);
 
@@ -221,6 +227,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 		updateTopValues(topValues, selections);
 		chartDiv.selectChildren("div:not(#" + classPrefix + "tooltipDiv)").remove();
 		yearsButtons = createYearsButtons(yearsButtonsDiv, d === tabsData[tabsData.length - 1] ? yearsSetContributions : yearsSetAllocations);
+		yearsButtons.on("click.main", (_, d) => setQueryString("year", d, lists));
 		setCallFunctions();
 		callDrawingFunction();
 	});
@@ -229,6 +236,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 		if (selectedTab === d) return;
 		if (d.includes("Contributions") || selectedTab.includes("Contributions")) {
 			yearsButtons = createYearsButtons(yearsButtonsDiv, d === tabsData[tabsData.length - 1] ? yearsSetContributions : yearsSetAllocations);
+			yearsButtons.on("click.main", (_, d) => setQueryString("year", d, lists));
 		};
 		selectedTab = d;
 		fundsButtons.style("display", e => d === tabsData[tabsData.length - 1] || ((d === tabsData[1] || d === tabsData[3]) && e === "cerf/cbpf") ? "none" : null);
@@ -258,7 +266,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 	};
 
 	function callDrawingFunction() {
-		if (selectedTab === tabsData[0]) tabsCallingFunctions.find(d => d.name === tabsData[0]).callingFunction(overviewData, overviewAdminLevel1Data, true, true);
+		if (selectedTab === tabsData[0]) tabsCallingFunctions.find(d => d.name === tabsData[0]).callingFunction(overviewData, overviewAdminLevel1Data, resetYear, true);
 		if (selectedTab === tabsData[1]) tabsCallingFunctions.find(d => d.name === tabsData[1]).callingFunction(byPartnerData, true, true);
 		if (selectedTab === tabsData[2]) tabsCallingFunctions.find(d => d.name === tabsData[2]).callingFunction(bySectorData, true, true);
 		if (selectedTab === tabsData[3]) tabsCallingFunctions.find(d => d.name === tabsData[3]).callingFunction(byPartnerAndSectorData, true, true);

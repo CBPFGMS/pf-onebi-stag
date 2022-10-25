@@ -269,7 +269,10 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 
 	function draw(originalData, originalAdminLevel1Data, resetYear, drawMap) {
 
-		if (resetYear) setDefaultYear(originalData);
+		const thisFund = chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? "total" : chartState.selectedFund,
+			thisYear = originalData.find(e => e.year === chartState.selectedYear);
+
+		if (resetYear || (!thisYear || !thisYear[thisFund])) setDefaultYear(originalData, yearsButtons);
 
 		yearsButtons.classed("active", d => chartState.selectedYear === d);
 
@@ -1240,7 +1243,7 @@ function processData(originalData, lists) {
 	return data;
 };
 
-function setDefaultYear(originalData) {
+function setDefaultYear(originalData, yearsButtons) {
 	const years = originalData.map(d => d.year).sort((a, b) => a - b);
 	let index = years.length;
 	while (--index >= 0) {
@@ -1250,6 +1253,7 @@ function setDefaultYear(originalData) {
 			break;
 		};
 	};
+	yearsButtons.filter(d => +d === chartState.selectedYear).dispatch("click");
 };
 
 function mouseoverMarkers(event, datum, tooltip, container) {
