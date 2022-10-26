@@ -392,7 +392,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 			.transition(syncedTransition)
 			.style("opacity", adminLevel1WithoutCoordinates.length ? 1 : 0);
 
-		markers.on("mouseover", (event, d) => mouseoverMarkers(event, d, tooltipDiv, container))
+		markers.on("mouseover", (event, d) => mouseoverMarkers(event, d, tooltipDiv, container, adminLevel1DataCerf))
 			.on("mouseout", () => mouseOut(tooltipDiv));
 
 		bubbles.on("mouseover", (event, d) => mouseoverBubbles(event, d, tooltipDiv, container, colors))
@@ -1254,7 +1254,7 @@ function setDefaultYear(originalData, yearsButtons) {
 	yearsButtons.filter(d => +d === chartState.selectedYear).dispatch("click");
 };
 
-function mouseoverMarkers(event, datum, tooltip, container) {
+function mouseoverMarkers(event, datum, tooltip, container, adminLevel1DataCerf) {
 
 	setChartStateTooltip(event, tooltip);
 
@@ -1273,8 +1273,10 @@ function mouseoverMarkers(event, datum, tooltip, container) {
 		.style("font-size", "16px")
 		.html(datum.AdminLocation1);
 
-	// innerTooltipDiv.append("div")
-	// 	.html("Tooltip text here");
+	const cerfTotal = d3.sum(adminLevel1DataCerf, d => d.AdminLocation1Budget);
+
+	innerTooltipDiv.append("div")
+		.html(`$${formatMoneyComma(cerfTotal)} Allocated to all CERF locations`);
 
 	positionTooltip(tooltip, container, event, "right");
 };
@@ -1302,7 +1304,7 @@ function mouseoverBubbles(event, datum, tooltip, container, colors) {
 
 	innerDiv.append("span")
 		.attr("class", classPrefix + "mapAllocationsText")
-		.html(`${chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? "Total" : chartState.selectedFund.toUpperCase()} Allocations: `);
+		.html(`${chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? "Total" : chartState.selectedFund.toUpperCase()} CBPF Allocations: `);
 
 	innerDiv.append("span")
 		.attr("class", classPrefix + "mapAllocationsValue")
