@@ -26,6 +26,7 @@ const padding = [4, 8, 4, 8],
 	separator = "##",
 	duration = 1000,
 	darkerValue = 0.2,
+	darkerValueText = 0.5,
 	tickSize = 9,
 	bandScalePadding = 0.5,
 	labelsPadding = 4,
@@ -728,7 +729,7 @@ function mouseoverRow(event, data, tooltip, container, colors, fundType, namesLi
 
 	valueDiv.append("span")
 		.attr("class", classPrefix + "topFiguresAllocationsValue")
-		.style("color", d3.color(colors[fundType]).darker(darkerValue))
+		.style("color", d3.color(colors[fundType]).darker(darkerValueText))
 		.html("$" + formatMoney0Decimals(data.value));
 
 	const projectsDiv = innerDiv.append("div");
@@ -737,7 +738,7 @@ function mouseoverRow(event, data, tooltip, container, colors, fundType, namesLi
 
 	projectsDiv.append("span")
 		.attr("class", classPrefix + "topFiguresAllocationsValue")
-		.style("color", d3.color(colors[fundType]).darker(darkerValue))
+		.style("color", d3.color(colors[fundType]).darker(darkerValueText))
 		.html(`${numberofProjects} Project${numberofProjects > 1 ? "s" : ""}`);
 
 	const thisPosition = fundType === "cerf" || (chartState.selectedFund !=="total" && chartState.selectedFund !== "cerf/cbpf") ? "right" : "left";
@@ -845,7 +846,7 @@ function createYearsArray(originalData, fund) {
 
 function applyColors(selection, colors) {
 	selection.style("color", chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ?
-		colors.total : d3.color(colors[chartState.selectedFund]).darker(darkerValue));
+		colors.total : d3.color(colors[chartState.selectedFund]).darker(darkerValueText));
 };
 
 function setChartStateTooltip(event, tooltip) {

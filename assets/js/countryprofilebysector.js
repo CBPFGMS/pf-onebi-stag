@@ -19,6 +19,7 @@ const padding = [40, 60, 20, 196],
 	separator = "##",
 	duration = 1000,
 	darkerValue = 0.2,
+	darkerValueText = 0.5,
 	tickSize = 9,
 	clusterIconSize = 24,
 	clusterIconPadding = 4,
@@ -552,7 +553,7 @@ function mouseoverBars(event, data, tooltip, container, colors, lists) {
 
 				fundDiv.append("span")
 					.attr("class", classPrefix + "topFiguresAllocationsValue")
-					.style("color", d3.color(colors[fund]).darker(darkerValue))
+					.style("color", d3.color(colors[fund]).darker(darkerValueText))
 					.html("$" + formatMoney0Decimals(data[fund]));
 			});
 	} else {
@@ -700,7 +701,7 @@ function createYearsArray(originalData, fund) {
 
 function applyColors(selection, colors) {
 	selection.style("color", chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ?
-		colors.total : d3.color(colors[chartState.selectedFund]).darker(darkerValue));
+		colors.total : d3.color(colors[chartState.selectedFund]).darker(darkerValueText));
 };
 
 function capitalize(str) {

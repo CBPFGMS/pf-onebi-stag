@@ -17,6 +17,7 @@ const padding = [40, 60, 20, 196],
 	currentYear = currentDate.getFullYear(),
 	separator = "##",
 	darkerValue = 0.2,
+	darkerValueText = 0.5,
 	donorNameWidth = 0.25,
 	flagWidth = 0.05,
 	barWidth = 1 - donorNameWidth - flagWidth,
@@ -534,7 +535,7 @@ function mouseoverRow(event, data, tooltip, container, colors, lists) {
 
 	valueDiv.append("span")
 		.attr("class", classPrefix + "topFiguresContributionsValue")
-		.style("color", d3.color(colors.cbpf).darker(darkerValue))
+		.style("color", d3.color(colors.cbpf).darker(darkerValueText))
 		.html("$" + formatMoney0Decimals(data.total));
 
 	const paidDiv = innerDiv.append("div");
@@ -544,7 +545,7 @@ function mouseoverRow(event, data, tooltip, container, colors, lists) {
 
 	paidDiv.append("span")
 		.attr("class", classPrefix + "topFiguresContributionsValue")
-		.style("color", d3.color(colors.cbpf).darker(darkerValue))
+		.style("color", d3.color(colors.cbpf).darker(darkerValueText))
 		.html("$" + formatMoney0Decimals(data.paid));
 
 	const pledgeDiv = innerDiv.append("div");
@@ -554,7 +555,7 @@ function mouseoverRow(event, data, tooltip, container, colors, lists) {
 
 	pledgeDiv.append("span")
 		.attr("class", classPrefix + "topFiguresContributionsValue")
-		.style("color", d3.color(colors.cbpf).darker(darkerValue))
+		.style("color", d3.color(colors.cbpf).darker(darkerValueText))
 		.html("$" + formatMoney0Decimals(data.pledge));
 
 	positionTooltip(tooltip, container, event, "left");
@@ -658,7 +659,7 @@ function createYearsArray(originalData) {
 };
 
 function applyColors(selection, colors) {
-	selection.style("color", d3.color(colors.cbpf).darker(darkerValue));
+	selection.style("color", d3.color(colors.cbpf).darker(darkerValueText));
 };
 
 function capitalize(str) {

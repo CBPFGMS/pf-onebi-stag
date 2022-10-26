@@ -13,6 +13,7 @@ const topRowPercentage = 0.45,
 	darkerValue = 0.2,
 	brighterValueDonut = 0.1,
 	darkerValueDonut = 0.3,
+	darkerValueText = 0.5,
 	padAngleDonut = 0.035,
 	classPrefix = "pfbicpoverview",
 	formatPercent = d3.format(".0%"),
@@ -392,7 +393,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 			.transition(syncedTransition)
 			.style("opacity", adminLevel1WithoutCoordinates.length ? 1 : 0);
 
-		markers.on("mouseover", (event, d) => mouseoverMarkers(event, d, tooltipDiv, container, adminLevel1DataCerf))
+		markers.on("mouseover", (event, d) => mouseoverMarkers(event, d, tooltipDiv, container, adminLevel1DataCerf, colors))
 			.on("mouseout", () => mouseOut(tooltipDiv));
 
 		bubbles.on("mouseover", (event, d) => mouseoverBubbles(event, d, tooltipDiv, container, colors))
@@ -1254,7 +1255,7 @@ function setDefaultYear(originalData, yearsButtons) {
 	yearsButtons.filter(d => +d === chartState.selectedYear).dispatch("click");
 };
 
-function mouseoverMarkers(event, datum, tooltip, container, adminLevel1DataCerf) {
+function mouseoverMarkers(event, datum, tooltip, container, adminLevel1DataCerf, colors) {
 
 	setChartStateTooltip(event, tooltip);
 
@@ -1275,8 +1276,15 @@ function mouseoverMarkers(event, datum, tooltip, container, adminLevel1DataCerf)
 
 	const cerfTotal = d3.sum(adminLevel1DataCerf, d => d.AdminLocation1Budget);
 
-	innerTooltipDiv.append("div")
-		.html(`$${formatMoneyComma(cerfTotal)} Allocated to all CERF locations`);
+	const innerDiv = innerTooltipDiv.append("div");
+
+	innerDiv.append("span")
+		.style("color", d3.color(colors.cerf).darker(darkerValueText))
+		.style("font-weight", "bold")
+		.html("$" + formatMoneyComma(cerfTotal));
+
+	innerDiv.append("span")
+		.html(" Allocated to all CERF locations");
 
 	positionTooltip(tooltip, container, event, "right");
 };
@@ -1416,7 +1424,7 @@ function mouseoverBars(event, data, tooltip, container, colors) {
 
 			fundDiv.append("span")
 				.attr("class", classPrefix + "topFiguresAllocationsValue")
-				.style("color", d3.color(colors[fund]).darker(darkerValue))
+				.style("color", d3.color(colors[fund]).darker(darkerValueText))
 				.html("$" + formatMoneyComma(data[fund]));
 		});
 	} else {
@@ -1455,7 +1463,7 @@ function mouseoverDonut(event, data, tooltip, container, lists, colors) {
 		.html(lists.allocationTypesList[data.data.key]);
 
 	innerTooltipDiv.append("div")
-		.style("color", d3.color(colors[thisFund]).darker(darkerValue))
+		.style("color", d3.color(colors[thisFund]).darker(darkerValueText))
 		.style("font-weight", "bold")
 		.html("$" + formatMoneyComma(data.value));
 
@@ -1506,7 +1514,7 @@ function mouseoverMainDonut(event, data, tooltip, container, lists, colors) {
 
 		rowDiv.append("span")
 			.attr("class", classPrefix + "topFiguresAllocationsValue")
-			.style("color", d3.color(colors[thisFund]).darker(darkerValue))
+			.style("color", d3.color(colors[thisFund]).darker(darkerValueText))
 			.html("$" + formatMoneyComma(datum.value));
 	});
 
@@ -1526,7 +1534,7 @@ function mouseOut(tooltip) {
 
 function applyColors(selection, colors) {
 	selection.style("color", chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ?
-		colors.total : d3.color(colors[chartState.selectedFund]).darker(darkerValue));
+		colors.total : d3.color(colors[chartState.selectedFund]).darker(darkerValueText));
 };
 
 function capitalize(str) {
