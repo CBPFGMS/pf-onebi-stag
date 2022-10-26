@@ -294,9 +294,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		fundButtons.on("click", (event, d) => {
 			chartState.selectedFund = d;
 			fundButtons.classed("active", e => e === chartState.selectedFund);
-			draw(originalData, originalAdminLevel1Data, true, false);
-			drawBubbleMap(adminLevel1Data, d3.transition()
-				.duration(duration));
+			draw(originalData, originalAdminLevel1Data, false, false);
 		});
 
 		yearsButtons.on("click", (event, d) => {

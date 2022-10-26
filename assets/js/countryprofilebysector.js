@@ -126,7 +126,7 @@ function createCountryProfileBySector(container, lists, colors, tooltipDiv, fund
 		fundButtons.on("click", (event, d) => {
 			chartState.selectedFund = d;
 			fundButtons.classed("active", e => e === chartState.selectedFund);
-			draw(originalData, true, true);
+			draw(originalData, false, true);
 		});
 
 		yearsButtons.on("click", (event, d) => {
