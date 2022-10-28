@@ -209,6 +209,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 		dropdown.container.classed("active", d => d.clicked = false);
 		if (d.name === backToMenu) {
 			const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal);
+			deleteQueryStringValues(lists);
 			countries.on("click", (_, d) => {
 				chartState.selectedCountryProfile = d;
 				setQueryString("country", chartState.selectedCountryProfile, lists);
@@ -249,6 +250,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 
 	breadcrumb.firstBreadcrumb.on("click", (event, d) => {
 		const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal);
+		deleteQueryStringValues(lists);
 		countries.on("click", (event, d) => {
 			chartState.selectedCountryProfile = d;
 			setQueryString("country", chartState.selectedCountryProfile, lists);
@@ -829,6 +831,14 @@ function setQueryString(key, value, lists) {
 	} else {
 		lists.queryStringValues.append(key, value);
 	};
+	const newURL = window.location.origin + window.location.pathname + "?" + lists.queryStringValues.toString();
+	window.history.replaceState(null, "", newURL);
+};
+
+function deleteQueryStringValues(lists) {
+	lists.queryStringValues.delete("country");
+	lists.queryStringValues.delete("year");
+	lists.queryStringValues.delete("fund");
 	const newURL = window.location.origin + window.location.pathname + "?" + lists.queryStringValues.toString();
 	window.history.replaceState(null, "", newURL);
 };
