@@ -13,6 +13,7 @@ const padding = [4, 8, 4, 8],
 	tooltipHorizontalPadding = 6,
 	polylinePadding = 4,
 	fadeOpacity = 0.2,
+	fadeOpacityFundButton = 0.4,
 	innerTooltipDivWidth = 290,
 	classPrefix = "pfbicpbypartner",
 	formatPercent = d3.format(".0%"),
@@ -126,6 +127,8 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv, fun
 		yearsButtons.classed("active", d => chartState.selectedYear === d);
 
 		const data = processData(originalData, lists, cerfId, cbpfId);
+
+		disableFunds(data, fundButtons);
 
 		const syncedTransition = d3.transition()
 			.duration(duration)
@@ -741,7 +744,7 @@ function mouseoverRow(event, data, tooltip, container, colors, fundType, namesLi
 		.style("color", d3.color(colors[fundType]).darker(darkerValueText))
 		.html(`${numberofProjects} Project${numberofProjects > 1 ? "s" : ""}`);
 
-	const thisPosition = fundType === "cerf" || (chartState.selectedFund !=="total" && chartState.selectedFund !== "cerf/cbpf") ? "right" : "left";
+	const thisPosition = fundType === "cerf" || (chartState.selectedFund !== "total" && chartState.selectedFund !== "cerf/cbpf") ? "right" : "left";
 
 	positionTooltip(tooltip, container, event, thisPosition);
 
@@ -822,6 +825,15 @@ function setDefaultYear(originalData, yearsArrayCerf, yearsArrayCbpf) {
 			};
 		};
 	};
+};
+
+function disableFunds(data, fundButtons) {
+	["cerf", "cbpf"].forEach(fund => {
+		const fundInData = data[`${fund}Data`].some(d => d.value);
+		fundButtons.filter(d => d === fund).style("opacity", fundInData ? 1 : fadeOpacityFundButton)
+			.style("pointer-events", fundInData ? "all" : "none")
+			.style("filter", fundInData ? null : "saturate(0%)");
+	});
 };
 
 function recalculateDivWidth(data, barChartsDivCerf, barChartsDivCbpf) {

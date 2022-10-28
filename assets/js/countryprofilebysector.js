@@ -23,6 +23,7 @@ const padding = [40, 60, 20, 196],
 	tickSize = 9,
 	clusterIconSize = 24,
 	clusterIconPadding = 4,
+	fadeOpacityFundButton = 0.4,
 	labelsPadding = 2,
 	titlePadding = 10,
 	stackKeys = ["total", "cerf", "cbpf"],
@@ -99,6 +100,8 @@ function createCountryProfileBySector(container, lists, colors, tooltipDiv, fund
 		yearsButtons.classed("active", d => chartState.selectedYear === d);
 
 		const data = processData(originalData, lists);
+
+		disableFunds(data, fundButtons);
 
 		const syncedTransition = d3.transition()
 			.duration(duration)
@@ -649,6 +652,15 @@ function setDefaultYear(originalData, yearsArrayCerf, yearsArrayCbpf) {
 			};
 		};
 	};
+};
+
+function disableFunds(data, fundButtons) {
+	["cerf", "cbpf"].forEach(fund => {
+		const fundInData = data.stack.some(d => d[`projects${capitalize(fund)}`] !== "");
+		fundButtons.filter(d => d === fund).style("opacity", fundInData ? 1 : fadeOpacityFundButton)
+			.style("pointer-events", fundInData ? "all" : "none")
+			.style("filter", fundInData ? null : "saturate(0%)");
+	});
 };
 
 function wrapTextTwoLines(text, width) {
