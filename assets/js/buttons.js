@@ -12,7 +12,7 @@ const generalClassPrefix = "pfbihp",
 const buttonsObject = {
 	timer: null,
 	playing: false,
-	createButtons(containerSelection, yearsArrayAllocations, yearsArrayAllocationsCerf, yearsArrayAllocationsCbpf, yearsArrayContributions, duration, selections) {
+	createButtons(containerSelection, yearsArrayAllocations, yearsArrayAllocationsCerf, yearsArrayAllocationsCbpf, yearsArrayContributions, duration, selections, rawAllocationsData) {
 
 		const helpIcon = containerSelection.append("button")
 			.attr("id", generalClassPrefix + "HelpButton");
@@ -111,6 +111,12 @@ const buttonsObject = {
 				window.open(contributionsDataUrl, "_blank");
 			} else if (chartState.selectedChart === "allocationsBySector") {
 				window.open(allocationsBySectorDataUrl, "_blank");
+			} else if (chartState.selectedChart === "countryProfile") {
+				const countryData = rawAllocationsData.filter(e => e.PooledFundId === chartState.selectedCountryProfile);
+				const csv = d3.csvFormat(countryData);
+				const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+				const blobUrl = URL.createObjectURL(blob);
+				window.open(blobUrl, "_blank");
 			} else {
 				window.open(allocationsDataUrl, "_blank");
 			};

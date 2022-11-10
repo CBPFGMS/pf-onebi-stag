@@ -319,7 +319,7 @@ function controlCharts([worldMap,
 
 	populateYearDropdown(yearsArrayAllocations, selections.yearDropdown);
 
-	buttonsObject.createButtons(selections.buttonsContainer, yearsArrayAllocations, yearsArrayAllocationsCerf, yearsArrayAllocationsCbpf, yearsArrayContributions, duration, selections);
+	buttonsObject.createButtons(selections.buttonsContainer, yearsArrayAllocations, yearsArrayAllocationsCerf, yearsArrayAllocationsCbpf, yearsArrayContributions, duration, selections, rawAllocationsData);
 
 	//|Open the link and draws charts according to chartState
 	if (chartState.selectedChart === "allocationsByCountry") {
