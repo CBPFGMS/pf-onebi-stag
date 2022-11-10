@@ -12,7 +12,7 @@ const generalClassPrefix = "pfbihp",
 const buttonsObject = {
 	timer: null,
 	playing: false,
-	createButtons(containerSelection, yearsArrayAllocations, yearsArrayAllocationsCerf, yearsArrayAllocationsCbpf, yearsArrayContributions, duration, selections, rawAllocationsData) {
+	createButtons(containerSelection, yearsArrayAllocations, yearsArrayAllocationsCerf, yearsArrayAllocationsCbpf, yearsArrayContributions, duration, selections, rawAllocationsData, lists) {
 
 		const helpIcon = containerSelection.append("button")
 			.attr("id", generalClassPrefix + "HelpButton");
@@ -116,7 +116,14 @@ const buttonsObject = {
 				const csv = d3.csvFormat(countryData);
 				const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
 				const blobUrl = URL.createObjectURL(blob);
-				window.open(blobUrl, "_blank");
+				const link = document.createElement("a");
+				link.setAttribute("href", blobUrl);
+				link.setAttribute("download", lists.fundNamesList[chartState.selectedCountryProfile] + "_CountryProfile");
+				link.style = "visibility:hidden";
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+				URL.revokeObjectURL(blob);
 			} else {
 				window.open(allocationsDataUrl, "_blank");
 			};
