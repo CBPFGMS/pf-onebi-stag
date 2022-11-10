@@ -289,7 +289,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		const syncedTransition = d3.transition()
 			.duration(duration);
 
-		drawBubbleMap(adminLevel1Data, syncedTransition);
+		drawBubbleMap(adminLevel1Data, syncedTransition, data.donutChartData);
 		drawTopFigures(data.topFigures, syncedTransition);
 		drawPartnerFigures(data.partnerFigures, partnerFiguresDiv, syncedTransition, colors, lists);
 		drawBarChart(data.stackedBarData, syncedTransition, originalData, originalAdminLevel1Data);
@@ -310,7 +310,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		//end of draw
 	};
 
-	function drawBubbleMap(adminLevel1Data, syncedTransition) {
+	function drawBubbleMap(adminLevel1Data, syncedTransition, dataTotal) {
 
 		const adminLevel1WithoutCoordinates = adminLevel1Data.filter(d => d.AdminLocation1Latitude === null &&
 			d.AdminLocation1Longitude === null &&
@@ -396,7 +396,12 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 			.transition(syncedTransition)
 			.style("opacity", adminLevel1WithoutCoordinates.length ? 1 : 0);
 
-		markers.on("mouseover", (event, d) => mouseoverMarkers(event, d, tooltipDiv, container, adminLevel1DataCerf, colors))
+		const cerfTotal = Object.entries(dataTotal).reduce((acc,curr)=>{
+			if(curr[0].includes("cerf")) acc += curr[1];
+			return acc;
+		},0);
+
+		markers.on("mouseover", (event, d) => mouseoverMarkers(event, d, tooltipDiv, container, adminLevel1DataCerf, colors, cerfTotal))
 			.on("mouseout", () => mouseOut(tooltipDiv));
 
 		bubbles.on("mouseover", (event, d) => mouseoverBubbles(event, d, tooltipDiv, container, colors))
@@ -1258,7 +1263,7 @@ function setDefaultYear(originalData, yearsButtons) {
 	yearsButtons.filter(d => +d === chartState.selectedYear).dispatch("click");
 };
 
-function mouseoverMarkers(event, datum, tooltip, container, adminLevel1DataCerf, colors) {
+function mouseoverMarkers(event, datum, tooltip, container, adminLevel1DataCerf, colors, cerfTotal) {
 
 	setChartStateTooltip(event, tooltip);
 
@@ -1276,8 +1281,6 @@ function mouseoverMarkers(event, datum, tooltip, container, adminLevel1DataCerf,
 	titleDiv.append("strong")
 		.style("font-size", "16px")
 		.html(datum.AdminLocation1);
-
-	const cerfTotal = d3.sum(adminLevel1DataCerf, d => d.AdminLocation1Budget);
 
 	const innerDiv = innerTooltipDiv.append("div");
 

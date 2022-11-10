@@ -480,6 +480,7 @@ function processAdminLevel1DataForCountryProfileOverview(rawAdminLevel1Data) {
 			const foundYear = data.find(d => d.year === row.AllocationYear);
 			if (foundYear) {
 				const foundAdminLevel1 = foundYear.adminLevel1List.find(e => e.AdminLocation1 === row.AdminLocation1 &&
+					e.FundType === row.FundType &&
 					e.AdminLocation1Latitude.toFixed(6) === row.AdminLocation1Latitude.toFixed(6) &&
 					e.AdminLocation1Longitude.toFixed(6) === row.AdminLocation1Longitude.toFixed(6));
 				if (foundAdminLevel1) {
