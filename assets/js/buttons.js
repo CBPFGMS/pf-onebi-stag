@@ -145,7 +145,7 @@ const buttonsObject = {
 			} else {
 				selections.buttonsOuterContainer.classed("options-btn-panel-fix", false)
 					.classed("options-btn-panel", true);
-				if (chartState.selectedChart !== "contributionsByCerfCbpf") d3.select("#pfbialyearNumberText").text("");
+				d3.select("#pfbihpyearNumberText").text("");
 				this.playing = false;
 				this.timer.stop();
 			};
@@ -158,8 +158,10 @@ const buttonsObject = {
 function loopYears(yearsArray, selections) {
 	const index = yearsArray.indexOf(chartState.selectedYear);
 	chartState.selectedYear = yearsArray[(index + 1) % yearsArray.length];
-	if (chartState.selectedChart !== "contributionsByCerfCbpf") {
-		d3.select("#pfbialyearNumberText").text(chartState.selectedYear);
+	d3.select("#pfbihpyearNumberText").text(chartState.selectedYear);
+	if (chartState.selectedChart === "countryProfile") {
+		//do CP loop here
+	} else if (chartState.selectedChart !== "contributionsByCerfCbpf") {
 		selections.yearDropdown.selectAll("option")
 			.property("selected", d => chartState.selectedYear === d);
 		selections.yearDropdown.dispatch("change");

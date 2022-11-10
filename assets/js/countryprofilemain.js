@@ -48,6 +48,9 @@ const tabsCallingFunctions = tabsData.map(d => ({
 
 function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, yearsArrayTotal, queryStringObject) {
 
+	d3.select("#pfbihpPlayButton")
+		.property("disabled", false);
+
 	const pooledFundsInData = rawAllocationsData.reduce((acc, curr) => {
 		const foundRegion = acc.find(e => e.region === lists.fundRegionsList[curr.PooledFundId]);
 		if (foundRegion) {

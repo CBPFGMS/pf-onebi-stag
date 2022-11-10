@@ -169,7 +169,8 @@ const selections = {
 	buttonsOuterContainer: d3.select("#btnOptionDiv"),
 	allocationsTab: d3.select("#allocations-tab"),
 	contributionsTab: d3.select("#contributions-tab"),
-	moreTab: d3.select("#more-tab")
+	moreTab: d3.select("#more-tab"),
+	layoutSidenav: d3.select("#layoutSidenav_content")
 };
 
 const navLinks = [selections.navlinkAllocationsByCountry,
@@ -196,6 +197,11 @@ const queryStringObject = {
 const topTooltipDiv = selections.sideNavContainer.append("div")
 	.attr("id", generalClassPrefix + "topTooltipDiv")
 	.style("display", "none");
+
+const yearNumberText = selections.layoutSidenav.append("div")
+	.attr("class", generalClassPrefix + "yearNumberContainer")
+	.append("span")
+	.attr("id", generalClassPrefix + "yearNumberText");
 
 //|import modules
 import { createAllocations } from "./allocations.js";

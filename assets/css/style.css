@@ -1955,8 +1955,16 @@ a.video-tutorial{color:#333;}
   right: initial;
 }
 
-#pfbialyearNumberText {
-  fill: #dadcdf;
+.pfbihpyearNumberContainer {
+  padding-left: 300px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
+
+#pfbihpyearNumberText {
+  color: rgba(198, 200, 203, 0.5);
   font-size: 20em;
   font-weight: 500;
   font-family: "Roboto", sans-serif;
