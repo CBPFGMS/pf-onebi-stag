@@ -16,6 +16,7 @@ const padding = [4, 8, 4, 8],
 	fadeOpacityFundButton = 0.4,
 	innerTooltipDivWidth = 290,
 	classPrefix = "pfbicpbypartner",
+	thisTab = "Allocations by Partner",
 	formatPercent = d3.format(".0%"),
 	formatPercent1Decimal = d3.format(".1%"),
 	formatSIaxes = d3.format("~s"),
@@ -154,6 +155,13 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv, fun
 			if (activeTransition) return;
 			tooltipDiv.style("display", "none");
 			chartState.selectedYear = d;
+			draw(originalData, false, false);
+		});
+
+		yearsButtons.on("playButtonClick", () => {
+			if (chartState.selectedCountryProfileTab !== thisTab) return;
+			if (activeTransition) return;
+			tooltipDiv.style("display", "none");
 			draw(originalData, false, false);
 		});
 

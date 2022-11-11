@@ -1238,6 +1238,7 @@ function populateLastModified(lastModifiedData) {
 function stopTimer() {
 	buttonsObject.playing = false;
 	buttonsObject.timer.stop();
+	d3.select("#pfbihpyearNumberText").text("");
 	d3.select("#" + generalClassPrefix + "PlayButton")
 		.datum({
 			clicked: false

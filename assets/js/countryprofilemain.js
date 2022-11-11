@@ -7,6 +7,7 @@ import { createCountryProfileByPartner } from "./countryprofilebypartner.js";
 import { createCountryProfileBySector } from "./countryprofilebysector.js";
 import { createCountryProfileByPartnerAndSector } from "./countryprofilebypartnerandsector.js";
 import { createCountryProfileContributions } from "./countryprofilecontributions.js";
+import { buttonsObject } from "./buttons.js";
 
 //|constants
 const classPrefix = "pfcpmain",
@@ -22,8 +23,9 @@ const classPrefix = "pfcpmain",
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	menuIntroText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi nunc tellus, volutpat a laoreet sit amet, rhoncus cursus leo. Fusce velit lorem, interdum eu dui in, luctus ultrices eros. Nullam eu odio in lectus ullamcorper vulputate et a mauris. Nullam nulla lectus, porttitor non interdum vitae, facilisis iaculis urna. Morbi cursus sit amet nibh non rutrum. Etiam in sodales ipsum. Etiam id est magna. Cras ut leo et mi egestas pharetra. Cras et tortor vitae quam fermentum condimentum. Morbi pharetra, est eu viverra tincidunt, mi massa laoreet felis, nec fringilla massa quam at arcu. Donec urna enim, luctus sed blandit ac, vehicula vitae ipsum. Donec in dui non nisl rutrum ornare. Sed sed porttitor massa, id hendrerit mi. Nullam vitae volutpat nulla. Donec elit justo, convallis sed erat ut, elementum aliquam sem.";
 
-let selectedTab = tabsData[0],
-	overviewData,
+chartState.selectedCountryProfileTab = tabsData[0];
+
+let overviewData,
 	overviewAdminLevel1Data,
 	byPartnerData,
 	bySectorData,
@@ -100,7 +102,7 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 	topValues.projects.clear();
 	updateTopValues(topValues, selections);
 
-	selectedTab = tabsData[0];
+	chartState.selectedCountryProfileTab = tabsData[0];
 
 	outerDiv.selectChildren().remove();
 
@@ -144,6 +146,8 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 };
 
 function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearsArrayTotal) {
+
+	if (buttonsObject.playing) stopTimer();
 
 	processAllData(rawAllocationsData, rawContributionsData, adminLevel1Data, lists);
 
@@ -195,7 +199,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 
 	const dropdown = createDropdown(dropdownDiv, pooledFundsInData, lists);
 
-	yearsButtons = createYearsButtons(yearsButtonsDiv, selectedTab === tabsData[tabsData.length - 1] ? yearsSetContributions : yearsSetAllocations);
+	yearsButtons = createYearsButtons(yearsButtonsDiv, chartState.selectedCountryProfileTab === tabsData[tabsData.length - 1] ? yearsSetContributions : yearsSetAllocations);
 
 	yearsButtons.on("click.main", (_, d) => setQueryString("year", d, lists));
 
@@ -237,12 +241,13 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 	});
 
 	tabs.on("click", (event, d) => {
-		if (selectedTab === d) return;
-		if (d.includes("Contributions") || selectedTab.includes("Contributions")) {
+		if (chartState.selectedCountryProfileTab === d) return;
+		if (buttonsObject.playing) stopTimer();
+		if (d.includes("Contributions") || chartState.selectedCountryProfileTab.includes("Contributions")) {
 			yearsButtons = createYearsButtons(yearsButtonsDiv, d === tabsData[tabsData.length - 1] ? yearsSetContributions : yearsSetAllocations);
 			yearsButtons.on("click.main", (_, d) => setQueryString("year", d, lists));
 		};
-		selectedTab = d;
+		chartState.selectedCountryProfileTab = d;
 		fundsButtons.style("display", e => d === tabsData[tabsData.length - 1] || ((d === tabsData[1] || d === tabsData[3]) && e === "cerf/cbpf") ? "none" : null);
 		tabs.classed("active", (_, i, n) => n[i] === event.currentTarget);
 		chartDiv.selectChildren("div:not(#" + classPrefix + "tooltipDiv)").remove();
@@ -263,19 +268,19 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 	});
 
 	function setCallFunctions() {
-		if (selectedTab === tabsData[0]) tabsCallingFunctions.find(d => d.name === tabsData[0]).callingFunction = createCountryProfileOverview(chartDiv, lists, colorsObject, worldMap, tooltipDiv, fundsButtons, yearsButtons);
-		if (selectedTab === tabsData[1]) tabsCallingFunctions.find(d => d.name === tabsData[1]).callingFunction = createCountryProfileByPartner(chartDiv, lists, colorsObject, tooltipDiv, fundsButtons, yearsButtons);
-		if (selectedTab === tabsData[2]) tabsCallingFunctions.find(d => d.name === tabsData[2]).callingFunction = createCountryProfileBySector(chartDiv, lists, colorsObject, tooltipDiv, fundsButtons, yearsButtons);
-		if (selectedTab === tabsData[3]) tabsCallingFunctions.find(d => d.name === tabsData[3]).callingFunction = createCountryProfileByPartnerAndSector(chartDiv, lists, colorsObject, tooltipDiv, fundsButtons, yearsButtons);
-		if (selectedTab === tabsData[4]) tabsCallingFunctions.find(d => d.name === tabsData[3]).callingFunction = createCountryProfileContributions(chartDiv, lists, colorsObject, tooltipDiv, yearsButtons);
+		if (chartState.selectedCountryProfileTab === tabsData[0]) tabsCallingFunctions.find(d => d.name === tabsData[0]).callingFunction = createCountryProfileOverview(chartDiv, lists, colorsObject, worldMap, tooltipDiv, fundsButtons, yearsButtons);
+		if (chartState.selectedCountryProfileTab === tabsData[1]) tabsCallingFunctions.find(d => d.name === tabsData[1]).callingFunction = createCountryProfileByPartner(chartDiv, lists, colorsObject, tooltipDiv, fundsButtons, yearsButtons);
+		if (chartState.selectedCountryProfileTab === tabsData[2]) tabsCallingFunctions.find(d => d.name === tabsData[2]).callingFunction = createCountryProfileBySector(chartDiv, lists, colorsObject, tooltipDiv, fundsButtons, yearsButtons);
+		if (chartState.selectedCountryProfileTab === tabsData[3]) tabsCallingFunctions.find(d => d.name === tabsData[3]).callingFunction = createCountryProfileByPartnerAndSector(chartDiv, lists, colorsObject, tooltipDiv, fundsButtons, yearsButtons);
+		if (chartState.selectedCountryProfileTab === tabsData[4]) tabsCallingFunctions.find(d => d.name === tabsData[3]).callingFunction = createCountryProfileContributions(chartDiv, lists, colorsObject, tooltipDiv, yearsButtons);
 	};
 
 	function callDrawingFunction() {
-		if (selectedTab === tabsData[0]) tabsCallingFunctions.find(d => d.name === tabsData[0]).callingFunction(overviewData, overviewAdminLevel1Data, resetYear, true);
-		if (selectedTab === tabsData[1]) tabsCallingFunctions.find(d => d.name === tabsData[1]).callingFunction(byPartnerData, true, true);
-		if (selectedTab === tabsData[2]) tabsCallingFunctions.find(d => d.name === tabsData[2]).callingFunction(bySectorData, true, true);
-		if (selectedTab === tabsData[3]) tabsCallingFunctions.find(d => d.name === tabsData[3]).callingFunction(byPartnerAndSectorData, true, true);
-		if (selectedTab === tabsData[4]) tabsCallingFunctions.find(d => d.name === tabsData[3]).callingFunction(contributionsData, true, true);
+		if (chartState.selectedCountryProfileTab === tabsData[0]) tabsCallingFunctions.find(d => d.name === tabsData[0]).callingFunction(overviewData, overviewAdminLevel1Data, resetYear, true);
+		if (chartState.selectedCountryProfileTab === tabsData[1]) tabsCallingFunctions.find(d => d.name === tabsData[1]).callingFunction(byPartnerData, true, true);
+		if (chartState.selectedCountryProfileTab === tabsData[2]) tabsCallingFunctions.find(d => d.name === tabsData[2]).callingFunction(bySectorData, true, true);
+		if (chartState.selectedCountryProfileTab === tabsData[3]) tabsCallingFunctions.find(d => d.name === tabsData[3]).callingFunction(byPartnerAndSectorData, true, true);
+		if (chartState.selectedCountryProfileTab === tabsData[4]) tabsCallingFunctions.find(d => d.name === tabsData[3]).callingFunction(contributionsData, true, true);
 	};
 
 };
@@ -880,6 +885,19 @@ function reverseFormat(s) {
 		}
 	});
 	return returnValue;
+};
+
+function stopTimer() {
+	buttonsObject.playing = false;
+	buttonsObject.timer.stop();
+	d3.select("#pfbihpyearNumberText").text("");
+	d3.select("#" + generalClassPrefix + "PlayButton")
+		.datum({
+			clicked: false
+		})
+		.html("PLAY  ")
+		.append("span")
+		.attr("class", "fas fa-play");
 };
 
 export { createCountryProfile };

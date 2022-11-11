@@ -16,6 +16,7 @@ const topRowPercentage = 0.45,
 	darkerValueText = 0.5,
 	padAngleDonut = 0.035,
 	classPrefix = "pfbicpoverview",
+	thisTab = "Overview",
 	formatPercent = d3.format(".0%"),
 	formatSIaxes = d3.format("~s"),
 	formatMoneyComma = d3.format(",.0f"),
@@ -307,6 +308,12 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 			draw(originalData, originalAdminLevel1Data, false, false);
 		});
 
+		yearsButtons.on("playButtonClick", () => {
+			if (chartState.selectedCountryProfileTab !== thisTab) return;
+			draw(originalData, originalAdminLevel1Data, false, false);
+		});
+
+
 		//end of draw
 	};
 
@@ -396,10 +403,10 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 			.transition(syncedTransition)
 			.style("opacity", adminLevel1WithoutCoordinates.length ? 1 : 0);
 
-		const cerfTotal = Object.entries(dataTotal).reduce((acc,curr)=>{
-			if(curr[0].includes("cerf")) acc += curr[1];
+		const cerfTotal = Object.entries(dataTotal).reduce((acc, curr) => {
+			if (curr[0].includes("cerf")) acc += curr[1];
 			return acc;
-		},0);
+		}, 0);
 
 		markers.on("mouseover", (event, d) => mouseoverMarkers(event, d, tooltipDiv, container, adminLevel1DataCerf, colors, cerfTotal))
 			.on("mouseout", () => mouseOut(tooltipDiv));

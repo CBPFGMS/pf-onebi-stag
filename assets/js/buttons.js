@@ -163,20 +163,29 @@ const buttonsObject = {
 };
 
 function loopYears(yearsArray, selections) {
-	const index = yearsArray.indexOf(chartState.selectedYear);
-	chartState.selectedYear = yearsArray[(index + 1) % yearsArray.length];
-	d3.select("#pfbihpyearNumberText").text(chartState.selectedYear);
 	if (chartState.selectedChart === "countryProfile") {
-		//do CP loop here
-	} else if (chartState.selectedChart !== "contributionsByCerfCbpf") {
-		selections.yearDropdown.selectAll("option")
-			.property("selected", d => chartState.selectedYear === d);
-		selections.yearDropdown.dispatch("change");
+		const yearButtons = d3.select(".pfcpmainyearsButtonsDiv")
+			.selectAll("button");
+		const yearsArrayCountryProfile = yearButtons.data();
+		let yearIndex = yearsArrayCountryProfile.indexOf(chartState.selectedYear);
+		chartState.selectedYear = yearsArrayCountryProfile[++yearIndex % yearsArrayCountryProfile.length];
+		d3.select("#pfbihpyearNumberText").text(chartState.selectedYear);
+		const thisYearButton = yearButtons.filter(d => d === chartState.selectedYear);
+		thisYearButton.dispatch("playButtonClick");
 	} else {
-		const yearButton = d3.select(".pfbiccyearButtonsDiv")
-			.selectAll("button")
-			.filter(d => d === chartState.selectedYear);
-		yearButton.dispatch("click");
+		const index = yearsArray.indexOf(chartState.selectedYear);
+		chartState.selectedYear = yearsArray[(index + 1) % yearsArray.length];
+		d3.select("#pfbihpyearNumberText").text(chartState.selectedYear);
+		if (chartState.selectedChart !== "contributionsByCerfCbpf") {
+			selections.yearDropdown.selectAll("option")
+				.property("selected", d => chartState.selectedYear === d);
+			selections.yearDropdown.dispatch("change");
+		} else {
+			const yearButton = d3.select(".pfbiccyearButtonsDiv")
+				.selectAll("button")
+				.filter(d => d === chartState.selectedYear);
+			yearButton.dispatch("click");
+		};
 	};
 };
 

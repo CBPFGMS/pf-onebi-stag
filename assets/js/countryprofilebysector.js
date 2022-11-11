@@ -8,6 +8,7 @@ const padding = [40, 60, 20, 196],
 	tooltipVerticalPadding = 6,
 	tooltipHorizontalPadding = 6,
 	classPrefix = "pfbicpbysector",
+	thisTab = "Allocations by Sector",
 	formatPercent = d3.format(".0%"),
 	formatSIaxes = d3.format("~s"),
 	formatMoney0Decimals = d3.format(",.0f"),
@@ -137,6 +138,13 @@ function createCountryProfileBySector(container, lists, colors, tooltipDiv, fund
 			if (activeTransition) return;
 			tooltipDiv.style("display", "none");
 			chartState.selectedYear = d;
+			draw(originalData, false, false);
+		});
+
+		yearsButtons.on("playButtonClick", () => {
+			if (chartState.selectedCountryProfileTab !== thisTab) return;
+			if (activeTransition) return;
+			tooltipDiv.style("display", "none");
 			draw(originalData, false, false);
 		});
 

@@ -7,6 +7,7 @@ const padding = [40, 60, 20, 196],
 	tooltipVerticalPadding = 6,
 	tooltipHorizontalPadding = 6,
 	classPrefix = "pfbicpcontr",
+	thisTab = "Contributions by Donor",
 	formatPercent = d3.format(".0%"),
 	formatSIaxes = d3.format("~s"),
 	formatMoney0Decimals = d3.format(",.0f"),
@@ -84,7 +85,9 @@ function createCountryProfileContributions(container, lists, colors, tooltipDiv,
 			yearsArrayCbpf = createYearsArray(originalData);
 		};
 
-		if (resetYear) setDefaultYear(originalData, yearsArrayCbpf);
+		const thisYear = originalData.find(e => e.year === chartState.selectedYear);
+
+		if (resetYear || !thisYear) setDefaultYear(originalData, yearsArrayCbpf);
 
 		yearsButtons.classed("active", d => chartState.selectedYear === d);
 
@@ -99,6 +102,13 @@ function createCountryProfileContributions(container, lists, colors, tooltipDiv,
 			if (activeTransition) return;
 			tooltipDiv.style("display", "none");
 			chartState.selectedYear = d;
+			draw(originalData, false, false);
+		});
+
+		yearsButtons.on("playButtonClick", () => {
+			if (chartState.selectedCountryProfileTab !== thisTab) return;
+			if (activeTransition) return;
+			tooltipDiv.style("display", "none");
 			draw(originalData, false, false);
 		});
 
@@ -605,9 +615,8 @@ function processData(originalData, lists) {
 
 function setDefaultYear(originalData, years) {
 	let index = years.length;
-	const dataCbpf = originalData.filter(e => e.cbpf);
 	while (--index >= 0) {
-		const cbpfValue = dataCbpf.find(e => e.year === years[index]);
+		const cbpfValue = originalData.find(e => e.year === years[index]);
 		if (cbpfValue) {
 			chartState.selectedYear = years[index];
 			break;
