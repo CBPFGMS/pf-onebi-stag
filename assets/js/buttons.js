@@ -113,7 +113,7 @@ const buttonsObject = {
 				window.open(allocationsBySectorDataUrl, "_blank");
 			} else if (chartState.selectedChart === "countryProfile") {
 				const countryData = rawAllocationsData.filter(e => e.PooledFundId === chartState.selectedCountryProfile);
-				const csv = d3.csvFormat(countryData);
+				const csv = createCountryCsv(countryData, lists);
 				const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
 				const blobUrl = URL.createObjectURL(blob);
 				const link = document.createElement("a");
@@ -178,6 +178,26 @@ function loopYears(yearsArray, selections) {
 			.filter(d => d === chartState.selectedYear);
 		yearButton.dispatch("click");
 	};
+};
+
+function createCountryCsv(countryData, lists) {
+
+	const data = [];
+
+	countryData.forEach(row => {
+		data.push({
+			Year: row.AllocationYear,
+			"Fund": lists.fundTypesList[row.FundId].toUpperCase(),
+			Sector: lists.clustersList[row.ClusterId],
+			"Allocation Source": lists.allocationTypesList[row.AllocationSurceId],
+			"Number of projects": row.NumbofProj,
+			"Partner Type": lists.partnersList[row.OrganizatinonId],
+			"Projects list": row.ProjList,
+			Budget: row.ClusterBudget
+		})
+	});
+
+	return d3.csvFormat(data);
 };
 
 function createSnapshot(type, fromContextMenu, selections) {
