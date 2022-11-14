@@ -103,6 +103,7 @@ function createCountryProfileBySector(container, lists, colors, tooltipDiv, fund
 		const data = processData(originalData, lists);
 
 		disableFunds(data, fundButtons);
+		disableYears(originalData, yearsButtons);
 
 		const syncedTransition = d3.transition()
 			.duration(duration)
@@ -669,6 +670,22 @@ function disableFunds(data, fundButtons) {
 			.style("pointer-events", fundInData ? "all" : "none")
 			.style("filter", fundInData ? null : "saturate(0%)");
 	});
+};
+
+function disableYears(data, yearsButtons) {
+	if (chartState.selectedFund !== "total" && chartState.selectedFund !== "cerf/cbpf") {
+		const thisYearSet = data.reduce((acc, curr) => {
+			if (curr[chartState.selectedFund]) acc.add(curr.year);
+			return acc;
+		}, new Set());
+		yearsButtons.style("opacity", d => thisYearSet.has(d) ? 1 : fadeOpacityFundButton)
+			.style("pointer-events", d => thisYearSet.has(d) ? "all" : "none")
+			.style("filter", d => thisYearSet.has(d) ? null : "saturate(0%)");
+	} else {
+		yearsButtons.style("opacity", 1)
+			.style("pointer-events", "all")
+			.style("filter", null);
+	};
 };
 
 function wrapTextTwoLines(text, width) {

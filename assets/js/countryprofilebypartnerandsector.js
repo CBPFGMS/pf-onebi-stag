@@ -133,7 +133,8 @@ function createCountryProfileByPartnerAndSector(container, lists, colors, toolti
 
 		const data = processData(originalData, lists);
 
-		disableFunds(data, fundButtons);
+		disableFunds(originalData, fundButtons);
+		disableYears(originalData, yearsButtons);
 
 		const syncedTransition = d3.transition()
 			.duration(duration)
@@ -894,11 +895,25 @@ function setDefaultYear(originalData, yearsArrayCerf, yearsArrayCbpf) {
 
 function disableFunds(data, fundButtons) {
 	["cerf", "cbpf"].forEach(fund => {
-		const fundInData = data[`${fund}Data`].length !== 0;
+		const thisYearArray = data[fund].map(e => e.year);
+		const fundInData = thisYearArray.includes(chartState.selectedYear);
 		fundButtons.filter(d => d === fund).style("opacity", fundInData ? 1 : fadeOpacityFundButton)
 			.style("pointer-events", fundInData ? "all" : "none")
 			.style("filter", fundInData ? null : "saturate(0%)");
 	});
+};
+
+function disableYears(data, yearsButtons) {
+	if (chartState.selectedFund !== "total" && chartState.selectedFund !== "cerf/cbpf") {
+		const thisYearArray = data[chartState.selectedFund].map(e => e.year);
+		yearsButtons.style("opacity", d => thisYearArray.includes(d) ? 1 : fadeOpacityFundButton)
+			.style("pointer-events", d => thisYearArray.includes(d) ? "all" : "none")
+			.style("filter", d => thisYearArray.includes(d) ? null : "saturate(0%)");
+	} else {
+		yearsButtons.style("opacity", 1)
+			.style("pointer-events", "all")
+			.style("filter", null);
+	};
 };
 
 function recalculateDivWidth(data, barChartsDivCerf, barChartsDivCbpf) {
