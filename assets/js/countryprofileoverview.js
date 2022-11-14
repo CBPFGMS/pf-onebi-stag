@@ -286,6 +286,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		const adminLevel1Data = adminLevel1Object ? adminLevel1Object.adminLevel1List : [];
 
 		disableFunds(data, fundButtons);
+		disableYears(data, yearsButtons);
 
 		const syncedTransition = d3.transition()
 			.duration(duration);
@@ -1551,6 +1552,22 @@ function disableFunds(data, fundButtons) {
 			.style("pointer-events", fundInData ? "all" : "none")
 			.style("filter", fundInData ? null : "saturate(0%)");
 	});
+};
+
+function disableYears(data, yearsButtons) {
+	if (chartState.selectedFund !== "total" && chartState.selectedFund !== "cerf/cbpf") {
+		const thisYearArray = data.stackedBarData.reduce((acc, curr) => {
+			if (curr[chartState.selectedFund]) acc.push(curr.year);
+			return acc;
+		}, []);
+		yearsButtons.style("opacity", d => thisYearArray.includes(d) ? 1 : fadeOpacityFundButton)
+			.style("pointer-events", d => thisYearArray.includes(d) ? "all" : "none")
+			.style("filter", d => thisYearArray.includes(d) ? null : "saturate(0%)");
+	} else {
+		yearsButtons.style("opacity", 1)
+			.style("pointer-events", "all")
+			.style("filter", null);
+	};
 };
 
 function mouseOut(tooltip) {

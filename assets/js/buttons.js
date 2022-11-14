@@ -165,7 +165,8 @@ const buttonsObject = {
 function loopYears(yearsArray, selections) {
 	if (chartState.selectedChart === "countryProfile") {
 		const yearButtons = d3.select(".pfcpmainyearsButtonsDiv")
-			.selectAll("button");
+			.selectAll("button")
+			.filter((_, i, n) => +d3.select(n[i]).style("opacity") === 1);
 		const yearsArrayCountryProfile = yearButtons.data();
 		let yearIndex = yearsArrayCountryProfile.indexOf(chartState.selectedYear);
 		chartState.selectedYear = yearsArrayCountryProfile[++yearIndex % yearsArrayCountryProfile.length];
