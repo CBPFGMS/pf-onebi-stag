@@ -201,7 +201,6 @@ function createCountryCsv(countryData, lists) {
 			"Allocation Source": lists.allocationTypesList[row.AllocationSurceId],
 			"Number of projects": row.NumbofProj,
 			"Partner Type": lists.partnersList[row.OrganizatinonId],
-			"Projects list": row.ProjList,
 			Budget: row.ClusterBudget
 		})
 	});
