@@ -38,6 +38,7 @@ let overviewData,
 
 const yearsSetAllocations = new Set(),
 	yearsSetContributions = new Set(),
+	yearsSetAllocationsAllCountries = new Set(),
 	topValues = {
 		allocations: 0,
 		projects: new Set()
@@ -53,23 +54,12 @@ function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData
 	d3.select("#pfbihpPlayButton")
 		.property("disabled", false);
 
-	const pooledFundsInData = rawAllocationsData.reduce((acc, curr) => {
-		const foundRegion = acc.find(e => e.region === lists.fundRegionsList[curr.PooledFundId]);
-		if (foundRegion) {
-			if (!foundRegion.funds.includes(curr.PooledFundId)) foundRegion.funds.push(curr.PooledFundId);
-		} else {
-			acc.push({
-				region: lists.fundRegionsList[curr.PooledFundId],
-				funds: [curr.PooledFundId]
-			});
-		};
-		return acc;
-	}, []);
+	const pooledFundsInData = createListMenuData(rawAllocationsData, lists);
 
 	cerfId = +Object.keys(lists.fundTypesList).find(e => lists.fundTypesList[e] === "cerf");
 	cbpfId = +Object.keys(lists.fundTypesList).find(e => lists.fundTypesList[e] === "cbpf");
 
-	pooledFundsInData.forEach(e => e.funds.sort((a, b) => lists.fundNamesList[a].localeCompare(lists.fundNamesList[b])));
+	pooledFundsInData.forEach(e => e.funds.sort((a, b) => lists.fundNamesList[a.fund].localeCompare(lists.fundNamesList[b.fund])));
 
 	const outerDiv = selections.chartContainerDiv.append("div")
 		.attr("class", classPrefix + "outerDiv");
@@ -77,7 +67,7 @@ function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData
 	const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal);
 
 	countries.on("click", (event, d) => {
-		chartState.selectedCountryProfile = d;
+		chartState.selectedCountryProfile = d.fund;
 		setQueryString("country", chartState.selectedCountryProfile, lists);
 		drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearsArrayTotal);
 	});
@@ -139,7 +129,7 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 		.append("li")
 		.append("a")
 		.attr("href", "#")
-		.html(d => lists.fundNamesList[d]);
+		.html(d => lists.fundNamesList[d.fund]);
 
 	return countries;
 
@@ -218,7 +208,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 			const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal);
 			deleteQueryStringValues(lists);
 			countries.on("click", (_, d) => {
-				chartState.selectedCountryProfile = d;
+				chartState.selectedCountryProfile = d.fund;
 				setQueryString("country", chartState.selectedCountryProfile, lists);
 				drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearsArrayTotal);
 			});
@@ -260,7 +250,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 		const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal);
 		deleteQueryStringValues(lists);
 		countries.on("click", (event, d) => {
-			chartState.selectedCountryProfile = d;
+			chartState.selectedCountryProfile = d.fund;
 			setQueryString("country", chartState.selectedCountryProfile, lists);
 			drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearsArrayTotal);
 		});
@@ -289,7 +279,7 @@ function createDropdown(container, pooledFundsInData, lists) {
 
 	const data = pooledFundsInData.reduce((acc, curr) => {
 		acc.push({ type: "region", name: curr.region });
-		curr.funds.forEach(e => acc.push({ type: "fund", name: e }));
+		curr.funds.forEach(e => acc.push({ type: "fund", name: e.fund }));
 		return acc;
 	}, []);
 
@@ -778,6 +768,66 @@ function pushCbpfOrCerf(obj, row, lists) {
 	};
 	obj.total += +row.ClusterBudget;
 	obj[`type${separator}${row.AllocationSurceId}${separator}total`] += +row.ClusterBudget;;
+};
+
+function createListMenuData(rawAllocationsData, lists) {
+
+	//obj:
+	// 	AllocationSourceId: 3
+	// AllocationSurceId: 3
+	// AllocationYear: 2006
+	// ClusterBudget: 27231270
+	// ClusterId: 6
+	// FundId: 1
+	// NumbofProj: 2
+	// OrganizatinonId: 3
+	// PartnerCode: 2
+	// PooledFundId: 1
+	// ProjList: "299##97"
+
+	const data = [];
+
+	rawAllocationsData.forEach(row => {
+		const foundRegion = data.find(e => e.region === lists.fundRegionsList[row.PooledFundId]);
+		if (foundRegion) {
+			const foundCountry = foundRegion.funds.find(e => e.fund === row.PooledFundId);
+			if (foundCountry) {
+				const foundYear = foundCountry.values.find(e => e.year === row.AllocationYear);
+				if (foundYear) {
+					foundYear.value += row.ClusterBudget;
+				} else {
+					foundCountry.values.push({
+						year: row.AllocationYear,
+						value: row.ClusterBudget
+					});
+				};
+			} else {
+				foundRegion.funds.push({
+					fund: row.PooledFundId,
+					values: [{
+						year: row.AllocationYear,
+						value: row.ClusterBudget
+					}]
+				});
+			};
+		} else {
+			data.push({
+				region: lists.fundRegionsList[row.PooledFundId],
+				funds: [{
+					fund: row.PooledFundId,
+					values: [{
+						year: row.AllocationYear,
+						value: row.ClusterBudget
+					}]
+				}],
+				values: []
+			});
+		};
+	});
+
+	console.log(data)
+
+	return data;
 };
 
 function processAllData(rawAllocationsData, rawContributionsData, adminLevel1Data, lists) {
