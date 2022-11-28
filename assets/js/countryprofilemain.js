@@ -19,6 +19,12 @@ const classPrefix = "pfcpmain",
 	fadeOpacity = 0.1,
 	duration = 1000,
 	currentDate = new Date(),
+	smallMultipleWidth = 200,
+	smallMultipleHeight = 32,
+	smallMultipleRegionWidth = 248,
+	smallMultipleRegionHeight = 42,
+	smallMultiplePadding = [0, 0, 3, 0],
+	smallMultipleRegionPadding = [0, 4, 12, 4],
 	currentYear = currentDate.getFullYear(),
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	menuIntroText = "OCHA aims to mobilize and engage the full range of financing instruments, mechanisms and partners to ensure that growing humanitarian needs are met, humanitarian leadership and coordination mechanisms are promoted at the country level, and the large array of global humanitarian financing mechanisms are complementary among themselves and coherent with development funding. At the country level, OCHA helps partners to build common strategies and implementation plans and to appeal for funds as a group. OCHA ensures more responsive, predictable and strategic humanitarian financing through its leadership of the Central Emergency Response Fund (CERF) and Country-Based Pooled Funds (CBPFs) for the humanitarian system.";
@@ -64,7 +70,7 @@ function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData
 	const outerDiv = selections.chartContainerDiv.append("div")
 		.attr("class", classPrefix + "outerDiv");
 
-	const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal);
+	const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colorsObject);
 
 	countries.on("click", (event, d) => {
 		chartState.selectedCountryProfile = d.fund;
@@ -84,7 +90,7 @@ function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData
 
 };
 
-function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal) {
+function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colors) {
 
 	createDisabledOption(selections.yearDropdown, yearsArrayTotal);
 
@@ -95,6 +101,18 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 	chartState.selectedCountryProfileTab = tabsData[0];
 
 	outerDiv.selectChildren().remove();
+
+	const maxValueInData = pooledFundsInData.reduce((acc, curr) => {
+		curr.funds.forEach(fund => {
+			fund.values.forEach(e => acc = Math.max(acc, e.value))
+		});
+		return acc;
+	}, 0);
+
+	const maxValueForRegions = pooledFundsInData.reduce((acc, curr) => {
+		curr.values.forEach(e => acc = Math.max(acc, e.value));
+		return acc;
+	}, 0);
 
 	const container = outerDiv.append("div")
 		.attr("class", "country-pro-main")
@@ -118,21 +136,87 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 		.append("div")
 		.attr("class", "country-list mb-4");
 
-	regions.append("h2")
+	const regionsContainer = regions.append("div")
+		.attr("class", classPrefix + "regionsContainer");
+
+	regionsContainer.append("h2")
 		.html(d => d.region);
+
+	const regionsSvg = regionsContainer.append("svg")
+		.style("width", smallMultipleRegionWidth)
+		.style("height", smallMultipleRegionHeight);
 
 	const uls = regions.append("ul");
 
 	const countries = uls.selectAll(null)
 		.data(d => d.funds)
 		.enter()
-		.append("li")
-		.append("a")
+		.append("li");
+
+	const bullets = countries.append("span")
+		.attr("class", "icon-circle countryProfileBullet")
+		.append("i")
+		.attr("class", d => d.fundTypesSet.size > 1 ? "fas fa-adjust fa-xs" : "fas fa-circle fa-xs")
+		.style("color", d => d.fundTypesSet.size === 1 ? colors[[...d.fundTypesSet][0]] : null);
+
+	const countryNames = countries.append("a")
 		.attr("href", "#")
 		.html(d => lists.fundNamesList[d.fund]);
 
+	const countrySmallMultiplesContainer = countries.append("div")
+		.attr("class", classPrefix + "smallMultiplesContainer")
+		.style("width", smallMultipleWidth + "px")
+		.style("height", smallMultipleHeight + "px");
+
+	const countrySvg = countrySmallMultiplesContainer.append("svg")
+		.style("width", smallMultipleWidth)
+		.style("height", smallMultipleHeight);
+
+	createSmallMultiples(countrySvg, maxValueInData, colors, false);
+	createSmallMultiples(regionsSvg, maxValueForRegions, colors, true)
+
 	return countries;
 
+};
+
+function createSmallMultiples(svg, maxValue, colors, regions) {
+
+	const width = regions ? smallMultipleRegionWidth : smallMultipleWidth;
+	const height = regions ? smallMultipleRegionHeight : smallMultipleHeight;
+	const padding = regions ? smallMultipleRegionPadding : smallMultiplePadding;
+
+	const yearsArray = [...yearsSetAllocationsAllCountries].sort((a, b) => a - b);
+
+	const xScale = d3.scaleBand()
+		.domain(yearsArray)
+		.range([padding[3], width - padding[1]])
+		.paddingInner(0.5);
+
+	const yScale = d3.scaleLinear()
+		.range([height - padding[2], padding[0]])
+		.domain([0, maxValue]);
+
+	const xAxis = d3.axisBottom(xScale)
+		.tickFormat(d => regions ? String(d % 100).padStart(2, "0") : null)
+		.tickSizeInner(2)
+		.tickSizeOuter(0);
+
+	const rects = svg.selectAll(null)
+		.data(d => d.values)
+		.enter()
+		.append("rect")
+		.attr("width", xScale.bandwidth())
+		.attr("x", d => xScale(d.year))
+		.attr("y", d => yScale(d.value))
+		.attr("height", d => yScale(0) - yScale(d.value))
+		.style("fill", colors.total);
+
+	svg.append("g")
+		.attr("class", classPrefix + "xAxis")
+		.attr("transform", `translate(0, ${height - padding[2] + 0.5})`)
+		.call(xAxis);
+
+	// container.each(d => console.log(d));
 };
 
 function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearsArrayTotal) {
@@ -205,7 +289,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 	dropdown.list.on("click", (_, d) => {
 		dropdown.container.classed("active", d => d.clicked = false);
 		if (d.name === backToMenu) {
-			const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal);
+			const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colorsObject);
 			deleteQueryStringValues(lists);
 			countries.on("click", (_, d) => {
 				chartState.selectedCountryProfile = d.fund;
@@ -247,7 +331,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 	});
 
 	breadcrumb.firstBreadcrumb.on("click", (event, d) => {
-		const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal);
+		const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colorsObject);
 		deleteQueryStringValues(lists);
 		countries.on("click", (event, d) => {
 			chartState.selectedCountryProfile = d.fund;
@@ -772,26 +856,24 @@ function pushCbpfOrCerf(obj, row, lists) {
 
 function createListMenuData(rawAllocationsData, lists) {
 
-	//obj:
-	// 	AllocationSourceId: 3
-	// AllocationSurceId: 3
-	// AllocationYear: 2006
-	// ClusterBudget: 27231270
-	// ClusterId: 6
-	// FundId: 1
-	// NumbofProj: 2
-	// OrganizatinonId: 3
-	// PartnerCode: 2
-	// PooledFundId: 1
-	// ProjList: "299##97"
-
 	const data = [];
 
 	rawAllocationsData.forEach(row => {
+		yearsSetAllocationsAllCountries.add(row.AllocationYear);
 		const foundRegion = data.find(e => e.region === lists.fundRegionsList[row.PooledFundId]);
 		if (foundRegion) {
+			const foundYearRegion = foundRegion.values.find(e => e.year === row.AllocationYear);
+			if (foundYearRegion) {
+				foundYearRegion.value += row.ClusterBudget;
+			} else {
+				foundRegion.values.push({
+					year: row.AllocationYear,
+					value: row.ClusterBudget
+				});
+			};
 			const foundCountry = foundRegion.funds.find(e => e.fund === row.PooledFundId);
 			if (foundCountry) {
+				foundCountry.fundTypesSet.add(lists.fundTypesList[row.FundId]);
 				const foundYear = foundCountry.values.find(e => e.year === row.AllocationYear);
 				if (foundYear) {
 					foundYear.value += row.ClusterBudget;
@@ -802,8 +884,11 @@ function createListMenuData(rawAllocationsData, lists) {
 					});
 				};
 			} else {
+				const fundTypesSet = new Set();
+				fundTypesSet.add(lists.fundTypesList[row.FundId]);
 				foundRegion.funds.push({
 					fund: row.PooledFundId,
+					fundTypesSet: fundTypesSet,
 					values: [{
 						year: row.AllocationYear,
 						value: row.ClusterBudget
@@ -811,21 +896,25 @@ function createListMenuData(rawAllocationsData, lists) {
 				});
 			};
 		} else {
+			const fundTypesSet = new Set();
+			fundTypesSet.add(lists.fundTypesList[row.FundId]);
 			data.push({
 				region: lists.fundRegionsList[row.PooledFundId],
 				funds: [{
 					fund: row.PooledFundId,
+					fundTypesSet: fundTypesSet,
 					values: [{
 						year: row.AllocationYear,
 						value: row.ClusterBudget
 					}]
 				}],
-				values: []
+				values: [{
+					year: row.AllocationYear,
+					value: row.ClusterBudget
+				}]
 			});
 		};
 	});
-
-	console.log(data)
 
 	return data;
 };
