@@ -629,6 +629,8 @@ function controlCharts([worldMap,
 
 function mouseoverTopFigures(event, d, value) {
 
+	if (chartState.selectedChart === "countryProfile") return;
+
 	topTooltipDiv.style("display", "block")
 		.html(null);
 
@@ -708,6 +710,7 @@ function mouseoverTopFigures(event, d, value) {
 };
 
 function mouseoutTopFigures() {
+	if (chartState.selectedChart === "countryProfile") return;
 	topTooltipDiv.html(null)
 		.style("display", "none");
 };

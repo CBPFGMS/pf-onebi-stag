@@ -18,13 +18,11 @@ const classPrefix = "pfcpmain",
 	separator = "##",
 	fadeOpacity = 0.1,
 	duration = 1000,
+	topValuesNoValue = "--",
+	piesSize = 20,
+	arcGenerator = d3.arc().outerRadius(piesSize / 2).innerRadius(0),
+	pieGenerator = d3.pie().value(d => d.value).sort((a, b) => b.fundType - a.fundType),
 	currentDate = new Date(),
-	smallMultipleWidth = 200,
-	smallMultipleHeight = 32,
-	smallMultipleRegionWidth = 248,
-	smallMultipleRegionHeight = 42,
-	smallMultiplePadding = [0, 0, 3, 0],
-	smallMultipleRegionPadding = [0, 4, 12, 4],
 	currentYear = currentDate.getFullYear(),
 	buttonsList = ["total", "cerf/cbpf", "cerf", "cbpf"],
 	menuIntroText = "OCHA aims to mobilize and engage the full range of financing instruments, mechanisms and partners to ensure that growing humanitarian needs are met, humanitarian leadership and coordination mechanisms are promoted at the country level, and the large array of global humanitarian financing mechanisms are complementary among themselves and coherent with development funding. At the country level, OCHA helps partners to build common strategies and implementation plans and to appeal for funds as a group. OCHA ensures more responsive, predictable and strategic humanitarian financing through its leadership of the Central Emergency Response Fund (CERF) and Country-Based Pooled Funds (CBPFs) for the humanitarian system.";
@@ -44,7 +42,6 @@ let overviewData,
 
 const yearsSetAllocations = new Set(),
 	yearsSetContributions = new Set(),
-	yearsSetAllocationsAllCountries = new Set(),
 	topValues = {
 		allocations: 0,
 		projects: new Set()
@@ -142,9 +139,7 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 	regionsContainer.append("h2")
 		.html(d => d.region);
 
-	const regionsSvg = regionsContainer.append("svg")
-		.style("width", smallMultipleRegionWidth)
-		.style("height", smallMultipleRegionHeight);
+	const regionsTable = regionsContainer.append("div"); //TABLE HERE
 
 	const uls = regions.append("ul");
 
@@ -153,70 +148,37 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 		.enter()
 		.append("li");
 
-	const bullets = countries.append("span")
-		.attr("class", "icon-circle countryProfileBullet")
-		.append("i")
-		.attr("class", d => d.fundTypesSet.size > 1 ? "fas fa-adjust fa-xs" : "fas fa-circle fa-xs")
-		.style("color", d => d.fundTypesSet.size === 1 ? colors[[...d.fundTypesSet][0]] : null);
+	const piesDiv = countries.append("div")
+		.attr("class", classPrefix + "piesDiv")
+		.style("width", piesSize + "px")
+		.style("height", piesSize + "px");
+
+	const piesSvg = piesDiv.append("svg")
+		.attr("width", "100%")
+		.attr("height", "100%");
 
 	const countryNames = countries.append("a")
 		.attr("href", "#")
 		.html(d => lists.fundNamesList[d.fund]);
 
-	const countrySmallMultiplesContainer = countries.append("div")
-		.attr("class", classPrefix + "smallMultiplesContainer")
-		.style("width", smallMultipleWidth + "px")
-		.style("height", smallMultipleHeight + "px");
-
-	const countrySvg = countrySmallMultiplesContainer.append("svg")
-		.style("width", smallMultipleWidth)
-		.style("height", smallMultipleHeight);
-
-	createSmallMultiples(countrySvg, maxValueInData, colors, false);
-	createSmallMultiples(regionsSvg, maxValueForRegions, colors, true)
+	createPies(piesSvg, colors, lists);
 
 	return countries;
 
 };
 
-function createSmallMultiples(svg, maxValue, colors, regions) {
+function createPies(container, colors, lists) {
 
-	const width = regions ? smallMultipleRegionWidth : smallMultipleWidth;
-	const height = regions ? smallMultipleRegionHeight : smallMultipleHeight;
-	const padding = regions ? smallMultipleRegionPadding : smallMultiplePadding;
+	const group = container.append("g")
+		.attr("transform", `translate(${piesSize/2},${piesSize/2})`);
 
-	const yearsArray = [...yearsSetAllocationsAllCountries].sort((a, b) => a - b);
-
-	const xScale = d3.scaleBand()
-		.domain(yearsArray)
-		.range([padding[3], width - padding[1]])
-		.paddingInner(0.5);
-
-	const yScale = d3.scaleLinear()
-		.range([height - padding[2], padding[0]])
-		.domain([0, maxValue]);
-
-	const xAxis = d3.axisBottom(xScale)
-		.tickFormat(d => regions ? String(d % 100).padStart(2, "0") : null)
-		.tickSizeInner(2)
-		.tickSizeOuter(0);
-
-	const rects = svg.selectAll(null)
-		.data(d => d.values)
+	const pies = group.selectAll(null)
+		.data(d => pieGenerator(d.fundTypes))
 		.enter()
-		.append("rect")
-		.attr("width", xScale.bandwidth())
-		.attr("x", d => xScale(d.year))
-		.attr("y", d => yScale(d.value))
-		.attr("height", d => yScale(0) - yScale(d.value))
-		.style("fill", colors.total);
+		.append("path")
+		.attr("d", arcGenerator)
+		.attr("fill", d => colors[lists.fundTypesList[d.data.fundType]]);
 
-	svg.append("g")
-		.attr("class", classPrefix + "xAxis")
-		.attr("transform", `translate(0, ${height - padding[2] + 0.5})`)
-		.call(xAxis);
-
-	// container.each(d => console.log(d));
 };
 
 function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearsArrayTotal) {
@@ -859,7 +821,6 @@ function createListMenuData(rawAllocationsData, lists) {
 	const data = [];
 
 	rawAllocationsData.forEach(row => {
-		yearsSetAllocationsAllCountries.add(row.AllocationYear);
 		const foundRegion = data.find(e => e.region === lists.fundRegionsList[row.PooledFundId]);
 		if (foundRegion) {
 			const foundYearRegion = foundRegion.values.find(e => e.year === row.AllocationYear);
@@ -871,9 +832,26 @@ function createListMenuData(rawAllocationsData, lists) {
 					value: row.ClusterBudget
 				});
 			};
+			const foundFundTypeRegion = foundRegion.fundTypes.find(e => e.fundType === row.FundId);
+			if (foundFundTypeRegion) {
+				foundFundTypeRegion.value += row.ClusterBudget;
+			} else {
+				foundRegion.fundTypes.push({
+					fundType: row.FundId,
+					value: row.ClusterBudget
+				});
+			};
 			const foundCountry = foundRegion.funds.find(e => e.fund === row.PooledFundId);
 			if (foundCountry) {
-				foundCountry.fundTypesSet.add(lists.fundTypesList[row.FundId]);
+				const foundFundTypeCountry = foundCountry.fundTypes.find(e => e.fundType === row.FundId);
+				if (foundFundTypeCountry) {
+					foundFundTypeCountry.value += row.ClusterBudget;
+				} else {
+					foundCountry.fundTypes.push({
+						fundType: row.FundId,
+						value: row.ClusterBudget
+					});
+				};
 				const foundYear = foundCountry.values.find(e => e.year === row.AllocationYear);
 				if (foundYear) {
 					foundYear.value += row.ClusterBudget;
@@ -884,11 +862,12 @@ function createListMenuData(rawAllocationsData, lists) {
 					});
 				};
 			} else {
-				const fundTypesSet = new Set();
-				fundTypesSet.add(lists.fundTypesList[row.FundId]);
 				foundRegion.funds.push({
 					fund: row.PooledFundId,
-					fundTypesSet: fundTypesSet,
+					fundTypes: [{
+						fundType: row.FundId,
+						value: row.ClusterBudget
+					}],
 					values: [{
 						year: row.AllocationYear,
 						value: row.ClusterBudget
@@ -896,17 +875,22 @@ function createListMenuData(rawAllocationsData, lists) {
 				});
 			};
 		} else {
-			const fundTypesSet = new Set();
-			fundTypesSet.add(lists.fundTypesList[row.FundId]);
 			data.push({
 				region: lists.fundRegionsList[row.PooledFundId],
 				funds: [{
 					fund: row.PooledFundId,
-					fundTypesSet: fundTypesSet,
+					fundTypes: [{
+						fundType: row.FundId,
+						value: row.ClusterBudget
+					}],
 					values: [{
 						year: row.AllocationYear,
 						value: row.ClusterBudget
 					}]
+				}],
+				fundTypes: [{
+					fundType: row.FundId,
+					value: row.ClusterBudget
 				}],
 				values: [{
 					year: row.AllocationYear,
@@ -915,6 +899,8 @@ function createListMenuData(rawAllocationsData, lists) {
 			});
 		};
 	});
+
+	console.log(data);
 
 	return data;
 };
@@ -948,18 +934,23 @@ function updateTopValues(topValues, selections) {
 	const updateTransition = d3.transition()
 		.duration(duration);
 
-	selections.contributionsTopFigure.text("--");
+	selections.contributionsTopFigure.text(topValuesNoValue);
 
 	selections.allocationsTopFigure.transition(updateTransition)
 		.textTween((_, i, n) => {
-			const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, topValues.allocations);
+			if (!topValues.allocations) return () => topValuesNoValue;
+			const currValue = n[i].textContent === topValuesNoValue ? 0 : reverseFormat(n[i].textContent.split("$")[1]);
+			const interpolator = d3.interpolate(currValue || 0, topValues.allocations);
 			return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
 		});
 
-	selections.donorsTopFigure.text("--");
+	selections.donorsTopFigure.text(topValuesNoValue);
 
 	selections.projectsTopFigure.transition(updateTransition)
-		.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, topValues.projects.size));
+		.textTween((_, i, n) => {
+			if (!topValues.projects.size) return () => topValuesNoValue;
+			return d3.interpolateRound(+n[i].textContent || 0, topValues.projects.size)
+		});
 
 };
 
