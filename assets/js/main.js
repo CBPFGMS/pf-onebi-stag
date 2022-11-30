@@ -12,6 +12,7 @@ const generalClassPrefix = "pfbihp",
 	unBlue = "#65A8DC",
 	cerfColor = "#FBD45C",
 	cbpfColor = "#F37261",
+	topValuesNoValue = "--",
 	formatMoney0Decimals = d3.format(",.0f"),
 	allYears = "all",
 	lastModifiedUrl = "https://cbpfapi.unocha.org/vo2/odata/LastModified",
@@ -1012,25 +1013,29 @@ function updateTopValues(topValues, selections) {
 
 	selections.contributionsTopFigure.transition(updateTransition)
 		.textTween((_, i, n) => {
-			const thisTextContent = n[i].textContent === "--" ? "$0" : n[i].textContent;
+			const thisTextContent = n[i].textContent === topValuesNoValue ? "$0" : n[i].textContent;
 			const interpolator = d3.interpolate(reverseFormat(thisTextContent.split("$")[1]) || 0, topValues.contributions);
 			return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
 		});
 
 	selections.allocationsTopFigure.transition(updateTransition)
 		.textTween((_, i, n) => {
-			const interpolator = d3.interpolate(reverseFormat(n[i].textContent.split("$")[1]) || 0, topValues.allocations);
+			const thisTextContent = n[i].textContent === topValuesNoValue ? "$0" : n[i].textContent;
+			const interpolator = d3.interpolate(reverseFormat(thisTextContent.split("$")[1]) || 0, topValues.allocations);
 			return t => "$" + formatSIFloat(interpolator(t)).replace("G", "B");
 		});
 
 	selections.donorsTopFigure.transition(updateTransition)
 		.textTween((_, i, n) => {
-			const thisTextContent = n[i].textContent === "--" ? "0" : n[i].textContent;
+			const thisTextContent = n[i].textContent === topValuesNoValue ? "0" : n[i].textContent;
 			return d3.interpolateRound(thisTextContent || 0, topValues.donors.size)
 		});
 
 	selections.projectsTopFigure.transition(updateTransition)
-		.textTween((_, i, n) => d3.interpolateRound(n[i].textContent || 0, topValues.projects.size));
+		.textTween((_, i, n) => {
+			const thisTextContent = n[i].textContent === topValuesNoValue ? "0" : n[i].textContent;
+			return d3.interpolateRound(thisTextContent || 0, topValues.projects.size)
+		});
 
 };
 
