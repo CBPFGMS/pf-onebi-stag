@@ -900,8 +900,6 @@ function createListMenuData(rawAllocationsData, lists) {
 		};
 	});
 
-	console.log(data);
-
 	return data;
 };
 
