@@ -426,6 +426,7 @@ function controlCharts([worldMap,
 		chartState.selectedCluster = [];
 		chartState.selectedType = [];
 		queryStringValues.delete("contributionYear");
+		queryStringValues.delete("allocationYear");
 		queryStringValues.delete("value");
 		queryStringValues.delete("country");
 		setQueryString("chart", chartState.selectedChart);
@@ -468,6 +469,7 @@ function controlCharts([worldMap,
 		chartState.selectedCluster = [];
 		chartState.selectedType = [];
 		queryStringValues.delete("contributionYear");
+		queryStringValues.delete("allocationYear");
 		queryStringValues.delete("value");
 		queryStringValues.delete("country");
 		setQueryString("chart", chartState.selectedChart);
@@ -510,6 +512,7 @@ function controlCharts([worldMap,
 		chartState.selectedCluster = [];
 		chartState.selectedType = [];
 		queryStringValues.delete("contributionYear");
+		queryStringValues.delete("allocationYear");
 		queryStringValues.delete("value");
 		queryStringValues.delete("country");
 		setQueryString("chart", chartState.selectedChart);
@@ -545,6 +548,7 @@ function controlCharts([worldMap,
 		drawAllocationsByMonth = createAllocationsByMonth(selections, colorsObject, lists);
 		drawAllocationsByMonth(rawAllocationsMonthlyData);
 		highlightNavLinks();
+		queryStringValues.delete("contributionYear");
 		queryStringValues.delete("year");
 		queryStringValues.delete("fund");
 		queryStringValues.delete("country");
@@ -570,6 +574,7 @@ function controlCharts([worldMap,
 		drawContributionsByCerfCbpf(rawContributionsData);
 		highlightNavLinks();
 		queryStringValues.delete("year");
+		queryStringValues.delete("allocationYear");
 		queryStringValues.delete("fund");
 		queryStringValues.delete("country");
 		setQueryString("chart", chartState.selectedChart);
@@ -592,6 +597,7 @@ function controlCharts([worldMap,
 		highlightNavLinks();
 		queryStringValues.delete("year");
 		queryStringValues.delete("contributionYear");
+		queryStringValues.delete("allocationYear");
 		queryStringValues.delete("value");
 		queryStringValues.delete("country");
 		setQueryString("chart", chartState.selectedChart);
