@@ -1548,6 +1548,10 @@ function disableFunds(data, fundButtons) {
 			return acc;
 		}, []);
 		const fundInData = fundValues.some(d => d);
+		if (fund === chartState.selectedFund && !fundInData) {
+			chartState.selectedFund = "total";
+			fundButtons.classed("active", e => e === chartState.selectedFund);
+		};
 		fundButtons.filter(d => d === fund).style("opacity", fundInData ? 1 : fadeOpacityFundButton)
 			.style("pointer-events", fundInData ? "all" : "none")
 			.style("filter", fundInData ? null : "saturate(0%)");

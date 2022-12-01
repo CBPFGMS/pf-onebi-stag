@@ -100,10 +100,10 @@ function createCountryProfileBySector(container, lists, colors, tooltipDiv, fund
 
 		yearsButtons.classed("active", d => chartState.selectedYear === d);
 
-		const data = processData(originalData, lists);
-
-		disableFunds(data, fundButtons);
+		disableFunds(originalData, fundButtons);
 		disableYears(originalData, yearsButtons);
+
+		const data = processData(originalData, lists);
 
 		const syncedTransition = d3.transition()
 			.duration(duration)
@@ -665,7 +665,12 @@ function setDefaultYear(originalData, yearsArrayCerf, yearsArrayCbpf) {
 
 function disableFunds(data, fundButtons) {
 	["cerf", "cbpf"].forEach(fund => {
-		const fundInData = data.stack.some(d => d[`projects${capitalize(fund)}`] !== "");
+		const filteredData = data.filter(e=>e.year === chartState.selectedYear);
+		const fundInData = filteredData.some(d => d[fund]);
+		if (fund === chartState.selectedFund && !fundInData) {
+			chartState.selectedFund = "total";
+			fundButtons.classed("active", e => e === chartState.selectedFund);
+		};
 		fundButtons.filter(d => d === fund).style("opacity", fundInData ? 1 : fadeOpacityFundButton)
 			.style("pointer-events", fundInData ? "all" : "none")
 			.style("filter", fundInData ? null : "saturate(0%)");

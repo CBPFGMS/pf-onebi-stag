@@ -127,10 +127,10 @@ function createCountryProfileByPartner(container, lists, colors, tooltipDiv, fun
 
 		yearsButtons.classed("active", d => chartState.selectedYear === d);
 
-		const data = processData(originalData, lists, cerfId, cbpfId);
-
 		disableFunds(originalData, fundButtons);
 		disableYears(originalData, yearsButtons);
+
+		const data = processData(originalData, lists, cerfId, cbpfId);
 
 		const syncedTransition = d3.transition()
 			.duration(duration)
@@ -840,6 +840,10 @@ function disableFunds(data, fundButtons) {
 	["cerf", "cbpf"].forEach(fund => {
 		const thisYearArray = data[fund].map(e => e.year);
 		const fundInData = thisYearArray.includes(chartState.selectedYear);
+		if (fund === chartState.selectedFund && !fundInData) {
+			chartState.selectedFund = "total";
+			fundButtons.classed("active", e => e === chartState.selectedFund);
+		};
 		fundButtons.filter(d => d === fund).style("opacity", fundInData ? 1 : fadeOpacityFundButton)
 			.style("pointer-events", fundInData ? "all" : "none")
 			.style("filter", fundInData ? null : "saturate(0%)");
