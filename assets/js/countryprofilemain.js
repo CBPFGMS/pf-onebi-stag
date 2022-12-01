@@ -139,7 +139,10 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 	regionsContainer.append("h2")
 		.html(d => d.region);
 
-	const regionsTable = regionsContainer.append("div"); //TABLE HERE
+	const regionsTable = regionsContainer.append("div")
+		.attr("class", classPrefix + "regionsTable");
+
+	createRegionsTable(regionsTable, colors);
 
 	const uls = regions.append("ul");
 
@@ -164,6 +167,27 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 	createPies(piesSvg, colors, lists);
 
 	return countries;
+
+};
+
+function createRegionsTable(container, colors) {
+
+	const table = container.append("table")
+		.attr("class", classPrefix + "table");
+
+	table.append("tr")
+		.selectAll(null)
+		.data([" ", "CERF", "CBPF"])
+		.enter()
+		.append("th")
+		.html(d => d);
+
+	table.append("tr")
+		.selectAll(null)
+		.data(d => [null].concat(d.fundTypes.sort((a, b) => a.fundType - b.fundType)))
+		.enter()
+		.append("td")
+		.html((d, i) => !i ? "Allocated" : "$" + formatSIFloat(d.value).replace("G", "B"));
 
 };
 
