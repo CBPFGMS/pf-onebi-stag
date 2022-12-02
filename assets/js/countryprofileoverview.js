@@ -281,12 +281,12 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 
 		if (drawMap) createMap(mapData, mapLayer, mapDivSize, lists, mapDiv);
 
+		disableFunds(originalData, fundButtons);
+		disableYears(originalData, yearsButtons);
+
 		const data = processData(originalData, lists);
 		const adminLevel1Object = originalAdminLevel1Data.find(e => e.year === chartState.selectedYear);
 		const adminLevel1Data = adminLevel1Object ? adminLevel1Object.adminLevel1List : [];
-
-		disableFunds(data, fundButtons);
-		disableYears(data, yearsButtons);
 
 		const syncedTransition = d3.transition()
 			.duration(duration);
@@ -1543,30 +1543,27 @@ function setChartStateTooltip(event, tooltip) {
 
 function disableFunds(data, fundButtons) {
 	["cerf", "cbpf"].forEach(fund => {
-		const fundValues = Object.entries(data.donutChartData).reduce((acc, curr) => {
-			if (curr[0].includes(fund)) acc.push(curr[1]);
-			return acc;
-		}, []);
-		const fundInData = fundValues.some(d => d);
+		const filteredData = data.filter(e => e.year === chartState.selectedYear);
+		const fundInData = filteredData.some(d => d[fund]);
 		if (fund === chartState.selectedFund && !fundInData) {
 			chartState.selectedFund = "total";
-			fundButtons.classed("active", e => e === chartState.selectedFund);
 		};
 		fundButtons.filter(d => d === fund).style("opacity", fundInData ? 1 : fadeOpacityFundButton)
 			.style("pointer-events", fundInData ? "all" : "none")
 			.style("filter", fundInData ? null : "saturate(0%)");
 	});
+	fundButtons.classed("active", e => e === chartState.selectedFund);
 };
 
 function disableYears(data, yearsButtons) {
 	if (chartState.selectedFund !== "total" && chartState.selectedFund !== "cerf/cbpf") {
-		const thisYearArray = data.stackedBarData.reduce((acc, curr) => {
-			if (curr[chartState.selectedFund]) acc.push(curr.year);
+		const thisYearSet = data.reduce((acc, curr) => {
+			if (curr[chartState.selectedFund]) acc.add(curr.year);
 			return acc;
-		}, []);
-		yearsButtons.style("opacity", d => thisYearArray.includes(d) ? 1 : fadeOpacityFundButton)
-			.style("pointer-events", d => thisYearArray.includes(d) ? "all" : "none")
-			.style("filter", d => thisYearArray.includes(d) ? null : "saturate(0%)");
+		}, new Set());
+		yearsButtons.style("opacity", d => thisYearSet.has(d) ? 1 : fadeOpacityFundButton)
+			.style("pointer-events", d => thisYearSet.has(d) ? "all" : "none")
+			.style("filter", d => thisYearSet.has(d) ? null : "saturate(0%)");
 	} else {
 		yearsButtons.style("opacity", 1)
 			.style("pointer-events", "all")

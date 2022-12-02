@@ -67,14 +67,6 @@ function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData
 	const outerDiv = selections.chartContainerDiv.append("div")
 		.attr("class", classPrefix + "outerDiv");
 
-	const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colorsObject);
-
-	countries.on("click", (event, d) => {
-		chartState.selectedCountryProfile = d.fund;
-		setQueryString("country", chartState.selectedCountryProfile, lists);
-		drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearsArrayTotal);
-	});
-
 	if (queryStringObject && queryStringObject.country) {
 		chartState.selectedCountryProfile = +queryStringObject.country;
 		if (queryStringObject.year) {
@@ -83,13 +75,27 @@ function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData
 		};
 		if (queryStringObject.fund) chartState.selectedFund = queryStringObject.fund;
 		drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearsArrayTotal);
+		return;
 	};
+
+	const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colorsObject);
+
+	countries.on("click", (event, d) => {
+		chartState.selectedCountryProfile = d.fund;
+		setQueryString("country", chartState.selectedCountryProfile, lists);
+		drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearsArrayTotal);
+	});
 
 };
 
 function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colors) {
 
+	chartState.selectedYear = null;
+	chartState.selectedFund = "total";
+
 	createDisabledOption(selections.yearDropdown, yearsArrayTotal);
+
+	deleteQueryStringValues(lists);
 
 	topValues.allocations = 0;
 	topValues.projects.clear();
@@ -276,7 +282,6 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 		dropdown.container.classed("active", d => d.clicked = false);
 		if (d.name === backToMenu) {
 			const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colorsObject);
-			deleteQueryStringValues(lists);
 			countries.on("click", (_, d) => {
 				chartState.selectedCountryProfile = d.fund;
 				setQueryString("country", chartState.selectedCountryProfile, lists);
@@ -285,6 +290,11 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 			return;
 		};
 		if (d.name === chartState.selectedCountryProfile) return;
+		chartState.selectedYear = null;
+		chartState.selectedFund = "total";
+		chartState.selectedCountryProfileTab = tabsData[0];
+		tabs.classed("active", d => d === chartState.selectedCountryProfileTab);
+		deleteQueryStringValues(lists);
 		chartState.selectedCountryProfile = d.name;
 		setQueryString("country", chartState.selectedCountryProfile, lists);
 		breadcrumb.secondBreadcrumbSpan.html(lists.fundNamesList[chartState.selectedCountryProfile]);
@@ -318,7 +328,6 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 
 	breadcrumb.firstBreadcrumb.on("click", (event, d) => {
 		const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colorsObject);
-		deleteQueryStringValues(lists);
 		countries.on("click", (event, d) => {
 			chartState.selectedCountryProfile = d.fund;
 			setQueryString("country", chartState.selectedCountryProfile, lists);
