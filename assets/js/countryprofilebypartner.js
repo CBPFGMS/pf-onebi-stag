@@ -842,12 +842,12 @@ function disableFunds(data, fundButtons) {
 		const fundInData = thisYearArray.includes(chartState.selectedYear);
 		if (fund === chartState.selectedFund && !fundInData) {
 			chartState.selectedFund = "total";
-			fundButtons.classed("active", e => e === chartState.selectedFund);
 		};
 		fundButtons.filter(d => d === fund).style("opacity", fundInData ? 1 : fadeOpacityFundButton)
 			.style("pointer-events", fundInData ? "all" : "none")
 			.style("filter", fundInData ? null : "saturate(0%)");
 	});
+	fundButtons.classed("active", e => e === chartState.selectedFund);
 };
 
 function disableYears(data, yearsButtons) {
