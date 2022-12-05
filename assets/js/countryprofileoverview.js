@@ -43,6 +43,8 @@ const topRowPercentage = 0.45,
 	barChartLabelsPadding = 4,
 	fadeOpacityCurrentYear = 0.5,
 	fadeOpacityFundButton = 0.4,
+	fadeOpacityLateralDonutText = 0.4,
+	fadeOpacityLateralDonut = 0.1,
 	moneyBagdAttribute = ["M83.277,10.493l-13.132,12.22H22.821L9.689,10.493c0,0,6.54-9.154,17.311-10.352c10.547-1.172,14.206,5.293,19.493,5.56 c5.273-0.267,8.945-6.731,19.479-5.56C76.754,1.339,83.277,10.493,83.277,10.493z",
 		"M48.297,69.165v9.226c1.399-0.228,2.545-0.768,3.418-1.646c0.885-0.879,1.321-1.908,1.321-3.08 c0-1.055-0.371-1.966-1.113-2.728C51.193,70.168,49.977,69.582,48.297,69.165z",
 		"M40.614,57.349c0,0.84,0.299,1.615,0.898,2.324c0.599,0.729,1.504,1.303,2.718,1.745v-8.177 c-1.104,0.306-1.979,0.846-2.633,1.602C40.939,55.61,40.614,56.431,40.614,57.349z",
@@ -65,6 +67,7 @@ const topRowPercentage = 0.45,
 	lateralDonutValuesTopPosition = 52,
 	lateralDonutDescriptionPadding = 20,
 	lateralDonutDescriptionSpanPadding = 1,
+	zeroArrowPadding = 3,
 	maxRadius = 15,
 	mapPadding = [12, 12, (2 * maxRadius + 12), 12],
 	strokeOpacityValue = 0.8,
@@ -259,10 +262,6 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 	const arcGeneratorMainPolyline = d3.arc()
 		.outerRadius((mainDonutsChartHeight - (mainDonutsChartHeight * (1 - mainDonutSize))) / 2)
 		.innerRadius((mainDonutsChartHeight - (mainDonutsChartHeight * (1 - mainDonutSize))) / 2);
-
-	const arcGeneratorLateral = d3.arc()
-		.outerRadius((mainDonutsChartHeight - (mainDonutsChartHeight * (1 - mainDonutSize))) / 4)
-		.innerRadius((mainDonutsChartHeight - (mainDonutsChartHeight * (1 - mainDonutSize))) / 4 * (1 - lateralDonutThickness));
 
 	const donutGenerator = d3.pie()
 		.value(d => d.value);
@@ -704,7 +703,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		arrowsMain = arrowsMainEnter.merge(arrowsMain);
 
 		arrowsMain.transition(syncedTransition)
-			.style("opacity", d => d.data.value ? 1 : 0)
+			.style("opacity", d => 1)
 			.style("stroke", (d, i) => chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? colors[d.data.key] :
 				!i ? d3.color(colors[chartState.selectedFund]).darker(darkerValueDonut) : d3.color(colors[chartState.selectedFund]).brighter(brighterValueDonut))
 			.attr("points", setArrowsPoints);
@@ -715,6 +714,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		const mainDonutValuesEnter = mainDonutValues.enter()
 			.append("text")
 			.attr("class", classPrefix + "mainDonutValues")
+			.style("opacity", 0)
 			.attr("y", -4)
 			.style("text-anchor", (_, i) => !i ? "end" : "start")
 			.attr("x", (_, i) => (i ? 1 : -1) * (arcGeneratorMain.outerRadius()() + polylineBreakPoint * 2 + mainDonutValuesPadding))
@@ -723,7 +723,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		mainDonutValues = mainDonutValuesEnter.merge(mainDonutValues);
 
 		mainDonutValues.transition(syncedTransition)
-			.style("opacity", d => d.data.value ? 1 : 0)
+			.style("opacity", d => 1)
 			.textTween((d, i, n) => {
 				const interpolator = d3.interpolate(localVariable.get(n[i]) || 0, d.data.value);
 				localVariable.set(n[i], d.data.value);
@@ -749,7 +749,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 
 		mainDonutUnits.text(d => {
 			const unit = formatSIFloat(d.data.value).slice(-1);
-			return !d.data.value ? "No allocations" : unit === "k" ? "Thousand" : unit === "M" ? "Million" : unit === "G" ? "Billion" : "Dollars";
+			return !d.data.value ? "Allocations" : unit === "k" ? "Thousand" : unit === "M" ? "Million" : unit === "G" ? "Billion" : "Dollars";
 		});
 
 		let mainDonutDescription = mainDonutGroup.selectAll(`.${classPrefix}mainDonutDescription`)
@@ -789,11 +789,14 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 
 		function drawLateralDonut(type, donutContainer, fundData) {
 
+			const fundWithNoAllocation = fundData.every(e => !e.value);
+
 			const lateralWidth = type === "cerf" ? cerfDonutsChartWidth : cbpfDonutsChartWidth;
 			const lateralHeight = type === "cerf" ? cerfDonutsChartHeight : cbpfDonutsChartHeight;
+			const arcGeneratorLateral = type === "cerf" ? arcGeneratorCerf : arcGeneratorCbpf;
 
 			let lateralDonutGroup = donutContainer.selectAll(`.${classPrefix}${type}DonutGroup`)
-				.data(fundData.every(e => !e.value) ? [] : [true]);
+				.data([true]);
 
 			const lateralDonutGroupExit = lateralDonutGroup.exit()
 				.transition(syncedTransition)
@@ -825,7 +828,32 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 
 			lateralDonut.transition(syncedTransition)
 				.style("fill", (_, i) => !i ? d3.color(colors[type]).darker(darkerValueDonut) : d3.color(colors[type]).brighter(brighterValueDonut))
-				.attrTween("d", (d, i, n) => pieTween(d, n[i], arcGeneratorCerf));
+				.attrTween("d", (d, i, n) => pieTween(d, n[i], arcGeneratorLateral));
+
+			let lateralDonutNoAllocations = lateralDonutGroup.selectAll(`.${classPrefix}lateralDonutNoAllocations`)
+				.data(fundWithNoAllocation ? [{ startAngle: 0, endAngle: 2 * Math.PI }] : []);
+
+			const lateralDonutNoAllocationsExit = lateralDonutNoAllocations.exit()
+				.transition(syncedTransition)
+				.style("opacity", 0)
+				.remove();
+
+			const lateralDonutNoAllocationsEnter = lateralDonutNoAllocations.enter()
+				.append("path")
+				.attr("class", classPrefix + "lateralDonutNoAllocations")
+				.style("fill", "#000")
+				.attr("opacity", fadeOpacityLateralDonut)
+				.each((d, i, n) => {
+					const thisObject = Object.assign({}, d);
+					thisObject.startAngle = 0;
+					thisObject.endAngle = 0;
+					localVariable.set(n[i], thisObject);
+				});
+
+			lateralDonutNoAllocations = lateralDonutNoAllocationsEnter.merge(lateralDonutNoAllocations);
+
+			lateralDonutNoAllocations.transition(syncedTransition)
+				.attrTween("d", (d, i, n) => pieTween(d, n[i], arcGeneratorLateral));
 
 			let lateralDonutText = lateralDonutGroup.selectAll(`.${classPrefix}${type}DonutText`)
 				.data(fundData, d => d.data.key);
@@ -834,8 +862,8 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 				.append("text")
 				.style("opacity", 0)
 				.attr("class", classPrefix + type + "DonutText")
-				.attr("x", (d, i) => d.data.percentage < 1 ? arcGeneratorCerf.centroid(d)[0] : 0)
-				.attr("y", (d, i) => d.data.percentage < 1 ? arcGeneratorCerf.centroid(d)[1] : 0)
+				.attr("x", (d, i) => d.data.percentage < 1 ? arcGeneratorLateral.centroid(d)[0] : 0)
+				.attr("y", (d, i) => d.data.percentage < 1 ? arcGeneratorLateral.centroid(d)[1] : 0)
 				.style("stroke", d => d.data.percentage < 1 ? null : "none")
 				.style("font-weight", d => d.data.percentage < 1 ? null : "600")
 				.style("fill", d => d.data.percentage < 1 ? null : "#444")
@@ -847,8 +875,8 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 
 			lateralDonutText.transition(syncedTransition)
 				.style("opacity", d => d.data.value ? 1 : 0)
-				.attr("x", (d, i) => d.data.percentage < 1 ? arcGeneratorCerf.centroid(d)[0] : 0)
-				.attr("y", (d, i) => d.data.percentage < 1 ? arcGeneratorCerf.centroid(d)[1] : 0)
+				.attr("x", (d, i) => d.data.percentage < 1 ? arcGeneratorLateral.centroid(d)[0] : 0)
+				.attr("y", (d, i) => d.data.percentage < 1 ? arcGeneratorLateral.centroid(d)[1] : 0)
 				.style("stroke", d => d.data.percentage < 1 ? null : "none")
 				.style("font-weight", d => d.data.percentage < 1 ? null : "600")
 				.style("fill", d => d.data.percentage < 1 ? null : "#444")
@@ -862,16 +890,18 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 
 			const lateralDonutValuesEnter = lateralDonutValues.enter()
 				.append("text")
+				.style("opacity", 0)
 				.attr("class", classPrefix + type + "DonutValues")
-				.attr("y", (_, i) => (i ? 1 : -1) * (arcGeneratorCerf.outerRadius()()) - (i ? -lateralDonutValuesPadding : lateralDonutValuesTopPosition))
+				.attr("y", (_, i) => (i ? 1 : -1) * (arcGeneratorLateral.outerRadius()()) - (i ? -lateralDonutValuesPadding : lateralDonutValuesTopPosition))
 				.text("$0");
 
 			lateralDonutValues = lateralDonutValuesEnter.merge(lateralDonutValues);
 
 			lateralDonutValues.transition(syncedTransition)
+				.style("opacity", fundWithNoAllocation ? fadeOpacityLateralDonutText : 1)
 				.textTween((d, i, n) => {
 					if (!d.data.value) {
-						return () => "No allocations";
+						return () => "$0 allocations";
 					} else {
 						const unit = formatSIFloat(d.data.value).slice(-1);
 						const interpolator = d3.interpolate(localVariable.get(n[i]) || 0, d.data.value);
@@ -885,18 +915,25 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 					};
 				});
 
-			const lateralDonutDescription = lateralDonutGroup.selectAll(`.${classPrefix}${type}DonutDescription`)
-				.data(fundData)
-				.enter()
+			let lateralDonutDescription = lateralDonutGroup.selectAll(`.${classPrefix}${type}DonutDescription`)
+				.data(fundData);
+
+			const lateralDonutDescriptionEnter = lateralDonutDescription.enter()
 				.append("text")
 				.attr("class", classPrefix + type + "DonutDescription")
+				.style("opacity", 0)
 				.attr("x", 0)
-				.attr("y", (_, i) => (i ? 1 : -1) * (arcGeneratorCerf.outerRadius()()) - (i ? -lateralDonutValuesPadding : lateralDonutValuesTopPosition) + lateralDonutDescriptionPadding)
+				.attr("y", (_, i) => (i ? 1 : -1) * (arcGeneratorLateral.outerRadius()()) - (i ? -lateralDonutValuesPadding : lateralDonutValuesTopPosition) + lateralDonutDescriptionPadding)
 				.text(d => type === "cerf" ? lists.allocationTypesList[d.data.key].split(" ")[0] : lists.allocationTypesList[d.data.key])
-				.append("tspan")
+
+			lateralDonutDescriptionEnter.append("tspan")
 				.attr("dy", lateralDonutDescriptionSpanPadding + "em")
 				.attr("x", 0)
 				.text(d => type === "cerf" ? lists.allocationTypesList[d.data.key].split(" ")[1] : "Allocations");
+
+			lateralDonutDescription = lateralDonutDescriptionEnter.merge(lateralDonutDescription)
+				.transition(syncedTransition)
+				.style("opacity", fundWithNoAllocation ? fadeOpacityLateralDonutText : 1)
 
 			lateralDonut.on("mouseover", (event, d) => mouseoverDonut(event, d, tooltipDiv, container, lists, colors))
 				.on("mouseout", () => mouseOut(tooltipDiv));
@@ -905,7 +942,12 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 
 		function setArrowsPoints(d, i) {
 			const cofactor = i ? 1 : -1;
-			if (d.data.percentage >= 0.25) {
+			if (d.data.percentage === 0) {
+				return `${cofactor*arcGeneratorMain.outerRadius()() + zeroArrowPadding},0 
+					${cofactor*(arcGeneratorMain.outerRadius()() + polylineBreakPoint)},0 
+					${cofactor*(arcGeneratorMain.outerRadius()() + polylineBreakPoint)},0 
+					${cofactor*(arcGeneratorMain.outerRadius()() + polylineBreakPoint*2)},0`;
+			} else if (d.data.percentage >= 0.25) {
 				return `${cofactor*arcGeneratorMain.outerRadius()()},0 
 					${cofactor*(arcGeneratorMain.outerRadius()() + polylineBreakPoint)},0 
 					${cofactor*(arcGeneratorMain.outerRadius()() + polylineBreakPoint)},0 
