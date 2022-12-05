@@ -943,7 +943,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		function setArrowsPoints(d, i) {
 			const cofactor = i ? 1 : -1;
 			if (d.data.percentage === 0) {
-				return `${cofactor*arcGeneratorMain.outerRadius()() + zeroArrowPadding},0 
+				return `${cofactor*(arcGeneratorMain.outerRadius()() + zeroArrowPadding)},0 
 					${cofactor*(arcGeneratorMain.outerRadius()() + polylineBreakPoint)},0 
 					${cofactor*(arcGeneratorMain.outerRadius()() + polylineBreakPoint)},0 
 					${cofactor*(arcGeneratorMain.outerRadius()() + polylineBreakPoint*2)},0`;
