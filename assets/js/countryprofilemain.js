@@ -20,6 +20,7 @@ const classPrefix = "pfcpmain",
 	duration = 1000,
 	topValuesNoValue = "--",
 	piesSize = 20,
+	alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),
 	arcGenerator = d3.arc().outerRadius(piesSize / 2).innerRadius(0),
 	pieGenerator = d3.pie().value(d => d.value).sort((a, b) => b.fundType - a.fundType),
 	currentDate = new Date(),
@@ -128,51 +129,69 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 	const intro = container.append("p")
 		.html(menuIntroText);
 
-	const row = container.append("div")
-		.attr("class", "row");
+	const alphabetContainer = container.append("div")
+		.attr("class", classPrefix + "alphabetContainer");
 
-	const regions = row.selectAll(null)
-		.data(pooledFundsInData)
+	const listAndMapContainer = container.append("div")
+		.attr("class", classPrefix + "listAndMapContainer");
+
+	const tableContainer = container.append("div")
+		.attr("class", classPrefix + "tableContainer");
+
+	const alphabetData = alphabet.concat("all");
+
+	const alphabetButtons = alphabetContainer.selectAll(null)
+		.data(alphabetData)
 		.enter()
-		.append("div")
-		.attr("class", "col-md-4")
-		.append("div")
-		.attr("class", "country-list mb-4");
+		.append("button")
+		.attr("class", classPrefix + "alphabetButtons")
+		.html(d => d.toUpperCase());
 
-	const regionsContainer = regions.append("div")
-		.attr("class", classPrefix + "regionsContainer");
+	// const row = container.append("div")
+	// 	.attr("class", "row");
 
-	regionsContainer.append("h2")
-		.html(d => d.region);
+	// const regions = row.selectAll(null)
+	// 	.data(pooledFundsInData)
+	// 	.enter()
+	// 	.append("div")
+	// 	.attr("class", "col-md-4")
+	// 	.append("div")
+	// 	.attr("class", "country-list mb-4");
 
-	const regionsTable = regionsContainer.append("div")
-		.attr("class", classPrefix + "regionsTable");
+	// const regionsContainer = regions.append("div")
+	// 	.attr("class", classPrefix + "regionsContainer");
 
-	createRegionsTable(regionsTable, colors);
+	// regionsContainer.append("h2")
+	// 	.html(d => d.region);
 
-	const uls = regions.append("ul");
+	// const regionsTable = regionsContainer.append("div")
+	// 	.attr("class", classPrefix + "regionsTable");
 
-	const countries = uls.selectAll(null)
-		.data(d => d.funds)
-		.enter()
-		.append("li");
+	// createRegionsTable(regionsTable, colors);
 
-	const piesDiv = countries.append("div")
-		.attr("class", classPrefix + "piesDiv")
-		.style("width", piesSize + "px")
-		.style("height", piesSize + "px");
+	// const uls = regions.append("ul");
 
-	const piesSvg = piesDiv.append("svg")
-		.attr("width", "100%")
-		.attr("height", "100%");
+	// const countries = uls.selectAll(null)
+	// 	.data(d => d.funds)
+	// 	.enter()
+	// 	.append("li");
 
-	const countryNames = countries.append("a")
-		.attr("href", "#")
-		.html(d => lists.fundNamesList[d.fund]);
+	// const piesDiv = countries.append("div")
+	// 	.attr("class", classPrefix + "piesDiv")
+	// 	.style("width", piesSize + "px")
+	// 	.style("height", piesSize + "px");
 
-	createPies(piesSvg, colors, lists);
+	// const piesSvg = piesDiv.append("svg")
+	// 	.attr("width", "100%")
+	// 	.attr("height", "100%");
 
-	return countries;
+	// const countryNames = countries.append("a")
+	// 	.attr("href", "#")
+	// 	.html(d => lists.fundNamesList[d.fund]);
+
+	// createPies(piesSvg, colors, lists);
+
+	//return countries;
 
 };
 
@@ -281,12 +300,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 	dropdown.list.on("click", (_, d) => {
 		dropdown.container.classed("active", d => d.clicked = false);
 		if (d.name === backToMenu) {
-			const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colorsObject);
-			countries.on("click", (_, d) => {
-				chartState.selectedCountryProfile = d.fund;
-				setQueryString("country", chartState.selectedCountryProfile, lists);
-				drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearsArrayTotal);
-			});
+			createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, yearsArrayTotal, queryStringObject);
 			return;
 		};
 		if (d.name === chartState.selectedCountryProfile) return;
@@ -327,12 +341,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 	});
 
 	breadcrumb.firstBreadcrumb.on("click", (event, d) => {
-		const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colorsObject);
-		countries.on("click", (event, d) => {
-			chartState.selectedCountryProfile = d.fund;
-			setQueryString("country", chartState.selectedCountryProfile, lists);
-			drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearsArrayTotal);
-		});
+		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, yearsArrayTotal, queryStringObject);
 		return;
 	});
 
