@@ -417,7 +417,7 @@ footer a:hover{color:#2270aa;}
 .browser-notification-panel .content ul li {	
 	font-size: 0.9rem;	
 	font-weight: 600;	
-    padding: 0 10px;
+  padding: 0 10px;
 	text-align: center;
 	line-height: 20px;
 	display: inline-block;
@@ -2093,7 +2093,8 @@ a.video-tutorial{color:#333;}
     flex-direction: column;
     padding: 20px;
     background-color: tomato;
-    height: 100%;
+  height: 14vh;
+  width: 100%;
 }
 .country-pro-main h1 {
     font-size: 18px;
@@ -2129,10 +2130,10 @@ a.video-tutorial{color:#333;}
     color: #333;    
     margin-right: 12px;
 }
-.country-pro-main .country-list ul {
+.pfcpmainlistContainer ul {
     padding-left: 0px;
 }
-.country-pro-main .country-list ul li {
+.pfcpmainlistContainer ul li {
     list-style-type: none;
     display: flex;
     align-items: center;
@@ -2140,10 +2141,11 @@ a.video-tutorial{color:#333;}
     font-size: 13px;
     color:#333;
     line-height: normal;
-    margin-bottom: 5px;
+    margin-bottom: 7px;
+    margin-top: 7px;
     transition: all 0.2s linear;
 }
-.country-pro-main .country-list ul li:hover {
+.pfcpmainlistContainer ul li:hover {
     margin-right: 5px;    
     color:#3289c9;
     margin-left: 5px;
@@ -2282,19 +2284,28 @@ a.video-tutorial{color:#333;}
   width: 100%;
 }
 
-.container {
+.pfcpmaininnerContainer {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 0 0 auto;
+  height: 83vh;
+  background-color: green;
+}
+
+.pfcpmaincountryNames {
+  margin-left: 4px;
+  font-size: 1.2em;
+  font-family: "Roboto", sans-serif;
+  color: darkslategray;
 }
 
 .pfcpmainalphabetContainer {
   width: 100%;
-  height: 8vh;
+  height: 8%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 1vw;
   background-color: orange;
 }
 
@@ -2323,25 +2334,29 @@ a.video-tutorial{color:#333;}
 
 .pfcpmainlistAndMapContainer {
   width: 100%;
-  flex: 1 1 auto;
+  height: 84%;
   background-color: green;
   display: flex;
   flex-direction: row;
 }
 
 .pfcpmainlistContainer {
-  flex: 0 40%;
+  flex: 0 36%;
+  max-height: 100%;
   display: flex;
   flex-direction: column;
+  overflow-y: scroll;
+  background-color: lime;
 }
 
 .pfcpmainmapContainer {
-  flex: 0 60%;
+  flex: 0 64%;
+  background-color: purple;
 }
 
 .pfcpmaintableContainer {
   width: 100%;
-  flex: 0 1 8vh;
+  height: 8%;
   background-color: blue;
 }
 

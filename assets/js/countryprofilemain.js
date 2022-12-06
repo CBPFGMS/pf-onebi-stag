@@ -96,6 +96,9 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 
 	let selectedAlphabet = "all";
 
+	const flatFundsArray = pooledFundsInData.flatMap(e => e.funds)
+		.sort((a, b) => lists.fundNamesList[a.fund].localeCompare(lists.fundNamesList[b.fund]));
+
 	createDisabledOption(selections.yearDropdown, yearsArrayTotal);
 
 	deleteQueryStringValues(lists);
@@ -120,24 +123,31 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 		return acc;
 	}, 0);
 
-	const container = outerDiv.append("div")
-		.attr("class", "country-pro-main")
-		.append("div")
-		.attr("class", "container");
+	const headerContainer = outerDiv.append("div")
+		.attr("class", "country-pro-main container");
 
-	const title = container.append("h1")
+	const title = headerContainer.append("h1")
 		.html("Country Profile");
 
-	const intro = container.append("p")
+	const intro = headerContainer.append("p")
 		.html(menuIntroText);
 
-	const alphabetContainer = container.append("div")
+	const innerContainer = outerDiv.append("div")
+		.attr("class", classPrefix + "innerContainer container");
+
+	const alphabetContainer = innerContainer.append("div")
 		.attr("class", classPrefix + "alphabetContainer");
 
-	const listAndMapContainer = container.append("div")
+	const listAndMapContainer = innerContainer.append("div")
 		.attr("class", classPrefix + "listAndMapContainer");
 
-	const tableContainer = container.append("div")
+	const listContainer = listAndMapContainer.append("div")
+		.attr("class", classPrefix + "listContainer");
+
+	const mapContainer = listAndMapContainer.append("div")
+		.attr("class", classPrefix + "mapContainer");
+
+	const tableContainer = innerContainer.append("div")
 		.attr("class", classPrefix + "tableContainer");
 
 	const alphabetData = alphabet.concat("all");
@@ -149,6 +159,33 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 		.attr("class", classPrefix + "alphabetButtons")
 		.classed("active", d => selectedAlphabet === d)
 		.html(d => d.toUpperCase());
+
+	const uls = listContainer.append("ul");
+
+	const countries = uls.selectAll(null)
+		.data(flatFundsArray)
+		.enter()
+		.append("li");
+
+	const piesDiv = countries.append("div")
+		.attr("class", classPrefix + "piesDiv")
+		.style("width", piesSize + "px")
+		.style("height", piesSize + "px");
+
+	const piesSvg = piesDiv.append("svg")
+		.attr("width", "100%")
+		.attr("height", "100%");
+
+	const countryNames = countries.append("span")
+		.attr("class", classPrefix + "countryNames")
+		.html(d => lists.fundNamesList[d.fund]);
+
+	createPies(piesSvg, colors, lists);
+
+	alphabetButtons.on("click", (event, d) => {
+		selectedAlphabet = d;
+		alphabetButtons.classed("active", d => selectedAlphabet === d);
+	});
 
 	// const row = container.append("div")
 	// 	.attr("class", "row");
@@ -194,7 +231,7 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 
 	// createPies(piesSvg, colors, lists);
 
-	//return countries;
+	return countries;
 
 };
 
@@ -303,7 +340,12 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 	dropdown.list.on("click", (_, d) => {
 		dropdown.container.classed("active", d => d.clicked = false);
 		if (d.name === backToMenu) {
-			createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, yearsArrayTotal, queryStringObject);
+			const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colorsObject);
+			countries.on("click", (_, d) => {
+				chartState.selectedCountryProfile = d.fund;
+				setQueryString("country", chartState.selectedCountryProfile, lists);
+				drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearsArrayTotal);
+			});
 			return;
 		};
 		if (d.name === chartState.selectedCountryProfile) return;
@@ -344,7 +386,12 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 	});
 
 	breadcrumb.firstBreadcrumb.on("click", (event, d) => {
-		createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, yearsArrayTotal, queryStringObject);
+		const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colorsObject);
+		countries.on("click", (event, d) => {
+			chartState.selectedCountryProfile = d.fund;
+			setQueryString("country", chartState.selectedCountryProfile, lists);
+			drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, outerDiv, yearsArrayTotal);
+		});
 		return;
 	});
 
