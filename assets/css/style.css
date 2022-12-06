@@ -2294,6 +2294,7 @@ a.video-tutorial{color:#333;}
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-size: 1vw;
   background-color: orange;
 }
 
@@ -2304,12 +2305,20 @@ a.video-tutorial{color:#333;}
   z-index: 1000;
   border: 1px solid #BCBEC0;
   font-size: 0.8rem;
-  padding: 4px 10px 4px 10px;
+  padding: 0.3em 1em 0.3em 1em;
   border-radius: 3px;
   background-color: #eee;
   line-height: normal;
+  font-family: "Roboto", sans-serif;
+  font-size: 0.8em;
   transition: all 0.2s linear;
   outline: 0;
+}
+
+.pfcpmainalphabetButtons.active{
+  background-color: #3289C9; 
+  color:#fff; 
+  border-color:#3289C9;
 }
 
 .pfcpmainlistAndMapContainer {

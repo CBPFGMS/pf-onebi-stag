@@ -94,6 +94,8 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 	chartState.selectedYear = null;
 	chartState.selectedFund = "total";
 
+	let selectedAlphabet = "all";
+
 	createDisabledOption(selections.yearDropdown, yearsArrayTotal);
 
 	deleteQueryStringValues(lists);
@@ -145,6 +147,7 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 		.enter()
 		.append("button")
 		.attr("class", classPrefix + "alphabetButtons")
+		.classed("active", d => selectedAlphabet === d)
 		.html(d => d.toUpperCase());
 
 	// const row = container.append("div")
