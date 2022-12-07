@@ -20,8 +20,26 @@ const classPrefix = "pfcpmain",
 	duration = 1000,
 	topValuesNoValue = "--",
 	piesSize = 20,
+	strokeOpacityValue = 0.8,
+	fillOpacityValue = 0.8,
+	localVariable = d3.local(),
 	alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),
+	mapProjection = d3.geoEqualEarth(),
+	mapPath = d3.geoPath().projection(mapProjection),
+	maxPieSize = 26,
+	minPieSize = 1,
+	legendPaddings = [16, 4, 16, 4],
+	legendHeight = 82,
+	legendWidth = 100,
+	legendHorPadding = 44,
+	legendVertPadding = 32,
+	legendTextPadding = 18,
+	legendLineSize = 38,
+	legendPadding = 16,
+	regionNamesPadding = 4,
+	radiusScale = d3.scaleSqrt().range([minPieSize, maxPieSize]),
 	arcGenerator = d3.arc().outerRadius(piesSize / 2).innerRadius(0),
+	arcGeneratorRegions = d3.arc().innerRadius(0),
 	pieGenerator = d3.pie().value(d => d.value).sort((a, b) => b.fundType - a.fundType),
 	currentDate = new Date(),
 	currentYear = currentDate.getFullYear(),
@@ -53,6 +71,41 @@ const tabsCallingFunctions = tabsData.map(d => ({
 	callingFunction: null
 }));
 
+const regionCentroids = {
+	"Asia": {
+		lat: 46,
+		lon: 90
+	},
+	"Africa": {
+		lat: 0,
+		lon: 20
+	},
+	"Latin America": {
+		lat: 2,
+		lon: -67
+	},
+	"Middle East": {
+		lat: 33,
+		lon: 36
+	},
+	"Micronesia": {
+		lat: 6,
+		lon: 156
+	},
+	"Europe": {
+		lat: 50,
+		lon: 10
+	},
+	"Polynesia": {
+		lat: -17,
+		lon: -150
+	},
+	"Global": {
+		lat: 40,
+		lon: -70
+	}
+};
+
 function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, yearsArrayTotal, queryStringObject) {
 
 	d3.select("#pfbihpPlayButton")
@@ -79,7 +132,7 @@ function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData
 		return;
 	};
 
-	const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colorsObject);
+	const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colorsObject, worldMap);
 
 	countries.on("click", (event, d) => {
 		chartState.selectedCountryProfile = d.fund;
@@ -89,7 +142,7 @@ function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData
 
 };
 
-function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colors) {
+function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colors, worldMap) {
 
 	chartState.selectedYear = null;
 	chartState.selectedFund = "total";
@@ -147,7 +200,15 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 	const mapContainer = listAndMapContainer.append("div")
 		.attr("class", classPrefix + "mapContainer");
 
-	const tableContainer = innerContainer.append("div")
+	const innerMapContainer = mapContainer.append("div")
+		.attr("class", classPrefix + "innerMapContainer");
+
+	const mapHeader = innerMapContainer.append("div")
+		.attr("class", classPrefix + "mapHeader")
+		.append("span")
+		.html("All time allocations for the eight OCHA regions:");
+
+	const tableContainer = mapContainer.append("div")
 		.attr("class", classPrefix + "tableContainer");
 
 	const alphabetData = alphabet.concat("all");
@@ -182,56 +243,267 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 
 	createPies(piesSvg, colors, lists);
 
-	alphabetButtons.on("click", (event, d) => {
-		selectedAlphabet = d;
+	alphabetButtons.on("click", (event, datum) => {
+		selectedAlphabet = datum;
 		alphabetButtons.classed("active", d => selectedAlphabet === d);
+		countries.style("display", d => datum === "all" || lists.fundNamesList[d.fund][0].toLowerCase() === datum.toLowerCase() ?
+			null : "none");
 	});
 
-	// const row = container.append("div")
-	// 	.attr("class", "row");
+	const piesContainer = createMap(worldMap, innerMapContainer);
 
-	// const regions = row.selectAll(null)
-	// 	.data(pooledFundsInData)
-	// 	.enter()
-	// 	.append("div")
-	// 	.attr("class", "col-md-4")
-	// 	.append("div")
-	// 	.attr("class", "country-list mb-4");
+	drawRegionPies(piesContainer.piesGroup, piesContainer.legendGroup, pooledFundsInData, colors);
 
-	// const regionsContainer = regions.append("div")
-	// 	.attr("class", classPrefix + "regionsContainer");
-
-	// regionsContainer.append("h2")
-	// 	.html(d => d.region);
-
-	// const regionsTable = regionsContainer.append("div")
-	// 	.attr("class", classPrefix + "regionsTable");
-
-	// createRegionsTable(regionsTable, colors);
-
-	// const uls = regions.append("ul");
-
-	// const countries = uls.selectAll(null)
-	// 	.data(d => d.funds)
-	// 	.enter()
-	// 	.append("li");
-
-	// const piesDiv = countries.append("div")
-	// 	.attr("class", classPrefix + "piesDiv")
-	// 	.style("width", piesSize + "px")
-	// 	.style("height", piesSize + "px");
-
-	// const piesSvg = piesDiv.append("svg")
-	// 	.attr("width", "100%")
-	// 	.attr("height", "100%");
-
-	// const countryNames = countries.append("a")
-	// 	.attr("href", "#")
-	// 	.html(d => lists.fundNamesList[d.fund]);
-
-	// createPies(piesSvg, colors, lists);
+	drawLegend(piesContainer.legendGroup);
 
 	return countries;
+
+};
+
+function createMap(mapData, container) {
+
+	const containerSize = container.node().getBoundingClientRect();
+
+	const mapWidth = containerSize.width,
+		mapHeight = containerSize.height;
+
+	const mapSvg = container.append("svg")
+		.attr("viewBox", `0 0 ${mapWidth} ${mapHeight}`);
+
+	const mapGroup = mapSvg.append("g");
+
+	const piesGroup = mapSvg.append("g");
+
+	const legendGroup = mapSvg.append("g")
+		.attr("transform", `translate(${legendPadding},${mapHeight - legendPadding - legendHeight})`);
+
+	const countryFeatures = topojson.feature(mapData, mapData.objects.wrl_polbnda_int_simple_uncs);
+
+	countryFeatures.features = countryFeatures.features.filter(d => d.properties.ISO_2 !== "AQ");
+
+	mapProjection.fitExtent([
+		[0, 0],
+		[mapWidth, mapHeight]
+	], countryFeatures);
+
+	const land = mapGroup.append("path")
+		.attr("d", mapPath(topojson.merge(mapData, mapData.objects.wrl_polbnda_int_simple_uncs.geometries.filter(d => d.properties.ISO_2 !== "AQ"))))
+		.style("fill", "#F1F1F1");
+
+	const borders = mapGroup.append("path")
+		.attr("d", mapPath(topojson.mesh(mapData, mapData.objects.wrl_polbnda_int_simple_uncs, (a, b) => a !== b)))
+		.style("fill", "none")
+		.style("stroke", "#E5E5E5")
+		.style("stroke-width", "1px");
+
+	for (let region in regionCentroids) {
+		const projected = mapProjection([regionCentroids[region].lon, regionCentroids[region].lat]);
+		regionCentroids[region].x = projected[0];
+		regionCentroids[region].y = projected[1];
+	};
+
+	return { piesGroup, legendGroup };
+
+};
+
+function drawRegionPies(container, legendContainer, data, colors) {
+
+	const maxValue = d3.max(data, d => d3.sum(d.fundTypes, e => e.value));
+
+	radiusScale.domain([0, maxValue]);
+
+	let pieGroup = container.selectAll("." + classPrefix + "pieGroup")
+		.data(data, d => d.region);
+
+	const pieGroupExit = pieGroup.exit();
+
+	pieGroupExit.each((_, i, n) => {
+		const thisGroup = d3.select(n[i]);
+		thisGroup.selectAll("." + classPrefix + "slice")
+			.transition()
+			.duration(duration)
+			.attrTween("d", (d, j, m) => {
+				const finalObject = d.data.type === "cerf" ? {
+					startAngle: 0,
+					endAngle: 0,
+					outerRadius: 0
+				} : {
+					startAngle: Math.PI * 2,
+					endAngle: Math.PI * 2,
+					outerRadius: 0
+				};
+				const interpolator = d3.interpolateObject(localVariable.get(m[j]), finalObject);
+				return t => arcGeneratorRegions(interpolator(t));
+			})
+			.on("end", () => thisGroup.remove())
+	});
+
+	const pieGroupEnter = pieGroup.enter()
+		.append("g")
+		.attr("class", classPrefix + "pieGroup")
+		.style("opacity", 1)
+		.attr("transform", d => "translate(" + (regionCentroids[d.region].x) + "," + (regionCentroids[d.region].y) + ")");
+
+	pieGroup = pieGroupEnter.merge(pieGroup);
+
+	pieGroup.order();
+
+	let slices = pieGroup.selectAll("." + classPrefix + "slice")
+		.data(d => pieGenerator([{
+			value: d.fundTypes.find(e => e.fundType === cerfId) ? d.fundTypes.find(e => e.fundType === cerfId).value : 0,
+			total: d3.sum(d.fundTypes, e => e.value),
+			type: "cerf"
+		}, {
+			value: d.fundTypes.find(e => e.fundType === cbpfId) ? d.fundTypes.find(e => e.fundType === cbpfId).value : 0,
+			total: d3.sum(d.fundTypes, e => e.value),
+			type: "cbpf"
+		}].filter(e => e.value !== 0)), d => d.data.type);
+
+	const slicesRemove = slices.exit()
+		.remove();
+
+	const slicesEnter = slices.enter()
+		.append("path")
+		.attr("class", classPrefix + "slice")
+		.style("fill", d => colors[d.data.type])
+		.style("stroke", "#666")
+		.style("stroke-width", "1px")
+		.style("stroke-opacity", strokeOpacityValue)
+		.style("fill-opacity", fillOpacityValue)
+		.each((d, i, n) => {
+			let siblingRadius = 0;
+			const siblings = d3.select(n[i].parentNode).selectAll("path")
+				.each((_, j, m) => {
+					const thisLocal = localVariable.get(m[j])
+					if (thisLocal) siblingRadius = thisLocal.outerRadius;
+				});
+			if (d.data.type === "cerf") {
+				localVariable.set(n[i], {
+					startAngle: 0,
+					endAngle: 0,
+					outerRadius: siblingRadius
+				});
+			} else {
+				localVariable.set(n[i], {
+					startAngle: Math.PI * 2,
+					endAngle: Math.PI * 2,
+					outerRadius: siblingRadius
+				});
+			};
+		})
+
+	slices = slicesEnter.merge(slices);
+
+	slices.transition()
+		.duration(duration)
+		.attrTween("d", pieTween);
+
+	let regionNames = pieGroup.selectAll(`.${classPrefix}regionNames`)
+		.data(d => [d]);
+
+	const regionNamesExit = regionNames.exit()
+		.remove();
+
+	const regionNamesEnter = regionNames.enter()
+		.append("text")
+		.attr("class", classPrefix + "regionNames");
+
+	regionNames = regionNamesEnter.merge(regionNames);
+
+	regionNames.attr("y", d => radiusScale(d3.sum(d.fundTypes, e => e.value)) + regionNamesPadding)
+		.text(d => d.region);
+
+	function pieTween(d) {
+		const i = d3.interpolateObject(localVariable.get(this), {
+			startAngle: d.startAngle,
+			endAngle: d.endAngle,
+			outerRadius: radiusScale(d.data.total)
+		});
+		localVariable.set(this, i(1));
+		return t => arcGeneratorRegions(i(t));
+	};
+
+};
+
+function drawLegend(container) {
+
+	const maxDataValue = radiusScale.domain()[1];
+
+	const sizeCirclesData = maxDataValue ? [0, maxDataValue / 4, maxDataValue / 2, maxDataValue] : [];
+
+	let backgroundRectangle = container.selectAll("." + classPrefix + "backgroundRectangle")
+		.data([true]);
+
+	backgroundRectangle = backgroundRectangle.enter()
+		.append("rect")
+		.attr("class", classPrefix + "backgroundRectangle")
+		.merge(backgroundRectangle)
+		.style("fill", "#fff")
+		.style("opacity", 0.6)
+		.attr("width", legendWidth)
+		.attr("height", legendHeight);
+
+	let legendSizeGroups = container.selectAll("." + classPrefix + "legendSizeGroups")
+		.data([true]);
+
+	legendSizeGroups = legendSizeGroups.enter()
+		.append("g")
+		.attr("class", classPrefix + "legendSizeGroups")
+		.merge(legendSizeGroups);
+
+	let legendSizeGroup = legendSizeGroups.selectAll("." + classPrefix + "legendSizeGroup")
+		.data(sizeCirclesData);
+
+	const legendSizeGroupExit = legendSizeGroup.exit()
+		.transition()
+		.duration(duration / 2)
+		.style("opacity", 0)
+		.remove();
+
+	const legendSizeGroupEnter = legendSizeGroup.enter()
+		.append("g")
+		.style("opacity", 0)
+		.attr("class", classPrefix + "legendSizeGroup");
+
+	const legendSizeLines = legendSizeGroupEnter.append("line")
+		.attr("x1", legendPaddings[3] + radiusScale.range()[1])
+		.attr("x2", legendPaddings[3] + radiusScale.range()[1] + legendLineSize)
+		.attr("y1", d => d ? legendPaddings[0] + (radiusScale.range()[1] * 2) - radiusScale(d) * 2 :
+			legendPaddings[0] + (radiusScale.range()[1] * 2))
+		.attr("y2", d => d ? legendPaddings[0] + (radiusScale.range()[1] * 2) - radiusScale(d) * 2 :
+			legendPaddings[0] + (radiusScale.range()[1] * 2))
+		.style("stroke", "#666")
+		.style("stroke-dasharray", "2,2")
+		.style("stroke-width", "1px");
+
+	const legendSizeCircles = legendSizeGroupEnter.append("circle")
+		.attr("cx", legendPaddings[3] + radiusScale.range()[1])
+		.attr("cy", d => legendPaddings[0] + (radiusScale.range()[1] * 2) - radiusScale(d))
+		.attr("r", d => !d ? 0 : radiusScale(d))
+		.style("fill", "none")
+		.style("stroke", "darkslategray");
+
+	const legendSizeCirclesText = legendSizeGroupEnter.append("text")
+		.attr("class", classPrefix + "legendCirclesText")
+		.attr("x", legendPaddings[3] + radiusScale.range()[1] + legendLineSize + 4)
+		.attr("y", (d, i) => i === 1 ? legendPaddings[0] + 5 + (radiusScale.range()[1] * 2) - radiusScale(d) * 2 :
+			i ? legendPaddings[0] + 3 + (radiusScale.range()[1] * 2) - radiusScale(d) * 2 :
+			legendPaddings[0] + 3 + (radiusScale.range()[1] * 2) - 2)
+		.text(d => d ? d3.formatPrefix(".0", d)(d) : "0");
+
+	legendSizeGroup = legendSizeGroup.merge(legendSizeGroupEnter);
+
+	legendSizeGroup.transition("groupTransition")
+		.duration(duration / 2)
+		.style("opacity", 1);
+
+	legendSizeGroup.select("." + classPrefix + "legendCirclesText")
+		.transition("textTransition")
+		.duration(duration)
+		.textTween((d, i, n) => {
+			const interpolator = d3.interpolate(reverseFormat(n[i].textContent) || 0, d);
+			return t => d3.formatPrefix(".0", interpolator(t))(interpolator(t)).replace("G", "B");
+		});
 
 };
 
@@ -340,7 +612,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 	dropdown.list.on("click", (_, d) => {
 		dropdown.container.classed("active", d => d.clicked = false);
 		if (d.name === backToMenu) {
-			const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colorsObject);
+			const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colorsObject, worldMap);
 			countries.on("click", (_, d) => {
 				chartState.selectedCountryProfile = d.fund;
 				setQueryString("country", chartState.selectedCountryProfile, lists);
@@ -386,7 +658,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 	});
 
 	breadcrumb.firstBreadcrumb.on("click", (event, d) => {
-		const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colorsObject);
+		const countries = createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colorsObject, worldMap);
 		countries.on("click", (event, d) => {
 			chartState.selectedCountryProfile = d.fund;
 			setQueryString("country", chartState.selectedCountryProfile, lists);
