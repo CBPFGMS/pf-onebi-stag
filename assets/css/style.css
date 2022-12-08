@@ -2165,13 +2165,13 @@ a.video-tutorial{color:#333;}
 .pfcpmainregionsTable {
   width: 60%;
   height: auto;
+
 }
 
-.pfcpmaintable, .pfcpmaintable{
-  margin: 5px;
-  font-size: 0.7em;
-  width: calc(100% - 10px);
-  margin-top: 0;
+.pfcpmaintable {
+  font-size: 0.8em;
+  width: 100%;
+  margin-top: 15px;
   border-collapse: collapse;
 }
 
@@ -2184,25 +2184,27 @@ a.video-tutorial{color:#333;}
   color: darkslategray;
 }
 
-.pfcpmaintable th:nth-child(2), .pfcpmaintable th:nth-child(2) {
+.pfcpmaintable tr:nth-child(1) td:nth-child(1) {
   background-color: #fbd45c !important;
+  font-size: 1em;
+  font-weight: 500;
+  text-align: center;
 }
-.pfcpmaintable th:nth-child(3), .pfcpmaintable th:nth-child(3) {
+.pfcpmaintable tr:nth-child(2) td:nth-child(1) {
   background-color: #f37261 !important;
+  font-size: 1em;
+  font-weight: 500;
+  text-align: center;
   color:#fff !important;
 }
 
-.pfcpmaintable td, .pfcpmaintable th {
+.pfcpmaintable td {
   border-bottom: 1px solid #ddd;
   padding: 2px;
 }
 
 .pfcpmaintable td:nth-last-child(-n+2){
   text-align: right;
-}
-
-.pfcpmaintable th {
-  text-align: center;
 }
 
 .pfcpmainsmallMultiplesContainer {
@@ -2386,8 +2388,14 @@ a.video-tutorial{color:#333;}
 }
 
 .pfcpmaintableContainer {
-  width: 100%;
+  width: 50%;
   height: 10%;
+}
+
+.pfcpmaintableContainer span {
+  font-family: "Arial", sans-serif;
+  font-size: 1em;
+  color: darkslategray;
 }
 
 /*Overview tab, code:pfbicpoverview*/

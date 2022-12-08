@@ -37,6 +37,7 @@ const classPrefix = "pfcpmain",
 	legendLineSize = 38,
 	legendPadding = 16,
 	regionNamesPadding = 4,
+	formatMoney0Decimals = d3.format(",.0f"),
 	radiusScale = d3.scaleSqrt().range([minPieSize, maxPieSize]),
 	arcGenerator = d3.arc().outerRadius(piesSize / 2).innerRadius(0),
 	arcGeneratorRegions = d3.arc().innerRadius(0),
@@ -243,18 +244,20 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 
 	createPies(piesSvg, colors, lists);
 
+	const piesContainer = createMap(worldMap, innerMapContainer);
+
+	drawRegionPies(piesContainer.piesGroup, piesContainer.legendGroup, pooledFundsInData, colors);
+
+	drawLegend(piesContainer.legendGroup);
+
+	createRegionsTable(tableContainer, pooledFundsInData, colors, lists);
+
 	alphabetButtons.on("click", (event, datum) => {
 		selectedAlphabet = datum;
 		alphabetButtons.classed("active", d => selectedAlphabet === d);
 		countries.style("display", d => datum === "all" || lists.fundNamesList[d.fund][0].toLowerCase() === datum.toLowerCase() ?
 			null : "none");
 	});
-
-	const piesContainer = createMap(worldMap, innerMapContainer);
-
-	drawRegionPies(piesContainer.piesGroup, piesContainer.legendGroup, pooledFundsInData, colors);
-
-	drawLegend(piesContainer.legendGroup);
 
 	return countries;
 
@@ -507,24 +510,39 @@ function drawLegend(container) {
 
 };
 
-function createRegionsTable(container, colors) {
+function createRegionsTable(container, data, colors, lists) {
+
+	container.append("span")
+		.html("All regions, all time allocations:");
+
+	const allData = data.reduce((acc, curr) => {
+		curr.fundTypes.forEach(type => {
+			const foundType = acc.find(e => e.fundType === type.fundType);
+			if (foundType) {
+				foundType.value += type.value;
+			} else {
+				acc.push({
+					fundType: type.fundType,
+					value: type.value
+				});
+			};
+		});
+		return acc;
+	}, []);
 
 	const table = container.append("table")
 		.attr("class", classPrefix + "table");
 
-	table.append("tr")
-		.selectAll(null)
-		.data([" ", "CERF", "CBPF"])
+	const tableRow = table.selectAll(null)
+		.data(allData)
 		.enter()
-		.append("th")
-		.html(d => d);
+		.append("tr");
 
-	table.append("tr")
-		.selectAll(null)
-		.data(d => [null].concat(d.fundTypes.sort((a, b) => a.fundType - b.fundType)))
+	const tableCell = tableRow.selectAll(null)
+		.data(d => Object.values(d))
 		.enter()
 		.append("td")
-		.html((d, i) => !i ? "Allocated" : "$" + formatSIFloat(d.value).replace("G", "B"));
+		.html((d, i) => i ? "$" + formatMoney0Decimals(d) : lists.fundTypesList[d].toUpperCase());
 
 };
 
