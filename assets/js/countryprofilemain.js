@@ -145,7 +145,7 @@ function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData
 
 function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colors, worldMap) {
 
-	chartState.selectedYear = null;
+	chartState.selectedYear = currentYear;
 	chartState.selectedFund = "total";
 
 	let selectedAlphabet = "all";
@@ -639,7 +639,7 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 			return;
 		};
 		if (d.name === chartState.selectedCountryProfile) return;
-		chartState.selectedYear = null;
+		chartState.selectedYear = currentYear;
 		chartState.selectedFund = "total";
 		chartState.selectedCountryProfileTab = tabsData[0];
 		tabs.classed("active", d => d === chartState.selectedCountryProfileTab);

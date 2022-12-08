@@ -191,7 +191,8 @@ const queryStringObject = {
 	year: queryStringValues.get("year"),
 	fund: queryStringValues.get("fund"),
 	country: queryStringValues.get("country"),
-	contributionYear: queryStringValues.get("contributionYear")
+	contributionYear: queryStringValues.get("contributionYear"),
+	allocationYear: queryStringValues.get("allocationYear")
 };
 
 //|top values tooltip
@@ -408,6 +409,10 @@ function controlCharts([worldMap,
 			chartState.selectedYear = defaultValues.year;
 			allocationsData = processDataAllocations(rawAllocationsData);
 		};
+		if (chartState.selectedYear !== defaultValues.year) {
+			chartState.selectedYear = defaultValues.year;
+			queryStringValues.delete("year");
+		};
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
 			resetTopValues(topValues);
 			processAllocationsYearData(rawAllocationsData);
@@ -430,14 +435,6 @@ function controlCharts([worldMap,
 		queryStringValues.delete("value");
 		queryStringValues.delete("country");
 		setQueryString("chart", chartState.selectedChart);
-		if (chartState.selectedYear !== defaultValues.year) {
-			if (yearsArrayAllocations.includes(chartState.selectedYear)) {
-				setQueryString("year", chartState.selectedYear);
-			} else {
-				chartState.selectedYear = defaultValues.year;
-				setQueryString("year", chartState.selectedYear);
-			};
-		};
 		if (!allocationsData.length) allocationsData = processDataAllocations(rawAllocationsData);
 		if (chartState.selectedFund !== defaultValues.fund) setQueryString("fund", chartState.selectedFund);
 		drawAllocations(allocationsData);
@@ -450,6 +447,10 @@ function controlCharts([worldMap,
 		if (chartState.selectedYear === allYears) {
 			chartState.selectedYear = defaultValues.year
 			allocationsData = processDataAllocations(rawAllocationsData);
+		};
+		if (chartState.selectedYear !== defaultValues.year) {
+			chartState.selectedYear = defaultValues.year;
+			queryStringValues.delete("year");
 		};
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
 			resetTopValues(topValues);
@@ -473,14 +474,6 @@ function controlCharts([worldMap,
 		queryStringValues.delete("value");
 		queryStringValues.delete("country");
 		setQueryString("chart", chartState.selectedChart);
-		if (chartState.selectedYear !== defaultValues.year) {
-			if (yearsArrayAllocations.includes(chartState.selectedYear)) {
-				setQueryString("year", chartState.selectedYear);
-			} else {
-				chartState.selectedYear = defaultValues.year;
-				setQueryString("year", chartState.selectedYear);
-			};
-		};
 		if (!allocationsData.length) allocationsData = processDataAllocations(rawAllocationsData);
 		if (chartState.selectedFund !== defaultValues.fund) setQueryString("fund", chartState.selectedFund);
 		drawAllocations(allocationsData);
@@ -493,6 +486,10 @@ function controlCharts([worldMap,
 		if (chartState.selectedYear === allYears) {
 			chartState.selectedYear = defaultValues.year
 			allocationsData = processDataAllocations(rawAllocationsData);
+		};
+		if (chartState.selectedYear !== defaultValues.year) {
+			chartState.selectedYear = defaultValues.year;
+			queryStringValues.delete("year");
 		};
 		if (chartTypesAllocations.indexOf(chartState.selectedChart) === -1) {
 			resetTopValues(topValues);
@@ -516,14 +513,6 @@ function controlCharts([worldMap,
 		queryStringValues.delete("value");
 		queryStringValues.delete("country");
 		setQueryString("chart", chartState.selectedChart);
-		if (chartState.selectedYear !== defaultValues.year) {
-			if (yearsArrayAllocations.includes(chartState.selectedYear)) {
-				setQueryString("year", chartState.selectedYear);
-			} else {
-				chartState.selectedYear = defaultValues.year;
-				setQueryString("year", chartState.selectedYear);
-			};
-		};
 		if (!allocationsData.length) allocationsData = processDataAllocations(rawAllocationsData);
 		if (chartState.selectedFund !== defaultValues.fund) setQueryString("fund", chartState.selectedFund);
 		drawAllocations(allocationsData);
@@ -536,23 +525,21 @@ function controlCharts([worldMap,
 		chartState.selectedChart = "allocationsByMonth";
 		selections.contributionsTopFigurePanel.style("pointer-events", "all");
 		selections.allocationsTopFigurePanel.style("pointer-events", "all");
-		if (!queryStringValues.has("year")) {
-			chartState.selectedYear = allYears;
-			resetTopValues(topValues);
-			processAllocationsYearData(rawAllocationsData);
-			processContributionsYearData(rawContributionsData);
-			updateTopValues(topValues, selections);
-		};
+		chartState.selectedYear = allYears;
+		resetTopValues(topValues);
+		processAllocationsYearData(rawAllocationsData);
+		processContributionsYearData(rawContributionsData);
+		updateTopValues(topValues, selections);
 		createDisabledOption(selections.yearDropdown, yearsArrayAllocations);
 		selections.chartContainerDiv.select("div:not(#" + generalClassPrefix + "SnapshotTooltip)").remove();
-		drawAllocationsByMonth = createAllocationsByMonth(selections, colorsObject, lists);
-		drawAllocationsByMonth(rawAllocationsMonthlyData);
-		highlightNavLinks();
 		queryStringValues.delete("contributionYear");
 		queryStringValues.delete("year");
 		queryStringValues.delete("fund");
 		queryStringValues.delete("country");
 		setQueryString("chart", chartState.selectedChart);
+		drawAllocationsByMonth = createAllocationsByMonth(selections, colorsObject, lists);
+		drawAllocationsByMonth(rawAllocationsMonthlyData);
+		highlightNavLinks();
 	});
 
 	selections.navlinkContributionsByCerfCbpf.on("click", () => {
@@ -802,6 +789,7 @@ function processAllocationsYearData(rawAllocationsData) {
 	rawAllocationsData.forEach(row => {
 		if (row.AllocationYear === chartState.selectedYear ||
 			(chartState.selectedChart === "contributionsByCerfCbpf" && chartState.selectedYear === allYears) ||
+			(chartState.selectedChart === "allocationsByMonth" && chartState.selectedYear === allYears) ||
 			(chartState.selectedChart === "contributionsByDonor" && row.AllocationYear < currentYear)) {
 			const budget = splitBudget(row.ClusterBudget)
 			topValues.allocations += budget;
@@ -1077,6 +1065,12 @@ function validateDefault(values) {
 	if (values.chart === "contributionsByCerfCbpf") {
 		if (values.contributionYear) {
 			chartState.selectedYear = parseInt(values.contributionYear);
+		} else {
+			chartState.selectedYear = allYears;
+		};
+	} else if (values.chart === "allocationsByMonth") {
+		if (values.allocationYear) {
+			chartState.selectedYear = parseInt(values.allocationYear);
 		} else {
 			chartState.selectedYear = allYears;
 		};
