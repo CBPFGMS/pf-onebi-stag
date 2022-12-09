@@ -20,6 +20,7 @@ const classPrefix = "pfcpmain",
 	duration = 1000,
 	topValuesNoValue = "--",
 	piesSize = 20,
+	piesMargin = 5,
 	strokeOpacityValue = 0.8,
 	fillOpacityValue = 0.8,
 	localVariable = d3.local(),
@@ -37,6 +38,9 @@ const classPrefix = "pfcpmain",
 	legendLineSize = 38,
 	legendPadding = 16,
 	regionNamesPadding = 4,
+	regionValuesSpacing = 10,
+	regionValuesPadding = 4,
+	darkerValues = 1,
 	formatMoney0Decimals = d3.format(",.0f"),
 	radiusScale = d3.scaleSqrt().range([minPieSize, maxPieSize]),
 	arcGenerator = d3.arc().outerRadius(piesSize / 2).innerRadius(0),
@@ -78,7 +82,7 @@ const regionCentroids = {
 		lon: 90
 	},
 	"Africa": {
-		lat: 0,
+		lat: -4,
 		lon: 20
 	},
 	"Latin America": {
@@ -86,20 +90,20 @@ const regionCentroids = {
 		lon: -67
 	},
 	"Middle East": {
-		lat: 33,
-		lon: 36
+		lat: 31,
+		lon: 38
 	},
 	"Micronesia": {
 		lat: 6,
-		lon: 156
+		lon: 146
 	},
 	"Europe": {
-		lat: 50,
-		lon: 10
+		lat: 54,
+		lon: 6
 	},
 	"Polynesia": {
 		lat: -17,
-		lon: -150
+		lon: -130
 	},
 	"Global": {
 		lat: 40,
@@ -195,11 +199,22 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 	const listAndMapContainer = innerContainer.append("div")
 		.attr("class", classPrefix + "listAndMapContainer");
 
+	const disclaimerContainer = innerContainer.append("div")
+		.attr("class", classPrefix + "disclaimerContainer");
+
+	const firstAllocationYear = d3.min(flatFundsArray, d => d3.min(d.values, e => e.year));
+
+	disclaimerContainer.append("span")
+		.html(`Based on data from OCHA Grant Manegement System (GMS) since ${firstAllocationYear}`)
+
 	const listContainer = listAndMapContainer.append("div")
 		.attr("class", classPrefix + "listContainer");
 
 	const mapContainer = listAndMapContainer.append("div")
 		.attr("class", classPrefix + "mapContainer");
+
+	const tableContainer = mapContainer.append("div")
+		.attr("class", classPrefix + "tableContainer");
 
 	const innerMapContainer = mapContainer.append("div")
 		.attr("class", classPrefix + "innerMapContainer");
@@ -207,10 +222,7 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 	const mapHeader = innerMapContainer.append("div")
 		.attr("class", classPrefix + "mapHeader")
 		.append("span")
-		.html("All time allocations for the eight OCHA regions:");
-
-	const tableContainer = mapContainer.append("div")
-		.attr("class", classPrefix + "tableContainer");
+		.html("All-time allocations for the eight OCHA regions:");
 
 	const alphabetData = alphabet.concat("all");
 
@@ -231,7 +243,7 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 
 	const piesDiv = countries.append("div")
 		.attr("class", classPrefix + "piesDiv")
-		.style("width", piesSize + "px")
+		.style("width", piesSize + piesMargin + "px")
 		.style("height", piesSize + "px");
 
 	const piesSvg = piesDiv.append("svg")
@@ -246,7 +258,7 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 
 	const piesContainer = createMap(worldMap, innerMapContainer);
 
-	drawRegionPies(piesContainer.piesGroup, piesContainer.legendGroup, pooledFundsInData, colors);
+	drawRegionPies(piesContainer.piesGroup, piesContainer.legendGroup, pooledFundsInData, colors, lists);
 
 	drawLegend(piesContainer.legendGroup);
 
@@ -284,10 +296,8 @@ function createMap(mapData, container) {
 
 	countryFeatures.features = countryFeatures.features.filter(d => d.properties.ISO_2 !== "AQ");
 
-	mapProjection.fitExtent([
-		[0, 0],
-		[mapWidth, mapHeight]
-	], countryFeatures);
+	mapProjection.translate([mapWidth / 2, mapHeight / 2])
+		.center([10, 5]);
 
 	const land = mapGroup.append("path")
 		.attr("d", mapPath(topojson.merge(mapData, mapData.objects.wrl_polbnda_int_simple_uncs.geometries.filter(d => d.properties.ISO_2 !== "AQ"))))
@@ -309,7 +319,7 @@ function createMap(mapData, container) {
 
 };
 
-function drawRegionPies(container, legendContainer, data, colors) {
+function drawRegionPies(container, legendContainer, data, colors, lists) {
 
 	const maxValue = d3.max(data, d => d3.sum(d.fundTypes, e => e.value));
 
@@ -416,6 +426,28 @@ function drawRegionPies(container, legendContainer, data, colors) {
 	regionNames.attr("y", d => radiusScale(d3.sum(d.fundTypes, e => e.value)) + regionNamesPadding)
 		.text(d => d.region);
 
+	let regionValues = pieGroup.selectAll(`.${classPrefix}regionValues`)
+		.data(d => d.fundTypes);
+
+	const regionValuesExit = regionValues.exit()
+		.remove();
+
+	const regionValuesEnter = regionValues.enter()
+		.append("text")
+		.attr("class", classPrefix + "regionValues")
+		.style("fill", d => d3.color(colors[lists.fundTypesList[d.fundType]]).darker(darkerValues))
+		.attr("y", (d, i, n) => {
+			const parentDatum = d3.select(n[i].parentNode).datum().fundTypes;
+			return -radiusScale(d3.sum(parentDatum, e => e.value)) - (i * regionValuesSpacing) - regionValuesPadding;
+		})
+		.text(d => lists.fundTypesList[d.fundType] + ": ");
+
+	const regionValuesSpan = regionValuesEnter.append("tspan")
+		.attr("class", classPrefix + "regionValuesSpan")
+		.text(d => formatSIFloat(d.value).replace("G", "B"));
+
+	regionValues = regionValuesEnter.merge(regionValues);
+
 	function pieTween(d) {
 		const i = d3.interpolateObject(localVariable.get(this), {
 			startAngle: d.startAngle,
@@ -513,7 +545,7 @@ function drawLegend(container) {
 function createRegionsTable(container, data, colors, lists) {
 
 	container.append("span")
-		.html("All regions, all time allocations:");
+		.html("All regions, all-time allocations:");
 
 	const allData = data.reduce((acc, curr) => {
 		curr.fundTypes.forEach(type => {
@@ -542,7 +574,7 @@ function createRegionsTable(container, data, colors, lists) {
 		.data(d => Object.values(d))
 		.enter()
 		.append("td")
-		.html((d, i) => i ? "$" + formatMoney0Decimals(d) : lists.fundTypesList[d].toUpperCase());
+		.html((d, i) => i ? "$" + formatSIFloat(d).replace("G", "B") : lists.fundTypesList[d].toUpperCase());
 
 };
 
