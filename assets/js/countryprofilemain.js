@@ -301,12 +301,12 @@ function createMap(mapData, container) {
 
 	const land = mapGroup.append("path")
 		.attr("d", mapPath(topojson.merge(mapData, mapData.objects.wrl_polbnda_int_simple_uncs.geometries.filter(d => d.properties.ISO_2 !== "AQ"))))
-		.style("fill", "#F1F1F1");
+		.style("fill", "#F5F5F5");
 
 	const borders = mapGroup.append("path")
 		.attr("d", mapPath(topojson.mesh(mapData, mapData.objects.wrl_polbnda_int_simple_uncs, (a, b) => a !== b)))
 		.style("fill", "none")
-		.style("stroke", "#E5E5E5")
+		.style("stroke", "#EAEAEA")
 		.style("stroke-width", "1px");
 
 	for (let region in regionCentroids) {
