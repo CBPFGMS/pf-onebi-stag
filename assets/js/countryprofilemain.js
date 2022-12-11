@@ -296,8 +296,10 @@ function createMap(mapData, container) {
 
 	countryFeatures.features = countryFeatures.features.filter(d => d.properties.ISO_2 !== "AQ");
 
-	mapProjection.translate([mapWidth / 2, mapHeight / 2])
-		.center([10, 5]);
+	mapProjection.fitExtent([
+		[0, 0],
+		[mapWidth, mapHeight]
+	], countryFeatures);
 
 	const land = mapGroup.append("path")
 		.attr("d", mapPath(topojson.merge(mapData, mapData.objects.wrl_polbnda_int_simple_uncs.geometries.filter(d => d.properties.ISO_2 !== "AQ"))))
