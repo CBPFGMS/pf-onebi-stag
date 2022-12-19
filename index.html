@@ -202,6 +202,26 @@
             </div>
             <div class="second-nav-chart" id="bydonor-bar-chart"></div>
         </div>
+         <!--By Month Second Nav-->
+        <div id="byCountryProfile" class="link-sidenav">
+            <div class="second-nav-title">
+                <div class="sidenav-title">
+                    <div class="sb-nav-link-icon"><i class="un-icon icon-Analysis">&#xe90d;</i>Country Profile</div>
+                    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()" data-toggle="tooltip" title="Close">&times;</a>
+                </div>
+                <div class="side-panel mt-2">
+                    <h6 id="byCountryProfileAllocationsValue">$0</h6>
+                    <p id="byCountryProfileAllocationsText">Total Allocations</p>
+                </div>
+                <div class="side-panel">
+                    <h6 id="byCountryProfileCountriesValue">0</h6>
+                    <p id="byCountryProfileCountriesText">Countries</p>
+                </div>
+                <!--By Month Bar Chart-->
+                <div class="side-panel border-bottom-0 p-0"><h4 class="pt-2">Top 10 allocations<i class="fa fa-caret-down"></i></h4></div>
+            </div>
+            <div class="second-nav-chart" id="bycountryprofile-bar-chart"></div>
+        </div>
         <div id="layoutSidenav_nav">
             <button class="btn btn-link btn-md order-2 order-lg-0 mobile-menu" id="sidebarToggle" href="#" style="display:none;"><i class="fas fa-bars"></i></button>
             <div class="logo-panel">
@@ -236,72 +256,49 @@
                             </div>
                         </div>
                         <div class="brdr-btm"></div>
-                    </div>                    
-                    <div>
-                        <div class="pfdata-nav-tabs">
-                            <ul class="nav nav-tabs" id="pfdataTabs" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link active" id="allocations-tab" data-toggle="tab" href="#allocations" role="tab" aria-controls="Allocations" aria-selected="true" onclick="closeNav();">Allocations</a>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link" id="contributions-tab" data-toggle="tab" href="#contributions" role="tab" aria-controls="Contributions" aria-selected="false" onclick="closeNav();">Contributions</a>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link" id="more-tab" data-toggle="tab" href="#more" role="tab" aria-controls="More" aria-selected="false" onclick="closeNav();">More..</a>
-                                </li>
-                            </ul>
-                            <div class="tab-content" id="pfdataTabsContent">
-                                <div class="tab-pane fade show active" id="allocations" role="tabpanel" aria-labelledby="allocations-tab">
-                                    <div class="marg-t10">
-                                        <!--<div class="sb-sidenav-menu-heading text-uppercase">Allocations</div>-->
-                                          <a id="navAllocationsByCountry" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byCountry')">
-                                              <div class="sb-nav-link-icon"><i class="un-icon icon-Location">&#xe99b;</i></div>
-                                              By Country
-                                              <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
-                                          </a>
-                                          <a id="navAllocationsBySector" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'bySector')">
-                                              <div class="sb-nav-link-icon"><i class="un-icon icon-Multi-cluster-sector">&#xe9ae;</i></div>
-                                              By Sector
-                                              <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
-                                          </a>
-                                          <a id="navAllocationsByType" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byAllocationType')">
-                                              <div class="sb-nav-link-icon"><i class="un-icon icon-Response">&#xe9e2;</i></div>
-                                              By Allocation Type
-                                              <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
-                                          </a>
-                                           <a id="navAllocationsByMonth" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byMonth')">
-                                              <div class="sb-nav-link-icon"><i class="un-icon icon-Analysis">&#xe90d;</i></div>
-                                              By Year/Month
-                                              <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
-                                          </a>
-                                    </div>     
-                                </div>
-                                <div class="tab-pane fade" id="contributions" role="tabpanel" aria-labelledby="contributions-tab">
-                                    <div class="marg-t10">
-                                        <!--<div class="sb-sidenav-menu-heading text-uppercase">Contributions</div>-->
-                                        <a id="navContributionsByCerfCbpf" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byCerfCbpf')">
-                                            <div class="sb-nav-link-icon"><i class="un-icon icon-Fund">&#xe96a;</i></div>
-                                            By CERF/CBPF
-                                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
-                                        </a>
-                                        <a id="navContributionsByDonor" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byDonor')">
-                                            <div class="sb-nav-link-icon"><i class="un-icon icon-Partnership">&#xe9bc;</i></div>
-                                            By Donor
-                                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="more" role="tabpanel" aria-labelledby="more-tab">
-                                    <div class="marg-t10">
-                                        <a id="navCountryProfile" class="nav-link" href="javascript:void(0)" onclick="">
-                                            <div class="sb-nav-link-icon"><i class="un-icon icon-Analysis">&#xe90d;</i></div>
-                                              Country Profile
-                                              <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
-                                          </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <div class="sb-sidenav-menu-heading text-uppercase">Allocations</div>
+                        <a id="navAllocationsByCountry" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byCountry')">
+                                <div class="sb-nav-link-icon"><i class="un-icon icon-Location">&#xe99b;</i></div>
+                            By Country
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
+                        </a>
+                        <a id="navAllocationsBySector" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'bySector')">
+                            <div class="sb-nav-link-icon"><i class="un-icon icon-Multi-cluster-sector">&#xe9ae;</i></div>
+                            By Sector
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
+                        </a>
+                        <a id="navAllocationsByType" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byAllocationType')">
+                            <div class="sb-nav-link-icon"><i class="un-icon icon-Response">&#xe9e2;</i></div>
+                            By Allocation Type
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
+                        </a>
+                        <a id="navAllocationsByMonth" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byMonth')">
+                            <div class="sb-nav-link-icon"><i class="un-icon icon-Analysis">&#xe90d;</i></div>
+                            By Year/Month
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
+                        </a>
+                    </div>
+                    <div class="nav">
+                        <div class="sb-sidenav-menu-heading text-uppercase">Contributions</div>
+                        <a id="navContributionsByCerfCbpf" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byCerfCbpf')">
+                            <div class="sb-nav-link-icon"><i class="un-icon icon-Fund">&#xe96a;</i></div>
+                            By CERF/CBPF
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
+                        </a>
+                        <a id="navContributionsByDonor" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byDonor')">
+                            <div class="sb-nav-link-icon"><i class="un-icon icon-Partnership">&#xe9bc;</i></div>
+                            By Donor
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
+                        </a>
+                    </div>
+                    <div class="nav">
+                        <div class="sb-sidenav-menu-heading text-uppercase">Country Profile <span class="badge-txt">New</span></div>
+                        <!-- <a id="navCountryProfile" class="nav-link" href="javascript:void(0)" onclick="openNav(this,'byCountryProfile')"> -->
+                        <a id="navCountryProfile" class="nav-link" href="javascript:void(0)" onclick="closeNav()">
+                            <div class="sb-nav-link-icon"><i class="un-icon icon-Analysis">&#xe90d;</i></div>
+                            By Country
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-right"></i></div>
+                        </a>
                     </div>
                 </div>
             </nav>
@@ -378,6 +375,7 @@
             document.getElementById('byMonth').style.width = "0px";
             document.getElementById('byCerfCbpf').style.width = "0px";
             document.getElementById('byDonor').style.width = "0px";
+            document.getElementById('byCountryProfile').style.width = "0px";
             if (removeActive == undefined || removeActive == true) {
                 $("#layoutSidenav_nav .sb-sidenav a.nav-link").removeClass('activelink');
                 $(".main-high-level-fugure").show();
