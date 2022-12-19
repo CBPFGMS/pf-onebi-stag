@@ -27,8 +27,8 @@ const classPrefix = "pfcpmain",
 	alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),
 	mapProjection = d3.geoEqualEarth(),
 	mapPath = d3.geoPath().projection(mapProjection),
-	maxPieSize = 26,
-	minPieSize = 1,
+	maxPieSize = 32,
+	minPieSize = 0.5,
 	legendPaddings = [16, 4, 16, 4],
 	legendHeight = 82,
 	legendWidth = 100,
@@ -41,6 +41,9 @@ const classPrefix = "pfcpmain",
 	regionValuesSpacing = 10,
 	regionValuesPadding = 4,
 	darkerValues = 1,
+	negativeMarginWidth = 0.12,
+	negativeMarginHeight = 0,
+	negativeLeftMargin = 0.15,
 	formatMoney0Decimals = d3.format(",.0f"),
 	radiusScale = d3.scaleSqrt().range([minPieSize, maxPieSize]),
 	arcGenerator = d3.arc().outerRadius(piesSize / 2).innerRadius(0),
@@ -102,8 +105,8 @@ const regionCentroids = {
 		lon: 6
 	},
 	"Polynesia": {
-		lat: -17,
-		lon: -130
+		lat: -14,
+		lon: 170
 	},
 	"Global": {
 		lat: 40,
@@ -285,9 +288,11 @@ function createMap(mapData, container) {
 	const mapSvg = container.append("svg")
 		.attr("viewBox", `0 0 ${mapWidth} ${mapHeight}`);
 
-	const mapGroup = mapSvg.append("g");
+	const mapGroup = mapSvg.append("g")
+		.attr("transform", `translate(${-((negativeMarginWidth + negativeLeftMargin) * mapWidth)},${-(negativeMarginHeight * mapHeight)})`);
 
-	const piesGroup = mapSvg.append("g");
+	const piesGroup = mapSvg.append("g")
+		.attr("transform", `translate(${-((negativeMarginWidth + negativeLeftMargin) * mapWidth)},${-(negativeMarginHeight * mapHeight)})`);
 
 	const legendGroup = mapSvg.append("g")
 		.attr("transform", `translate(${legendPadding},${mapHeight - legendPadding - legendHeight})`);
@@ -298,7 +303,7 @@ function createMap(mapData, container) {
 
 	mapProjection.fitExtent([
 		[0, 0],
-		[mapWidth, mapHeight]
+		[mapWidth + 2 * (negativeMarginWidth * mapWidth), mapHeight + 2 * (negativeMarginHeight * mapHeight)]
 	], countryFeatures);
 
 	const land = mapGroup.append("path")
