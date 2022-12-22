@@ -185,7 +185,7 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 	}, 0);
 
 	const headerContainer = outerDiv.append("div")
-		.attr("class", "country-pro-main container");
+		.attr("class", "country-pro-main");
 
 	const title = headerContainer.append("h1")
 		.html("Country Profile");
@@ -194,7 +194,7 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 		.html(menuIntroText);
 
 	const innerContainer = outerDiv.append("div")
-		.attr("class", classPrefix + "innerContainer container");
+		.attr("class", classPrefix + "innerContainer");
 
 	const alphabetContainer = innerContainer.append("div")
 		.attr("class", classPrefix + "alphabetContainer");

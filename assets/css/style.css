@@ -2092,8 +2092,7 @@ a.video-tutorial{color:#333;}
 .country-pro-main {
   display: flex;  
   flex-direction: column;
-  padding: 20px;
-  height: 14vh;
+  padding: 20px 10%;
   width: 100%;
 }
 .country-pro-main h1 {
@@ -2110,7 +2109,7 @@ a.video-tutorial{color:#333;}
     font-weight: 400;
     color: #646464;    
     line-height: 18px;
-    margin-bottom: 30px;
+    margin-bottom: 0;
 }
 .country-pro-main .country-list {
     position: relative;
@@ -2291,6 +2290,7 @@ a.video-tutorial{color:#333;}
   flex-direction: column;
   flex: 0 0 auto;
   height: 83vh;
+  padding: 0 10%;
 }
 
 .pfcpmaincountryNames {
@@ -2326,13 +2326,15 @@ a.video-tutorial{color:#333;}
   white-space: pre;
   z-index: 1000;
   border: 1px solid #BCBEC0;
-  font-size: 0.8rem;
-  padding: 0.3em 1em 0.3em 1em;
+  padding-top: 0.3em;
+  padding-bottom: 0.3em;
+  padding-left: 0.8vw;
+  padding-right: 0.8vw;
   border-radius: 3px;
   background-color: #eee;
   line-height: normal;
   font-family: "Roboto", sans-serif;
-  font-size: 0.8em;
+  font-size: min(0.8em, 0.7vw);
   transition: all 0.2s linear;
   outline: 0;
 }
@@ -2366,12 +2368,12 @@ a.video-tutorial{color:#333;}
   margin-left: 2%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-around;
 }
 
 .pfcpmaininnerMapContainer {
   width: 100%;
-  height: 60%;
+  height: 80%;
 }
 
 .pfcpmainlegendCirclesText {
@@ -2391,8 +2393,6 @@ a.video-tutorial{color:#333;}
 
 .pfcpmaintableContainer {
   width: 50%;
-  height: 10%;
-  margin-bottom: 6%;
 }
 
 .pfcpmaintableContainer span {
