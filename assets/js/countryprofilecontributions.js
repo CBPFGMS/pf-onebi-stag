@@ -621,11 +621,13 @@ function processData(originalData, lists) {
 };
 
 function setDefaultYear(originalData, years) {
-	let index = years.length;
+	const beforeCurrentYears = years.filter(e => e <= currentYear);
+	const filteredYears = beforeCurrentYears.length ? beforeCurrentYears : years;
+	let index = filteredYears.length;
 	while (--index >= 0) {
-		const cbpfValue = originalData.find(e => e.year === years[index]);
+		const cbpfValue = originalData.find(e => e.year === filteredYears[index]);
 		if (cbpfValue) {
-			chartState.selectedYear = years[index];
+			chartState.selectedYear = filteredYears[index];
 			break;
 		};
 	};
