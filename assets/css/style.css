@@ -4073,6 +4073,10 @@ a.video-tutorial{color:#333;}
   padding-right: 4em;
 }
 
+.pfbicpcontrchartContentCerf img {
+  width: max(50%, 160px);
+}
+
 /*Country profile tooltips*/
 .pfbicpoverviewmapAllocationsValue, .pfbicpoverviewtopFiguresAllocationsValue, .pfbicpcontrtopFiguresContributionsValue, .pfbicpoverviewpartnerFiguresAllocationsValue, .pfbicpbypartnertopFiguresAllocationsValue, .pfbicpbysectortopFiguresAllocationsValue, .pfbicppstopFiguresAllocationsValue, .pfbicpbypartnerpartnerFiguresAllocationsValue, .pfbicppspartnerFiguresAllocationsValue {
   font-weight: bold;

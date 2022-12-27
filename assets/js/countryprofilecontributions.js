@@ -28,7 +28,10 @@ const padding = [40, 60, 20, 196],
 	textMinPadding = 8,
 	valueTypes = ["total", "paid", "pledge"],
 	duration = 1000,
-	cerfText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi nunc tellus, volutpat a laoreet sit amet, rhoncus cursus leo. Fusce velit lorem, interdum eu dui in, luctus ultrices eros. Nullam eu odio in lectus ullamcorper vulputate et a mauris. Nullam nulla lectus, porttitor non interdum vitae, facilisis iaculis urna.";
+	cerfText1 = "CERF receives broad support from United Nations Member States, observers, regional governments and international organizations, and the private sector, including corporations, non-governmental organizations and individuals.",
+	cerfText2 = "All contributions made by donors to the Central Emergency Response Fund (CERF) can be found by clicking on the link below.",
+	cerfLink = "Visit <a target='_blank' href='https://cerf.un.org/our-donors/contributions'>cerf.un.org/our-donors/contributions</a>",
+	cerfLogo = "./assets/img/cerf-logo.svg";
 
 let yearsArrayCbpf,
 	sortedRow = "value",
@@ -57,8 +60,12 @@ function createCountryProfileContributions(container, lists, colors, tooltipDiv,
 		.html("CERF");
 
 	const chartContentCerf = chartDivCerf.append("div")
-		.attr("class", classPrefix + "chartContentCerf")
-		.html(cerfText);
+		.attr("class", classPrefix + "chartContentCerf");
+
+	chartContentCerf.append("p").html(cerfText1);
+	chartContentCerf.append("p").html(cerfText2);
+	chartContentCerf.append("p").html(cerfLink);
+	chartContentCerf.append("img").attr("src", cerfLogo);
 
 	const chartDivCbpf = chartsContainerDiv.append("div")
 		.attr("class", classPrefix + "chartDivCbpf");
