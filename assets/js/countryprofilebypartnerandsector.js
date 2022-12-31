@@ -171,9 +171,9 @@ function createCountryProfileByPartnerAndSector(container, lists, colors, toolti
 			draw(originalData, false, false);
 		});
 
-		function reselectCards(container) {
-			const cards = container.selectAll(`.${classPrefix}partnersCard`);
-			const title = container.select(`.${classPrefix}selectionChartDivTitle`);
+		function reselectCards(cardsContainer) {
+			const cards = cardsContainer.selectAll(`.${classPrefix}partnersCard`);
+			const title = cardsContainer.select(`.${classPrefix}selectionChartDivTitle`);
 
 			cards.style("background-color", null)
 				.each(d => d.click = false);
