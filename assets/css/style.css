@@ -1511,7 +1511,6 @@ a.video-tutorial{color:#333;}
   height: 100%;
   display: flex;
   align-items: center;
-  flex-grow: 2;
 }
 
 /*dropdown*/
