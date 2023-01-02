@@ -247,7 +247,16 @@ function createSnapshot(type, fromContextMenu, selections) {
 	const imageDiv = selections.chartContainerDiv.node();
 
 	selections.chartContainerDiv.selectAll("svg")
-		.each((_, i, n) => setSvgStyles(n[i]));
+		.each((_, i, n) => {
+			const thisSize = n[i].getBoundingClientRect();
+			n[i].setAttribute("width", thisSize.width);
+			n[i].setAttribute("height", thisSize.height);
+			setSvgStyles(n[i]);
+		});
+
+	if (chartState.selectedChart === "countryProfile" && chartState.selectedCountryProfileTab === "Overview") {
+		d3.select(".pfcpmaindropdownList").style("display", "none");
+	};
 
 	html2canvas(imageDiv).then(function(canvas) {
 
@@ -261,6 +270,10 @@ function createSnapshot(type, fromContextMenu, selections) {
 		};
 
 		if (fromContextMenu && chartState.currentHoveredElement) d3.select(chartState.currentHoveredElement).dispatch("mouseout");
+
+		if (chartState.selectedChart === "countryProfile" && chartState.selectedCountryProfileTab === "Overview") {
+			d3.select(".pfcpmaindropdownList").style("display", null);
+		};
 
 	});
 

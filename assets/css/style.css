@@ -2510,17 +2510,17 @@ a.video-tutorial{color:#333;}
 
 .pfbicpoverviewmainDonutsDiv {
   height: 100%;
-  flex-grow: 2;
+  width: 50%;
 }
 
 .pfbicpoverviewcerfDonutsDiv {
   height: 100%;
-  flex-grow: 1;
+  width: 25%;
 }
 
 .pfbicpoverviewcbpfDonutsDiv {
   height: 100%;
-  flex-grow: 1;
+  width: 25%;
 }
 
 .pfbicpoverviewmapDiv {
