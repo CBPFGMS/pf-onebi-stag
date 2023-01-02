@@ -75,6 +75,12 @@ const topRowPercentage = 0.45,
 	bubbleLegendPadding = 6,
 	xAxisTextSize = 12;
 
+//Fake ISO codes for non-country funds, used to modify the map
+const globalISOCode = "0G",
+	syriaCrossBorderISOCode = "XX",
+	venezuelaRefugeeISOCode = "0V",
+	southAmericaISOCodes = ["AR", "BO", "BR", "CL", "CO", "EC", "FK", "GF", "GY", "PY", "PE", "SR", "UY", "VE"];
+
 let bubbleLegendValue,
 	bubbleLegendGroup,
 	allocationsWithoutCoordsDisclaimer;
@@ -1121,7 +1127,12 @@ function createMap(mapData, mapLayer, mapDivSize, lists, mapDiv) {
 	mapLayer.selectChildren().remove();
 
 	const countryFeatures = topojson.feature(mapData, mapData.objects.wrl_polbnda_int_simple_uncs);
-	countryFeatures.features = countryFeatures.features.filter(d => d.properties.ISO_2 === lists.fundIsoCodesList[chartState.selectedCountryProfile]);
+	countryFeatures.features = countryFeatures.features.filter(d => {
+		if (lists.fundIsoCodesList[chartState.selectedCountryProfile] === globalISOCode) return d.properties.ISO_2 !== "AQ";
+		if (lists.fundIsoCodesList[chartState.selectedCountryProfile] === syriaCrossBorderISOCode) return d.properties.ISO_2 === "SY";
+		if (lists.fundIsoCodesList[chartState.selectedCountryProfile] === venezuelaRefugeeISOCode) return southAmericaISOCodes.includes(d.properties.ISO_2);
+		return d.properties.ISO_2 === lists.fundIsoCodesList[chartState.selectedCountryProfile];
+	});
 
 	mapProjection.fitExtent([
 		[mapPadding[3], mapPadding[0]],
