@@ -856,7 +856,8 @@ function createYearsButtons(container, yearsDataSet) {
 		yearButtonsSize = ~~yearButtonsContainer.node().scrollWidth;
 		yearButtonsContainerSize = ~~yearButtonsContainerDiv.node().getBoundingClientRect().width;
 
-		if (yearButtonsSize <= yearButtonsContainerSize) {
+		//1 as padding for small differences
+		if (yearButtonsSize <= yearButtonsContainerSize + 1) {
 			yearLeftArrow.style("display", "none");
 			yearRightArrow.style("display", "none");
 		};
