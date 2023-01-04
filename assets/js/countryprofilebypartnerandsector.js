@@ -191,7 +191,7 @@ function createCountryProfileByPartnerAndSector(container, lists, colors, toolti
 
 				if (!d.clicked) {
 					cards.style("background-color", null);
-					title.html("Click for filtering by partner type:");
+					title.html("Click for filtering by sector type:");
 					drawTable(data.cerfData, null, partnersDivCerf, container, lists, colors, "cerf", null, tooltipDiv);
 					drawTable(data.cbpfData, null, partnersDivCbpf, container, lists, colors, "cbpf", null, tooltipDiv);
 				} else {
@@ -458,7 +458,7 @@ function drawSelectionChart(data, container, syncedTransition, colors, tooltip, 
 
 	const titleDiv = container.select(`.${classPrefix}selectionChartDivTitle`);
 
-	titleDiv.html("Click for filtering by partner type:");
+	titleDiv.html("Click for filtering by sector type:");
 
 	const cardContainer = container.select(`.${classPrefix}selectionChartDivContent`);
 

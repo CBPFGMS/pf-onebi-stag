@@ -2422,6 +2422,17 @@ a.video-tutorial{color:#333;}
   --unColor:  #65A8DC;
 }
 
+.pfbicpoverviewcbpfMapLink {
+  font-family: "Roboto", sans-serif;
+  font-size: 0.7em;
+  fill: #444;
+}
+
+.pfbicpoverviewcbpfMapLink a {
+  fill: var(--unColor);
+  text-decoration: underline;
+}
+
 .pfbicpoverviewtitleDiv {
   font-family: "Roboto", sans-serif;
   font-size: 1.4em;

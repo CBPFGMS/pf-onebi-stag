@@ -79,6 +79,7 @@ const yearsArrayAllocations = [],
 	partnersNamesList = {},
 	fundNamesListKeys = [],
 	donorNamesListKeys = [],
+	cbpfFundsList = [],
 	topValues = {
 		contributions: 0,
 		allocations: 0,
@@ -302,7 +303,8 @@ function controlCharts([worldMap,
 		yearsArrayContributionsCerf: yearsArrayContributionsCerf,
 		cerfPooledFundId: cerfPooledFundId,
 		defaultValues: defaultValues,
-		queryStringValues: queryStringValues
+		queryStringValues: queryStringValues,
+		cbpfFundsList: cbpfFundsList
 	};
 
 	populateLastModified(lastModified);
@@ -1084,6 +1086,7 @@ function validateDefault(values) {
 function createFundNamesList(fundsData) {
 	fundsData.forEach(row => {
 		cbpfStatusList[row.id + ""] = row.CBPFFundStatus;
+		if (row.CBPFId && !row.CBPFFundStatus) cbpfFundsList.push(row.id);
 		cerfIdsList[row.id + ""] = row.CERFId;
 		fundNamesList[row.id + ""] = row.PooledFundName;
 		fundAbbreviatedNamesList[row.id + ""] = row.PooledFundNameAbbrv;

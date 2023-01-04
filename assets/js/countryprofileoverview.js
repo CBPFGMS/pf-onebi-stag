@@ -69,10 +69,14 @@ const topRowPercentage = 0.45,
 	lateralDonutDescriptionSpanPadding = 1,
 	zeroArrowPadding = 3,
 	maxRadius = 15,
-	mapPadding = [12, 12, (2 * maxRadius + 12), 12],
+	cbpfMapExtraPadding = 34,
+	cbpfMapLinkPadding1 = 26,
+	cbpfMapLinkPadding2 = 12,
+	mapPadding = [12, 12, null, 12],
 	strokeOpacityValue = 0.8,
 	fillOpacityValue = 0.5,
 	bubbleLegendPadding = 6,
+	bubbleLegendVertPadding = 14,
 	xAxisTextSize = 12;
 
 //Fake ISO codes for non-country funds, used to modify the map
@@ -1124,6 +1128,10 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 
 function createMap(mapData, mapLayer, mapDivSize, lists, mapDiv) {
 
+	const cbpfFund = lists.cbpfFundsList.includes(chartState.selectedCountryProfile);
+
+	mapPadding[2] = (2 * maxRadius + bubbleLegendVertPadding) + (cbpfFund ? cbpfMapExtraPadding : 0);
+
 	mapLayer.selectChildren().remove();
 
 	const countryFeatures = topojson.feature(mapData, mapData.objects.wrl_polbnda_int_simple_uncs);
@@ -1177,6 +1185,24 @@ function createMap(mapData, mapLayer, mapDivSize, lists, mapDiv) {
 
 	allocationsWithoutCoordsDisclaimer.append("span")
 		.attr("class", "fas fa-exclamation-circle");
+
+	if (cbpfFund) {
+		mapLayer.append("text")
+			.attr("class", classPrefix + "cbpfMapLink")
+			.attr("x", mapPadding[3])
+			.attr("y", mapDivSize.height - cbpfMapLinkPadding1)
+			.text("*Please visit the ")
+			.append("a")
+			.attr("href", "https://cbpf.data.unocha.org/allocations-overview.html")
+			.attr("target", "_blank")
+			.text("CBPF Allocations Overview page");
+
+		mapLayer.append("text")
+			.attr("class", classPrefix + "cbpfMapLink")
+			.attr("x", mapPadding[3])
+			.attr("y", mapDivSize.height - cbpfMapLinkPadding2)
+			.text("for CBPF allocation details on lower administrative level locations.");
+	};
 
 };
 
