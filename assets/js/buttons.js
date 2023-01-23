@@ -271,6 +271,7 @@ function createSnapshot(type, fromContextMenu, selections) {
 		d3.select(".pfbicppspartnersDivCbpf").style("overflow-y", "visible");
 		imageDiv = selections.chartContainerDiv.select(".pfcpmainchartDiv").node();
 	} else if (chartState.selectedChart === "countryProfile" && chartState.selectedCountryProfileTab === "Contributions by Donor") {
+		d3.select(".pfbicpcontrchartContentCerf").select("img").style("display", "none");
 		d3.select(".pfbicpcontrchartContentCbpf").style("overflow-y", "visible");
 		imageDiv = selections.chartContainerDiv.select(".pfcpmainchartDiv").node();
 	} else {
@@ -306,6 +307,7 @@ function createSnapshot(type, fromContextMenu, selections) {
 		};
 
 		if (chartState.selectedChart === "countryProfile" && chartState.selectedCountryProfileTab === "Contributions by Donor") {
+			d3.select(".pfbicpcontrchartContentCerf").select("img").style("display", null);
 			d3.select(".pfbicpcontrchartContentCbpf").style("overflow-y", null);
 		};
 
