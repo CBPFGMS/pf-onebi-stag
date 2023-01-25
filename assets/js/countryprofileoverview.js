@@ -1,5 +1,6 @@
 import { chartState } from "./chartstate.js";
 import { positionTooltip } from "./positiontooltip.js";
+import { oPtMapData } from "../img/oPtMap.js";
 
 //|constants
 const topRowPercentage = 0.45,
@@ -77,6 +78,7 @@ const topRowPercentage = 0.45,
 	fillOpacityValue = 0.5,
 	bubbleLegendPadding = 6,
 	bubbleLegendVertPadding = 14,
+	doubleClickTime = 250,
 	xAxisTextSize = 12;
 
 //Fake ISO codes for non-country funds, used to modify the map
@@ -317,6 +319,47 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 			chartState.selectedYear = d;
 			draw(originalData, originalAdminLevel1Data, false, false);
 		});
+
+		// yearsButtons.on("click", (event, d) => {
+		// 	const button = event.currentTarget;
+		// 	if (event.altKey) {
+		// 		setSelectedYears(d, false);
+		// 		return;
+		// 	};
+		// 	if (localVariable.get(button) !== "clicked") {
+		// 		localVariable.set(button, "clicked");
+		// 		setTimeout(() => {
+		// 			if (localVariable.get(button) === "clicked") {
+		// 				setSelectedYears(d, true);
+		// 			};
+		// 			localVariable.set(button, null);
+		// 		}, doubleClickTime);
+		// 	} else {
+		// 		setSelectedYears(d, false);
+		// 		localVariable.set(button, null);
+		// 	};
+
+		// 	function setSelectedYears(d, singleSelection) {
+		// 		if (singleSelection) {
+		// 			chartState.selectedYearCountryProfile = [d];
+		// 		} else {
+		// 			const index = chartState.selectedYearCountryProfile.indexOf(d);
+		// 			if (index > -1) {
+		// 				if (chartState.selectedYearCountryProfile.length === 1) {
+		// 					return;
+		// 				} else {
+		// 					chartState.selectedYearCountryProfile.splice(index, 1);
+		// 				};
+		// 			} else {
+		// 				chartState.selectedYearCountryProfile.push(d);
+		// 			};
+		// 		};
+
+		// 		//change everything to chartState.selectedYearCountryProfile, then uncomment this:
+		// 		//draw(originalData, originalAdminLevel1Data, false, false);
+		// 	};
+
+		// });
 
 		yearsButtons.on("playButtonClick", () => {
 			if (chartState.selectedCountryProfileTab !== thisTab) return;
@@ -1134,13 +1177,19 @@ function createMap(mapData, mapLayer, mapDivSize, lists, mapDiv) {
 
 	mapLayer.selectChildren().remove();
 
-	const countryFeatures = topojson.feature(mapData, mapData.objects.wrl_polbnda_int_simple_uncs);
-	countryFeatures.features = countryFeatures.features.filter(d => {
-		if (lists.fundIsoCodesList[chartState.selectedCountryProfile] === globalISOCode) return d.properties.ISO_2 !== "AQ";
-		if (lists.fundIsoCodesList[chartState.selectedCountryProfile] === syriaCrossBorderISOCode) return d.properties.ISO_2 === "SY";
-		if (lists.fundIsoCodesList[chartState.selectedCountryProfile] === venezuelaRefugeeISOCode) return southAmericaISOCodes.includes(d.properties.ISO_2);
-		return d.properties.ISO_2 === lists.fundIsoCodesList[chartState.selectedCountryProfile];
-	});
+	let countryFeatures;
+
+	if (lists.fundIsoCodesList[chartState.selectedCountryProfile] === "PS") {
+		countryFeatures = topojson.feature(oPtMapData, oPtMapData.objects.oPt);
+	} else {
+		countryFeatures = topojson.feature(mapData, mapData.objects.wrl_polbnda_int_simple_uncs);
+		countryFeatures.features = countryFeatures.features.filter(d => {
+			if (lists.fundIsoCodesList[chartState.selectedCountryProfile] === globalISOCode) return d.properties.ISO_2 !== "AQ";
+			if (lists.fundIsoCodesList[chartState.selectedCountryProfile] === syriaCrossBorderISOCode) return d.properties.ISO_2 === "SY";
+			if (lists.fundIsoCodesList[chartState.selectedCountryProfile] === venezuelaRefugeeISOCode) return southAmericaISOCodes.includes(d.properties.ISO_2);
+			return d.properties.ISO_2 === lists.fundIsoCodesList[chartState.selectedCountryProfile];
+		});
+	};
 
 	mapProjection.fitExtent([
 		[mapPadding[3], mapPadding[0]],
