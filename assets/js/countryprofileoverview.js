@@ -307,6 +307,7 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		});
 
 		yearsButtons.on("click", (event, d) => {
+			tooltipDiv.style("display", "none");
 			const button = event.currentTarget;
 			if (event.altKey) {
 				setSelectedYears(d, false);
@@ -342,7 +343,6 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 				};
 
 				//change everything to chartState.selectedYearCountryProfile, then uncomment this part here:
-				tooltipDiv.style("display", "none");
 				draw(originalData, originalAdminLevel1Data, false, false);
 			};
 
