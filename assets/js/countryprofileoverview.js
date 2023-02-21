@@ -276,11 +276,11 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 	function draw(originalData, originalAdminLevel1Data, resetYear, drawMap) {
 
 		const thisFund = chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? "total" : chartState.selectedFund,
-			thisYear = originalData.find(e => chartState.selectedYearCountryProfile.includes(e.year)); //CHANGED
+			thisYear = originalData.find(e => chartState.selectedYearCountryProfile.includes(e.year));
 
 		if (resetYear || (!thisYear || !thisYear[thisFund])) setDefaultYear(originalData, yearsButtons);
 
-		yearsButtons.classed("active", d => chartState.selectedYearCountryProfile.includes(d)); //CHANGED
+		yearsButtons.classed("active", d => chartState.selectedYearCountryProfile.includes(d));
 
 		if (drawMap) createMap(mapData, mapLayer, mapDivSize, lists, mapDiv);
 
@@ -288,8 +288,8 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		disableYears(originalData, yearsButtons);
 
 		const data = processData(originalData, lists);
-		const adminLevel1Object = originalAdminLevel1Data.filter(e => chartState.selectedYearCountryProfile.includes(e.year)); //CHANGED
-		const adminLevel1Data = adminLevel1Object.length ? adminLevel1Object.flatMap(e => e.adminLevel1List) : []; //CHANGED
+		const adminLevel1Object = originalAdminLevel1Data.filter(e => chartState.selectedYearCountryProfile.includes(e.year));
+		const adminLevel1Data = adminLevel1Object.length ? adminLevel1Object.flatMap(e => e.adminLevel1List) : [];
 
 		const syncedTransition = d3.transition()
 			.duration(duration);
@@ -478,8 +478,6 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 			.range([barChartPadding[3] + (availableSpace - barChartAreaWidth) / 2, barChartWidth - barChartPadding[1] - (availableSpace - barChartAreaWidth) / 2]);
 		yScale.domain([0, d3.max(data, d => chartState.selectedFund === "cerf/cbpf" ? d.cerf + d.cbpf : d[chartState.selectedFund]) || 0]);
 
-		//CHANGED
-
 		let yearRect = svgBarChart.selectAll(`.${classPrefix}yearRect`)
 			.data(chartState.selectedYearCountryProfile, d => d);
 
@@ -501,8 +499,6 @@ function createCountryProfileOverview(container, lists, colors, mapData, tooltip
 		yearRect.style("opacity", data.length ? 1 : 0)
 			.attr("x", d => xScale(d) - 12 + xScale.bandwidth() / 2)
 			.style("fill", chartState.selectedFund === "cerf/cbpf" ? "url(#yearRectGradient)" : colors[chartState.selectedFund]);
-
-		//END OF CHANGED
 
 		let noData = svgBarChart.selectAll(`.${classPrefix}noData`)
 			.data([true]);
@@ -1365,7 +1361,7 @@ function processData(originalData, lists) {
 			copiedRow.total = 0;
 		};
 		data.stackedBarData.push(copiedRow);
-		if (chartState.selectedYearCountryProfile.includes(row.year)) { //CHANGED
+		if (chartState.selectedYearCountryProfile.includes(row.year)) {
 			for (const key in row) {
 				if (key.includes("type") && !key.includes("total")) {
 					const properties = key.split(separator);
@@ -1407,11 +1403,11 @@ function setDefaultYear(originalData, yearsButtons) {
 	while (--index >= 0) {
 		const thisFund = chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf" ? "total" : chartState.selectedFund;
 		if (originalData[index][thisFund]) {
-			chartState.selectedYearCountryProfile = [years[index]]; //CHANGED
+			chartState.selectedYearCountryProfile = [years[index]];
 			break;
 		};
 	};
-	yearsButtons.filter(d => chartState.selectedYearCountryProfile.includes(+d)).dispatch("click"); //CHANGED
+	yearsButtons.filter(d => chartState.selectedYearCountryProfile.includes(+d)).dispatch("click");
 };
 
 function mouseoverMarkers(event, datum, tooltip, container, adminLevel1DataCerf, colors, cerfTotal) {
@@ -1686,7 +1682,7 @@ function setChartStateTooltip(event, tooltip) {
 
 function disableFunds(data, fundButtons) {
 	["cerf", "cbpf"].forEach(fund => {
-		const filteredData = data.filter(e => chartState.selectedYearCountryProfile.includes(e.year)); //CHANGED
+		const filteredData = data.filter(e => chartState.selectedYearCountryProfile.includes(e.year));
 		const fundInData = filteredData.some(d => d[fund]);
 		if (fund === chartState.selectedFund && !fundInData) {
 			chartState.selectedFund = "total";

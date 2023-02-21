@@ -99,7 +99,7 @@ function createCountryProfileBySector(container, lists, colors, tooltipDiv, fund
 
 		if (resetYear) setDefaultYear(originalData, yearsArrayCerf, yearsArrayCbpf);
 
-		yearsButtons.classed("active", d => chartState.selectedYearCountryProfile.includes(d)); //CHANGED
+		yearsButtons.classed("active", d => chartState.selectedYearCountryProfile.includes(d));
 
 		disableFunds(originalData, fundButtons);
 		disableYears(originalData, yearsButtons);
@@ -197,7 +197,7 @@ function createCountryProfileBySector(container, lists, colors, tooltipDiv, fund
 function drawTopFigures(data, container, colors, syncedTransition, tooltipDiv) {
 
 	container.select(`.${classPrefix}spanYearValue`)
-		.html(`in ${chartState.selectedYearCountryProfile.length === 1 ? chartState.selectedYearCountryProfile : createYearsList()}`); //CHANGED
+		.html(`in ${chartState.selectedYearCountryProfile.length === 1 ? chartState.selectedYearCountryProfile : createYearsList()}`);
 
 	container.select(`.${classPrefix}allocationsValue`)
 		.transition(syncedTransition)
@@ -477,7 +477,7 @@ function createTopFiguresDiv(container, colors, lists) {
 		.html(`Allocated in ${lists.fundNamesList[chartState.selectedCountryProfile]}`)
 	descriptionDiv.append("span")
 		.attr("class", classPrefix + "spanYearValue")
-		.html(`in ${chartState.selectedYearCountryProfile.length === 1 ? chartState.selectedYearCountryProfile : createYearsList()}`); //CHANGED
+		.html(`in ${chartState.selectedYearCountryProfile.length === 1 ? chartState.selectedYearCountryProfile : createYearsList()}`);
 
 	const allocationsValuePlusUnit = allocationsDiv.append("div")
 		.attr("class", classPrefix + "valuePlusUnit");
@@ -698,13 +698,13 @@ function setDefaultYear(originalData, yearsArrayCerf, yearsArrayCbpf) {
 		const cbpfValue = dataCbpf.find(e => e.year === years[index]);
 		if (chartState.selectedFund === "total" || chartState.selectedFund === "cerf/cbpf") {
 			if (cerfValue || cbpfValue) {
-				chartState.selectedYearCountryProfile = [years[index]]; //CHANGED
+				chartState.selectedYearCountryProfile = [years[index]];
 				break;
 			};
 		} else {
 			const thisFundValue = chartState.selectedFund === "cerf" ? cerfValue : cbpfValue;
 			if (thisFundValue) {
-				chartState.selectedYearCountryProfile = [years[index]]; //CHANGED
+				chartState.selectedYearCountryProfile = [years[index]];
 				break;
 			};
 		};
@@ -713,7 +713,7 @@ function setDefaultYear(originalData, yearsArrayCerf, yearsArrayCbpf) {
 
 function disableFunds(data, fundButtons) {
 	["cerf", "cbpf"].forEach(fund => {
-		const filteredData = data.filter(e => chartState.selectedYearCountryProfile.includes(e.year)); //CHANGED
+		const filteredData = data.filter(e => chartState.selectedYearCountryProfile.includes(e.year));
 		const fundInData = filteredData.some(d => d[fund]);
 		if (fund === chartState.selectedFund && !fundInData) {
 			chartState.selectedFund = "total";

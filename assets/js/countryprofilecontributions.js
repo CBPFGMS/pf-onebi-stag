@@ -93,11 +93,11 @@ function createCountryProfileContributions(container, lists, colors, tooltipDiv,
 			yearsArrayCbpf = createYearsArray(originalData);
 		};
 
-		const thisYear = originalData.find(e => chartState.selectedYearCountryProfile.includes(e.year)); //CHANGED
+		const thisYear = originalData.find(e => chartState.selectedYearCountryProfile.includes(e.year));
 
 		if (resetYear || !thisYear) setDefaultYear(originalData, yearsArrayCbpf);
 
-		yearsButtons.classed("active", d => chartState.selectedYearCountryProfile.includes(d)); //CHANGED
+		yearsButtons.classed("active", d => chartState.selectedYearCountryProfile.includes(d));
 
 		const data = processData(originalData, lists);
 
@@ -199,7 +199,7 @@ function createHeaderRow(container) {
 function drawTopFigures(data, container, colors, syncedTransition, tooltipDiv) {
 
 	container.select(`.${classPrefix}spanYearValue`)
-		.html(`in ${chartState.selectedYearCountryProfile.length === 1 ? chartState.selectedYearCountryProfile : createYearsList()}`); //CHANGED
+		.html(`in ${chartState.selectedYearCountryProfile.length === 1 ? chartState.selectedYearCountryProfile : createYearsList()}`);
 
 	container.select(`.${classPrefix}contributionsValue`)
 		.transition(syncedTransition)
@@ -292,7 +292,7 @@ function createTopFiguresDiv(container, colors, lists) {
 		.html(`Contributions for ${lists.fundNamesList[chartState.selectedCountryProfile]}`)
 	descriptionDiv.append("span")
 		.attr("class", classPrefix + "spanYearValue")
-		.html(`in ${chartState.selectedYearCountryProfile.length === 1 ? chartState.selectedYearCountryProfile : createYearsList()}`); //CHANGED
+		.html(`in ${chartState.selectedYearCountryProfile.length === 1 ? chartState.selectedYearCountryProfile : createYearsList()}`);
 
 	const contributionsValuePlusUnit = contributionsDiv.append("div")
 		.attr("class", classPrefix + "valuePlusUnit");
@@ -639,7 +639,7 @@ function processData(originalData, lists) {
 	};
 
 	originalData.forEach(row => {
-		if (chartState.selectedYearCountryProfile.includes(row.year)) { //CHANGED
+		if (chartState.selectedYearCountryProfile.includes(row.year)) {
 			row.values.forEach(innerRow => {
 				if (chartState.selectedYearCountryProfile.length === 1) {
 					data.cbpfData.push(JSON.parse(JSON.stringify(innerRow)));
@@ -675,7 +675,7 @@ function setDefaultYear(originalData, years) {
 	while (--index >= 0) {
 		const cbpfValue = originalData.find(e => e.year === filteredYears[index]);
 		if (cbpfValue) {
-			chartState.selectedYearCountryProfile = [filteredYears[index]]; //CHANGED
+			chartState.selectedYearCountryProfile = [filteredYears[index]];
 			break;
 		};
 	};
