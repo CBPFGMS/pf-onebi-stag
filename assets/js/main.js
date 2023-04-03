@@ -989,14 +989,14 @@ function fetchFile(fileName, url, warningString, method, dataDescription) {
 		const fetchMethod = method === "csv" ? d3.csv : d3.json;
 		const rowFunction = method === "csv" ? d => verifyRow(d, dataDescription, url) : null;
 		return fetchMethod(url, rowFunction).then(fetchedData => {
-			// try {
-			// 	localStorage.setItem(fileName, JSON.stringify({
-			// 		data: method === "csv" ? d3.csvFormat(fetchedData) : fetchedData,
-			// 		timestamp: currentDate.getTime()
-			// 	}));
-			// } catch (error) {
-			// 	console.info("PFBI chart, " + error);
-			// };
+			try {
+				localStorage.setItem(fileName, JSON.stringify({
+					data: method === "csv" ? d3.csvFormat(fetchedData) : fetchedData,
+					timestamp: currentDate.getTime()
+				}));
+			} catch (error) {
+				console.info("PFBI chart, " + error);
+			};
 			console.info("PFBI chart info: " + warningString + " from API");
 			return fetchedData;
 		});
