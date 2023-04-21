@@ -227,24 +227,25 @@ for (const key in parameters) {
 if (!defaultValues.year) defaultValues.year = currentYear;
 
 //|load master tables, world map and csv data
-Promise.all([fetchFile("unworldmap", unworldmapUrl, "world map", "json"),
-fetchFile("masterFunds", masterFundsUrl, "master table for funds", "json"),
-fetchFile("masterDonors", masterDonorsUrl, "master table for donors", "json"),
-fetchFile("masterAllocationTypes", masterAllocationTypesUrl, "master table for allocation types", "json"),
-fetchFile("masterFundTypes", masterFundTypesUrl, "master table for fund types", "json"),
-fetchFile("masterPartnerTypes", masterPartnerTypesUrl, "master table for partner types", "json"),
-fetchFile("masterClusterTypes", masterClusterTypesUrl, "master table for cluster types", "json"),
-fetchFile("masterUnAgenciesTypes", masterUnAgenciesUrl, "master table for UN agencies", "json"),
-fetchFile("masterPartners", masterPartnersUrl, "master table for partners", "json"),
-fetchFile((parameters.showClosedFunds ? "allocationsDataClosedFunds" : "allocationsData"),
-	(parameters.showClosedFunds ? allocationsDataUrlClosedFunds : allocationsDataUrl),
-	"allocations data" + (parameters.showClosedFunds ? " (with closed funds)" : ""), "csv", dataFilters.allocationsData),
-fetchFile((parameters.showClosedFunds ? "contributionsDataClosedFunds" : "contributionsData"),
-	(parameters.showClosedFunds ? contributionsDataUrlClosedFunds : contributionsDataUrl),
-	"contributions data" + (parameters.showClosedFunds ? " (with closed funds)" : ""), "csv", dataFilters.contributionsData),
-fetchFile("allocationsMonthlyData", allocationsMonthlyDataUrl, "allocations data by month", "csv", dataFilters.allocationsMonthlyData),
-fetchFile("lastModified", lastModifiedUrl, "last modified date", "json"),
-fetchFile("adminLevel1Data", adminLevel1DataUrl, "Admin level 1", "csv", dataFilters.adminLevel1Data)
+Promise.all([
+	fetchFile("unworldmap", unworldmapUrl, "world map", "json"),
+	fetchFile("masterFunds", masterFundsUrl, "master table for funds", "json"),
+	fetchFile("masterDonors", masterDonorsUrl, "master table for donors", "json"),
+	fetchFile("masterAllocationTypes", masterAllocationTypesUrl, "master table for allocation types", "json"),
+	fetchFile("masterFundTypes", masterFundTypesUrl, "master table for fund types", "json"),
+	fetchFile("masterPartnerTypes", masterPartnerTypesUrl, "master table for partner types", "json"),
+	fetchFile("masterClusterTypes", masterClusterTypesUrl, "master table for cluster types", "json"),
+	fetchFile("masterUnAgenciesTypes", masterUnAgenciesUrl, "master table for UN agencies", "json"),
+	fetchFile("masterPartners", masterPartnersUrl, "master table for partners", "json"),
+	fetchFile((parameters.showClosedFunds ? "allocationsDataClosedFunds" : "allocationsData"),
+		(parameters.showClosedFunds ? allocationsDataUrlClosedFunds : allocationsDataUrl),
+		"allocations data" + (parameters.showClosedFunds ? " (with closed funds)" : ""), "csv", dataFilters.allocationsData),
+	fetchFile((parameters.showClosedFunds ? "contributionsDataClosedFunds" : "contributionsData"),
+		(parameters.showClosedFunds ? contributionsDataUrlClosedFunds : contributionsDataUrl),
+		"contributions data" + (parameters.showClosedFunds ? " (with closed funds)" : ""), "csv", dataFilters.contributionsData),
+	fetchFile("allocationsMonthlyData", allocationsMonthlyDataUrl, "allocations data by month", "csv", dataFilters.allocationsMonthlyData),
+	fetchFile("lastModified", lastModifiedUrl, "last modified date", "json"),
+	fetchFile("adminLevel1Data", adminLevel1DataUrl, "Admin level 1", "csv", dataFilters.adminLevel1Data)
 ])
 	.then(rawData => controlCharts(rawData));
 
