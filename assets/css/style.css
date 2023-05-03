@@ -1914,9 +1914,19 @@ a.video-tutorial{color:#333;}
     font-weight: 600;
 }
 
+.pfbicdtooltipTotalValueDiv {
+	height: 28px;
+	font-family: "Roboto", sans-serif;
+	font-size: 13px;
+}
+
+.pfbicdtooltipTotalValueSpan {
+	font-weight: 600;
+}
+
 #pfbicdtooltipDiv > div:nth-child(1){
 	width: 645px !important;
-    height: 335px !important;
+    height: 355px !important;
 }
 
 #pfbicdtooltipDiv > div:nth-child(1) > div:nth-child(2) {
