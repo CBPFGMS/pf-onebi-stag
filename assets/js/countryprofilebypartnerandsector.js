@@ -497,7 +497,7 @@ function drawSelectionChart(data, container, syncedTransition, colors, tooltip, 
 	const cardContainer = container.select(`.${classPrefix}selectionChartDivContent`);
 
 	let partnersCard = cardContainer.selectAll(`.${classPrefix}partnersCard`)
-		.data(data, d => d.partnerType);
+		.data(data, d => d.sector);
 
 	const partnersCardExit = partnersCard.exit()
 		.remove();
