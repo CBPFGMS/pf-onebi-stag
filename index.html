@@ -15,6 +15,16 @@
     <link href="assets/css/style.css" rel="stylesheet" />
     <script src="assets/js/CheckBrowserCompatibility.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-1884029-23"></script>
+	<script>
+        if(/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
+            // true for mobile device
+            if (document.location.hostname.search("pfdata.unocha.org") !== -1) {
+                window.location.href = 'https://pfdata.unocha.org/mobileapp/index.html'; 
+            } else{
+                window.location.href = 'https://cbpfgms.github.io/pf-onebi-stag/mobileapp/index.html'; 
+            }
+        }
+    </script>
 </head>
 <body class="sb-nav-fixed">
     <!--Main Nav-->
@@ -429,15 +439,5 @@
     <script src="assets/js/fallbacks.js"></script>
     <script type="module" src="./assets/js/main.js"></script>
     <script>SimpleScrollbar.initAll();</script>
-    <script>
-        if(/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
-            // true for mobile device
-            if (document.location.hostname.search("pfdata.unocha.org") !== -1) {
-                window.location.href = 'https://pfdata.unocha.org/mobileapp/index.html'; 
-            } else{
-                window.location.href = 'https://cbpfgms.github.io/pf-onebi-stag/mobileapp/index.html'; 
-            }
-        }
-    </script>
 </body>
 </html>
