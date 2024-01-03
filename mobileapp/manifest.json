@@ -4,7 +4,7 @@
 	"lang": "en",
 	"name": "OCHA Country Profile",
 	"short_name": "OCHA Country Profile",
-	"start_url": "/?utm_source=web_app_manifest",
+	"start_url": "https://cbpfgms.github.io/pf-onebi-stag/mobileapp/index.html",
 	"orientation": "portrait",
 	"theme_color": "#3289C9",
 	"icons": [
