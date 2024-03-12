@@ -5,6 +5,7 @@ const generalClassPrefix = "pfbihp",
 	helpPortalUrl =
 		"https://gms.unocha.org/content/pooled-funds-business-intelligence",
 	dateFormat = d3.utcFormat("_%Y%m%d_%H%M%S_UTC"),
+	csvWithSemicolon = d3.dsvFormat(";"),
 	sidenavWidth = document.getElementById("layoutSidenav_nav").offsetWidth;
 
 const buttonsObject = {
@@ -141,7 +142,7 @@ const buttonsObject = {
 					.append("div")
 					.attr("class", "dialogBody");
 				dialogBody.html(
-					"It seems that your system may not use commas as the delimiter in the CSV files. To avoid issues, the data will be downloaded as a Tab Separated Values (TSV) file. Do you want to proceed?"
+					"It seems that your system may not use commas as the delimiter in the CSV files. Please find below an option to download a CSV using semicolon (;) as the delimiter."
 				);
 				const buttons = dialogBody
 					.append("div")
@@ -154,7 +155,7 @@ const buttonsObject = {
 
 				const csvButton = buttons
 					.append("button")
-					.html("No, download CSV")
+					.html("Regular CSV")
 					.on("click", () => {
 						dialog.node().close();
 						dotSeparator = true;
@@ -163,7 +164,7 @@ const buttonsObject = {
 
 				const proceedButton = buttons
 					.append("button")
-					.html("Ok, download TSV")
+					.html("CSV with semicolon")
 					.on("click", () => {
 						dialog.node().close();
 						downloadFile();
@@ -197,7 +198,7 @@ const buttonsObject = {
 					);
 					fileName = "Allocations";
 				}
-				fileName += dotSeparator ? ".csv" : ".tsv";
+				fileName += ".csv";
 				const blob = new Blob(
 					[csv],
 					dotSeparator
@@ -306,7 +307,6 @@ function createAllocationsCsv(allocationsData, lists, dotSeparator) {
 	const data = [];
 
 	allocationsData.forEach(row => {
-		console.log(chartState.selectedYear === row.AllocationYear);
 		if (
 			chartState.selectedYear === row.AllocationYear &&
 			(chartState.selectedFund.includes(
@@ -327,7 +327,7 @@ function createAllocationsCsv(allocationsData, lists, dotSeparator) {
 			});
 	});
 
-	return d3.tsvFormat(data);
+	return dotSeparator ? d3.csvFormat(data) : csvWithSemicolon.format(data);
 }
 
 function createContributionsCsv(contributionsData, lists, dotSeparator) {
@@ -359,7 +359,7 @@ function createContributionsCsv(contributionsData, lists, dotSeparator) {
 		}
 	});
 
-	return d3.csvFormat(data);
+	return dotSeparator ? d3.csvFormat(data) : csvWithSemicolon.format(data);
 }
 
 function createCountryCsv(countryData, lists, dotSeparator) {
@@ -378,7 +378,7 @@ function createCountryCsv(countryData, lists, dotSeparator) {
 		});
 	});
 
-	return d3.csvFormat(data);
+	return dotSeparator ? d3.csvFormat(data) : csvWithSemicolon.format(data);
 }
 
 function createSnapshot(type, fromContextMenu, selections) {
