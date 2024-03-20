@@ -132,7 +132,8 @@ const buttonsObject = {
 
 		downloadIcon.on("click", () => {
 			let csv, fileName;
-			let dotSeparator = usesDotAsDecimalSeparator();
+			// let dotSeparator = usesDotAsDecimalSeparator(); //commented out to force showing the dialog
+			let dotSeparator = false;
 
 			if (dotSeparator) {
 				downloadFile();
@@ -142,7 +143,7 @@ const buttonsObject = {
 					.append("div")
 					.attr("class", "dialogBody");
 				dialogBody.html(
-					"It seems that your system may not use commas as the delimiter in the CSV files. Please find below an option to download a CSV using semicolon (;) as the delimiter."
+					"In certain countries or regions, the CSV (Comma-Separated Values) format may use a different delimiter character instead of a comma (,). Please find below an option to download a CSV using semicolon (;) as the delimiter."
 				);
 				const buttons = dialogBody
 					.append("div")
