@@ -118,9 +118,6 @@ const regionCentroids = {
 
 function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData, adminLevel1Data, selections, colorsObject, lists, yearsArrayTotal, queryStringObject) {
 
-	d3.select("#pfbihpPlayButton")
-		.property("disabled", false);
-
 	const pooledFundsInData = createListMenuData(rawAllocationsData, lists);
 
 	cerfId = +Object.keys(lists.fundTypesList).find(e => lists.fundTypesList[e] === "cerf");
@@ -153,6 +150,12 @@ function createCountryProfile(worldMap, rawAllocationsData, rawContributionsData
 };
 
 function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArrayTotal, colors, worldMap) {
+
+	d3.select("#pfbihpPlayButton")
+		.property("disabled", true);
+
+	d3.select("#pfbihpDownloadButton")
+		.property("disabled", true);
 
 	chartState.selectedYear = currentYear;
 	chartState.selectedFund = "total";
@@ -826,6 +829,9 @@ function createYearsButtons(container, yearsDataSet, outerDiv, tooltipDivYears) 
 
 	d3.select("#pfbihpPlayButton")
 		.property("disabled", !yearsDataSet.size);
+
+	d3.select("#pfbihpDownloadButton")
+		.property("disabled", false);
 
 	container.selectChildren().remove();
 

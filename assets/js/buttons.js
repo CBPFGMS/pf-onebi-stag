@@ -132,10 +132,9 @@ const buttonsObject = {
 
 		downloadIcon.on("click", () => {
 			let csv, fileName;
-			// let dotSeparator = usesDotAsDecimalSeparator(); //commented out to force showing the dialog
-			let dotSeparator = false;
+			let commaAsGroupSeparator = usesCommaAsGroupSeparator();
 
-			if (dotSeparator) {
+			if (commaAsGroupSeparator) {
 				downloadFile();
 			} else {
 				const dialog = containerSelection.append("dialog");
@@ -159,7 +158,7 @@ const buttonsObject = {
 					.html("Regular CSV")
 					.on("click", () => {
 						dialog.node().close();
-						dotSeparator = true;
+						commaAsGroupSeparator = true;
 						downloadFile();
 					});
 
@@ -179,15 +178,24 @@ const buttonsObject = {
 					csv = createContributionsCsv(
 						rawContributionsData,
 						lists,
-						dotSeparator
+						commaAsGroupSeparator
 					);
 					fileName = "Contributions";
 				} else if (chartState.selectedChart === "countryProfile") {
-					const countryData = rawAllocationsData.filter(
+					const allocationsData = rawAllocationsData.filter(
 						e =>
 							e.PooledFundId === chartState.selectedCountryProfile
 					);
-					csv = createCountryCsv(countryData, lists, dotSeparator);
+					const contributionsData = rawContributionsData.filter(
+						e =>
+							e.PooledFundId === chartState.selectedCountryProfile
+					);
+					csv = createCountryProfileCsv(
+						allocationsData,
+						contributionsData,
+						lists,
+						commaAsGroupSeparator
+					);
 					fileName =
 						lists.fundNamesList[chartState.selectedCountryProfile] +
 						"_CountryProfile";
@@ -195,14 +203,14 @@ const buttonsObject = {
 					csv = createAllocationsCsv(
 						rawAllocationsData,
 						lists,
-						dotSeparator
+						commaAsGroupSeparator
 					);
 					fileName = "Allocations";
 				}
 				fileName += ".csv";
 				const blob = new Blob(
 					[csv],
-					dotSeparator
+					commaAsGroupSeparator
 						? { type: "text/csv;charset=utf-8;" }
 						: { type: "text/tsv;charset=utf-8;" }
 				);
@@ -304,7 +312,7 @@ function loopYears(yearsArray, selections) {
 	}
 }
 
-function createAllocationsCsv(allocationsData, lists, dotSeparator) {
+function createAllocationsCsv(allocationsData, lists, commaAsGroupSeparator) {
 	const data = [];
 
 	allocationsData.forEach(row => {
@@ -328,10 +336,16 @@ function createAllocationsCsv(allocationsData, lists, dotSeparator) {
 			});
 	});
 
-	return dotSeparator ? d3.csvFormat(data) : csvWithSemicolon.format(data);
+	return commaAsGroupSeparator
+		? d3.csvFormat(data)
+		: csvWithSemicolon.format(data);
 }
 
-function createContributionsCsv(contributionsData, lists, dotSeparator) {
+function createContributionsCsv(
+	contributionsData,
+	lists,
+	commaAsGroupSeparator
+) {
 	const data = [];
 
 	contributionsData.forEach(row => {
@@ -360,10 +374,12 @@ function createContributionsCsv(contributionsData, lists, dotSeparator) {
 		}
 	});
 
-	return dotSeparator ? d3.csvFormat(data) : csvWithSemicolon.format(data);
+	return commaAsGroupSeparator
+		? d3.csvFormat(data)
+		: csvWithSemicolon.format(data);
 }
 
-function createCountryCsv(countryData, lists, dotSeparator) {
+function createCountryCsv(countryData, lists, commaAsGroupSeparator) {
 	const data = [];
 
 	countryData.forEach(row => {
@@ -379,7 +395,106 @@ function createCountryCsv(countryData, lists, dotSeparator) {
 		});
 	});
 
-	return dotSeparator ? d3.csvFormat(data) : csvWithSemicolon.format(data);
+	return commaAsGroupSeparator
+		? d3.csvFormat(data)
+		: csvWithSemicolon.format(data);
+}
+
+function createCountryProfileCsv(
+	countryDataAllocation,
+	countryDataContribution,
+	lists,
+	commaAsGroupSeparator
+) {
+	const data = [];
+
+	if (chartState.selectedCountryProfileTab === "Overview") {
+		countryDataAllocation.forEach(row => {
+			data.push({
+				Year: row.AllocationYear,
+				Fund: lists.fundTypesList[row.FundId].toUpperCase(),
+				Sector: lists.clustersList[row.ClusterId],
+				"Allocation Source":
+					lists.allocationTypesList[row.AllocationSurceId],
+				"Number of projects": row.NumbofProj,
+				"Partner Type": lists.partnersList[row.OrganizatinonId],
+				Budget: row.ClusterBudget,
+			});
+		});
+	}
+	if (chartState.selectedCountryProfileTab === "Allocations by Partner") {
+		countryDataAllocation.forEach(row => {
+			if (
+				chartState.selectedYearCountryProfile.includes(
+					row.AllocationYear
+				)
+			) {
+				data.push({
+					Year: row.AllocationYear,
+					Fund: lists.fundTypesList[row.FundId].toUpperCase(),
+					"Partner Name": lists.partnersNamesList[row.PartnerCode],
+					"Partner Type": lists.partnersList[row.OrganizatinonId],
+					Budget: row.ClusterBudget,
+				});
+			}
+		});
+	}
+	if (chartState.selectedCountryProfileTab === "Allocations by Sector") {
+		countryDataAllocation.forEach(row => {
+			if (
+				chartState.selectedYearCountryProfile.includes(
+					row.AllocationYear
+				)
+			) {
+				data.push({
+					Year: row.AllocationYear,
+					Fund: lists.fundTypesList[row.FundId].toUpperCase(),
+					Sector: lists.clustersList[row.ClusterId],
+					Budget: row.ClusterBudget,
+				});
+			}
+		});
+	}
+	if (
+		chartState.selectedCountryProfileTab === "Allocations by Partner/Sector"
+	) {
+		countryDataAllocation.forEach(row => {
+			if (
+				chartState.selectedYearCountryProfile.includes(
+					row.AllocationYear
+				)
+			) {
+				data.push({
+					Year: row.AllocationYear,
+					Fund: lists.fundTypesList[row.FundId].toUpperCase(),
+					"Partner Name": lists.partnersNamesList[row.PartnerCode],
+					"Partner Type": lists.partnersList[row.OrganizatinonId],
+					Sector: lists.clustersList[row.ClusterId],
+					Budget: row.ClusterBudget,
+				});
+			}
+		});
+	}
+	if (chartState.selectedCountryProfileTab === "Contributions by Donor") {
+		countryDataContribution.forEach(row => {
+			if (
+				chartState.selectedYearCountryProfile.includes(row.FiscalYear)
+			) {
+				data.push({
+					Year: row.FiscalYear,
+					Fund: lists.fundNamesList[row.PooledFundId],
+					Donor: lists.donorNamesList[row.DonorId],
+					"Pledge Date": row.PledgePaidDate,
+					"Pledge Amount": row.PledgeAmt,
+					"Paid Amount": row.PaidAmt,
+					Total: row.PledgeAmt + row.PaidAmt,
+				});
+			}
+		});
+	}
+	return commaAsGroupSeparator
+		? d3.csvFormat(data)
+		: csvWithSemicolon.format(data);
 }
 
 function createSnapshot(type, fromContextMenu, selections) {
@@ -675,11 +790,11 @@ function downloadSnapshotPdf(source, selections) {
 	//end of downloadSnapshotPdf
 }
 
-function usesDotAsDecimalSeparator() {
+function usesCommaAsGroupSeparator() {
 	const numberFormatter = new Intl.NumberFormat([], { style: "decimal" });
-	const parts = numberFormatter.formatToParts(1.1);
-	const separator = parts.find(part => part.type === "decimal").value;
-	return separator === ".";
+	const parts = numberFormatter.formatToParts(1000);
+	const separator = parts.find(part => part.type === "group").value;
+	return separator === ",";
 }
 
 function createProgressWheel(thissvg, thiswidth, thisheight, thistext) {
