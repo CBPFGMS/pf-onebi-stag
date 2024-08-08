@@ -362,7 +362,7 @@ function createAllocations(selections, colors, mapData, lists) {
 			"Multi-purpose",
 			"Emergency Telecom.",
 			"Mine Action",
-			"TBD",
+			"To be determined",
 			"Food Aid"
 		]);
 
