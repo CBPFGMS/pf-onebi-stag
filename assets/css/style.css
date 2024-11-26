@@ -563,7 +563,7 @@ body {
 	display: flex;
 	align-items: center;
 	border-radius: 3px;
-	background-color: #fbd45c;
+	background-color: #ffcb05;
 }
 
 .cerf-link .icon-chart {
@@ -576,7 +576,7 @@ body {
 }
 
 .cerf-link:hover .icon-chart {
-	background-color: #fbd45c;
+	background-color: #ffcb05;
 }
 
 .cerf-link .icon-chart svg {
