@@ -275,9 +275,14 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 	alphabetButtons.on("click", (event, datum) => {
 		selectedAlphabet = datum;
 		alphabetButtons.classed("active", d => selectedAlphabet === d);
-		countries.style("display", d => datum === "all" || lists.fundNamesList[d.fund][0].toLowerCase() === datum.toLowerCase() ?
-			null : "none");
+		countries.style("display", d => displayCountries(d, datum));
 	});
+
+	function displayCountries(d, datum){
+		const countryName = lists.fundNamesList[d.fund];
+		const upperCaseLettersArray = countryName.match(/[A-Z]/g).map(e => e.toLowerCase());
+		return datum === "all" || upperCaseLettersArray.includes(datum.toLowerCase()) ? null : "none";
+	}
 
 	return countries;
 
