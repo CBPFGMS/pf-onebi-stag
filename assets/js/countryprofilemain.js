@@ -157,6 +157,8 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 	d3.select("#pfbihpDownloadButton")
 		.property("disabled", true);
 
+		//TODO: check why this is different from the prod version
+
 	chartState.selectedYear = currentYear;
 	chartState.selectedFund = "total";
 
@@ -837,6 +839,8 @@ function createYearsButtons(container, yearsDataSet, outerDiv, tooltipDivYears) 
 
 	d3.select("#pfbihpDownloadButton")
 		.property("disabled", false);
+		//TODO: check why this is different from the prod version
+		
 
 	container.selectChildren().remove();
 
