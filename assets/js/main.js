@@ -80,7 +80,8 @@ const generalClassPrefix = "pfbihp",
 		cbpfAnalogous: ["#B52625", "#CE2E2D", cbpfColor, "#F79C8F"],
 	},
 	queryStringValues = new URLSearchParams(location.search),
-	defaultValues = {};
+	defaultValues = {},
+	rhpfToCountry = {};
 
 //|constants populated with the data
 const yearsArrayAllocations = [],
@@ -400,9 +401,11 @@ function controlCharts([
 		cbpfFundsList: cbpfFundsList,
 	};
 
+	createRhpfToCountryMap(masterFunds);
+
 	populateLastModified(lastModified);
 
-	preProcessData(rawAllocationsData, rawContributionsData);
+	preProcessData(rawAllocationsData, rawContributionsData, lists);
 
 	validateDefault(queryStringObject);
 
@@ -1010,7 +1013,7 @@ function mouseoutTopFigures() {
 	topTooltipDiv.html(null).style("display", "none");
 }
 
-function preProcessData(rawAllocationsData, rawContributionsData) {
+function preProcessData(rawAllocationsData, rawContributionsData, lists) {
 	const yearsSetAllocations = new Set();
 	const yearsSetAllocationsCbpf = new Set();
 	const yearsSetAllocationsCerf = new Set();
@@ -1025,6 +1028,20 @@ function preProcessData(rawAllocationsData, rawContributionsData) {
 			yearsSetAllocationsCerf.add(+row.AllocationYear);
 		} else {
 			yearsSetAllocationsCbpf.add(+row.AllocationYear);
+		}
+		if (
+			lists.fundNamesList[row.PooledFundId].toLowerCase().includes("rhpf")
+		) {
+			if (rhpfToCountry[row.PooledFundId]) {
+				row.PooledFundId = rhpfToCountry[row.PooledFundId];
+			} else {
+				if (!isPfbiSite) {
+					console.warn(
+						"RHPF to country mapping not found for " +
+							row.PooledFundId
+					);
+				}
+			}
 		}
 	});
 
@@ -1686,4 +1703,21 @@ function stopTimer() {
 		.html("PLAY  ")
 		.append("span")
 		.attr("class", "fas fa-play");
+}
+
+//This is an ad hoc solution for aggregating
+//regular fundas and their rhpf counterparts
+function createRhpfToCountryMap(masterFunds) {
+	masterFunds.forEach(fund => {
+		if (fund.PooledFundName.toLowerCase().includes("rhpf")) {
+			const regularFund = masterFunds.find(
+				e =>
+					e.CountryCode === fund.CountryCode &&
+					!e.PooledFundName.toLowerCase().includes("rhpf")
+			);
+			if (regularFund) {
+				rhpfToCountry[fund.id] = regularFund.id;
+			}
+		}
+	});
 }
