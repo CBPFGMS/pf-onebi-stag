@@ -154,9 +154,8 @@ function createListMenu(selections, lists, pooledFundsInData, outerDiv, yearsArr
 	d3.select("#pfbihpPlayButton")
 		.property("disabled", true);
 
-	//TODO: Revert this
-	// d3.select("#pfbihpDownloadButton")
-	// 	.property("disabled", true);
+	d3.select("#pfbihpDownloadButton")
+		.property("disabled", true);
 
 		//TODO: check why this is different from the prod version
 
@@ -722,11 +721,6 @@ function drawCountryProfile(worldMap, rawAllocationsData, pooledFundsInData, raw
 			yearsButtons = createYearsButtons(yearsButtonsDiv, d === tabsData[tabsData.length - 1] ? yearsSetContributions : yearsSetAllocations, outerDiv, tooltipDivYears);
 			yearsButtons.on("click.main", (_, d) => setQueryString("year", d, lists));
 		};
-
-		//TODO: revert this
-		if(chartState.selectedCountryProfile === 67 && d.includes("Partner")){
-			return
-		}
 		
 		chartState.selectedCountryProfileTab = d;
 		fundsButtons.style("display", e => d === tabsData[tabsData.length - 1] || ((d === tabsData[1] || d === tabsData[3]) && e === "cerf/cbpf") ? "none" : null);
@@ -844,9 +838,8 @@ function createYearsButtons(container, yearsDataSet, outerDiv, tooltipDivYears) 
 	d3.select("#pfbihpPlayButton")
 		.property("disabled", !yearsDataSet.size);
 
-	//TODO: Revert this
-	// d3.select("#pfbihpDownloadButton")
-	// 	.property("disabled", false);
+	d3.select("#pfbihpDownloadButton")
+		.property("disabled", false);
 		//TODO: check why this is different from the prod version
 		
 

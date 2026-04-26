@@ -27,10 +27,9 @@ const buttonsObject = {
 			.append("button")
 			.attr("id", generalClassPrefix + "HelpButton");
 
-		//TODO: Revert this
-		// const downloadIcon = containerSelection
-		// 	.append("button")
-		// 	.attr("id", generalClassPrefix + "DownloadButton");
+		const downloadIcon = containerSelection
+			.append("button")
+			.attr("id", generalClassPrefix + "DownloadButton");
 
 		const playIcon = containerSelection
 			.append("button")
@@ -99,11 +98,10 @@ const buttonsObject = {
 
 		helpIcon.html("HELP  ").append("span").attr("class", "fas fa-info");
 
-		//TODO: revert this
-		// downloadIcon
-		// 	.html(".CSV  ")
-		// 	.append("span")
-		// 	.attr("class", "fas fa-download");
+		downloadIcon
+			.html(".CSV  ")
+			.append("span")
+			.attr("class", "fas fa-download");
 
 		playIcon.html("PLAY  ").append("span").attr("class", "fas fa-play");
 
@@ -132,104 +130,103 @@ const buttonsObject = {
 			window.open(helpPortalUrl, "help_portal");
 		});
 
-		//TODO: revert this
-		// downloadIcon.on("click", () => {
-		// 	let csv, fileName;
-		// 	let commaAsGroupSeparator = usesCommaAsGroupSeparator();
+		downloadIcon.on("click", () => {
+			let csv, fileName;
+			let commaAsGroupSeparator = usesCommaAsGroupSeparator();
 
-		// 	if (commaAsGroupSeparator) {
-		// 		downloadFile();
-		// 	} else {
-		// 		const dialog = containerSelection.append("dialog");
-		// 		const dialogBody = dialog
-		// 			.append("div")
-		// 			.attr("class", "dialogBody");
-		// 		dialogBody.html(
-		// 			"In certain countries or regions, the CSV (Comma-Separated Values) format may use a different delimiter character instead of a comma (,). Please find below an option to download a CSV using semicolon (;) as the delimiter.",
-		// 		);
-		// 		const buttons = dialogBody
-		// 			.append("div")
-		// 			.attr("class", "dialogButtons");
+			if (commaAsGroupSeparator) {
+				downloadFile();
+			} else {
+				const dialog = containerSelection.append("dialog");
+				const dialogBody = dialog
+					.append("div")
+					.attr("class", "dialogBody");
+				dialogBody.html(
+					"In certain countries or regions, the CSV (Comma-Separated Values) format may use a different delimiter character instead of a comma (,). Please find below an option to download a CSV using semicolon (;) as the delimiter.",
+				);
+				const buttons = dialogBody
+					.append("div")
+					.attr("class", "dialogButtons");
 
-		// 		const closeButton = buttons
-		// 			.append("button")
-		// 			.html("Cancel")
-		// 			.on("click", () => dialog.node().close());
+				const closeButton = buttons
+					.append("button")
+					.html("Cancel")
+					.on("click", () => dialog.node().close());
 
-		// 		const csvButton = buttons
-		// 			.append("button")
-		// 			.html("Regular CSV")
-		// 			.on("click", () => {
-		// 				dialog.node().close();
-		// 				commaAsGroupSeparator = true;
-		// 				downloadFile();
-		// 			});
+				const csvButton = buttons
+					.append("button")
+					.html("Regular CSV")
+					.on("click", () => {
+						dialog.node().close();
+						commaAsGroupSeparator = true;
+						downloadFile();
+					});
 
-		// 		const proceedButton = buttons
-		// 			.append("button")
-		// 			.html("CSV with semicolon")
-		// 			.on("click", () => {
-		// 				dialog.node().close();
-		// 				downloadFile();
-		// 			});
+				const proceedButton = buttons
+					.append("button")
+					.html("CSV with semicolon")
+					.on("click", () => {
+						dialog.node().close();
+						downloadFile();
+					});
 
-		// 		dialog.node().showModal();
-		// 	}
+				dialog.node().showModal();
+			}
 
-		// 	function downloadFile() {
-		// 		if (chartState.selectedChart.includes("contributions")) {
-		// 			csv = createContributionsCsv(
-		// 				rawContributionsData,
-		// 				lists,
-		// 				commaAsGroupSeparator,
-		// 			);
-		// 			fileName = "Contributions";
-		// 		} else if (chartState.selectedChart === "countryProfile") {
-		// 			const allocationsData = rawAllocationsData.filter(
-		// 				e =>
-		// 					e.PooledFundId ===
-		// 					chartState.selectedCountryProfile,
-		// 			);
-		// 			const contributionsData = rawContributionsData.filter(
-		// 				e =>
-		// 					e.PooledFundId ===
-		// 					chartState.selectedCountryProfile,
-		// 			);
-		// 			csv = createCountryProfileCsv(
-		// 				allocationsData,
-		// 				contributionsData,
-		// 				lists,
-		// 				commaAsGroupSeparator,
-		// 			);
-		// 			fileName =
-		// 				lists.fundNamesList[chartState.selectedCountryProfile] +
-		// 				"_CountryProfile";
-		// 		} else {
-		// 			csv = createAllocationsCsv(
-		// 				rawAllocationsData,
-		// 				lists,
-		// 				commaAsGroupSeparator,
-		// 			);
-		// 			fileName = "Allocations";
-		// 		}
-		// 		fileName += ".csv";
-		// 		const blob = new Blob(
-		// 			[csv],
-		// 			commaAsGroupSeparator
-		// 				? { type: "text/csv;charset=utf-8;" }
-		// 				: { type: "text/tsv;charset=utf-8;" },
-		// 		);
-		// 		const blobUrl = URL.createObjectURL(blob);
-		// 		const link = document.createElement("a");
-		// 		link.setAttribute("href", blobUrl);
-		// 		link.setAttribute("download", fileName);
-		// 		link.style = "visibility:hidden";
-		// 		document.body.appendChild(link);
-		// 		link.click();
-		// 		document.body.removeChild(link);
-		// 		URL.revokeObjectURL(blob);
-		// 	}
-		// });
+			function downloadFile() {
+				if (chartState.selectedChart.includes("contributions")) {
+					csv = createContributionsCsv(
+						rawContributionsData,
+						lists,
+						commaAsGroupSeparator,
+					);
+					fileName = "Contributions";
+				} else if (chartState.selectedChart === "countryProfile") {
+					const allocationsData = rawAllocationsData.filter(
+						e =>
+							e.PooledFundId ===
+							chartState.selectedCountryProfile,
+					);
+					const contributionsData = rawContributionsData.filter(
+						e =>
+							e.PooledFundId ===
+							chartState.selectedCountryProfile,
+					);
+					csv = createCountryProfileCsv(
+						allocationsData,
+						contributionsData,
+						lists,
+						commaAsGroupSeparator,
+					);
+					fileName =
+						lists.fundNamesList[chartState.selectedCountryProfile] +
+						"_CountryProfile";
+				} else {
+					csv = createAllocationsCsv(
+						rawAllocationsData,
+						lists,
+						commaAsGroupSeparator,
+					);
+					fileName = "Allocations";
+				}
+				fileName += ".csv";
+				const blob = new Blob(
+					[csv],
+					commaAsGroupSeparator
+						? { type: "text/csv;charset=utf-8;" }
+						: { type: "text/tsv;charset=utf-8;" },
+				);
+				const blobUrl = URL.createObjectURL(blob);
+				const link = document.createElement("a");
+				link.setAttribute("href", blobUrl);
+				link.setAttribute("download", fileName);
+				link.style = "visibility:hidden";
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+				URL.revokeObjectURL(blob);
+			}
+		});
 
 		playIcon.on("click", (_, d) => {
 			d.clicked = !d.clicked;
