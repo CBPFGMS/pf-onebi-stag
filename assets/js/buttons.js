@@ -2,10 +2,15 @@
 import { chartState } from "./chartstate.js";
 
 const generalClassPrefix = "pfbihp",
+	allocationsBySectorDataUrl =
+		"https://cbpfgms.github.io/pfbi-data/download/pfmb_allocations.csv",
+	allocationsDataUrl =
+		"https://cbpfgms.github.io/pfbi-data/download/full_pfmb_allocations.csv",
+	contributionsDataUrl =
+		"https://cbpfgms.github.io/pfbi-data/download/pfmb_contributions.csv",
 	helpPortalUrl =
 		"https://gms.unocha.org/content/pooled-funds-business-intelligence",
 	dateFormat = d3.utcFormat("_%Y%m%d_%H%M%S_UTC"),
-	csvWithSemicolon = d3.dsvFormat(";"),
 	sidenavWidth = document.getElementById("layoutSidenav_nav").offsetWidth;
 
 const buttonsObject = {
@@ -20,8 +25,7 @@ const buttonsObject = {
 		duration,
 		selections,
 		rawAllocationsData,
-		rawContributionsData,
-		lists,
+		lists
 	) {
 		const helpIcon = containerSelection
 			.append("button")
@@ -50,7 +54,7 @@ const buttonsObject = {
 					chartState.currentTooltip.style("display", "none");
 				if (chartState.currentHoveredElement)
 					d3.select(chartState.currentHoveredElement).dispatch(
-						"mouseout",
+						"mouseout"
 					);
 			});
 
@@ -131,100 +135,33 @@ const buttonsObject = {
 		});
 
 		downloadIcon.on("click", () => {
-			let csv, fileName;
-			let commaAsGroupSeparator = usesCommaAsGroupSeparator();
-
-			if (commaAsGroupSeparator) {
-				downloadFile();
-			} else {
-				const dialog = containerSelection.append("dialog");
-				const dialogBody = dialog
-					.append("div")
-					.attr("class", "dialogBody");
-				dialogBody.html(
-					"In certain countries or regions, the CSV (Comma-Separated Values) format may use a different delimiter character instead of a comma (,). Please find below an option to download a CSV using semicolon (;) as the delimiter.",
+			if (chartState.selectedChart.includes("contributions")) {
+				window.open(contributionsDataUrl, "_blank");
+			} else if (chartState.selectedChart === "allocationsBySector") {
+				window.open(allocationsBySectorDataUrl, "_blank");
+			} else if (chartState.selectedChart === "countryProfile") {
+				const countryData = rawAllocationsData.filter(
+					e => e.PooledFundId === chartState.selectedCountryProfile
 				);
-				const buttons = dialogBody
-					.append("div")
-					.attr("class", "dialogButtons");
-
-				const closeButton = buttons
-					.append("button")
-					.html("Cancel")
-					.on("click", () => dialog.node().close());
-
-				const csvButton = buttons
-					.append("button")
-					.html("Regular CSV")
-					.on("click", () => {
-						dialog.node().close();
-						commaAsGroupSeparator = true;
-						downloadFile();
-					});
-
-				const proceedButton = buttons
-					.append("button")
-					.html("CSV with semicolon")
-					.on("click", () => {
-						dialog.node().close();
-						downloadFile();
-					});
-
-				dialog.node().showModal();
-			}
-
-			function downloadFile() {
-				if (chartState.selectedChart.includes("contributions")) {
-					csv = createContributionsCsv(
-						rawContributionsData,
-						lists,
-						commaAsGroupSeparator,
-					);
-					fileName = "Contributions";
-				} else if (chartState.selectedChart === "countryProfile") {
-					const allocationsData = rawAllocationsData.filter(
-						e =>
-							e.PooledFundId ===
-							chartState.selectedCountryProfile,
-					);
-					const contributionsData = rawContributionsData.filter(
-						e =>
-							e.PooledFundId ===
-							chartState.selectedCountryProfile,
-					);
-					csv = createCountryProfileCsv(
-						allocationsData,
-						contributionsData,
-						lists,
-						commaAsGroupSeparator,
-					);
-					fileName =
-						lists.fundNamesList[chartState.selectedCountryProfile] +
-						"_CountryProfile";
-				} else {
-					csv = createAllocationsCsv(
-						rawAllocationsData,
-						lists,
-						commaAsGroupSeparator,
-					);
-					fileName = "Allocations";
-				}
-				fileName += ".csv";
-				const blob = new Blob(
-					[csv],
-					commaAsGroupSeparator
-						? { type: "text/csv;charset=utf-8;" }
-						: { type: "text/tsv;charset=utf-8;" },
-				);
+				const csv = createCountryCsv(countryData, lists);
+				const blob = new Blob([csv], {
+					type: "text/csv;charset=utf-8;",
+				});
 				const blobUrl = URL.createObjectURL(blob);
 				const link = document.createElement("a");
 				link.setAttribute("href", blobUrl);
-				link.setAttribute("download", fileName);
+				link.setAttribute(
+					"download",
+					lists.fundNamesList[chartState.selectedCountryProfile] +
+						"_CountryProfile"
+				);
 				link.style = "visibility:hidden";
 				document.body.appendChild(link);
 				link.click();
 				document.body.removeChild(link);
 				URL.revokeObjectURL(blob);
+			} else {
+				window.open(allocationsDataUrl, "_blank");
 			}
 		});
 
@@ -236,8 +173,8 @@ const buttonsObject = {
 				chartState.selectedFund === "cerf/cbpf"
 					? yearsArrayAllocations
 					: chartState.selectedFund === "cerf"
-						? yearsArrayAllocationsCerf
-						: yearsArrayAllocationsCbpf;
+					? yearsArrayAllocationsCerf
+					: yearsArrayAllocationsCbpf;
 
 			const yearsArray =
 				chartState.selectedChart !== "contributionsByCerfCbpf"
@@ -257,7 +194,7 @@ const buttonsObject = {
 				this.playing = true;
 				this.timer = d3.interval(
 					() => loopYears(yearsArray, selections),
-					3 * duration,
+					3 * duration
 				);
 			} else {
 				selections.buttonsOuterContainer
@@ -281,7 +218,7 @@ function loopYears(yearsArray, selections) {
 			.filter((_, i, n) => +d3.select(n[i]).style("opacity") === 1);
 		const yearsArrayCountryProfile = yearButtons.data();
 		let yearIndex = yearsArrayCountryProfile.indexOf(
-			chartState.selectedYearCountryProfile[0],
+			chartState.selectedYearCountryProfile[0]
 		);
 		chartState.selectedYearCountryProfile = [
 			yearsArrayCountryProfile[
@@ -289,10 +226,10 @@ function loopYears(yearsArray, selections) {
 			],
 		];
 		d3.select("#pfbihpyearNumberText").text(
-			chartState.selectedYearCountryProfile[0],
+			chartState.selectedYearCountryProfile[0]
 		);
 		const thisYearButton = yearButtons.filter(
-			d => d === chartState.selectedYearCountryProfile[0],
+			d => d === chartState.selectedYearCountryProfile[0]
 		);
 		thisYearButton.dispatch("playButtonClick");
 	} else {
@@ -314,74 +251,7 @@ function loopYears(yearsArray, selections) {
 	}
 }
 
-function createAllocationsCsv(allocationsData, lists, commaAsGroupSeparator) {
-	const data = [];
-
-	allocationsData.forEach(row => {
-		if (
-			chartState.selectedYear === row.AllocationYear &&
-			(chartState.selectedFund.includes(
-				lists.fundTypesList[row.FundId],
-			) ||
-				chartState.selectedFund === "total" ||
-				chartState.selectedFund === "cerf/cbpf")
-		)
-			data.push({
-				Year: row.AllocationYear,
-				Fund: lists.fundTypesList[row.FundId].toUpperCase(),
-				Sector: lists.clustersList[row.ClusterId],
-				"Allocation Source":
-					lists.allocationTypesList[row.AllocationSurceId],
-				"Number of projects": row.NumbofProj,
-				"Partner Type": lists.partnersList[row.OrganizatinonId],
-				Budget: row.ClusterBudget,
-			});
-	});
-
-	return commaAsGroupSeparator
-		? d3.csvFormat(data)
-		: csvWithSemicolon.format(data);
-}
-
-function createContributionsCsv(
-	contributionsData,
-	lists,
-	commaAsGroupSeparator,
-) {
-	const data = [];
-
-	contributionsData.forEach(row => {
-		const validYear =
-			chartState.selectedChart === "contributionsByDonor" ||
-			chartState.selectedYear === row.FiscalYear ||
-			isNaN(+chartState.selectedYear);
-		const validFund =
-			chartState.selectedChart === "contributionsByCerfCbpf" ||
-			chartState.selectedFund === "cerf/cbpf" ||
-			chartState.selectedFund === "total" ||
-			(chartState.selectedFund === "cerf" &&
-				lists.fundNamesList[row.PooledFundId].toLowerCase() ===
-					"cerf") ||
-			(chartState.selectedFund === "cbpf" &&
-				lists.fundNamesList[row.PooledFundId].toLowerCase() !== "cerf");
-		if (validYear && validFund) {
-			data.push({
-				Year: row.FiscalYear,
-				Fund: lists.fundNamesList[row.PooledFundId],
-				Donor: lists.donorNamesList[row.DonorId],
-				"Pledge Date": row.PledgePaidDate,
-				"Pledge Amount": row.PledgeAmt,
-				"Paid Amount": row.PaidAmt,
-			});
-		}
-	});
-
-	return commaAsGroupSeparator
-		? d3.csvFormat(data)
-		: csvWithSemicolon.format(data);
-}
-
-function createCountryCsv(countryData, lists, commaAsGroupSeparator) {
+function createCountryCsv(countryData, lists) {
 	const data = [];
 
 	countryData.forEach(row => {
@@ -397,106 +267,7 @@ function createCountryCsv(countryData, lists, commaAsGroupSeparator) {
 		});
 	});
 
-	return commaAsGroupSeparator
-		? d3.csvFormat(data)
-		: csvWithSemicolon.format(data);
-}
-
-function createCountryProfileCsv(
-	countryDataAllocation,
-	countryDataContribution,
-	lists,
-	commaAsGroupSeparator,
-) {
-	const data = [];
-
-	if (chartState.selectedCountryProfileTab === "Overview") {
-		countryDataAllocation.forEach(row => {
-			data.push({
-				Year: row.AllocationYear,
-				Fund: lists.fundTypesList[row.FundId].toUpperCase(),
-				Sector: lists.clustersList[row.ClusterId],
-				"Allocation Source":
-					lists.allocationTypesList[row.AllocationSurceId],
-				"Number of projects": row.NumbofProj,
-				"Partner Type": lists.partnersList[row.OrganizatinonId],
-				Budget: row.ClusterBudget,
-			});
-		});
-	}
-	if (chartState.selectedCountryProfileTab === "Allocations by Partner") {
-		countryDataAllocation.forEach(row => {
-			if (
-				chartState.selectedYearCountryProfile.includes(
-					row.AllocationYear,
-				)
-			) {
-				data.push({
-					Year: row.AllocationYear,
-					Fund: lists.fundTypesList[row.FundId].toUpperCase(),
-					"Partner Name": lists.partnersNamesList[row.PartnerCode],
-					"Partner Type": lists.partnersList[row.OrganizatinonId],
-					Budget: row.ClusterBudget,
-				});
-			}
-		});
-	}
-	if (chartState.selectedCountryProfileTab === "Allocations by Sector") {
-		countryDataAllocation.forEach(row => {
-			if (
-				chartState.selectedYearCountryProfile.includes(
-					row.AllocationYear,
-				)
-			) {
-				data.push({
-					Year: row.AllocationYear,
-					Fund: lists.fundTypesList[row.FundId].toUpperCase(),
-					Sector: lists.clustersList[row.ClusterId],
-					Budget: row.ClusterBudget,
-				});
-			}
-		});
-	}
-	if (
-		chartState.selectedCountryProfileTab === "Allocations by Partner/Sector"
-	) {
-		countryDataAllocation.forEach(row => {
-			if (
-				chartState.selectedYearCountryProfile.includes(
-					row.AllocationYear,
-				)
-			) {
-				data.push({
-					Year: row.AllocationYear,
-					Fund: lists.fundTypesList[row.FundId].toUpperCase(),
-					"Partner Name": lists.partnersNamesList[row.PartnerCode],
-					"Partner Type": lists.partnersList[row.OrganizatinonId],
-					Sector: lists.clustersList[row.ClusterId],
-					Budget: row.ClusterBudget,
-				});
-			}
-		});
-	}
-	if (chartState.selectedCountryProfileTab === "Contributions by Donor") {
-		countryDataContribution.forEach(row => {
-			if (
-				chartState.selectedYearCountryProfile.includes(row.FiscalYear)
-			) {
-				data.push({
-					Year: row.FiscalYear,
-					Fund: lists.fundNamesList[row.PooledFundId],
-					Donor: lists.donorNamesList[row.DonorId],
-					"Pledge Date": row.PledgePaidDate,
-					"Pledge Amount": row.PledgeAmt,
-					"Paid Amount": row.PaidAmt,
-					Total: row.PledgeAmt + row.PaidAmt,
-				});
-			}
-		});
-	}
-	return commaAsGroupSeparator
-		? d3.csvFormat(data)
-		: csvWithSemicolon.format(data);
+	return d3.csvFormat(data);
 }
 
 function createSnapshot(type, fromContextMenu, selections) {
@@ -559,11 +330,11 @@ function createSnapshot(type, fromContextMenu, selections) {
 	) {
 		d3.select(".pfbicpbypartnerpartnersDivCerf").style(
 			"overflow-y",
-			"visible",
+			"visible"
 		);
 		d3.select(".pfbicpbypartnerpartnersDivCbpf").style(
 			"overflow-y",
-			"visible",
+			"visible"
 		);
 		imageDiv = selections.chartContainerDiv
 			.select(".pfcpmainchartDiv")
@@ -586,7 +357,7 @@ function createSnapshot(type, fromContextMenu, selections) {
 			.style("display", "none");
 		d3.select(".pfbicpcontrchartContentCbpf").style(
 			"overflow-y",
-			"visible",
+			"visible"
 		);
 		imageDiv = selections.chartContainerDiv
 			.select(".pfcpmainchartDiv")
@@ -619,11 +390,11 @@ function createSnapshot(type, fromContextMenu, selections) {
 		) {
 			d3.select(".pfbicpbypartnerpartnersDivCerf").style(
 				"overflow-y",
-				null,
+				null
 			);
 			d3.select(".pfbicpbypartnerpartnersDivCbpf").style(
 				"overflow-y",
-				null,
+				null
 			);
 		}
 
@@ -724,7 +495,7 @@ function downloadSnapshotPdf(source, selections) {
 		210 - pdfMargins.left - pdfMargins.right,
 		{
 			fontSize: 12,
-		},
+		}
 	);
 
 	const chartTitle = "";
@@ -762,7 +533,7 @@ function downloadSnapshotPdf(source, selections) {
 		},
 		function (position) {
 			pdfTextPosition = position;
-		},
+		}
 	);
 
 	pdf.addImage(
@@ -771,7 +542,7 @@ function downloadSnapshotPdf(source, selections) {
 		pdfMargins.left,
 		pdfTextPosition.y + 2,
 		widthInMilimeters,
-		heightInMilimeters,
+		heightInMilimeters
 	);
 
 	const currentDate = new Date();
@@ -792,20 +563,13 @@ function downloadSnapshotPdf(source, selections) {
 	//end of downloadSnapshotPdf
 }
 
-function usesCommaAsGroupSeparator() {
-	const numberFormatter = new Intl.NumberFormat([], { style: "decimal" });
-	const parts = numberFormatter.formatToParts(1000);
-	const separator = parts.find(part => part.type === "group").value;
-	return separator === ",";
-}
-
 function createProgressWheel(thissvg, thiswidth, thisheight, thistext) {
 	const wheelGroup = thissvg
 		.append("g")
 		.attr("class", generalClassPrefix + "d3chartwheelGroup")
 		.attr(
 			"transform",
-			"translate(" + thiswidth / 2 + "," + thisheight / 5 + ")",
+			"translate(" + thiswidth / 2 + "," + thisheight / 5 + ")"
 		);
 
 	const loadingText = wheelGroup
@@ -865,7 +629,7 @@ function createProgressWheel(thissvg, thiswidth, thisheight, thistext) {
 
 function removeProgressWheel() {
 	const wheelGroup = d3.select(
-		"." + generalClassPrefix + "d3chartwheelGroup",
+		"." + generalClassPrefix + "d3chartwheelGroup"
 	);
 	wheelGroup.select("path").interrupt();
 	wheelGroup.remove();

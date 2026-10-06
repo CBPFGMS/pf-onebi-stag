@@ -436,7 +436,6 @@ function controlCharts([
 		duration,
 		selections,
 		rawAllocationsData,
-		rawContributionsData,
 		lists
 	);
 
